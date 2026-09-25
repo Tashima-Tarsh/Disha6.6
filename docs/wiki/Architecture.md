@@ -7,6 +7,7 @@ flowchart TD
     U["Analyst or API client"] --> A["Next.js routes and sessions"]
     A --> O["Mission orchestration"]
     O --> S["Admitted sources and optional adapters"]
+    O --> V["Vyuha Defense Engine & NFU Policy"]
     O --> P["Policy gate"]
     P --> E["Evidence and mission stores"]
     E --> D["PostgreSQL, pgvector, PostGIS"]
@@ -18,7 +19,7 @@ flowchart TD
 
 1. A screen or API client submits a typed request. Route handlers validate it and obtain a principal for non-health actions.
 2. Orchestration selects governed lenses and source adapters. Source output retains provenance; a registered adapter may be unavailable or blocked.
-3. Policy evaluates the requested action, sensitivity and evidence context. Unsafe paths are denied or restricted.
+3. Policy evaluates the requested action, sensitivity, Vyuha defense formation proposals, and evidence context. Unsafe paths are denied or restricted.
 4. Evidence events and mission summaries are recorded when durable storage is configured. The response can be reviewed or exported by an authorized user.
 5. Scheduled work runs through the worker and persistence contracts. A failed source probe is not converted into a verified dashboard fact.
 
@@ -28,6 +29,7 @@ flowchart TD
 | --- | --- | --- |
 | HTTP and UI | `web/app/`, `web/components/` | Authentication and validated inputs before sensitive work |
 | Policy and mission logic | `web/lib/unified/` | Typed contracts, explicit decision and evidence trail |
+| Vyuha Defense Engine | `skills/vyuha-defense-engine/`, `web/lib/extensions/vyuha-defense.ts` | No-First-Use defensive proposals; requires policy gate approval |
 | Persistence and audit | `web/lib/server/`, `web/database/` | Production requires a durable `DATABASE_URL` |
 | Background work | `web/scripts/dynamic-worker.mjs` | Internal worker token and persisted lease/workflow state |
 | Brain | `disha/brain/` | Optional isolated analysis behind a governed adapter |

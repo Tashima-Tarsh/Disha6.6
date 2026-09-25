@@ -12,8 +12,6 @@ A Next.js product and bounded Python research service that connect source observ
 
 [Overview](#overview) · [Architecture](#architecture) · [Capabilities](#capabilities) · [Run locally](#run-locally) · [Documentation](#documentation) · [Security](#security-and-governance) · [Status](#status-and-limitations)
 
-</div>
-
 ## Overview
 
 disha6.6 is a Constitutional Evidence Operating System for analysts and teams working with public and admitted sources. It is built around a practical question: can a reviewer reconstruct how an intelligence result was produced? A mission links its inputs, source observations, policy evaluation, evidence events, and resulting report. Model output is advisory; it does not turn an unsupported assertion into a verified fact.
@@ -29,6 +27,7 @@ flowchart TD
     U["Browser and API clients"] --> W["Next.js web and API"]
     W --> P["Mission orchestration and policy"]
     P --> S["Governed source adapters"]
+    P --> V["Vyuha Defense Engine & NFU policies"]
     P --> E["Evidence ledger and review"]
     E --> DB["PostgreSQL, pgvector, PostGIS"]
     P --> B["Optional Python Brain"]
@@ -41,7 +40,8 @@ The web application owns authentication, API contracts, policy decisions, and us
 | --- | --- | --- |
 | Web and API | Next.js 16, React 19, TypeScript | `web/app/`, `web/lib/` |
 | Governed intelligence | Typed contracts, orchestration, policy, evidence | `web/lib/unified/` |
-| Bounded research | Python Brain service | `disha/brain/` |
+| Vyuha Defense Engine | No-First-Use defensive formation planner, policies & adapters | `skills/vyuha-defense-engine/`, `web/lib/extensions/vyuha-defense.ts`, `policies/` |
+| Bounded research | Python Brain service & Vyuha playbooks | `disha/brain/` |
 | Data | PostgreSQL 16, pgvector, PostGIS; optional Redis | `web/database/`, `infra/postgres/` |
 | UI and maps | MapLibre, React Map GL, deck.gl | `web/components/`, `web/app/` |
 | Verification | Vitest, ESLint, TypeScript, pytest, CodeQL, GitHub Actions | `web/tests/`, `tests/`, `.github/workflows/` |
@@ -52,12 +52,17 @@ The web application owns authentication, API contracts, policy decisions, and us
 | --- | --- | --- |
 | Mission workbench | Structured mission inputs, orchestration, policy result, evidence export | Authenticated actions; source claims need provenance |
 | Evidence ledger | Ordered evidence events, hashes, retrieval and verification | Persistent production store requires `DATABASE_URL` |
+| Vyuha Cyber Defense | No-First-Use (NFU) posture planning, containment proposals & honeypot telemetry intake | Proposes defensive actions only; policy gate prevents unauthorized execution |
 | Source and OSINT catalog | Public-source registry, passive adapters, service connector metadata | Listed sources are not automatically executable |
 | Intelligence workspace | Search, watches, review queue, state and change tracking | Some outputs depend on configured sources and workers |
 | Geospatial command | MapLibre display and PostGIS-backed admitted geometry | Authoritative overlays require imported, admitted data |
 | AI and extensions | Controlled model routes and optional Brain/extension adapters | Policy and evidence controls precede promotion into results |
 
 The UI routes are `/login`, `/dashboard`, `/workbench`, `/intelligence`, `/surveillance`, and `/system`. [Wiki: capabilities and status](docs/wiki/Capabilities-and-Status.md) distinguishes working paths, optional services, and unfinished deployment work.
+
+### Vyuha Cyber Defense Subsystem
+
+The **Vyuha Defense Engine** operates strictly under the **No-First-Use (NFU)** defensive doctrine defined in [`policies/no-first-use-policy.md`](policies/no-first-use-policy.md). It evaluates incoming indicators against tactical formation models (e.g., *Kurma*, *Chakra*, *Padma*) in `skills/vyuha-defense-engine/` and `disha/brain/vyuha/`. Tactical recommendations are ingested by the Next.js runtime via [`web/lib/extensions/vyuha-defense.ts`](web/lib/extensions/vyuha-defense.ts) as proposals only; no defensive containment or honeypot action executes without passing the central Policy Gate and being recorded in the Evidence Ledger.
 
 ## Run locally
 

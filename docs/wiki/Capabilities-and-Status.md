@@ -6,6 +6,7 @@ This page describes the repository implementation, not a certification of a live
 | --- | --- | --- | --- |
 | Web product | `web/app/` and `web/tests/` | Active | Configured host and auth |
 | Governed mission and policy | `web/lib/unified/`, `/api/v1/mission` | Implemented | Admitted sources for substantive results |
+| Vyuha Cyber Defense | `skills/vyuha-defense-engine/`, `web/lib/extensions/vyuha-defense.ts` | Active extension | Admitted evidence, policy gate approval |
 | Evidence and persistence | `web/lib/unified/evidence-ledger.ts`, SQL migrations | Implemented | Durable PostgreSQL |
 | Passive OSINT | Adapter bus, registry and search route | Implemented with source-specific limits | Network, provider availability and policy |
 | Geospatial | MapLibre components and PostGIS migrations | Implemented, data dependent | Imported/admitted authoritative data |
