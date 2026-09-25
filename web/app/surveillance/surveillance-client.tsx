@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -62,17 +62,17 @@ export function SurveillanceClient({ initialGeo }: { initialGeo: OperationalFeat
         const time = new Date().toLocaleTimeString();
         if (rand > 0.85) {
           setLogs((prev) => [
-            { id: String(Date.now()), time, category: "threat", message: Infiltration probe on Port  deflected by Vyuha Policy Gate. },
+            { id: String(Date.now()), time, category: "threat", message: `Infiltration probe on Port ${Math.floor(Math.random() * 9000) + 1000} deflected by Vyuha Policy Gate.` },
             ...prev.slice(0, 19),
           ]);
         } else if (rand > 0.72) {
           setLogs((prev) => [
-            { id: String(Date.now()), time, category: "evidence", message: Cryptographic hash chain validated for mission block #MIS-. },
+            { id: String(Date.now()), time, category: "evidence", message: `Cryptographic hash chain validated for mission block #MIS-${Math.floor(Math.random() * 900) + 100}.` },
             ...prev.slice(0, 19),
           ]);
         } else {
           setLogs((prev) => [
-            { id: String(Date.now()), time, category: "sat", message: GS-04 telemetry pulse verified across Indian Subcontinent spatial boundary. },
+            { id: String(Date.now()), time, category: "sat", message: "GS-04 telemetry pulse verified across Indian Subcontinent spatial boundary." },
             ...prev.slice(0, 19),
           ]);
         }
@@ -198,12 +198,12 @@ export function SurveillanceClient({ initialGeo }: { initialGeo: OperationalFeat
               {VYUHA_FORMATIONS.map((formation) => (
                 <button
                   key={formation.id}
-                  className={${styles.formationBtn} }
+                  className={`${styles.formationBtn} ${selectedFormation === formation.id ? styles.formationBtnActive : ""}`}
                   onClick={() => {
                     setSelectedFormation(formation.id);
                     const time = new Date().toLocaleTimeString();
                     setLogs((prev) => [
-                      { id: String(Date.now()), time, category: "vyuha", message: Formation switched to :  },
+                      { id: String(Date.now()), time, category: "vyuha", message: `Formation switched to ${formation.name}: ${formation.desc}` },
                       ...prev,
                     ]);
                   }}
@@ -235,7 +235,15 @@ export function SurveillanceClient({ initialGeo }: { initialGeo: OperationalFeat
               <div key={log.id} className={styles.logLine}>
                 <span className={styles.logTime}>[{log.time}]</span>
                 <span
-                  className={${styles.logBadge} }
+                  className={`${styles.logBadge} ${
+                    log.category === "threat"
+                      ? styles.badgeThreat
+                      : log.category === "vyuha"
+                      ? styles.badgeVyuha
+                      : log.category === "evidence"
+                      ? styles.badgeEvidence
+                      : styles.badgeSat
+                  }`}
                 >
                   {log.category.toUpperCase()}
                 </span>
