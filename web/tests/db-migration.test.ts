@@ -127,6 +127,19 @@ describe("DISHA database migration contract", () => {
     expect(supabaseVerifier).toContain("supabase_extension_inventory");
   });
 
+  it("binds production migration OIDC to the current Disha6.6 repository identity", () => {
+    const functionSource = fs.readFileSync(
+      path.join(repoRoot, "supabase/functions/github-production-migrate/index.ts"),
+      "utf8",
+    );
+
+    expect(functionSource).toContain('const REPOSITORY = "Tashima-Tarsh/Disha6.6"');
+    expect(functionSource).toContain(
+      'const WORKFLOW_REF = "Tashima-Tarsh/Disha6.6/.github/workflows/db-migrations.yml@refs/heads/main"',
+    );
+    expect(functionSource).toContain('const REPOSITORY_ID = "1205353755"');
+  });
+
   it("runs database migration before the web service in compose deployments", () => {
     const compose = fs.readFileSync(path.join(repoRoot, "docker-compose.yml"), "utf8");
     const prodCompose = fs.readFileSync(path.join(repoRoot, "docker-compose.prod.yml"), "utf8");
