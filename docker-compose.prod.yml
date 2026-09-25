@@ -2,7 +2,10 @@ name: disha-production
 
 services:
   postgres:
-    image: pgvector/pgvector:pg16
+    build:
+      context: .
+      dockerfile: infra/postgres/Dockerfile
+    image: disha-postgres:pg16-vector-postgis
     environment:
       POSTGRES_DB: disha
       POSTGRES_USER: disha
@@ -80,8 +83,6 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgresql://disha:${POSTGRES_PASSWORD:?set-postgres-password}@postgres:5432/disha
     depends_on:
-      web-migrate:
-        condition: service_completed_successfully
       postgres:
         condition: service_healthy
     read_only: true
@@ -121,8 +122,8 @@ services:
       DISHA_EMBEDDING_TIMEOUT_MS: ${DISHA_EMBEDDING_TIMEOUT_MS:-5000}
       DISHA_EMBEDDING_API_KEY: ""
     depends_on:
-      postgres:
-        condition: service_healthy
+      web-migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
       embeddings:
