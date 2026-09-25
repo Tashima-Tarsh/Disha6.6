@@ -9,8 +9,6 @@ const webRoot = path.resolve(__dirname, "..");
 describe("DISHA database migration contract", () => {
   it("keeps the migration runner valid JavaScript", () => {
     expect(() => execFileSync(process.execPath, ["--check", path.join(webRoot, "scripts/apply-schema.mjs")])).not.toThrow();
-    expect(() => execFileSync(process.execPath, ["--check", path.join(webRoot, "scripts/supabase-compatibility.mjs")])).not.toThrow();
-    expect(() => execFileSync(process.execPath, ["--check", path.join(webRoot, "scripts/github-oidc-production-migrate.mjs")])).not.toThrow();
   });
 
   it("keeps the production schema aligned with evidence, mission, and extension persistence", () => {
@@ -94,7 +92,6 @@ describe("DISHA database migration contract", () => {
   it("adds durable continuous OSINT watches, runs, indexes, and RLS", () => {
     const migration = fs.readFileSync(path.join(webRoot, "database/202609190002_continuous_osint.sql"), "utf8");
     const runner = fs.readFileSync(path.join(webRoot, "scripts/apply-schema.mjs"), "utf8");
-    const oidc = fs.readFileSync(path.join(webRoot, "scripts/github-oidc-production-migrate.mjs"), "utf8");
     expect(migration).toContain("create table if not exists continuous_osint_watches");
     expect(migration).toContain("create table if not exists continuous_osint_runs");
     expect(migration).toContain("continuous_osint_watches_due_idx");
@@ -106,7 +103,6 @@ describe("DISHA database migration contract", () => {
     expect(runner).toContain('"202609190002"');
     expect(runner).toContain('"continuous_osint_watches"');
     expect(runner).toContain('"continuous_osint_runs"');
-    expect(oidc).toContain('"202609190002"');
   });
 
   it("exposes explicit migration commands from the web package", () => {
@@ -115,29 +111,8 @@ describe("DISHA database migration contract", () => {
     expect(packageJson.scripts["db:migrate"]).toBe("node scripts/apply-schema.mjs");
     expect(packageJson.scripts["db:verify-schema"]).toBe("node scripts/apply-schema.mjs --verify-only");
     expect(packageJson.scripts["db:rollback"]).toBe("node scripts/apply-schema.mjs --rollback");
-    expect(packageJson.scripts["db:supabase-bootstrap"]).toBe("node scripts/supabase-compatibility.mjs");
-    expect(packageJson.scripts["db:supabase-verify"]).toBe("node scripts/supabase-compatibility.mjs --verify-only");
-    expect(packageJson.scripts["db:production-oidc"]).toBe("node scripts/github-oidc-production-migrate.mjs");
     expect(packageJson.scripts["geo:import"]).toBe("node scripts/geospatial/import-authoritative-geojson.mjs");
     expect(packageJson.scripts.start).toBe("node scripts/start-production.mjs");
-    const supabaseBootstrap = fs.readFileSync(path.join(webRoot, "database/providers/supabase.sql"), "utf8");
-    expect(supabaseBootstrap).toContain("create extension if not exists vector with schema extensions");
-    expect(supabaseBootstrap).toContain("create extension if not exists postgis with schema extensions");
-    const supabaseVerifier = fs.readFileSync(path.join(webRoot, "scripts/supabase-compatibility.mjs"), "utf8");
-    expect(supabaseVerifier).toContain("supabase_extension_inventory");
-  });
-
-  it("binds production migration OIDC to the current Disha6.6 repository identity", () => {
-    const functionSource = fs.readFileSync(
-      path.join(repoRoot, "supabase/functions/github-production-migrate/index.ts"),
-      "utf8",
-    );
-
-    expect(functionSource).toContain('const REPOSITORY = "Tashima-Tarsh/Disha6.6"');
-    expect(functionSource).toContain(
-      'const WORKFLOW_REF = "Tashima-Tarsh/Disha6.6/.github/workflows/db-migrations.yml@refs/heads/main"',
-    );
-    expect(functionSource).toContain('const REPOSITORY_ID = "1205353755"');
   });
 
   it("runs database migration before the web service in compose deployments", () => {
@@ -151,34 +126,18 @@ describe("DISHA database migration contract", () => {
     }
   });
 
-  it("runs migration rehearsal and approved production migration in GitHub Actions", () => {
+  it("rehearses migrations and validates the self-hosted production stack in CI", () => {
     const workflow = fs.readFileSync(path.join(repoRoot, ".github/workflows/db-migrations.yml"), "utf8");
-
-    expect(workflow).toContain("pgvector/pgvector:pg16");
-    expect(workflow).toContain("Install PostGIS in pgvector rehearsal container");
-    expect(workflow).toContain("postgresql-16-postgis-3");
+    const prodCompose = fs.readFileSync(path.join(repoRoot, "docker-compose.prod.yml"), "utf8");
+    const databaseImage = fs.readFileSync(path.join(repoRoot, "infra/postgres/Dockerfile"), "utf8");
     expect(workflow).toContain("npm run db:migrate");
     expect(workflow).toContain("npm run db:verify-schema");
     expect(workflow).toContain("npm run db:rollback");
-    expect(workflow).not.toContain("environment:\n      name: production");
-    expect(workflow).not.toContain("PRODUCTION_DATABASE_URL");
-    expect(workflow).toContain("id-token: write");
-    expect(workflow).toContain("npm run db:production-oidc");
-    expect(workflow).toContain("github-production-migrate-v3");
-    expect(workflow).not.toContain("RUN_PRODUCTION_MIGRATIONS");
-    expect(workflow).toContain("(github.event_name == 'push' && github.ref == 'refs/heads/main')");
-    expect(workflow).toContain("github.event_name == 'workflow_dispatch'");
-    expect(workflow).toContain("Supabase Postgres 17 + PostGIS compatibility");
-    expect(workflow).toContain("supabase/setup-cli@v3");
-    expect(workflow).toContain("version: 2.117.0");
-    expect(workflow).toContain("supabase db start");
-    expect(workflow).toContain("SUPABASE_WORKDIR");
-    expect(workflow).toContain('cd "$RUNNER_TEMP" && supabase db start');
-    expect(workflow).toContain("npm run db:supabase-bootstrap");
-    expect(workflow).toContain("npm run db:supabase-verify");
-
-    const supabaseConfig = fs.readFileSync(path.join(repoRoot, "supabase/config.toml"), "utf8");
-    expect(supabaseConfig).toContain('project_id = "disha"');
-    expect(supabaseConfig).toContain("major_version = 17");
+    expect(workflow).toContain("docker compose -f docker-compose.prod.yml config --quiet");
+    expect(workflow).toContain("docker build -f infra/postgres/Dockerfile");
+    expect(workflow).not.toContain("supabase");
+    expect(prodCompose).toContain("dockerfile: infra/postgres/Dockerfile");
+    expect(databaseImage).toContain("pgvector/pgvector:pg16");
+    expect(databaseImage).toContain("postgresql-16-postgis-3");
   });
 });

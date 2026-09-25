@@ -14,9 +14,6 @@
     "type-check": "tsc --noEmit",
     "type-check:full": "tsc --noEmit -p tsconfig.full.json",
     "test": "vitest run",
-    "db:supabase-bootstrap": "node scripts/supabase-compatibility.mjs",
-    "db:supabase-verify": "node scripts/supabase-compatibility.mjs --verify-only",
-    "db:production-oidc": "node scripts/github-oidc-production-migrate.mjs",
     "prebuild": "node scripts/copy-maplibre-assets.mjs",
     "predev": "node scripts/copy-maplibre-assets.mjs",
     "geo:import": "node scripts/geospatial/import-authoritative-geojson.mjs"
