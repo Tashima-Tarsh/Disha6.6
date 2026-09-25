@@ -4,10 +4,10 @@ import postgres from "npm:postgres@3.4.9";
 
 const AUDIENCE = "disha-supabase-production";
 const ISSUER = "https://token.actions.githubusercontent.com";
-const REPOSITORY = "Tashima-Tarsh/Disha";
+const REPOSITORY = "Tashima-Tarsh/Disha6.6";
 const REPOSITORY_ID = "1205353755";
 const REF = "refs/heads/main";
-const WORKFLOW_REF = "Tashima-Tarsh/Disha/.github/workflows/db-migrations.yml@refs/heads/main";
+const WORKFLOW_REF = "Tashima-Tarsh/Disha6.6/.github/workflows/db-migrations.yml@refs/heads/main";
 const MAX_MIGRATIONS = 32;
 const MAX_SQL_BYTES = 2_000_000;
 const githubKeys = createRemoteJWKSet(new URL(`${ISSUER}/.well-known/jwks`));
