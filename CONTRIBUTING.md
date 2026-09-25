@@ -1,12 +1,12 @@
-# Contributing to DISHA
+# Contributing to disha6.6
 
 DISHA is an evidence-first governance and intelligence project. Contributions should strengthen public-interest accountability, not add spectacle.
 
-Before contributing, read [ARCHITECTURE.md](ARCHITECTURE.md). It is the repository's single source of truth.
+Before contributing, read [ARCHITECTURE.md](ARCHITECTURE.md), the repository's canonical architecture document, and [Getting Started](docs/wiki/Getting-Started.md).
 
 ## Product Boundary
 
-DISHA v6.6 has two layers:
+disha6.6 has two layers:
 
 | Layer | Path | Rule |
 | --- | --- | --- |
@@ -63,15 +63,15 @@ git checkout -b codex/evidence-ledger-migration
 Run product-spine checks:
 
 ```bash
-npm.cmd --prefix web run type-check:full
-npm.cmd --prefix web test
-npm.cmd --prefix web run build
+npm --prefix web run type-check:full
+npm --prefix web test
+npm --prefix web run build
 ```
 
 For repository-wide verification:
 
 ```bash
-npm.cmd run verify
+npm run verify
 ```
 
 Docker defaults to the product spine:
