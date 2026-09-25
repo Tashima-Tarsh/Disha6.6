@@ -11,7 +11,7 @@ npm ci --prefix web
 npm --prefix web run dev
 ```
 
-Open `http://localhost:3000/login`. Development authentication has local-only defaults in `web/lib/server/env.ts`; do not copy them into a deployed environment.
+Open `http://localhost:3000/login`. [`web/.env.example`](https://github.com/Tashima-Tarsh/Disha6.6/blob/main/web/.env.example) is a local configuration template; set your own development credentials if you copy it. Development authentication has local-only defaults in `web/lib/server/env.ts`; do not copy them into a deployed environment.
 
 ## Database-backed development
 
