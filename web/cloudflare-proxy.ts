@@ -1,6 +1,6 @@
 const ORIGIN = "https://disha-v6-web.onrender.com";
 
-export default {
+const proxy = {
   async fetch(request: Request): Promise<Response> {
     const incomingUrl = new URL(request.url);
     const upstreamUrl = new URL(incomingUrl.pathname + incomingUrl.search, ORIGIN);
@@ -47,3 +47,5 @@ export default {
     });
   },
 };
+
+export default proxy;
