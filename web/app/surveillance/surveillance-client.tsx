@@ -41,17 +41,19 @@ const VYUHA_FORMATIONS = [
   { id: "garuda", name: "Garuda Vyuha", desc: "High-speed aerial and orbital satellite sensor synchronization.", activeThreats: 0, containmentScore: "96.8%" },
 ];
 
+const INITIAL_LOGS: LogEntry[] = [
+  { id: "1", time: "19:00:00", category: "vyuha", message: "Vyuha Chakra Formation actively shielding Mumbai Subsea & Delhi Core nodes." },
+  { id: "2", time: "18:59:55", category: "evidence", message: "Evidence Block #9482 sealed with Merkle Root hash [0x7f4a...e12d]." },
+  { id: "3", time: "18:59:48", category: "threat", message: "Port sweep intercepted from ASN 4921 -> Trapped in Padma Decoy Array." },
+  { id: "4", time: "18:59:36", category: "sat", message: "Orbital Satellite GS-04 pass synchronized -> 12 strategic ground pins refreshed." },
+];
+
 export function SurveillanceClient({ initialGeo }: { initialGeo: OperationalFeatureCollection }) {
   const [selectedFormation, setSelectedFormation] = useState("chakra");
   const [activeNode, setActiveNode] = useState<string | null>("geo-delhi-01");
   const [packetCount, setPacketCount] = useState(14820);
   const [drillActive, setDrillActive] = useState(false);
-  const [logs, setLogs] = useState<LogEntry[]>([
-    { id: "1", time: new Date().toLocaleTimeString(), category: "vyuha", message: "Vyuha Chakra Formation actively shielding Mumbai Subsea & Delhi Core nodes." },
-    { id: "2", time: new Date(Date.now() - 5000).toLocaleTimeString(), category: "evidence", message: "Evidence Block #9482 sealed with Merkle Root hash [0x7f4a...e12d]." },
-    { id: "3", time: new Date(Date.now() - 12000).toLocaleTimeString(), category: "threat", message: "Port sweep intercepted from ASN 4921 -> Trapped in Padma Decoy Array." },
-    { id: "4", time: new Date(Date.now() - 24000).toLocaleTimeString(), category: "sat", message: "Orbital Satellite GS-04 pass synchronized -> 12 strategic ground pins refreshed." },
-  ]);
+  const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
 
   // Live streaming logs
   useEffect(() => {
@@ -117,7 +119,7 @@ export function SurveillanceClient({ initialGeo }: { initialGeo: OperationalFeat
               <ArrowLeft size={16} /> Back to Dashboard
             </Link>
             <span className={styles.radarBadge}>
-              <span className={styles.pulseDot} /> God's Eye Live Radar
+              <span className={styles.pulseDot} /> God&apos;s Eye Live Radar
             </span>
           </div>
 
@@ -144,7 +146,7 @@ export function SurveillanceClient({ initialGeo }: { initialGeo: OperationalFeat
         {/* Title */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20, flexWrap: "wrap", gap: 14 }}>
           <div>
-            <h1 className={styles.titleMain}>God's Eye Tactical Surveillance & Cyber Command</h1>
+            <h1 className={styles.titleMain}>God&apos;s Eye Tactical Surveillance &amp; Cyber Command</h1>
             <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 14 }}>
               Real-time geospatial intelligence, passive reconnaissance intercept, and No-First-Use Vyuha cyber defense posture.
             </p>
