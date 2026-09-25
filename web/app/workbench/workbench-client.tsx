@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clipboard,
   Database,
+  ExternalLink,
   FileText,
   GitBranch,
   Globe2,
@@ -15,7 +16,10 @@ import {
   LockKeyhole,
   Network,
   Play,
+  Radio,
+  Search,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
@@ -177,6 +181,36 @@ type CommandFeedSummary = {
   claimChains: Array<{ claimId: string; title: string; domain: string; status: string }>;
 };
 
+type OsintEvidenceItem = {
+  id?: string;
+  sourceId: string;
+  sourceName: string;
+  summary: string;
+  evidenceClass: string;
+  provenanceHash?: string;
+  url?: string;
+  observedAt?: string;
+  data?: unknown;
+};
+
+type OsintSearchResult = {
+  query: string;
+  normalizedTarget: string;
+  kind: string;
+  executedAdapters: string[];
+  blockedCapabilities: string[];
+  runs: Array<{
+    adapterId: string;
+    status: string;
+    durationMs: number;
+    warnings: string[];
+    error?: string;
+    evidence: OsintEvidenceItem[];
+  }>;
+  evidence: OsintEvidenceItem[];
+  warnings: string[];
+};
+
 const DEFAULT_MISSION =
   "Assess a public-interest governance concern involving district infrastructure claims, CAG audit references, citizen complaints, and cyber-enabled fraud patterns. Produce a read-only evidence plan with policy gates and source-gap markers.";
 
@@ -210,6 +244,11 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
   const [error, setError] = useState<string | null>(null);
   const [commandFeed, setCommandFeed] = useState<CommandFeedSummary | null>(null);
   const [commandError, setCommandError] = useState<string | null>(null);
+
+  const [osintTarget, setOsintTarget] = useState("cert-in.org.in");
+  const [osintResult, setOsintResult] = useState<OsintSearchResult | null>(null);
+  const [osintSearching, setOsintSearching] = useState(false);
+  const [osintError, setOsintError] = useState<string | null>(null);
 
   const mission = result?.mission ?? null;
   const selectedEvent = evidence.find((event) => event.eventId === selectedEventId) ?? evidence[0] ?? null;
@@ -331,6 +370,40 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
     }
   }
 
+  async function handleOsintSearch(targetOverride?: string) {
+    const target = (targetOverride ?? osintTarget).trim();
+    if (!target) return;
+    if (targetOverride) setOsintTarget(targetOverride);
+    setOsintSearching(true);
+    setOsintError(null);
+    try {
+      const res = await fetch(`/api/v1/osint/search?q=${encodeURIComponent(target)}`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(readApiError(data, res.status));
+      }
+      setOsintResult(data.search ?? null);
+    } catch (err) {
+      setOsintError(err instanceof Error ? err.message : "OSINT search failed");
+    } finally {
+      setOsintSearching(false);
+    }
+  }
+
+  function injectOsintIntoMission(hit: OsintEvidenceItem) {
+    if (osintResult) {
+      const type = osintResult.kind === "ip" ? "ip" : osintResult.kind === "cve" ? "cve" : "domain";
+      setIndicatorType(type);
+      setIndicatorValue(osintResult.normalizedTarget);
+      setMissionText(
+        `Investigate verified open-source intelligence from ${hit.sourceName}: "${hit.summary}". Target: ${osintResult.normalizedTarget}. Evaluate public interest, security posture, and generate a constitutional evidence brief with policy gates.`
+      );
+      document.getElementById("mission-input")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
   async function copyReport() {
     const report = buildReport(result, evidence);
     try {
@@ -377,6 +450,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
       <section className={styles.grid}>
         <aside className={styles.sidebar} aria-label="Workbench navigation">
           <NavItem label="Mission Input" target="mission-input" active />
+          <NavItem label="OSINT & Recon" target="osint-console" active={Boolean(osintResult)} />
           <NavItem label="Analysis Results" target="analysis-results" active={Boolean(mission)} />
           <NavItem label="Policy Decision" target="policy-decision" active={Boolean(mission?.policyDecision)} />
           <NavItem label="Evidence Chain" target="evidence-chain" active={evidence.length > 0} />
@@ -504,6 +578,113 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
               {status === "running" ? <Loader2 className={styles.spin} size={17} /> : <Play size={17} />}
               Run governed mission
             </button>
+          </section>
+
+          <section id="osint-console" className={styles.panel}>
+            <PanelTitle icon={<Search size={18} />} title="Live OSINT & SpiderFoot Recon Console" label="Passive Multi-Source Intelligence" />
+            <p style={{ fontSize: "13px", color: "#64748b", margin: "4px 0 12px", lineHeight: "1.4" }}>
+              Execute real-time passive discovery across Certificate Transparency (crt.sh), Public DNS, RDAP registries, RIPEstat telemetry, CISA KEV, NVD CVEs, GDELT, and CelesTrak satellite tracking without active scanning.
+            </p>
+
+            <div className={styles.osintQuickPills}>
+              <span style={{ fontSize: "11px", color: "#64748b", alignSelf: "center", marginRight: "4px" }}>Quick Targets:</span>
+              {[
+                { label: "CERT-In Domain", query: "cert-in.org.in" },
+                { label: "NIC Gov Portal", query: "india.gov.in" },
+                { label: "Google DNS IP", query: "8.8.8.8" },
+                { label: "CISA KEV CVE", query: "CVE-2024-21413" },
+                { label: "Cloudflare ASN", query: "AS13335" },
+                { label: "ISRO Space", query: "isro.gov.in" },
+                { label: "ISS Satellite", query: "25544" },
+              ].map((pill) => (
+                <button
+                  key={pill.query}
+                  type="button"
+                  className={styles.osintPill}
+                  onClick={() => handleOsintSearch(pill.query)}
+                >
+                  {pill.label} ({pill.query})
+                </button>
+              ))}
+            </div>
+
+            <div className={styles.osintInputRow}>
+              <input
+                className={styles.osintInput}
+                value={osintTarget}
+                onChange={(e) => setOsintTarget(e.target.value)}
+                placeholder="Enter domain, IP, CVE, ASN, or NORAD ID..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void handleOsintSearch();
+                }}
+              />
+              <button
+                type="button"
+                className={styles.osintSearchBtn}
+                onClick={() => handleOsintSearch()}
+                disabled={osintSearching || !osintTarget.trim()}
+              >
+                {osintSearching ? <Loader2 className={styles.spin} size={15} /> : <Search size={15} />}
+                Execute OSINT Recon
+              </button>
+            </div>
+
+            {osintError ? (
+              <div className={styles.errorBox}>
+                <AlertTriangle size={18} />
+                <span>{osintError}</span>
+              </div>
+            ) : null}
+
+            {osintResult ? (
+              <div>
+                <div className={styles.osintStatsBar}>
+                  <span>Query: <strong>{osintResult.query}</strong></span>
+                  <span>Kind: <strong>{osintResult.kind}</strong></span>
+                  <span>Target: <strong>{osintResult.normalizedTarget}</strong></span>
+                  <span>Adapters: <strong>{osintResult.executedAdapters.join(", ") || "none"}</strong></span>
+                  <span>Evidence Hits: <strong>{osintResult.evidence.length}</strong></span>
+                </div>
+
+                {osintResult.evidence.length > 0 ? (
+                  <div className={styles.osintHitsGrid}>
+                    {osintResult.evidence.map((hit, idx) => (
+                      <article key={`${hit.sourceId}-${idx}`} className={styles.osintHitCard}>
+                        <header>
+                          <span className={styles.osintBadge}>{hit.evidenceClass || "OSINT"}</span>
+                          <strong>{hit.sourceName}</strong>
+                        </header>
+                        <p>{hit.summary}</p>
+                        {hit.url ? (
+                          <p style={{ margin: "2px 0 6px" }}>
+                            <a
+                              href={hit.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ color: "#38bdf8", textDecoration: "none", fontSize: "11px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                            >
+                              <ExternalLink size={11} /> Source Verification Link
+                            </a>
+                          </p>
+                        ) : null}
+                        {hit.data ? (
+                          <pre className={styles.osintJsonBox}>{JSON.stringify(hit.data, null, 2)}</pre>
+                        ) : null}
+                        <button
+                          type="button"
+                          className={styles.injectBtn}
+                          onClick={() => injectOsintIntoMission(hit)}
+                        >
+                          <Sparkles size={12} /> Inject into Mission Analysis
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState text="No direct evidence records returned from passive search. Try another query." />
+                )}
+              </div>
+            ) : null}
           </section>
 
           <section className={styles.summaryGrid}>
