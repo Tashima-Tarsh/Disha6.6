@@ -46,7 +46,7 @@ jobs:
             echo "::notice::Cloudflare API deployment secrets are not configured; relying on the existing Cloudflare Git integration."
           fi
 
-      - name: Deploy DISHA edge proxy
+      - name: Deploy disha6.6 edge proxy
         if: steps.cloudflare.outputs.configured == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
