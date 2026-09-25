@@ -16,8 +16,8 @@ export const surveillanceIntelligenceExtension: GovernedExtension = {
     sourcePaths: [SOURCE_PATH],
     inputContract: "MissionResult",
     outputContract: "GovernedExtensionAnalysis",
-    policyBoundary: "Only public-source, owned-device, consented-forensics and defensive privacy analysis are admitted.",
-    evidenceBoundary: "Every imported finding must retain upstream tool identity, version/source reference and collection context.",
+    policyBoundary: "DISHA policy permits only public-source, owned-device, consented-forensics and defensive privacy analysis; all other execution is denied.",
+    evidenceBoundary: "Every imported finding must become evidence with upstream tool identity, version/source reference, collection context, and ledger provenance.",
     defensivePosture: "defensive_only",
     requiredControls: ["source provenance", "authorization context", "PII minimization", "tool/version attribution"],
     currentLimitations: [
