@@ -8,8 +8,8 @@ import { SystemClient } from "./system-client";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "DISHA System Console",
-  description: "Technical runtime, database, geodata and connector health for DISHA.",
+  title: "disha6.6 System Console",
+  description: "Technical runtime, database, geodata and connector health for disha6.6.",
 };
 
 export default async function SystemPage() {

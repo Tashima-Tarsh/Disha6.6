@@ -1,4 +1,4 @@
-name: DISHA Custom Domain Smoke
+name: disha6.6 Custom Domain Smoke
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
           done
 
           if [[ "$ok" != "1" ]]; then
-            echo "Custom domain did not reach the current DISHA Cloudflare proxy."
+            echo "Custom domain did not reach the current disha6.6 Cloudflare proxy."
             cat /tmp/disha-headers || true
             cat /tmp/disha-body || true
             exit 1
@@ -58,7 +58,7 @@ jobs:
           done
 
           if [[ "$ok" != "1" ]]; then
-            echo "Expected authenticated DISHA endpoint to reject bad credentials with 401; got $last_code."
+            echo "Expected authenticated disha6.6 endpoint to reject bad credentials with 401; got $last_code."
             cat /tmp/login-response || true
             exit 1
           fi

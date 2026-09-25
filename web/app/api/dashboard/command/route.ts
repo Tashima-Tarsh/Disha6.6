@@ -64,9 +64,9 @@ export async function GET(req: NextRequest) {
         email: principal.email,
         roles: principal.roles,
       },
-      title: "DISHA 6.6 National Command Feed",
+      title: "disha6.6 National Command Feed",
       invariant:
-        "Every dashboard claim is sourced from the DISHA registry, connector output, policy state, or evidence-readiness contract. Missing official data is shown as a task, not invented as a metric.",
+        "Every dashboard claim is sourced from the disha6.6 registry, connector output, policy state, or evidence-readiness contract. Missing official data is shown as a task, not invented as a metric.",
       commandReadiness: {
         score: Math.round(((production.capabilityScore * 0.45) + (extensions.score * 0.35) + (sourceCoverage.readyForConnector / Math.max(sourceCoverage.total, 1)) * 0.2) * 100),
         productionScore: Math.round(production.capabilityScore * 100),

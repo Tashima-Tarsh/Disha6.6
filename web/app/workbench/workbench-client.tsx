@@ -361,7 +361,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
     <main className={styles.shell}>
       <section className={styles.topbar}>
         <div>
-          <p className={styles.eyebrow}>DISHA 6.6 Workbench</p>
+          <p className={styles.eyebrow}>disha6.6 Workbench</p>
           <h1>Constitutional Evidence Workbench</h1>
           <p>
             Run a governed mission, inspect the real policy decision, review live source flow context, and walk the ledger event by event.
@@ -410,7 +410,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
           <section className={styles.spinePanel} aria-labelledby="constitutional-spine-title">
             <div className={styles.spineHeader}>
               <div>
-                <p className={styles.spineKicker}>The DISHA signature</p>
+                <p className={styles.spineKicker}>The disha6.6 signature</p>
                 <h2 id="constitutional-spine-title">Constitutional Spine</h2>
                 <p>One inspectable view from intent to evidence-bound output. Nothing disappears behind a black box.</p>
               </div>
@@ -421,7 +421,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
               </div>
             </div>
 
-            <div className={styles.spineTrack} role="list" aria-label="DISHA constitutional evidence flow">
+            <div className={styles.spineTrack} role="list" aria-label="disha6.6 constitutional evidence flow">
               {spineStages.map((stage, index) => (
                 <div className={styles.spineStageWrap} key={stage.label}>
                   <div
@@ -520,7 +520,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
                 {mission.lensResults.map((lens) => <LensCard key={lens.lens} lens={lens} />)}
               </div>
             ) : (
-              <EmptyState text="Run a mission to fetch real lens results from the DISHA API." />
+              <EmptyState text="Run a mission to fetch real lens results from the disha6.6 API." />
             )}
           </section>
 
@@ -805,7 +805,7 @@ function buildReport(result: AgenticMissionResult | null, evidence: EvidenceEven
   if (!result) return "No mission result available.";
   const { mission } = result;
   return [
-    "DISHA 6.6 Workbench Report",
+    "disha6.6 Workbench Report",
     `Mission: ${mission.missionId}`,
     `Intent: ${mission.signal.context.intent}`,
     `Sensitivity: ${mission.signal.context.sensitivity}`,

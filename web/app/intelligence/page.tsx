@@ -7,7 +7,7 @@ import { IntelligenceClient } from "./intelligence-client";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "DISHA Live Intelligence",
+  title: "disha6.6 Live Intelligence",
   description: "Continuous intelligence change-impact and analyst review surface.",
 };
 

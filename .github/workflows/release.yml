@@ -1,4 +1,4 @@
-name: DISHA Product Release
+name: disha6.6 Product Release
 
 on:
   workflow_dispatch:

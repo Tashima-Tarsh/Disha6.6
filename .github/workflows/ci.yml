@@ -1,4 +1,4 @@
-name: DISHA Product CI
+name: disha6.6 Product CI
 
 on:
   push:

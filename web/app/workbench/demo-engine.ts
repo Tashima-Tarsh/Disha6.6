@@ -320,7 +320,7 @@ export function previewGovernedExtensions(signal: WorkbenchSignal, results: Lens
     id: "vyuha-defense-engine",
     title: "Vyuha Defense Engine",
     status: "policy_gated",
-    summary: "Defensive proposals are available, but the extension cannot execute them. DISHA policy and evidence gates remain mandatory.",
+    summary: "Defensive proposals are available, but the extension cannot execute them. disha6.6 policy and evidence gates remain mandatory.",
     proposedActions,
   }];
 }

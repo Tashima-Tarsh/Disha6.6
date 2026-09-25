@@ -1,7 +1,7 @@
 import { surveillanceTools } from "@/lib/surveillance/tool-registry";
 
 export const metadata = {
-  title: "DISHA 6.6 | Surveillance Intelligence",
+  title: "disha6.6 | Surveillance Intelligence",
   description: "Governed OSINT, privacy, tracker-analysis and mobile-forensics workspace.",
 };
 
@@ -11,12 +11,12 @@ export default function SurveillanceIntelligencePage() {
   return (
     <main style={{ minHeight: "100vh", padding: "32px", background: "#081018", color: "#e7f0f7" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <p style={{ letterSpacing: 2, textTransform: "uppercase", opacity: 0.7, fontSize: 12 }}>DISHA 6.6</p>
+        <p style={{ letterSpacing: 2, textTransform: "uppercase", opacity: 0.7, fontSize: 12 }}>disha6.6</p>
         <h1 style={{ fontSize: 38, margin: "8px 0" }}>Surveillance Intelligence</h1>
         <p style={{ maxWidth: 820, lineHeight: 1.6, opacity: 0.82 }}>
           One governed workspace for public-source spatial intelligence, mobile privacy analysis,
           tracker detection and consent-based device forensics. Each upstream tool remains isolated;
-          DISHA receives normalized findings with provenance and policy controls.
+          disha6.6 receives normalized findings with provenance and policy controls.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 28 }}>

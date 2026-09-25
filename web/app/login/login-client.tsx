@@ -73,7 +73,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
   return (
     <main className={styles.shell}>
-      <section className={styles.visualLayer} aria-label="DISHA secure access artwork" />
+      <section className={styles.visualLayer} aria-label="disha6.6 secure access artwork" />
 
       <section className={styles.loginPanel} aria-labelledby="secure-access-title">
         <div className={styles.panelInner}>

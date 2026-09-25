@@ -1,4 +1,4 @@
-name: DISHA Database Migrations
+name: disha6.6 Database Migrations
 
 on:
   push:

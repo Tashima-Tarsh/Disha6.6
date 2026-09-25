@@ -188,7 +188,7 @@ export function LiveOsintPlane() {
       <header className={styles.header}>
         <div>
           <div className={styles.eyebrow}><span /> LIVE PUBLIC INTELLIGENCE</div>
-          <h2 id="live-osint-heading">DISHA Universal OSINT Search</h2>
+          <h2 id="live-osint-heading">disha6.6 Universal OSINT Search</h2>
           <p>One query routes through approved public/passive sources, keeps provenance, and exposes exactly which adapters ran.</p>
         </div>
 

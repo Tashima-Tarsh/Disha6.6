@@ -41,7 +41,7 @@ export function CommandPalette() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <button className={styles.commandTrigger} type="button" aria-label="Open DISHA command palette">
+        <button className={styles.commandTrigger} type="button" aria-label="Open disha6.6 command palette">
           <Command size={15} />
           <span>Command</span>
           <kbd>⌘K</kbd>
@@ -52,7 +52,7 @@ export function CommandPalette() {
         <Dialog.Content className={styles.commandDialog} aria-describedby="disha-command-description">
           <header className={styles.commandDialogHeader}>
             <div>
-              <Dialog.Title>DISHA Command</Dialog.Title>
+              <Dialog.Title>disha6.6 Command</Dialog.Title>
               <Dialog.Description id="disha-command-description">
                 Search governed commands. Commands without an implemented adapter are visible but cannot execute.
               </Dialog.Description>
@@ -73,7 +73,7 @@ export function CommandPalette() {
             />
           </label>
 
-          <div className={styles.commandList} role="listbox" aria-label="DISHA commands">
+          <div className={styles.commandList} role="listbox" aria-label="disha6.6 commands">
             {commands.length === 0 ? <p className={styles.commandEmpty}>No matching governed command.</p> : null}
             {groups.map((group) => (
               <section className={styles.commandGroup} key={group}>
