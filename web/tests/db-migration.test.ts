@@ -137,6 +137,11 @@ describe("DISHA database migration contract", () => {
     expect(workflow).toContain("docker build -f infra/postgres/Dockerfile");
     expect(workflow).not.toContain("supabase");
     expect(prodCompose).toContain("dockerfile: infra/postgres/Dockerfile");
+    const release = fs.readFileSync(path.join(repoRoot, ".github/workflows/release.yml"), "utf8");
+    expect(release).toContain("/disha-${{ matrix.name }}:latest");
+    for (const image of ["web", "brain", "embeddings"]) {
+      expect(prodCompose).toContain(`/disha-${image}:`);
+    }
     expect(databaseImage).toContain("pgvector/pgvector:pg16");
     expect(databaseImage).toContain("postgresql-16-postgis-3");
   });
