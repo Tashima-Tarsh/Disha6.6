@@ -89,3 +89,4 @@ data/
 
 # IDE files
 .vscode/
+web/public/vendor/maplibre/
