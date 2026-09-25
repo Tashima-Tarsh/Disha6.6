@@ -41,7 +41,7 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
       <header className={styles.header}>
         <div>
           <Link href="/dashboard"><ArrowLeft size={15} /> Analyst workspace</Link>
-          <p>DISHA technical boundary</p>
+          <p>disha6.6 technical boundary</p>
           <h1>System console</h1>
           <span>Infrastructure detail is intentionally separated from the intelligence workspace.</span>
         </div>
@@ -51,7 +51,7 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
       {error ? <div className={styles.error}>{error}</div> : null}
 
       <section className={styles.grid}>
-        <StatusCard icon={<Database size={18} />} title="Database" value={runtime?.database ?? "loading"} detail="Primary DISHA persistence connection" />
+        <StatusCard icon={<Database size={18} />} title="Database" value={runtime?.database ?? "loading"} detail="Primary disha6.6 persistence connection" />
         <StatusCard icon={<HardDrive size={18} />} title="Redis" value={runtime?.redis ?? "loading"} detail="Runtime cache / coordination state" />
         <StatusCard icon={<MapPinned size={18} />} title="PostGIS" value={geo ? (geo.postgis ? "ready" : "unavailable") : "loading"} detail="Spatial extension state" />
         <StatusCard icon={<Box size={18} />} title="Admitted geodata" value={geo ? String(geo.admittedDatasets) : "—"} detail={geo ? `${geo.admittedFeatures} admitted features` : "Loading geospatial registry"} />

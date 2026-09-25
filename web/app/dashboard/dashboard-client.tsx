@@ -100,7 +100,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
     return () => window.clearInterval(timer);
   }, [playing, reducedMotion, timelineAscending]);
 
-  if (state.status === "loading") return <WorkspaceState principal={principal} title="Opening DISHA intelligence workspace" />;
+  if (state.status === "loading") return <WorkspaceState principal={principal} title="Opening disha6.6 intelligence workspace" />;
   if (state.status === "error") return <WorkspaceState principal={principal} title="Workspace unavailable" message={state.message} />;
 
   const data = state.data;
@@ -139,9 +139,9 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
     <div className={styles.shell}>
       <DishaMotionField />
       <aside className={styles.rail}>
-        <Link className={styles.brand} href="/dashboard" aria-label="DISHA intelligence workspace">
+        <Link className={styles.brand} href="/dashboard" aria-label="disha6.6 intelligence workspace">
           <span>D</span>
-          <div><strong>DISHA</strong><small>Constitutional Evidence OS</small></div>
+          <div><strong>disha6.6</strong><small>Constitutional Evidence OS</small></div>
         </Link>
 
         <nav className={styles.nav} aria-label="Primary">
@@ -369,7 +369,7 @@ function WorkspaceState({ principal, title, message }: { principal: PrincipalVie
   return (
     <div className={styles.stateShell}>
       <Fingerprint size={28} />
-      <span>DISHA · {principal.email}</span>
+      <span>disha6.6 · {principal.email}</span>
       <h1>{title}</h1>
       <p>{message ?? "Loading persisted mission, geospatial, temporal and network intelligence."}</p>
     </div>

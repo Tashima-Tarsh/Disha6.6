@@ -1,4 +1,4 @@
-name: DISHA Custom Domain Smoke
+name: disha6.6 Custom Domain Smoke
 
 on:
   push:

@@ -271,7 +271,7 @@ function BundleFields({ kind, values, onChange }: { kind: string; values: Record
   if (kind === "space_object") return input("catalogNumber", "NORAD catalog number, e.g. 25544");
   if (kind === "space_weather") return <span>NOAA SWPC public alerts · 15 minute watch cadence</span>;
   if (kind === "macro") return <>{input("country", "Country code, e.g. IND")}{input("indicator", "World Bank indicator")}</>;
-  if (kind === "official_source") return input("sourceId", "DISHA source ID");
+  if (kind === "official_source") return input("sourceId", "disha6.6 source ID");
   return <>{input("sourceId", "Registered source ID")}{input("path", "Optional /path")}</>;
 }
 

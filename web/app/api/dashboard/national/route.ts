@@ -11,7 +11,7 @@ export function GET() {
   return NextResponse.json({
     generatedAt: new Date().toISOString(),
     notice:
-      "DISHA national data registry. Sources are official/public references; unverified or incomplete layers are explicitly marked.",
+      "disha6.6 national data registry. Sources are official/public references; unverified or incomplete layers are explicitly marked.",
     coverage: nationalDataCoverage(),
     sources: nationalDataSources,
   });

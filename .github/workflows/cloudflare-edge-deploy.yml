@@ -1,4 +1,4 @@
-name: DISHA Cloudflare Edge Deploy
+name: disha6.6 Cloudflare Edge Deploy
 
 on:
   push:

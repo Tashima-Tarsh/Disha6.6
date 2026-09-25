@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       summary: getOsintServiceConnectorSummary(),
       connectors: listOsintServiceConnectors(),
       probes,
-      safetyRule: "OpenCTI and IntelOwl are live only when explicitly configured. SpiderFoot, Sherlock and Maigret are registered as upstream service/tool targets but are not executable in the default DISHA runtime.",
+      safetyRule: "OpenCTI and IntelOwl are live only when explicitly configured. SpiderFoot, Sherlock and Maigret are registered as upstream service/tool targets but are not executable in the default disha6.6 runtime.",
     }, {
       headers: {
         "X-Request-ID": ctx.requestId,

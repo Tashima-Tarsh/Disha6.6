@@ -43,7 +43,7 @@ describe("DISHA analyst workspace", () => {
     expect(source).toContain("DeckGL");
     expect(source).toContain("HeatmapLayer");
     expect(source).toContain("ScatterplotLayer");
-    expect(source).toContain("No authoritative DISHA geometry is admitted yet");
+    expect(source).toContain("No authoritative disha6.6 geometry is admitted yet");
     expect(basemap).toContain("https://tiles.openfreemap.org/styles/liberty");
     expect(basemap).toContain("OpenStreetMap contributors");
     expect(basemap).toContain('role: "context_only"');

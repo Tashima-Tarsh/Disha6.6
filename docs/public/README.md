@@ -1,6 +1,6 @@
-# DISHA Public Page
+# disha6.6 Public Page
 
-This folder is the public documentation surface for DISHA 6.6.
+This folder is the public documentation surface for disha6.6.
 
 It is intentionally separate from the private product runtime, source code, local connectors, credentials, and operational data. GitHub Pages can publish only this folder through `.github/workflows/pages.yml`.
 
@@ -24,7 +24,7 @@ Private:
 - Local databases
 - Incident workspaces
 - Controlled evidence
-- Pentagi/DISHA runtime state
+- Pentagi/disha6.6 runtime state
 
 ## GitHub Pages Visibility Note
 

@@ -162,8 +162,8 @@ export function GeospatialCommandMap({
           <strong>{features.features.length ? `${features.features.length} admitted features` : "Context map active"}</strong>
           <small>
             {features.features.length
-              ? "Every DISHA overlay is linked to admitted geospatial provenance."
-              : "No authoritative DISHA geometry is admitted yet; the basemap is contextual only."}
+              ? "Every disha6.6 overlay is linked to admitted geospatial provenance."
+              : "No authoritative disha6.6 geometry is admitted yet; the basemap is contextual only."}
           </small>
         </div>
       </div>

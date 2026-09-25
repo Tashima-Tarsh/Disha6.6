@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     const context = {
       missionId: "live-public-brief",
       userId: ctx.principal.userId,
-      purpose: "Live public-source situational awareness for the authenticated DISHA command workspace",
+      purpose: "Live public-source situational awareness for the authenticated disha6.6 command workspace",
       signal: req.signal,
     };
 

@@ -9,7 +9,7 @@ import { DishaWorkbench } from "./workbench-client";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "DISHA 6.6 Workbench",
+  title: "disha6.6 Workbench",
   description: "A transparent agentic mission flow for constitutional evidence review.",
 };
 

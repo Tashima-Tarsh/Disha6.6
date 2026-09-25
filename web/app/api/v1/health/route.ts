@@ -12,7 +12,7 @@ export async function GET() {
   const osint = createDefaultOsintBus();
   return NextResponse.json({
     status: "ok",
-    product: "DISHA v6.6 Unified Policy-Gated Cognitive Intelligence OS",
+    product: "disha6.6 Unified Policy-Gated Cognitive Intelligence OS",
     lenses: Object.keys(lensRegistry),
     agenticSkills: listAgentSkills().length,
     openDataSources: openDataSources.length,
