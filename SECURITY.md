@@ -13,13 +13,13 @@ disha6.6 is an evidence-first governance and intelligence project. Security repo
 
 Do not open a public issue for security vulnerabilities.
 
-Use GitHub Security Advisories after the repository rename is completed:
+Use GitHub Security Advisories on the current repository:
 
 ```text
-https://github.com/Tashima-Tarsh/disha6.6/security/advisories
+https://github.com/Tashima-Tarsh/Disha6.6/security/advisories
 ```
 
-Until GitHub repository settings are renamed, the current repository URL may still redirect from the previous name.
+If private reporting is unavailable, contact the maintainers through a private channel listed on the repository profile; never put exploit details in a public issue.
 
 Please include:
 

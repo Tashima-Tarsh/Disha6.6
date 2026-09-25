@@ -1,204 +1,154 @@
 <div align="center">
 
-# Disha6.6
+<img src="docs/public/assets/social-preview.svg" alt="disha6.6 — constitutional evidence operating system" width="760" />
 
-### Constitutional Evidence Operating System for governed intelligence, OSINT, geospatial command, and reviewable AI.
+# disha6.6
 
-**Evidence-first intelligence · Governed OSINT · CTI and SPACEINT source universe · Policy gates · Tamper-evident provenance · Human-reviewable automation**
+**An evidence-first workspace for governed public-source intelligence and reviewable AI.**
 
-[Project Site](https://thenitishkr.in/disha/) · [Architecture](ARCHITECTURE.md) · [API Reference](docs/internal/api/API_REFERENCE.md) · [Technical Wiki](docs/wiki/Home.md) · [OSINT Governance](docs/osint/GOVERNED_OSINT_EXPANSION.md)
+A Next.js product and bounded Python research service that connect source observations, policy decisions, evidence events, and human review.
+
+[![Product CI](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml)
+[![Database migrations](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml)
+[![CodeQL](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml)
+![Node 22](https://img.shields.io/badge/Node-22-43853d)
+![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
+
+[Overview](#overview) · [Architecture](#architecture) · [Capabilities](#capabilities) · [Run locally](#run-locally) · [Documentation](#documentation) · [Security](#security-and-governance) · [Status](#status-and-limitations)
 
 </div>
 
----
+## Overview
 
-## What is disha6.6?
+disha6.6 is a Constitutional Evidence Operating System for analysts and teams working with public and admitted sources. It is built around a practical question: can a reviewer reconstruct how an intelligence result was produced? A mission links its inputs, source observations, policy evaluation, evidence events, and resulting report. Model output is advisory; it does not turn an unsupported assertion into a verified fact.
 
-disha6.6 is a **Constitutional Evidence Operating System**: an evidence-first intelligence platform for governed public-source research, OSINT, cyber-intelligence posture, geospatial analysis, policy monitoring, source watching, and accountable AI-assisted decision support.
+The default product surface is `web/`. It includes a dashboard, mission workbench, intelligence workspace, geospatial view, source and connector catalog, policy controls, and versioned API. The Python Brain in `disha/brain/` is a separate, bounded service. Catalog entries and research integrations do not imply that their upstream services are deployed or approved for execution.
 
-The operating chain is deliberately simple:
-
-```text
-source -> observation -> policy -> evidence -> review -> decision
-```
-
-Most intelligence systems focus on producing an answer. disha6.6 focuses on producing an answer that can be inspected, challenged, traced to sources, policy-checked, and reviewed by a human.
-
-A model can assist. A data feed can assist. An analyst can assist. None of them become invisible authority.
-
-## What changed in this branding pass
-
-The public product identity is now:
-
-```text
-disha6.6
-```
-
-The public deployment remains:
-
-```text
-https://disha6.6.thenitishkr.in
-```
-
-The Render origin behind Cloudflare remains:
-
-```text
-https://disha-v6-web.onrender.com
-```
-
-The Python intelligence service remains:
-
-```text
-https://disha-v6-brain.onrender.com
-```
-
-Internal folder names such as `disha/`, environment variable names such as `DISHA_JWT_SECRET`, and existing script paths are retained because they are runtime contracts. A blind rename of those symbols would break imports, CI, Render, workflows, and existing secrets. They can be migrated later through a dedicated compatibility plan.
-
-## What disha6.6 is built to solve
-
-Teams already have search engines, LLMs, dashboards, OSINT directories, cyber feeds, and data vendors. The harder problem is governance around intelligence:
-
-- Where did this claim come from?
-- Is the source public, authorized, licensed, and current?
-- What changed since the last observation?
-- Which part came from a model versus a source?
-- What did policy allow, restrict, or deny?
-- Can another reviewer reconstruct the work?
-- Can the evidence trail prove it was not silently rewritten?
-
-That is the product boundary of disha6.6.
-
-## Current production posture
-
-| Area | Status | Notes |
-| --- | --- | --- |
-| Web product | Working | Next.js product runtime under `web/`. |
-| Public custom domain | Working when DNS/Cloudflare resolves | `https://disha6.6.thenitishkr.in`. |
-| Cloudflare proxy | Working | Routes custom domain traffic to Render web origin. |
-| Render web origin | Working | `disha-v6-web.onrender.com`. |
-| Render brain service | Available | `disha-v6-brain.onrender.com`. |
-| Evidence Ledger | Working | Hash-linked evidence events and verification paths. |
-| Policy Gate | Working | Deny-by-default posture for unsafe flows. |
-| Governed OSINT adapter bus | Working | Passive/public adapters with policy checks. |
-| Universal OSINT Search | Working | Domain, IP, CVE, GitHub repo, SEC CIK, entity, and guarded identity-like inputs. |
-| OSINT / CTI / SPACEINT source universe | Working catalog | 120+ source registry with categories and execution boundaries. |
-| Service connectors | Configurable | OpenCTI and IntelOwl can probe/run only when configured. SpiderFoot/Sherlock/Maigret remain policy-blocked by default. |
-| Geospatial runtime | Working / data-dependent | MapLibre runtime and persisted overlays; authoritative datasets depend on deployment imports. |
-| Full case-management lifecycle | Not complete | Tracked as product hardening. |
-| Broad identity/social enumeration | Blocked by default | Requires lawful, consented, reviewed workflow before promotion. |
+**Operating chain:** source → observation → policy → evidence → review → decision.
 
 ## Architecture
 
-```text
-Browser / API / Workbench
-  -> typed signal
-  -> source routing
-  -> governed adapters
-  -> normalized observation
-  -> policy gate
-  -> evidence ledger
-  -> human review
-  -> decision record
+```mermaid
+flowchart TD
+    U["Browser and API clients"] --> W["Next.js web and API"]
+    W --> P["Mission orchestration and policy"]
+    P --> S["Governed source adapters"]
+    P --> E["Evidence ledger and review"]
+    E --> DB["PostgreSQL, pgvector, PostGIS"]
+    P --> B["Optional Python Brain"]
+    W --> Q["Worker and Redis"]
 ```
 
-Core runtime ownership:
+The web application owns authentication, API contracts, policy decisions, and user-visible results. The database stores missions, evidence events, source records, review state, watches, and geospatial data. Scheduled work uses a separate web worker; optional Brain and embedding services are isolated. The canonical design rules and current boundaries are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-- **TypeScript / Next.js** owns product surfaces, API routes, sessions, policy decisions, evidence presentation, OSINT control plane, and mission flow.
-- **PostgreSQL / PostGIS** owns durable structured data and geospatial persistence paths where configured.
-- **Redis / Key Value** supports runtime workflow infrastructure where configured.
-- **Python** owns bounded intelligence/research services such as the Brain service.
-- **Extensions** cannot bypass the policy gate or evidence ledger.
+| Layer | Implemented with | Location |
+| --- | --- | --- |
+| Web and API | Next.js 16, React 19, TypeScript | `web/app/`, `web/lib/` |
+| Governed intelligence | Typed contracts, orchestration, policy, evidence | `web/lib/unified/` |
+| Bounded research | Python Brain service | `disha/brain/` |
+| Data | PostgreSQL 16, pgvector, PostGIS; optional Redis | `web/database/`, `infra/postgres/` |
+| UI and maps | MapLibre, React Map GL, deck.gl | `web/components/`, `web/app/` |
+| Verification | Vitest, ESLint, TypeScript, pytest, CodeQL, GitHub Actions | `web/tests/`, `tests/`, `.github/workflows/` |
 
-## Product surfaces
+## Capabilities
 
-| Surface | Purpose |
-| --- | --- |
-| `/login` | Secure access entry point. |
-| `/dashboard` | Command view for posture, evidence, geography, governance, and review. |
-| `/workbench` | Governed mission flow from question to policy, evidence, and export. |
-| `/intelligence` | Continuous public-source intelligence mesh and governed watch review. |
-| `/api/v1` | Versioned API for missions, policy, evidence, OSINT, sources, connectors, readiness, and extensions. |
+| Capability | What the repository implements | Operational boundary |
+| --- | --- | --- |
+| Mission workbench | Structured mission inputs, orchestration, policy result, evidence export | Authenticated actions; source claims need provenance |
+| Evidence ledger | Ordered evidence events, hashes, retrieval and verification | Persistent production store requires `DATABASE_URL` |
+| Source and OSINT catalog | Public-source registry, passive adapters, service connector metadata | Listed sources are not automatically executable |
+| Intelligence workspace | Search, watches, review queue, state and change tracking | Some outputs depend on configured sources and workers |
+| Geospatial command | MapLibre display and PostGIS-backed admitted geometry | Authoritative overlays require imported, admitted data |
+| AI and extensions | Controlled model routes and optional Brain/extension adapters | Policy and evidence controls precede promotion into results |
 
-## Important API entry points
+The UI routes are `/login`, `/dashboard`, `/workbench`, `/intelligence`, `/surveillance`, and `/system`. [Wiki: capabilities and status](docs/wiki/Capabilities-and-Status.md) distinguishes working paths, optional services, and unfinished deployment work.
 
-```text
-GET  /api/v1/health
-POST /api/v1/mission
-POST /api/v1/agentic/mission
-POST /api/v1/policy/evaluate
-GET  /api/v1/evidence/{missionId}
-POST /api/v1/evidence/export
-GET  /api/v1/osint/catalog
-GET  /api/v1/osint/sources
-GET  /api/v1/osint/search?q=example.org
-GET  /api/v1/osint/service-connectors
-GET  /api/v1/osint/restricted-sources
-GET  /api/v1/production/readiness
-```
+## Run locally
 
-## Safe OSINT rule
-
-disha6.6 is passive/public by default. Catalog presence does not imply execution.
-
-Allowed production patterns include public records, official feeds, public DNS and registration metadata, public certificate data, public web archives, public news discovery, defensive vulnerability information, and other explicitly admitted sources.
-
-The default runtime does not perform credential harvesting, authentication bypass, exploit delivery, private-account access, leaked-data ingestion, or automated identity enumeration.
-
-## Quick start
-
-Requirements:
-
-- Node.js 22.x
-- npm
-- PostgreSQL for durable production data
-- optional Redis / Key Value
-- optional Python runtime for governed research extensions
-
-Run locally:
+**Prerequisites:** Node.js 22.x and npm. Docker with Compose is needed for the database-backed stack. Python 3.11 is used by the separate Brain test workflow.
 
 ```bash
-npm install --prefix web
+git clone https://github.com/Tashima-Tarsh/Disha6.6.git
+cd Disha6.6
+npm ci --prefix web
 npm --prefix web run dev
 ```
 
-Open:
-
-```text
-http://127.0.0.1:3000/login
-http://127.0.0.1:3000/dashboard
-http://127.0.0.1:3000/workbench
-http://127.0.0.1:3000/intelligence
-```
-
-Verify:
+Open <http://localhost:3000/login>. Local development can run without a database using development fallbacks; those results are not a durable production ledger. To exercise migrations and durable state, use a PostgreSQL 16 instance with pgvector and PostGIS, configure `DATABASE_URL`, then run `npm --prefix web run db:migrate` and `npm --prefix web run db:verify-schema`. See [Getting started](docs/wiki/Getting-Started.md) for environment values and the full Compose path.
 
 ```bash
-npm --prefix web run type-check:full
+npm --prefix web run lint
+npm --prefix web run type-check
 npm --prefix web test
 npm --prefix web run build
 ```
+
+The repository also defines `npm run test:python`. The CI migration workflow rehearses apply, verify, rollback, and reapply against an isolated database. Never run rollback against production without a backup and a reviewed recovery procedure.
 
 ## Repository map
 
 | Path | Responsibility |
 | --- | --- |
-| `web/app/` | Product surfaces and API routes. |
-| `web/lib/unified/` | Core contracts, orchestration, policy, evidence, sources, OSINT and workflows. |
-| `web/lib/extensions/` | Governed advanced-capability adapters. |
-| `web/components/geospatial/` | Operational geospatial UI. |
-| `web/database/` | Product database migrations and durable state. |
-| `disha/brain/` | Bounded Python intelligence/research runtime. |
-| `docs/wiki/` | Technical wiki for the active repository. |
-| `docs/osint/` | Governed OSINT design and source registry documentation. |
-| `docs/internal/` | Product, architecture, readiness and maintainer documentation. |
-| `legacy/` | Archived historical material, not default production runtime. |
+| `web/app/` | Screens and HTTP route handlers |
+| `web/lib/server/` | Authentication, persistence, input guards, audit and server configuration |
+| `web/lib/unified/` | Contracts, policy, missions, evidence, OSINT and source admission |
+| `web/lib/extensions/` | Governed extension interfaces |
+| `web/database/` | Versioned SQL migrations and rollback scripts |
+| `disha/brain/` | Python intelligence and research service |
+| `infra/postgres/` | PostgreSQL image with pgvector and PostGIS |
+| `.github/workflows/` | Product, database, security, release and edge workflows |
+| `docs/wiki/` | Wiki source pages maintained with the code |
+| `docs/archive/`, `legacy/` | Historical material outside the default product path |
 
-## Repository rename note
+## API
 
-The code and docs now use **disha6.6** as the public product identity. The actual GitHub repository settings must still be renamed manually in GitHub if the browser URL should become:
+The base path is `/api/v1`. Most non-health routes require authentication and an action permission. This example uses a mission schema implemented by [`web/app/api/v1/mission/route.ts`](web/app/api/v1/mission/route.ts):
 
-```text
-https://github.com/Tashima-Tarsh/disha6.6
+```http
+POST /api/v1/mission
+Content-Type: application/json
+Cookie: <authenticated session>
+
+{"rawText":"Review this admitted public source","sensitivity":"public","indicators":[],"locations":[]}
 ```
 
-The connector available here can update repository files, but it does not expose a repository-settings mutation for renaming the GitHub repository object.
+The response is a mission result with a policy and evidence context; its precise shape depends on the requested work. Other routes include `GET /api/v1/health`, `POST /api/v1/policy/evaluate`, `GET /api/v1/evidence/{missionId}`, `POST /api/v1/evidence/export`, and `GET /api/v1/osint/search?q=example.org`. See [API and data](docs/wiki/API-and-Data.md) for access rules and storage relationships.
+
+## Deployment and CI
+
+The production Compose file defines a persistent PostgreSQL volume, Redis, embeddings, Brain, a one-shot `web-migrate` job, the web application, and a worker. The web service waits for successful migration. Released container images are published by [the release workflow](.github/workflows/release.yml) on version tags or manual dispatch; a source merge alone does not build new release images. Deployers must provide OIDC configuration, secrets, a persistent host, backups, TLS, and monitoring. [Operations](docs/wiki/Operations.md) describes the actual Compose and CI paths.
+
+| Workflow | Trigger | Verification or action |
+| --- | --- | --- |
+| [Product CI](.github/workflows/ci.yml) | PR and `main` push | Governance, dependency audit, lint, types, tests, build |
+| [Database migrations](.github/workflows/db-migrations.yml) | PR and `main` push | Isolated PostgreSQL rehearsal, Compose validation, database image build |
+| [Python Core](.github/workflows/python-core.yml) | Relevant paths, manual | Brain, contracts and defensive source tests |
+| [CodeQL](.github/workflows/codeql.yml) | PR, push, schedule | Static analysis |
+| [Release](.github/workflows/release.yml) | Version tag, manual | Publishes web, Brain and embeddings images to GHCR |
+| [Edge and smoke](.github/workflows/edge-smoke.yml) | `main` push | Tests public custom domain and login rejection |
+
+The badge links show the **current** GitHub state. Passing CI validates code and rehearsal contracts; it does not prove that a production database has been provisioned or migrated.
+
+## Security and governance
+
+Non-health actions pass through authentication and policy boundaries. External data is admitted through governed sources; the product excludes private-account access, leaked credentials, and unreviewed active enumeration by default. Evidence and policy decisions must remain inspectable. See [SECURITY.md](SECURITY.md) to report a vulnerability privately, [CONTRIBUTING.md](CONTRIBUTING.md) for changes, and [the security wiki page](docs/wiki/Security-and-Governance.md) for the code boundaries.
+
+The root package declares `UNLICENSED`; the repository does **not** grant an open source reuse license merely by being public. Review [LICENSE](LICENSE) and obtain permission before reuse or redistribution.
+
+## Status and limitations
+
+The Next.js application and its tests are active, and the repository includes a self-hosted PostgreSQL deployment definition. Optional services and external integrations require separate configuration. The repository does not host a database, guarantee the state of a live deployment, or include a migration of data from an older provider. Development memory fallbacks are not durable production storage. Read the [status and roadmap](docs/wiki/Capabilities-and-Status.md) before treating a catalog entry as a deployed feature.
+
+## Documentation
+
+- [Wiki home and navigation](docs/wiki/Home.md)
+- [Architecture and request flow](docs/wiki/Architecture.md)
+- [Getting started and configuration](docs/wiki/Getting-Started.md)
+- [API and data model](docs/wiki/API-and-Data.md)
+- [Operations and troubleshooting](docs/wiki/Operations.md)
+- [Security and governance](docs/wiki/Security-and-Governance.md)
+- [Capabilities and status](docs/wiki/Capabilities-and-Status.md)
+- [Screenshot capture plan](docs/wiki/Screenshots.md)
+- [Publish the GitHub Wiki](docs/wiki/Publishing.md)
+
+The pages in `docs/wiki/` are versioned source for the GitHub Wiki. Changes here do not automatically publish to the separate Wiki Git repository.
