@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default function SurveillanceIntelligencePage() {
-  const grouped = Object.groupBy(surveillanceTools, (tool) => tool.category);
+  const categories = Array.from(new Set(surveillanceTools.map((tool) => tool.category)));
 
   return (
     <main style={{ minHeight: "100vh", padding: "32px", background: "#081018", color: "#e7f0f7" }}>
@@ -46,7 +46,7 @@ export default function SurveillanceIntelligencePage() {
             license, provenance and policy validation.
           </p>
           <p style={{ opacity: 0.6, fontSize: 13 }}>
-            Categories loaded: {Object.keys(grouped).join(", ")}
+            Categories loaded: {categories.join(", ")}
           </p>
         </section>
       </div>
