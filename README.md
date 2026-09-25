@@ -1,7 +1,3 @@
-<div align="center">
-
-<img src="docs/public/assets/social-preview.svg" alt="disha6.6 — constitutional evidence operating system" width="760" />
-
 # disha6.6
 
 **An evidence-first workspace for governed public-source intelligence and reviewable AI.**
