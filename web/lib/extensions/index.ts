@@ -12,3 +12,4 @@ export * from "./runner";
 export * from "./honeypot-evidence";
 export * from "./physics-simulation";
 export * from "./research-runtime";
+export * from "./surveillance-intelligence";
