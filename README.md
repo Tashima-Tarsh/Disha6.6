@@ -74,7 +74,7 @@ npm ci --prefix web
 npm --prefix web run dev
 ```
 
-Open <http://localhost:3000/login>. Local development can run without a database using development fallbacks; those results are not a durable production ledger. To exercise migrations and durable state, use a PostgreSQL 16 instance with pgvector and PostGIS, configure `DATABASE_URL`, then run `npm --prefix web run db:migrate` and `npm --prefix web run db:verify-schema`. See [Getting started](docs/wiki/Getting-Started.md) for environment values and the full Compose path.
+Open <http://localhost:3000/login>. [`web/.env.example`](web/.env.example) documents local configuration; supply your own development credentials if you copy it. Local development can run without a database using development fallbacks; those results are not a durable production ledger. To exercise migrations and durable state, use a PostgreSQL 16 instance with pgvector and PostGIS, configure `DATABASE_URL`, then run `npm --prefix web run db:migrate` and `npm --prefix web run db:verify-schema`. See [Getting started](docs/wiki/Getting-Started.md) for environment values and the full Compose path.
 
 ```bash
 npm --prefix web run lint
