@@ -41,7 +41,7 @@
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "maplibre-gl": "6.10.0",
-    "nanoid": "5.1.16",
+    "nanoid": "6.0.1",
     "next": "16.3.5",
     "pg": "^8.20.0",
     "react": "^19.3.0",
