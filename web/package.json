@@ -41,8 +41,12 @@
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "maplibre-gl": "6.10.0",
+dependabot/npm_and_yarn/web/nanoid-6.0.1
+    "nanoid": "6.0.1",
+    "next": "16.3.5",
     "nanoid": "5.1.16",
     "next": "16.3.6",
+ main
     "pg": "^8.20.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
