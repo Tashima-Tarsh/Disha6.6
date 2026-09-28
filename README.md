@@ -1,4 +1,4 @@
-# disha6.6
+# DISHA 6.6
 
 **An evidence-first workspace for governed public-source intelligence and reviewable AI.**
 
