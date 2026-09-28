@@ -217,7 +217,7 @@ function fallbackOperationalFeatures(): OperationalFeatureCollection {
         featureId: node.id,
         datasetId: "ds-strategic-cyber-infrastructure",
         sourceId: "src-gov-telemetry",
-        sourceUrl: "https://disha.gov.in/telemetry/nodes",
+        sourceUrl: "https://disha6.6.thenitishkr.in/telemetry/nodes",
         productId: "disha-strategic-grid",
         productVersion: "6.6.0",
         geographyLevel: "national",
