@@ -132,7 +132,9 @@ export function LiveOsintPlane() {
   }, []);
 
   useEffect(() => {
-    void load(submittedQuery);
+    void Promise.resolve().then(() => {
+      void load(submittedQuery);
+    });
     const timer = window.setInterval(() => void load(submittedQuery, true), 90_000);
     return () => window.clearInterval(timer);
   }, [load, submittedQuery]);

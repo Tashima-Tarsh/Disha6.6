@@ -86,7 +86,11 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void Promise.resolve().then(() => {
+      void load();
+    });
+  }, [load]);
   useEffect(() => {
     if (!autoRefresh) return;
     const timer = window.setInterval(() => void load(), 15_000);

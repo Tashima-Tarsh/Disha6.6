@@ -5,6 +5,7 @@ import { ArrowLeft, Box, Cpu, Database, HardDrive, MapPinned, RadioTower, Server
 import { useEffect, useState, type ReactNode } from "react";
 
 import type { GeospatialRuntimeStatus } from "@/lib/geospatial/contracts";
+import { QuantumCore3D } from "@/components/visual/QuantumCore3D";
 import styles from "./system.module.css";
 
 type RuntimeStatus = {
@@ -49,6 +50,12 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
       </header>
 
       {error ? <div className={styles.error}>{error}</div> : null}
+
+      <QuantumCore3D
+        dbStatus={runtime?.database ?? "loading"}
+        redisStatus={runtime?.redis ?? "loading"}
+        postgisStatus={geo ? (geo.postgis ? "ready" : "unavailable") : "loading"}
+      />
 
       <section className={styles.grid}>
         <StatusCard icon={<Database size={18} />} title="Database" value={runtime?.database ?? "loading"} detail="Primary disha6.6 persistence connection" />

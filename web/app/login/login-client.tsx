@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 
+import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
 import styles from "./login.module.css";
 
 
@@ -73,7 +74,9 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
   return (
     <main className={styles.shell}>
-      <section className={styles.visualLayer} aria-label="disha6.6 secure access artwork" />
+      <section className={styles.visualLayer} aria-label="disha6.6 secure access artwork">
+        <SovereignCyberMatrix3D />
+      </section>
 
       <section className={styles.loginPanel} aria-labelledby="secure-access-title">
         <div className={styles.panelInner}>

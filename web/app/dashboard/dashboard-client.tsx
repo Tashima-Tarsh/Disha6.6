@@ -9,6 +9,7 @@ import {
   FileSearch,
   Fingerprint,
   GitBranch,
+  Globe,
   Layers3,
   Map as MapIcon,
   Network,
@@ -150,6 +151,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
           <a href="#graph"><Network size={16} /> Entity graph</a>
           <a href="#evidence"><Fingerprint size={16} /> Evidence</a>
           <Link href="/workbench"><Waypoints size={16} /> Mission workbench</Link>
+          <Link href="/surveillance"><Globe size={16} /> 3D Cyber Space</Link>
           <Link href="/intelligence"><FileSearch size={16} /> Intelligence</Link>
           <Link href="/system"><Settings2 size={16} /> System console</Link>
         </nav>
