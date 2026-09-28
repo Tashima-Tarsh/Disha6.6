@@ -4,9 +4,8 @@ import { runUniversalOsintSearch, sanitizeUniversalQuery } from "@/lib/unified/u
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q") ?? "India government";
-  const query = sanitizeUniversalQuery(q);
+async function executeOsintSearch(rawQuery: string, signal?: AbortSignal) {
+  const query = sanitizeUniversalQuery(rawQuery);
   const bus = createDefaultOsintBus({
     policyCheck: (metadata) => {
       const executionClass = metadata.executionClass ?? "passive_public";
@@ -17,11 +16,15 @@ export async function GET(req: NextRequest) {
     },
   });
 
+  const abortSignal = signal
+    ? AbortSignal.any([signal, AbortSignal.timeout(8000)])
+    : AbortSignal.timeout(8000);
+
   const context = {
     missionId: "surveillance-live-query",
     userId: "surveillance-operator",
     purpose: "Governed live public OSINT query on surveillance board",
-    signal: req.signal,
+    signal: abortSignal,
   };
 
   const [health, search] = await Promise.all([
@@ -49,4 +52,24 @@ export async function GET(req: NextRequest) {
       healthy: health.filter((h) => h.status === "healthy").length,
     },
   });
+}
+
+export async function GET(req: NextRequest) {
+  const q = req.nextUrl.searchParams.get("q") ?? req.nextUrl.searchParams.get("query") ?? "India government";
+  return executeOsintSearch(q, req.signal);
+}
+
+export async function POST(req: NextRequest) {
+  let q = "India government";
+  try {
+    const body = await req.json();
+    if (typeof body?.query === "string" && body.query.trim()) {
+      q = body.query.trim();
+    } else if (typeof body?.q === "string" && body.q.trim()) {
+      q = body.q.trim();
+    }
+  } catch {
+    // fallback
+  }
+  return executeOsintSearch(q, req.signal);
 }
