@@ -209,3 +209,36 @@
   z-index: 1;
   pointer-events: none;
 }
+
+.colorStreamBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding: 6px 12px;
+  background: rgba(5, 20, 42, 0.55);
+  border: 1px solid rgba(82, 168, 255, 0.2);
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.colorStreamItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(226, 241, 255, 0.88);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.colorDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
