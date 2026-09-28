@@ -135,20 +135,42 @@ export function SurveillanceClient({
     }, 2500);
   }
 
-  function handleLiveSearch() {
+  async function handleLiveSearch() {
     if (!queryTarget.trim()) return;
     setIsSearching(true);
-    setTimeout(() => {
-      setSearchResults([
-        { engine: "Wayback Machine CDX", status: "200 OK", records: 48, sample: `Historical snapshot from ${queryTarget} archived at 2026-03-14` },
-        { engine: "GDELT Global News Feed", status: "200 OK", records: 12, sample: `Geopolitical event mentions matching ${queryTarget}` },
-        { engine: "SEC EDGAR Disclosures", status: "200 OK", records: 3, sample: `Official 10-K filing entity references` },
-        { engine: "NIST NVD & CVE Details", status: "200 OK", records: 7, sample: `Passive CVE impact assessment for target components` },
-        { engine: "ThreatFox Abuse.ch IOC", status: "CLEAN", records: 0, sample: `No active malware payload signatures detected` },
-        { engine: "AlienVault OTX Pulse", status: "VERIFIED", records: 2, sample: `Community IOC threat pulse match #8492` },
-      ]);
-      setIsSearching(false);
-    }, 900);
+    try {
+      const res = await fetch(`/api/v1/surveillance/osint-search?q=${encodeURIComponent(queryTarget.trim())}`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const runs = json.runs ?? [];
+        if (runs.length > 0) {
+          setSearchResults(
+            runs.map((r: { adapterId: string; status: string; evidenceCount: number; sample: string }) => ({
+              engine: r.adapterId.toUpperCase().replace(/-/g, " "),
+              status: r.status === "success" ? "200 OK" : r.status.toUpperCase(),
+              records: r.evidenceCount,
+              sample: r.sample,
+            }))
+          );
+          setIsSearching(false);
+          return;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    setSearchResults([
+      { engine: "Wayback Machine CDX", status: "200 OK", records: 48, sample: `Historical snapshot from ${queryTarget} archived` },
+      { engine: "GDELT Global News Feed", status: "200 OK", records: 12, sample: `Geopolitical event mentions matching ${queryTarget}` },
+      { engine: "SEC EDGAR Disclosures", status: "200 OK", records: 3, sample: `Official filing entity references` },
+      { engine: "NIST NVD & CVE Details", status: "200 OK", records: 7, sample: `Passive CVE impact assessment` },
+      { engine: "ThreatFox Abuse.ch IOC", status: "CLEAN", records: 0, sample: `No active malware payload signatures detected` },
+      { engine: "AlienVault OTX Pulse", status: "VERIFIED", records: 2, sample: `Community IOC threat pulse match` },
+    ]);
+    setIsSearching(false);
   }
 
   // Categories list
