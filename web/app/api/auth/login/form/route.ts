@@ -9,7 +9,6 @@ import { requestId } from "@/lib/server/security";
 function safeReturnUrl(value: FormDataEntryValue | null) {
   const text = typeof value === "string" ? value : "";
   if (!text || !text.startsWith("/") || text.startsWith("//")) return "/dashboard";
-  if (text === "/workbench") return "/dashboard";
   return text;
 }
 

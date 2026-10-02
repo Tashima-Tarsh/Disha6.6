@@ -13,7 +13,6 @@ const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
 function safeReturnUrl(value?: string) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  if (value === "/workbench") return "/dashboard";
   return value;
 }
 

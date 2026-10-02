@@ -18,7 +18,7 @@ export function errorResponse(error: unknown, req: NextRequest, principal?: Prin
       userId: principal?.userId,
       action: "request.error",
       outcome: status === 403 ? "deny" : "failure",
-      metadata: { path: req.nextUrl.pathname, status, message: isDev ? message : undefined },
+      metadata: { path: req.nextUrl.pathname, status, message },
     });
   } catch {}
   return NextResponse.json({ error: publicMessage, requestId: requestId(req) }, { status });

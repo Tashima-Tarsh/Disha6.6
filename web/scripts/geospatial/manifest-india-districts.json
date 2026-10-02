@@ -1,0 +1,18 @@
+{
+  "sourceId": "src-survey-of-india-districts",
+  "sourceUrl": "https://disha6.6.thenitishkr.in/data/india-districts.geojson",
+  "productId": "india-districts-v1",
+  "productVersion": "2026.1",
+  "retrievalTimestamp": "2026-10-02T12:00:00.000Z",
+  "sourceCrs": "EPSG:4326",
+  "normalizedCrs": "EPSG:4326",
+  "licenseNote": "Government Open Data License - India (GODL) / Survey of India Official Administrative Boundaries",
+  "attribution": "Survey of India / Local Government Directory (LGD) Ministry of Panchayati Raj",
+  "importJobId": "job-india-districts-20261002",
+  "datasetId": "ds-india-districts-lgd",
+  "reviewedBy": "nitish@thenitishkr.in",
+  "admissionStatus": "admitted",
+  "geographyLevels": ["district"],
+  "defaultGeographyLevel": "district",
+  "sourceHash": "auto"
+}

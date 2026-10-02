@@ -1,0 +1,19 @@
+{
+  "sourceId": "src-datameet-india-land",
+  "sourceUrl": "https://disha6.6.thenitishkr.in/data/datameet-india-land-simplified.geojson",
+  "productId": "india-land-simplified-v1",
+  "productVersion": "2026.1",
+  "retrievalTimestamp": "2026-10-02T12:00:00.000Z",
+  "sourceCrs": "EPSG:4326",
+  "normalizedCrs": "EPSG:4326",
+  "licenseNote": "Open Data Commons Open Database License (ODbL) / DataMeet Spatial",
+  "attribution": "DataMeet India Land Spatial Boundary",
+  "importJobId": "job-india-land-20261002",
+  "datasetId": "ds-india-land-boundary",
+  "reviewedBy": "nitish@thenitishkr.in",
+  "admissionStatus": "admitted",
+  "geographyLevels": ["national"],
+  "defaultGeographyLevel": "national",
+  "defaultName": "Republic of India",
+  "sourceHash": "auto"
+}

@@ -104,7 +104,7 @@ class PostgresEvidenceLedgerStore implements EvidenceLedgerStore {
       inputHash: row.input_hash,
       outputHash: row.output_hash ?? undefined,
       policyDecision: row.policy_decision ?? undefined,
-      lensResults: row.lens_results ?? undefined,
+      lensResults: row.lens_results && row.lens_results.length > 0 ? row.lens_results : undefined,
       parentEventId: row.parent_event_id ?? undefined,
       previousHash: row.previous_hash ?? undefined,
       payloadHash: row.payload_hash ?? "",

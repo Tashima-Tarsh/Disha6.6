@@ -1,8 +1,6 @@
 name: disha6.6 Custom Domain Smoke
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

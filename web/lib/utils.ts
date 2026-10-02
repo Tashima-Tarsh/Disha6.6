@@ -40,3 +40,18 @@ export function extractTextContent(content: unknown): string {
   }
   return "";
 }
+
+export function getCsrfToken(): string {
+  if (typeof document === "undefined") return "";
+  const match = document.cookie.match(/(?:^|;\s*)disha_csrf=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+export function authFetchHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const token = getCsrfToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { "x-csrf-token": token } : {}),
+    ...extra,
+  };
+}
