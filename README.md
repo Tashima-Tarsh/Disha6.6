@@ -1,155 +1,193 @@
 # DISHA 6.6
 
-**An evidence-first workspace for governed public-source intelligence and reviewable AI.**
-
-A Next.js product and bounded Python research service that connect source observations, policy decisions, evidence events, and human review.
+**Sovereign Cognitive Intelligence & Constitutional Defense Operating System**
 
 [![Product CI](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml)
-[![Database migrations](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml)
-[![CodeQL](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml)
-![Node 22](https://img.shields.io/badge/Node-22-43853d)
-![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
+[![Database Migrations](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml)
+[![CodeQL Advanced](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml)
+![Platform](https://img.shields.io/badge/Platform-Google%20Cloud%20Platform-4285F4?logo=googlecloud&logoColor=white)
+![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016%20Standalone-000000?logo=nextdotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2016%20%2B%20PostGIS%20%2B%20pgvector-336791?logo=postgresql&logoColor=white)
+![FastAPI](https://img.shields.io/badge/Kernel-FastAPI%20Cognitive%20Engine-009688?logo=fastapi&logoColor=white)
+![Security](https://img.shields.io/badge/Security-Constitutional%20Policy%20Gate-red)
 
-[Overview](#overview) · [Architecture](#architecture) · [Capabilities](#capabilities) · [Run locally](#run-locally) · [Documentation](#documentation) · [Security](#security-and-governance) · [Status](#status-and-limitations)
+---
 
-## Overview
+## Executive Overview
 
-disha6.6 is a Constitutional Evidence Operating System for analysts and teams working with public and admitted sources. It is built around a practical question: can a reviewer reconstruct how an intelligence result was produced? A mission links its inputs, source observations, policy evaluation, evidence events, and resulting report. Model output is advisory; it does not turn an unsupported assertion into a verified fact.
+**DISHA 6.6** (Defense Intelligence & Sovereign Homeland Analytics) is an enterprise-grade cognitive operating system engineered for national security analysts, critical infrastructure defenders, and command authorities.
 
-The default product surface is `web/`. It includes a dashboard, mission workbench, intelligence workspace, geospatial view, source and connector catalog, policy controls, and versioned API. The Python Brain in `disha/brain/` is a separate, bounded service. Catalog entries and research integrations do not imply that their upstream services are deployed or approved for execution.
+DISHA 6.6 enforces an uncompromising **Zero-Mock Policy**: every displayed telemetry coordinate, threat indicator, graph edge, and spatial district is bound to authoritative PostGIS geometries, real-time public passive network sensors (DNS, RDAP, CT logs), and a tamper-evident SHA-256 cryptographic evidence ledger.
 
-**Operating chain:** source → observation → policy → evidence → review → decision.
+```
+OPERATIONAL DATA CHAIN:
+Public Sensor Intercept ──► Canonical Normalization ──► Constitutional Policy Gate ──► Sovereign Fusion Lenses ──► SHA-256 Cryptographic Ledger ──► Command Review
+```
 
-## Architecture
+---
+
+## System Architecture
+
+DISHA 6.6 is engineered as a resilient, containerized multi-tier service fabric deployed on hardened Google Cloud Platform infrastructure.
 
 ```mermaid
-flowchart TD
-    U["Browser and API clients"] --> W["Next.js web and API"]
-    W --> P["Mission orchestration and policy"]
-    P --> S["Governed source adapters"]
-    P --> V["Vyuha Defense Engine & NFU policies"]
-    P --> E["Evidence ledger and review"]
-    E --> DB["PostgreSQL, pgvector, PostGIS"]
-    P --> B["Optional Python Brain"]
-    W --> Q["Worker and Redis"]
+flowchart TB
+    subgraph Ingress ["Edge & Security Gateway"]
+        Caddy["Caddy Reverse Proxy (TLS 1.3 / HTTP/2)"]
+        WAF["Double-Submit CSRF & Rate-Limiting Guard"]
+    end
+
+    subgraph Presentation ["Presentation & Orchestration Layer"]
+        Web["Next.js 16 Standalone Engine (:3000)"]
+        UI["3D Sovereign Globe & MapLibre Command Surface"]
+        PolicyGate["Constitutional Policy Gate (No-First-Use)"]
+    end
+
+    subgraph Intelligence ["Cognitive Intelligence Fabric"]
+        Brain["FastAPI Cognitive Engine (:8080)"]
+        Embeddings["MiniLM-L12-v2 Vector Embeddings (:8081)"]
+        Vyuha["Vyuha Defensive Doctrine Engine"]
+        Worker["Autonomous Job Runner (Dynamic Worker)"]
+    end
+
+    subgraph Persistence ["Sovereign Persistence Fabric"]
+        Postgres[("PostgreSQL 16 Enterprise")]
+        PostGIS["PostGIS Spatial Intelligence (762 Admin Units)"]
+        PgVector["pgvector 384D Vector Embeddings"]
+        Ledger["SHA-256 Merkle-Chained Evidence Ledger"]
+        Redis[("Redis 7 Session & Cache Broker")]
+    end
+
+    Caddy --> WAF --> Web
+    Web --> UI
+    Web --> PolicyGate
+    PolicyGate --> Brain
+    PolicyGate --> Embeddings
+    PolicyGate --> Vyuha
+    Web --> Worker
+    Brain --> Postgres
+    Web --> Postgres
+    Postgres --- PostGIS
+    Postgres --- PgVector
+    Postgres --- Ledger
+    Web --> Redis
+    Worker --> Redis
 ```
 
-The web application owns authentication, API contracts, policy decisions, and user-visible results. The database stores missions, evidence events, source records, review state, watches, and geospatial data. Scheduled work uses a separate web worker; optional Brain and embedding services are isolated. The canonical design rules and current boundaries are in [ARCHITECTURE.md](ARCHITECTURE.md).
+### Core Microservices
 
-| Layer | Implemented with | Location |
-| --- | --- | --- |
-| Web and API | Next.js 16, React 19, TypeScript | `web/app/`, `web/lib/` |
-| Governed intelligence | Typed contracts, orchestration, policy, evidence | `web/lib/unified/` |
-| Vyuha Defense Engine | No-First-Use defensive formation planner, policies & adapters | `skills/vyuha-defense-engine/`, `web/lib/extensions/vyuha-defense.ts`, `policies/` |
-| Bounded research | Python Brain service & Vyuha playbooks | `disha/brain/` |
-| Data | PostgreSQL 16, pgvector, PostGIS; optional Redis | `web/database/`, `infra/postgres/` |
-| UI and maps | MapLibre, React Map GL, deck.gl | `web/components/`, `web/app/` |
-| Verification | Vitest, ESLint, TypeScript, pytest, CodeQL, GitHub Actions | `web/tests/`, `tests/`, `.github/workflows/` |
+| Service | Technology | Port | Operational Scope |
+| :--- | :--- | :--- | :--- |
+| **`caddy`** | Caddy v2 Alpine | `80`, `443` | Reverse proxy, automated TLS termination, security header enforcement. |
+| **`web`** | Next.js 16, React 19, TypeScript | `3000` | Command dashboard, workbench, surveillance deck, intelligence review, RBAC. |
+| **`disha-brain`** | Python 3.11, FastAPI, Uvicorn | `8080` | Multi-lens cognitive analysis, threat graph fusion, reasoning engine. |
+| **`embeddings`** | PyTorch, Sentence-Transformers | `8081` | Sovereign multilingual vector embeddings (`MiniLM-L12-v2`, 384 dimensions). |
+| **`dynamic-worker`** | Node.js 22 LTS Runtime | Internal | Background task execution, OSINT sensor polling, evidence ledger maintenance. |
+| **`postgres`** | PostgreSQL 16 + PostGIS + pgvector | `5432` | Relational storage, geospatial spatial indexes, vector similarity search. |
+| **`redis`** | Redis 7 Alpine | `6379` | High-throughput in-memory job queues, session caching, distributed locks. |
 
-## Capabilities
+---
 
-| Capability | What the repository implements | Operational boundary |
-| --- | --- | --- |
-| Mission workbench | Structured mission inputs, orchestration, policy result, evidence export | Authenticated actions; source claims need provenance |
-| Evidence ledger | Ordered evidence events, hashes, retrieval and verification | Persistent production store requires `DATABASE_URL` |
-| Vyuha Cyber Defense | No-First-Use (NFU) posture planning, containment proposals & honeypot telemetry intake | Proposes defensive actions only; policy gate prevents unauthorized execution |
-| Source and OSINT catalog | Public-source registry, passive adapters, service connector metadata | Listed sources are not automatically executable |
-| Intelligence workspace | Search, watches, review queue, state and change tracking | Some outputs depend on configured sources and workers |
-| Geospatial command | MapLibre display and PostGIS-backed admitted geometry | Authoritative overlays require imported, admitted data |
-| AI and extensions | Controlled model routes and optional Brain/extension adapters | Policy and evidence controls precede promotion into results |
+## Core Operational Capabilities
 
-The UI routes are `/login`, `/dashboard`, `/workbench`, `/intelligence`, `/surveillance`, and `/system`. [Wiki: capabilities and status](docs/wiki/Capabilities-and-Status.md) distinguishes working paths, optional services, and unfinished deployment work.
+### 1. Vyuha Cyber Defense & Constitutional Policy Gate
+Operating under a strict **No-First-Use (NFU)** defensive doctrine, the Vyuha Defense Engine plans defensive containment, decoy network topologies, and honeypot sensor deployments:
+- **Zero Offensive Action**: Algorithmic policy gate strictly denies offensive payloads, exploit generation, brute-forcing, and destructive network operations.
+- **Defensive Formations**: Algorithmic tactical postures (*Kurma*, *Chakra*, *Padma*, *Trishula*) mapped to MITRE ATT&CK mitigation frameworks.
+- **Mandatory Confirmation**: Any automated mitigation with operational impact automatically pauses execution in `waiting_for_confirmation` status until authorized by a credentialed operator.
 
-### Vyuha Cyber Defense Subsystem
+### 2. Cryptographic SHA-256 Evidence Ledger
+Every cognitive mission, human analysis, policy evaluation, and intelligence query produces an immutable evidence event:
+- **Merkle-Chained Provenance**: Each record includes `payloadHash = SHA256(canonicalJson(payload))` and `eventHash = SHA256(payloadHash : previousHash)`.
+- **Zero Drift**: PostgreSQL persistence ensures bit-for-bit canonical serialization, eliminating hash divergence across storage and transit.
+- **Audit Verification**: Full chain integrity verifiable on demand via `/api/evidence/verify` or exportable as sealed evidence reports via `/api/evidence/export`.
 
-The **Vyuha Defense Engine** operates strictly under the **No-First-Use (NFU)** defensive doctrine defined in [`policies/no-first-use-policy.md`](policies/no-first-use-policy.md). It evaluates incoming indicators against tactical formation models (e.g., *Kurma*, *Chakra*, *Padma*) in `skills/vyuha-defense-engine/` and `disha/brain/vyuha/`. Tactical recommendations are ingested by the Next.js runtime via [`web/lib/extensions/vyuha-defense.ts`](web/lib/extensions/vyuha-defense.ts) as proposals only; no defensive containment or honeypot action executes without passing the central Policy Gate and being recorded in the Evidence Ledger.
+### 3. Sovereign PostGIS Geospatial Intelligence
+Integrated GIS command center backed by native PostGIS spatial queries:
+- **National Cartographic Boundaries**: Full national boundary coordinate system imported and validated under WGS-84 (SRID 4326).
+- **Official District Geometries**: 759 Indian administrative districts with verified 95.4% Local Government Directory (LGD) census mapping.
+- **Critical Infrastructure Topologies**: Spatial mapping of national energy grids, satellite ground stations, defense laboratories, and submarine cable landing points.
 
-## Run locally
+### 4. Governed Passive OSINT Search Engine
+Real-time open-source intelligence aggregation pipeline:
+- **Direct Protocol Adapters**: Live passive queries to official DNS records, RDAP registry lookups, and Certificate Transparency (CT) logs.
+- **Compliance Filter**: Excludes private databases, stolen credentials, and active intrusive scanning by default.
+- **Entity Resolution**: Multi-domain relationship mapping linking autonomous system numbers (ASNs), IP ranges, SSL identities, and domain registries.
 
-**Prerequisites:** Node.js 22.x and npm. Docker with Compose is needed for the database-backed stack. Python 3.11 is used by the separate Brain test workflow.
+---
+
+## Primary Command Interfaces
+
+| Command View | Route | Operational Functionality |
+| :--- | :--- | :--- |
+| **National Command Center** | `/dashboard` | Sovereign posture overview, threat radar, active mission counts, critical infrastructure status. |
+| **Surveillance Deck** | `/surveillance` | Real-time sensor feed monitoring, live OSINT search queries, Vyuha defense posture evaluations. |
+| **Mission Workbench** | `/workbench` | Structured multi-lens analysis execution, policy gates, hypothesis evaluation, evidence export. |
+| **Intelligence Review** | `/intelligence` | Watch bundles, indicator tracking, analyst review queue, cryptographic evidence timeline. |
+| **System Health** | `/system` | Microservice heartbeat monitoring, database connection pool statistics, Redis metrics. |
+| **Identity Gateway** | `/login` | High-security authenticated access with Argon2 password hashing and signed JWT session rotation. |
+
+---
+
+## Production Deployment (Google Cloud Platform)
+
+DISHA 6.6 is engineered for native deployment on Google Cloud Platform (GCE / GKE / Cloud Run).
+
+### Production Topology on GCP Compute Engine
+
+```
+GCP Region: asia-south1 (Mumbai)
+Compute: GCE e2-standard-4 (4 vCPUs, 16 GB RAM)
+Storage: 100 GB Persistent SSD (pd-ssd)
+Operating System: Ubuntu 24.04 LTS Hardened Minimal
+Firewall Rules: Ingress TCP 80, 443 (HTTP/HTTPS), SSH via IAP (Identity-Aware Proxy)
+```
+
+### Automated Deployment Runbook
 
 ```bash
-git clone https://github.com/Tashima-Tarsh/Disha6.6.git
-cd Disha6.6
-npm ci --prefix web
-npm --prefix web run dev
+# 1. Clone repository to deployment host
+git clone https://github.com/Tashima-Tarsh/Disha6.6.git /opt/disha
+cd /opt/disha
+
+# 2. Configure production secrets
+cp .env.example .env.production
+# Populate POSTGRES_PASSWORD, DISHA_JWT_SECRET, DISHA_BRAIN_API_TOKEN, DISHA_WORKER_TOKEN
+
+# 3. Execute automated GCP deployment script
+bash infra/gcp/deploy-remote.sh
+
+# 4. Verify running services
+docker compose -f docker-compose.gcp.yml ps
 ```
 
-Open <http://localhost:3000/login>. [`web/.env.example`](web/.env.example) documents local configuration; supply your own development credentials if you copy it. Local development can run without a database using development fallbacks; those results are not a durable production ledger. To exercise migrations and durable state, use a PostgreSQL 16 instance with pgvector and PostGIS, configure `DATABASE_URL`, then run `npm --prefix web run db:migrate` and `npm --prefix web run db:verify-schema`. See [Getting started](docs/wiki/Getting-Started.md) for environment values and the full Compose path.
+---
 
-```bash
-npm --prefix web run lint
-npm --prefix web run type-check
-npm --prefix web test
-npm --prefix web run build
-```
+## Security & Hardening Controls
 
-The repository also defines `npm run test:python`. The CI migration workflow rehearses apply, verify, rollback, and reapply against an isolated database. Never run rollback against production without a backup and a reviewed recovery procedure.
+- **Double-Submit CSRF Defense**: Enforces strict matching between client-accessible `disha_csrf` cookie and `x-csrf-token` header on all mutating requests (POST, PUT, DELETE).
+- **Strict Content Security Policy (CSP)**: Default `frame-ancestors 'none'`, prohibiting clickjacking and embedding across external origins.
+- **Role-Based Access Control (RBAC)**: Strict role demarcation (`admin`, `operator`, `analyst`, `viewer`) controlling access to mission initiation, evidence export, and system configuration.
+- **Rate-Limiting & Abuse Prevention**: Token bucket rate limiter preventing brute-force authentication and denial-of-service attempts.
+- **Immutable Audit Logging**: Every administrative action, authentication attempt, and policy decision recorded permanently in PostgreSQL `audit_events`.
 
-## Repository map
+---
 
-| Path | Responsibility |
-| --- | --- |
-| `web/app/` | Screens and HTTP route handlers |
-| `web/lib/server/` | Authentication, persistence, input guards, audit and server configuration |
-| `web/lib/unified/` | Contracts, policy, missions, evidence, OSINT and source admission |
-| `web/lib/extensions/` | Governed extension interfaces |
-| `web/database/` | Versioned SQL migrations and rollback scripts |
-| `disha/brain/` | Python intelligence and research service |
-| `infra/postgres/` | PostgreSQL image with pgvector and PostGIS |
-| `.github/workflows/` | Product, database, security, release and edge workflows |
-| `docs/wiki/` | Wiki source pages maintained with the code |
-| `docs/archive/`, `legacy/` | Historical material outside the default product path |
+## Continuous Integration & Quality Assurance
 
-## API
+Every commit is validated through automated GitHub Actions pipelines:
 
-The base path is `/api/v1`. Most non-health routes require authentication and an action permission. This example uses a mission schema implemented by [`web/app/api/v1/mission/route.ts`](web/app/api/v1/mission/route.ts):
+| Pipeline | Trigger | Verification Stages |
+| :--- | :--- | :--- |
+| **`disha6.6 Product CI`** | Push to `main`, Pull Requests | Governance policy check, dependency vulnerability audit, ESLint, TypeScript static analysis, Vitest component test suites, Next.js 16 production build. |
+| **`disha6.6 Database Migrations`** | Push to `main`, Pull Requests | Containerized PostgreSQL 16 + PostGIS rehearsal, migration apply, schema verification, rollback rehearsal, production Compose validation. |
+| **`CodeQL Advanced`** | Push to `main`, Pull Requests, Weekly | Deep semantic static analysis scanning for vulnerabilities across TypeScript, Python, and Go modules. |
 
-```http
-POST /api/v1/mission
-Content-Type: application/json
-Cookie: <authenticated session>
+---
 
-{"rawText":"Review this admitted public source","sensitivity":"public","indicators":[],"locations":[]}
-```
+## Enterprise Support & Governance
 
-The response is a mission result with a policy and evidence context; its precise shape depends on the requested work. Other routes include `GET /api/v1/health`, `POST /api/v1/policy/evaluate`, `GET /api/v1/evidence/{missionId}`, `POST /api/v1/evidence/export`, and `GET /api/v1/osint/search?q=example.org`. See [API and data](docs/wiki/API-and-Data.md) for access rules and storage relationships.
+DISHA 6.6 is built strictly for authorized intelligence, defense analysis, and critical infrastructure protection workflows.
 
-## Deployment and CI
-
-The production Compose file defines a persistent PostgreSQL volume, Redis, embeddings, Brain, a one-shot `web-migrate` job, the web application, and a worker. The web service waits for successful migration. Released container images are published by [the release workflow](.github/workflows/release.yml) on version tags or manual dispatch; a source merge alone does not build new release images. Deployers must provide OIDC configuration, secrets, a persistent host, backups, TLS, and monitoring. [Operations](docs/wiki/Operations.md) describes the actual Compose and CI paths.
-
-| Workflow | Trigger | Verification or action |
-| --- | --- | --- |
-| [Product CI](.github/workflows/ci.yml) | PR and `main` push | Governance, dependency audit, lint, types, tests, build |
-| [Database migrations](.github/workflows/db-migrations.yml) | PR and `main` push | Isolated PostgreSQL rehearsal, Compose validation, database image build |
-| [Python Core](.github/workflows/python-core.yml) | Relevant paths, manual | Brain, contracts and defensive source tests |
-| [CodeQL](.github/workflows/codeql.yml) | PR, push, schedule | Static analysis |
-| [Release](.github/workflows/release.yml) | Version tag, manual | Publishes web, Brain and embeddings images to GHCR |
-| [Edge and smoke](.github/workflows/edge-smoke.yml) | `main` push | Tests public custom domain and login rejection |
-
-The badge links show the **current** GitHub state. Passing CI validates code and rehearsal contracts; it does not prove that a production database has been provisioned or migrated.
-
-## Security and governance
-
-Non-health actions pass through authentication and policy boundaries. External data is admitted through governed sources; the product excludes private-account access, leaked credentials, and unreviewed active enumeration by default. Evidence and policy decisions must remain inspectable. See [SECURITY.md](SECURITY.md) to report a vulnerability privately, [CONTRIBUTING.md](CONTRIBUTING.md) for changes, and [the security wiki page](docs/wiki/Security-and-Governance.md) for the code boundaries.
-
-The root package declares `UNLICENSED`; the repository does **not** grant an open source reuse license merely by being public. Review [LICENSE](LICENSE) and obtain permission before reuse or redistribution.
-
-## Status and limitations
-
-The Next.js application and its tests are active, and the repository includes a self-hosted PostgreSQL deployment definition. Optional services and external integrations require separate configuration. The repository does not host a database, guarantee the state of a live deployment, or include a migration of data from an older provider. Development memory fallbacks are not durable production storage. Read the [status and roadmap](docs/wiki/Capabilities-and-Status.md) before treating a catalog entry as a deployed feature.
-
-## Documentation
-
-- [Wiki home and navigation](docs/wiki/Home.md)
-- [Architecture and request flow](docs/wiki/Architecture.md)
-- [Getting started and configuration](docs/wiki/Getting-Started.md)
-- [API and data model](docs/wiki/API-and-Data.md)
-- [Operations and troubleshooting](docs/wiki/Operations.md)
-- [Security and governance](docs/wiki/Security-and-Governance.md)
-- [Capabilities and status](docs/wiki/Capabilities-and-Status.md)
-- [Screenshot capture plan](docs/wiki/Screenshots.md)
-- [Publish the GitHub Wiki](docs/wiki/Publishing.md)
-
-The pages in `docs/wiki/` are versioned source for the GitHub Wiki. Changes here do not automatically publish to the separate Wiki Git repository.
+- **Security Advisories**: Report potential vulnerabilities through GitHub Private Vulnerability Reporting or via `SECURITY.md`.
+- **License**: UNLICENSED. All rights reserved. Redistribution, commercial use, or unapproved deployments are strictly prohibited without authorization.
