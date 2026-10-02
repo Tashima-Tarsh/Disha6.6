@@ -114,6 +114,23 @@ Real-time open-source intelligence aggregation pipeline:
 - **Compliance Filter**: Excludes private databases, stolen credentials, and active intrusive scanning by default.
 - **Entity Resolution**: Multi-domain relationship mapping linking autonomous system numbers (ASNs), IP ranges, SSL identities, and domain registries.
 
+### 5. ASTRA 6 — Governed Six-Tool OSINT Fabric
+Enterprise orchestration of authoritative open-source intelligence frameworks under strict constitutional governance:
+
+| Tool | Capability & Scope | Execution Class | Governance & Policy Gate |
+| :--- | :--- | :--- | :--- |
+| **PhoneInfoga** | Phone number validation, carrier lookup, reputation analysis | `passive_public` | Identity investigation policy gate; blocks harassment & unauthorized surveillance |
+| **Sherlock** | Username presence discovery across 400+ public platforms | `passive_public` | Authorized identity investigation gate (`DISHA_IDENTITY_ENUMERATION_APPROVED`) |
+| **theHarvester** | Passive domain intelligence, email harvesting, DNS discovery | `passive_public` | Passive allowlist (Anubis, crt.sh, DNSDumpster, HackerTarget, OTX, RapidDNS); active engines blocked |
+| **SpiderFoot** | Multi-source OSINT correlation & attack surface analysis | `passive_public` | 34 reviewed passive modules allowlisted; port scanning & active crawlers strictly blocked |
+| **OWASP Amass** | Attack surface mapping & asset discovery | `passive_public` | Passive-only mode enforced (`-passive` flag); DNS brute-forcing & zone transfers denied |
+| **Subfinder** | High-speed passive subdomain enumeration | `passive_public` | Multi-source passive discovery; active probing & port scanning blocked |
+
+- **Command Injection Immunity**: All CLI inputs validated against strict shell metacharacter rejection guards (`SHELL_INJECTION_GUARD`) prior to worker dispatch.
+- **Dedicated Persistence**: Backed by `astra6_tool_manifests`, `astra6_connector_health`, `astra6_connector_runs`, `astra6_observations`, and `astra6_entities` with PostgreSQL Row-Level Security (RLS).
+- **Automated Target Classification**: DISHA autonomously classifies inputs (domain, IP, email, phone, username) and routes to optimal tools without requiring manual tool selection.
+
+
 ---
 
 ## Primary Command Interfaces

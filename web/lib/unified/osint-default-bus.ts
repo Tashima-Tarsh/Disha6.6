@@ -6,6 +6,7 @@ import {
   createRipeStatWhoisAdapter,
   createReliefWebAdapter,
 } from "./cross-domain-public-adapters";
+import { astra6Adapters } from "./astra6-governed-adapters";
 import { OsintAdapterBus, type AdapterBusOptions } from "./osint-adapter-bus";
 import { createDynamicPublicSourceAdapter } from "./dynamic-public-source";
 import {
@@ -46,5 +47,8 @@ export function createDefaultOsintBus(options: AdapterBusOptions = {}): OsintAda
   bus.register(createCelestrakGpAdapter());
   bus.register(createNoaaSpaceWeatherAdapter());
   bus.register(createReliefWebAdapter());
+  for (const adapter of astra6Adapters) {
+    bus.register(adapter);
+  }
   return bus;
 }
