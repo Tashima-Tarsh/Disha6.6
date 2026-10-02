@@ -1,0 +1,17 @@
+:root {
+  color-scheme: dark;
+  --disha-background: #101613;
+  --disha-surface: #171d1a;
+  --disha-border: #34443a;
+  --disha-text: #e5ece7;
+  --disha-muted: #a6b6ac;
+  --disha-accent: #bdd2c5;
+  --disha-error: #f2c8bc;
+  --font-geist-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--disha-background); color: var(--disha-text); font-family: var(--font-geist-sans); }
+button, input, select, textarea { font: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--disha-accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

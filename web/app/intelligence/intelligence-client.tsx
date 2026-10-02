@@ -1,4 +1,5 @@
 "use client";
+import { authenticatedFetch } from "@/lib/client-fetch";
 
 import { Activity, AlertTriangle, ArrowLeft, CheckCircle2, Clock3, RefreshCw, ShieldCheck } from "lucide-react";
 import Link from "next/link";
@@ -77,7 +78,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
 
   const load = useCallback(async () => {
     try {
-      const response = await fetch("/api/v1/intelligence/live?limit=150", { cache: "no-store" });
+      const response = await authenticatedFetch("/api/v1/intelligence/live?limit=150", { cache: "no-store" });
       if (!response.ok) throw new Error(`Live intelligence request failed (${response.status})`);
       setFeed(await response.json() as LiveFeed);
       setError(null);
@@ -103,7 +104,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
     setSelectedChangeId(change.changeId);
     try {
       const params = new URLSearchParams({ subject: change.subject, predicate: change.predicate });
-      const response = await fetch(`/api/v1/intelligence/state?${params.toString()}`, { cache: "no-store" });
+      const response = await authenticatedFetch(`/api/v1/intelligence/state?${params.toString()}`, { cache: "no-store" });
       if (!response.ok) throw new Error(`State inspection failed (${response.status})`);
       setSelectedState(await response.json() as IntelligenceState);
     } catch (caught) {
@@ -116,7 +117,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
     setCreatingWatch(true);
     try {
       const bundle = buildBundlePayload(bundleKind, bundleFields);
-      const response = await fetch("/api/v1/osint/watch-bundles", {
+      const response = await authenticatedFetch("/api/v1/osint/watch-bundles", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -141,7 +142,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
   async function resolveReview(reviewId: string, status: "in_review" | "resolved" | "dismissed") {
     setBusy(reviewId);
     try {
-      const response = await fetch("/api/v1/intelligence/reviews", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ reviewId, status }) });
+      const response = await authenticatedFetch("/api/v1/intelligence/reviews", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ reviewId, status }) });
       if (!response.ok) throw new Error(`Review update failed (${response.status})`);
       await load();
     } catch (caught) {

@@ -84,6 +84,20 @@ class PostgresMissionStore implements MissionStore {
   }
 }
 
+const reservedMissionIds = new Set<string>();
+export async function reserveMissionId(missionId: string, userId: string, input: unknown): Promise<void> {
+  const pool = getDbPool();
+  if (pool) {
+    const result = await pool.query(
+      "insert into missions (mission_id, user_id, status, raw_input) values ($1,$2,'received',$3::jsonb) on conflict (mission_id) do nothing returning mission_id",
+      [missionId, userId, JSON.stringify(input)],
+    );
+    if (!result.rowCount) throw Object.assign(new Error("Mission ID already exists; start a new mission"), { status: 409 });
+  } else {
+    if (reservedMissionIds.has(missionId)) throw Object.assign(new Error("Mission ID already exists; start a new mission"), { status: 409 });
+    reservedMissionIds.add(missionId);
+  }
+}
 const memoryMissionStore = new MemoryMissionStore();
 let overrideStore: MissionStore | null = null;
 
@@ -136,6 +150,7 @@ export function useMissionStoreForTests(store: MissionStore | null): void {
 }
 
 export async function clearMissionStoreForTests(): Promise<void> {
+  reservedMissionIds.clear();
   await getMissionStore().clearForTests();
 }
 
@@ -154,7 +169,6 @@ async function persistMissionLifecycle(client: PoolClient, result: MissionResult
       current_risk_score, evidence_event_ids, created_at, updated_at, completed_at
     ) values ($1,$2,$3,$4,$5,$6,$7,$8,now(),now(),$9)
     on conflict (mission_id) do update set
-      user_id = excluded.user_id,
       status = excluded.status,
       normalized_signal = excluded.normalized_signal,
       current_policy_decision = excluded.current_policy_decision,
@@ -219,7 +233,6 @@ async function persistFinalMissionResult(client: PoolClient, result: MissionResu
       evidence_event_ids, result, result_hash, created_at, updated_at
     ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,now(),now())
     on conflict (mission_id) do update set
-      user_id = excluded.user_id,
       policy_decision = excluded.policy_decision,
       safe_execution = excluded.safe_execution,
       risk_score = excluded.risk_score,

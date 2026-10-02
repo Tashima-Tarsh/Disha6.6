@@ -12,16 +12,18 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
-import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
+import dynamic from "next/dynamic";
+import { authenticatedFetch } from "@/lib/client-fetch";
+const SovereignCyberMatrix3D = dynamic(() => import("@/components/visual/SovereignCyberMatrix3D").then((module) => module.SovereignCyberMatrix3D), { ssr: false });
 import styles from "./login.module.css";
 
 
 type SubmitState = "idle" | "submitting" | "error";
 type OidcProvider = "meri-pehchan" | "intra-id";
 
-export function LoginClient({ returnUrl }: { returnUrl: string }) {
+export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnUrl: string; passwordEnabled: boolean; providers: Record<OidcProvider, boolean> }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +31,14 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
   const [rememberMe, setRememberMe] = useState(true);
   const [state, setState] = useState<SubmitState>("idle");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void authenticatedFetch("/api/auth/me", { signal: controller.signal }).then(response => {
+      if (response.ok) { router.replace(returnUrl); router.refresh(); }
+    }).catch(() => undefined);
+    return () => controller.abort();
+  }, [returnUrl, router]);
 
   const normalizedEmail = email.trim().toLowerCase();
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail), [normalizedEmail]);
@@ -83,10 +93,10 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
           <div className={styles.headingBlock}>
             <p className={styles.kicker}>PROTECTED IDENTITY GATEWAY</p>
             <h1 id="secure-access-title">Secure Access</h1>
-            <p>For a safer, stronger and smarter India</p>
+            <p>Sign in to your evidence workspace</p>
           </div>
 
-          <form className={styles.loginForm} onSubmit={signIn} noValidate>
+          {passwordEnabled && <form className={styles.loginForm} onSubmit={signIn} noValidate>
             <label className={styles.field}>
               <span className={styles.srOnly}>Email address or User ID</span>
               <Mail aria-hidden="true" size={20} />
@@ -145,19 +155,21 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
               <span>{state === "submitting" ? "VERIFYING IDENTITY" : "LOGIN SECURELY"}</span>
               {state !== "submitting" ? <span className={styles.loginArrow}>→</span> : null}
             </button>
-          </form>
+          </form>}
 
-          <div className={styles.divider}><span>OR USE APPROVED IDENTITY</span></div>
+          {passwordEnabled && <p className={styles.help}>Use the email and password provisioned for your account. If you need a reset, contact your workspace administrator.</p>}
+          {(providers["meri-pehchan"] || providers["intra-id"]) && <div className={styles.divider}><span>APPROVED IDENTITY</span></div>}
+          {!passwordEnabled && !providers["meri-pehchan"] && !providers["intra-id"] && <p role="status">Sign-in has not been configured. Contact the workspace administrator.</p>}
 
           <div className={styles.identityGrid}>
-            <button onClick={() => startOidc("meri-pehchan")} type="button">
+            {providers["meri-pehchan"] && <button onClick={() => startOidc("meri-pehchan")} type="button">
               <Fingerprint size={21} />
               <span><small>Continue with</small>Meri Pehchan</span>
-            </button>
-            <button onClick={() => startOidc("intra-id")} type="button">
+            </button>}
+            {providers["intra-id"] && <button onClick={() => startOidc("intra-id")} type="button">
               <Building2 size={21} />
               <span><small>Continue with</small>Microsoft / Intra ID</span>
-            </button>
+            </button>}
           </div>
 
           <footer className={styles.securityFooter}>

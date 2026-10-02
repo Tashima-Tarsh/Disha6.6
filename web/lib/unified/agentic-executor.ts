@@ -1,3 +1,4 @@
+import { saveMissionResult } from "./mission-store";
 import { appendEvidenceEvent } from "./evidence-ledger";
 import { runGovernedExtensions, type GovernedExtensionRun } from "../extensions";
 import { learnFromMission, type LearningMemoryRecord } from "./learning-memory";
@@ -67,6 +68,8 @@ export async function runAgenticMission(input: AgenticMissionInput): Promise<Age
     parentEventId: modelEvent.eventId,
   });
   mission.evidenceEventIds = [...mission.evidenceEventIds, learningEvent.eventId];
+
+  await saveMissionResult(mission);
 
   return {
     mission,

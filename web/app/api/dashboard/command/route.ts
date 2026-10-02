@@ -28,7 +28,7 @@ type CommandLane = {
 
 export async function GET(req: NextRequest) {
   try {
-    const principal = requirePrincipal(req);
+    const principal = await requirePrincipal(req);
     const generatedAt = new Date().toISOString();
     const [cag, finance] = await Promise.all([
       sourceWithTimeout(

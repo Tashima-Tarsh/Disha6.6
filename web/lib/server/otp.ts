@@ -39,6 +39,7 @@ function isDevMode() {
 }
 
 export function issueOtpChallenge(response: NextResponse, mobile: string) {
+  if (isProduction()) throw Object.assign(new Error("SMS sign-in is unavailable: no verified delivery provider is configured. Use OIDC."), { status: 503 });
   const normalizedMobile = normalizeMobile(mobile);
   const code = createOtpCode();
   const challenge: OtpChallenge = {
@@ -68,6 +69,7 @@ export async function verifyOtpChallenge(req: NextRequest, response: NextRespons
     response.cookies.set(OTP_COOKIE, "", { ...cookieOptions(0), maxAge: 0 });
     throw Object.assign(new Error("OTP challenge expired. Request a fresh OTP."), { status: 401 });
   }
+  if (isProduction()) throw Object.assign(new Error("SMS sign-in is unavailable: no verified delivery provider is configured. Use OIDC."), { status: 503 });
   const normalizedMobile = normalizeMobile(mobile);
 
   if (challenge.mobile !== normalizedMobile) {

@@ -40,7 +40,7 @@ export function createPassiveDnsAdapter(fetcher: FetchLike = safePublicFetch): G
       maxRetries: 1,
     },
     async health() {
-      return { status: "healthy" as const, detail: "Public passive DNS endpoint configured" };
+      return { status: "configured" as const, detail: "Public passive DNS endpoint configured" };
     },
     async execute(input, context) {
       ensurePublicPurpose(context);
@@ -75,7 +75,7 @@ export function createCertificateTransparencyAdapter(fetcher: FetchLike = safePu
       maxRetries: 1,
     },
     async health() {
-      return { status: "healthy" as const, detail: "Public CT query endpoint configured" };
+      return { status: "configured" as const, detail: "Public CT query endpoint configured" };
     },
     async execute(input, context) {
       ensurePublicPurpose(context);
@@ -123,7 +123,7 @@ export function createOfficialPublicSourceProbeAdapter(fetcher: FetchLike = safe
       maxRetries: 1,
     },
     async health() {
-      return { status: "healthy" as const, detail: "Government source allowlist loaded" };
+      return { status: "configured" as const, detail: "Government source allowlist loaded" };
     },
     async execute(input, context) {
       ensurePublicPurpose(context);
@@ -249,7 +249,7 @@ export function createRdapAdapter(fetcher: FetchLike = safePublicFetch): Governe
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "Public RDAP bootstrap endpoint configured" }; },
+    async health() { return { status: "configured" as const, detail: "Public RDAP bootstrap endpoint configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const requestedKind = input.kind;
@@ -297,7 +297,7 @@ export function createWaybackAdapter(fetcher: FetchLike = safePublicFetch): Gove
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "Internet Archive CDX endpoint configured" }; },
+    async health() { return { status: "configured" as const, detail: "Internet Archive CDX endpoint configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const domain = normalizeDomain(input.domain);
@@ -338,7 +338,7 @@ export function createGdeltNewsAdapter(fetcher: FetchLike = safePublicFetch): Go
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "GDELT DOC API configured" }; },
+    async health() { return { status: "configured" as const, detail: "GDELT DOC API configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const query = normalizeTextQuery(input.query, 512);
@@ -382,7 +382,7 @@ export function createCisaKevAdapter(fetcher: FetchLike = safePublicFetch): Gove
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "CISA KEV public JSON feed configured" }; },
+    async health() { return { status: "configured" as const, detail: "CISA KEV public JSON feed configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const cve = input.cve ? normalizeCve(input.cve) : undefined;
@@ -435,7 +435,7 @@ export function createGithubRepositoryAdapter(fetcher: FetchLike = safePublicFet
       defaultEnabled: true,
       upstreamRepository: "https://github.com/github/rest-api-description",
     },
-    async health() { return { status: "healthy" as const, detail: "GitHub public REST endpoint configured; unauthenticated rate limits apply" }; },
+    async health() { return { status: "configured" as const, detail: "GitHub public REST endpoint configured; unauthenticated rate limits apply" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const repository = normalizeRepository(input.repository);
@@ -483,7 +483,7 @@ export function createCommonCrawlAdapter(fetcher: FetchLike = safePublicFetch): 
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "Common Crawl index discovery configured" }; },
+    async health() { return { status: "configured" as const, detail: "Common Crawl index discovery configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const domain = normalizeDomain(input.domain);
@@ -541,7 +541,7 @@ export function createSecEdgarAdapter(fetcher: FetchLike = safePublicFetch): Gov
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: process.env.SEC_USER_AGENT ? "healthy" as const : "degraded" as const, detail: process.env.SEC_USER_AGENT ? "SEC user-agent configured" : "Set SEC_USER_AGENT with a contact string before production use" }; },
+    async health() { return { status: process.env.SEC_USER_AGENT ? "configured" as const : "degraded" as const, detail: process.env.SEC_USER_AGENT ? "SEC user-agent configured" : "Set SEC_USER_AGENT with a contact string before production use" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const digits = input.cik.replace(/\D/g, "");
@@ -600,7 +600,7 @@ export function createOpenAlexAdapter(fetcher: FetchLike = safePublicFetch): Gov
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "OpenAlex public API configured" }; },
+    async health() { return { status: "configured" as const, detail: "OpenAlex public API configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const query = normalizeTextQuery(input.query, 512);
@@ -647,7 +647,7 @@ export function createWorldBankAdapter(fetcher: FetchLike = safePublicFetch): Go
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "World Bank v2 API configured" }; },
+    async health() { return { status: "configured" as const, detail: "World Bank v2 API configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const country = normalizeTextQuery(input.country, 32).replace(/[^a-z0-9-]/gi, "");
@@ -693,7 +693,7 @@ export function createWikidataSearchAdapter(fetcher: FetchLike = safePublicFetch
       executionClass: "passive_public",
       defaultEnabled: true,
     },
-    async health() { return { status: "healthy" as const, detail: "Wikidata search API configured" }; },
+    async health() { return { status: "configured" as const, detail: "Wikidata search API configured" }; },
     async execute(input, context) {
       ensurePublicPurpose(context);
       const query = normalizeTextQuery(input.query, 256);

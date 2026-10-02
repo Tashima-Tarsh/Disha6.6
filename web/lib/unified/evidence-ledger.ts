@@ -94,7 +94,7 @@ class PostgresEvidenceLedgerStore implements EvidenceLedgerStore {
        order by chain_index asc`,
       [missionId],
     );
-    return result.rows.map((row) => ({
+    return result.rows.map((row) => restoreLegacyOptionalLensResults({
       eventId: row.event_id,
       missionId: row.mission_id,
       chainIndex: row.chain_index,
@@ -109,7 +109,7 @@ class PostgresEvidenceLedgerStore implements EvidenceLedgerStore {
       previousHash: row.previous_hash ?? undefined,
       payloadHash: row.payload_hash ?? "",
       hashAlgorithm: row.hash_algorithm ?? "sha256",
-      ledgerVersion: 2,
+      ledgerVersion: row.ledger_version as 2,
       eventHash: row.event_hash,
     }));
   }
@@ -117,6 +117,15 @@ class PostgresEvidenceLedgerStore implements EvidenceLedgerStore {
   async clearForTests(): Promise<void> {
     await this.pool.query("delete from evidence_events");
   }
+}
+
+function restoreLegacyOptionalLensResults(event: EvidenceEvent): EvidenceEvent {
+  // Earlier writers persisted an omitted field as []. Recover it only when both original digests prove that exact payload.
+  if (event.ledgerVersion !== 2 || event.lensResults?.length !== 0) return event;
+  const candidate = { ...event, lensResults: undefined };
+  const { eventHash, payloadHash, ...payload } = candidate;
+  const expected = hashValue(payload);
+  return expected === payloadHash && hashValue(`${expected}:${event.previousHash ?? "GENESIS"}`) === eventHash ? candidate : event;
 }
 
 const memoryStore = new MemoryEvidenceLedgerStore();
@@ -194,7 +203,7 @@ function getEvidenceLedgerStore(): EvidenceLedgerStore {
 
   const env = getEnv();
   const mode = env.DISHA_EVIDENCE_LEDGER_MODE ?? (isProduction() ? "postgres" : "memory-dev");
-  if (process.env.NODE_ENV === "test" || mode === "memory-dev") return memoryStore;
+  if (!isProduction() && (process.env.NODE_ENV === "test" || mode === "memory-dev")) return memoryStore;
 
   throw new Error("Persistent Evidence Ledger requires DATABASE_URL or DISHA_EVIDENCE_LEDGER_MODE=memory-dev outside production");
 }
@@ -215,7 +224,7 @@ async function insertEvidenceEvent(client: PoolClient, event: EvidenceEvent): Pr
       event.inputHash,
       event.outputHash ?? null,
       event.policyDecision ? JSON.stringify(event.policyDecision) : null,
-      event.lensResults ?? [],
+      event.lensResults ?? null,
       event.parentEventId ?? null,
       event.previousHash ?? null,
       event.payloadHash,

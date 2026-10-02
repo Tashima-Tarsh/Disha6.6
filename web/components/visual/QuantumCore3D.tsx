@@ -12,9 +12,9 @@ interface QuantumCore3DProps {
 }
 
 export function QuantumCore3D({
-  dbStatus = "ready",
-  redisStatus = "ready",
-  postgisStatus = "ready",
+  dbStatus = "unknown",
+  redisStatus = "unknown",
+  postgisStatus = "unknown",
 }: QuantumCore3DProps) {
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -27,13 +27,12 @@ export function QuantumCore3D({
     const camera = new THREE.PerspectiveCamera(40, host.clientWidth / Math.max(1, host.clientHeight), 0.1, 100);
     camera.position.set(0, 0, 5.8);
 
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
+    if (reduceMotion || window.innerWidth < 768) return;
+    let renderer: InstanceType<typeof THREE.WebGLRenderer>;
+    try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "low-power" }); }
+    catch { return; }
     renderer.setSize(host.clientWidth, host.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0x000000, 0);
     host.appendChild(renderer.domElement);
 

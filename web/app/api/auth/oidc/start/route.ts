@@ -1,3 +1,4 @@
+import { safeReturnUrl } from "@/lib/server/return-url";
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,17 +12,13 @@ import { requestId } from "@/lib/server/security";
 
 const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
-function safeReturnUrl(value?: string) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  if (value === "/workbench") return "/dashboard";
-  return value;
-}
 
 export async function GET(req: NextRequest) {
   try {
     await assertPublicRequestGuards(req);
     const query = oidcStartSchema.parse(Object.fromEntries(req.nextUrl.searchParams.entries()));
     const env = getEnv();
+    if (env.DISHA_AUTH_MODE !== "oidc") throw Object.assign(new Error("OIDC is disabled"), { status: 404 });
     const authUrl =
       query.provider === "meri-pehchan"
         ? env.DISHA_MERI_PEHCHAN_AUTH_URL
@@ -42,11 +39,13 @@ export async function GET(req: NextRequest) {
       new URL("/api/auth/oidc/callback", req.nextUrl.origin).toString();
     const verifier = crypto.randomBytes(32).toString("base64url");
     const challenge = crypto.createHash("sha256").update(verifier).digest("base64url");
+    const nonce = crypto.randomUUID();
     const state = signJson(
       {
         provider: query.provider,
         returnUrl: safeReturnUrl(query.returnUrl),
-        nonce: crypto.randomUUID(),
+        nonce,
+        verifierHash: challenge,
         exp: Math.floor(Date.now() / 1000) + 10 * 60,
       },
       authSigningSecret(),
@@ -57,6 +56,7 @@ export async function GET(req: NextRequest) {
     url.searchParams.set("response_type", "code");
     url.searchParams.set("scope", "openid profile email");
     url.searchParams.set("state", state);
+    url.searchParams.set("nonce", nonce);
     url.searchParams.set("code_challenge", challenge);
     url.searchParams.set("code_challenge_method", "S256");
 

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { ArrowLeft, Box, Cpu, Database, HardDrive, MapPinned, RadioTower, ServerCog } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { authenticatedFetch } from "@/lib/client-fetch";
 import type { GeospatialRuntimeStatus } from "@/lib/geospatial/contracts";
-import { QuantumCore3D } from "@/components/visual/QuantumCore3D";
+import dynamic from "next/dynamic";
+const QuantumCore3D = dynamic(() => import("@/components/visual/QuantumCore3D").then(module => module.QuantumCore3D), { ssr: false });
 import styles from "./system.module.css";
 
 type RuntimeStatus = {
@@ -26,8 +28,8 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
   useEffect(() => {
     const controller = new AbortController();
     void Promise.all([
-      fetch("/api/v1/runtime/status", { cache: "no-store", credentials: "same-origin", signal: controller.signal }).then(requireJson<RuntimeStatus>),
-      fetch("/api/v1/geo/status", { cache: "no-store", credentials: "same-origin", signal: controller.signal }).then(requireJson<GeospatialRuntimeStatus>),
+      authenticatedFetch("/api/v1/runtime/status", { cache: "no-store", credentials: "same-origin", signal: controller.signal }).then(requireJson<RuntimeStatus>),
+      authenticatedFetch("/api/v1/geo/status", { cache: "no-store", credentials: "same-origin", signal: controller.signal }).then(requireJson<GeospatialRuntimeStatus>),
     ]).then(([runtimeStatus, geoStatus]) => {
       setRuntime(runtimeStatus);
       setGeo(geoStatus);

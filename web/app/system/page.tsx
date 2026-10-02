@@ -18,7 +18,7 @@ export default async function SystemPage() {
   if (!token) redirect("/login?mode=password&returnUrl=%2Fsystem");
   let principal;
   try {
-    principal = principalFromAccessToken(token);
+    principal = await principalFromAccessToken(token);
   } catch {
     redirect("/login?mode=password&returnUrl=%2Fsystem");
   }

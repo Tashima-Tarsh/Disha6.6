@@ -1,4 +1,5 @@
 "use client";
+import { authenticatedFetch } from "@/lib/client-fetch";
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -56,7 +57,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch("/api/v1/intelligence/workspace", {
+    void authenticatedFetch("/api/v1/intelligence/workspace", {
       cache: "no-store",
       credentials: "same-origin",
       signal: controller.signal,
@@ -151,7 +152,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
           <a href="#graph"><Network size={16} /> Entity graph</a>
           <a href="#evidence"><Fingerprint size={16} /> Evidence</a>
           <Link href="/workbench"><Waypoints size={16} /> Mission workbench</Link>
-          <Link href="/surveillance"><Globe size={16} /> 3D Cyber Space</Link>
+          <Link href="/surveillance"><Globe size={16} /> Source intelligence</Link>
           <Link href="/intelligence"><FileSearch size={16} /> Intelligence</Link>
           <Link href="/system"><Settings2 size={16} /> System console</Link>
         </nav>
@@ -175,7 +176,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
 
         <footer className={styles.railFooter}>
           <ShieldCheck size={15} />
-          <div><strong>Evidence-first runtime</strong><span>{principal.email}</span></div>
+          <div><strong>Evidence-first runtime</strong><Link href="/account">{principal.email}</Link></div>
         </footer>
       </aside>
 

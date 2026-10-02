@@ -12,6 +12,7 @@
 name: "CodeQL Advanced"
 
 on:
+  workflow_call:
   push:
     branches: [ "main" ]
   pull_request:
@@ -37,8 +38,6 @@ jobs:
           build-mode: none
         - language: javascript-typescript
           build-mode: none
-        - language: go
-          build-mode: autobuild
         - language: python
           build-mode: none
 
@@ -65,12 +64,8 @@ jobs:
       with:
         category: "/language:${{ matrix.language }}"
         output: sarif-results/${{ matrix.language }}
-        upload: never
+        upload: always
 
-    # Private repositories require GitHub Code Security to be enabled before
-    # CodeQL SARIF can be uploaded to the code-scanning service. Until that
-    # repository setting is enabled, retain the full analysis output as a CI
-    # artifact instead of turning a successful scan into a configuration failure.
     - name: Preserve CodeQL SARIF
       uses: actions/upload-artifact@v4
       with:

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     const { shareId } = await params;
     let ctx: RequestContext | null = null;
     try {
-      ctx = { requestId: requestId(req), principal: requirePrincipal(req) };
+      ctx = { requestId: requestId(req), principal: await requirePrincipal(req) };
     } catch {
       // Public and unlisted shares do not require an authenticated viewer.
     }

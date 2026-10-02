@@ -1,6 +1,7 @@
 name: disha6.6 Database Migrations
 
 on:
+  workflow_call:
   push:
     branches: [main]
   pull_request:

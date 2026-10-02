@@ -23,7 +23,7 @@ export default async function WorkbenchPage() {
 
   let principal;
   try {
-    principal = principalFromAccessToken(token);
+    principal = await principalFromAccessToken(token);
   } catch {
     redirect("/login?mode=password&returnUrl=%2Fworkbench");
   }

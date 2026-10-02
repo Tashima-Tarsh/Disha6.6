@@ -1,5 +1,10 @@
 # DISHA 6.6
 
+## Production access and deployment
+
+For the verified runtime boundaries, individual password accounts, deployment steps and the existing custom domain, see [Production setup](docs/operations/production-setup.md) and [Remediation review](docs/internal/production-remediation-2026-10-02.md). The active product is `web/` with the governed Python service in `disha/brain/`; retained upstream source is not automatically an executable integration.
+
+
 **An evidence-first workspace for governed public-source intelligence and reviewable AI.**
 
 A Next.js product and bounded Python research service that connect source observations, policy decisions, evidence events, and human review.

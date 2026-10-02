@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { audit } from "@/lib/server/audit";
-import { clearSessionCookies, requirePrincipal } from "@/lib/server/auth";
+import { clearSessionCookies, revokeRequestSession } from "@/lib/server/auth";
 import { assertCsrf } from "@/lib/server/csrf";
 import { errorResponse } from "@/lib/server/http";
 import { requestId } from "@/lib/server/security";
@@ -8,12 +8,12 @@ import { requestId } from "@/lib/server/security";
 export async function POST(req: NextRequest) {
   try {
     assertCsrf(req);
-    const principal = requirePrincipal(req);
+    const userId = await revokeRequestSession(req);
     const response = NextResponse.json({ success: true });
     clearSessionCookies(response);
     await audit({
       requestId: requestId(req),
-      userId: principal.userId,
+      userId,
       action: "auth.logout",
       outcome: "success",
     });

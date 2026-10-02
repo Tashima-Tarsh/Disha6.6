@@ -172,7 +172,7 @@ export function createNvdCveAdapter(fetcher: CrossDomainFetchLike = safePublicFe
       executionClass: "passive_public",
     },
     async health() {
-      return { status: "healthy" as const, detail: "NVD CVE API 2.0 public endpoint configured; unauthenticated rate limits apply" };
+      return { status: "configured" as const, detail: "NVD CVE API 2.0 public endpoint configured; unauthenticated rate limits apply" };
     },
     async execute(input, context) {
       ensurePurpose(context);
@@ -242,7 +242,7 @@ export function createEpssAdapter(fetcher: CrossDomainFetchLike = safePublicFetc
       executionClass: "passive_public",
     },
     async health() {
-      return { status: "healthy" as const, detail: "FIRST EPSS public API endpoint configured" };
+      return { status: "configured" as const, detail: "FIRST EPSS public API endpoint configured" };
     },
     async execute(input, context) {
       ensurePurpose(context);
@@ -292,7 +292,7 @@ export function createRipeStatWhoisAdapter(fetcher: CrossDomainFetchLike = safeP
       executionClass: "passive_public",
     },
     async health() {
-      return { status: "healthy" as const, detail: "RIPEstat public Data API configured" };
+      return { status: "configured" as const, detail: "RIPEstat public Data API configured" };
     },
     async execute(input, context) {
       ensurePurpose(context);
@@ -339,7 +339,7 @@ export function createCelestrakGpAdapter(fetcher: CrossDomainFetchLike = safePub
       executionClass: "passive_public",
     },
     async health() {
-      return { status: "healthy" as const, detail: "CelesTrak public GP query endpoint configured; requests are bounded and cache-friendly" };
+      return { status: "configured" as const, detail: "CelesTrak public GP query endpoint configured; requests are bounded and cache-friendly" };
     },
     async execute(input, context) {
       ensurePurpose(context);
@@ -394,7 +394,7 @@ export function createReliefWebAdapter(
     },
     async health() {
       return appName
-        ? { status: "healthy" as const, detail: "ReliefWeb approved appname configured" }
+        ? { status: "configured" as const, detail: "ReliefWeb approved appname configured" }
         : { status: "not_configured" as const, detail: "RELIEFWEB_APPNAME is required and must be pre-approved by ReliefWeb" };
     },
     async execute(input, context) {
@@ -462,7 +462,7 @@ export function createNoaaSpaceWeatherAdapter(fetcher: CrossDomainFetchLike = sa
       executionClass: "passive_public",
     },
     async health() {
-      return { status: "healthy" as const, detail: "NOAA SWPC public machine-readable alerts product configured" };
+      return { status: "configured" as const, detail: "NOAA SWPC public machine-readable alerts product configured" };
     },
     async execute(input, context) {
       ensurePurpose(context);

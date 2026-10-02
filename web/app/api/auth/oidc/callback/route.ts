@@ -1,3 +1,7 @@
+import crypto from "node:crypto";
+import { createRemoteJWKSet, jwtVerify } from "jose";
+import { setCsrfCookie } from "@/lib/server/csrf";
+import { safeReturnUrl } from "@/lib/server/return-url";
 import { NextRequest, NextResponse } from "next/server";
 
 import { audit } from "@/lib/server/audit";
@@ -11,17 +15,6 @@ import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
 import { requestId } from "@/lib/server/security";
 
-function safeReturnUrl(value: unknown): string {
-  if (
-    typeof value !== "string" ||
-    !value.startsWith("/") ||
-    value.startsWith("//") ||
-    value === "/workbench"
-  ) {
-    return "/dashboard";
-  }
-  return value;
-}
 
 function requiredString(record: Record<string, unknown>, key: string): string {
   const value = record[key];
@@ -32,9 +25,12 @@ function requiredString(record: Record<string, unknown>, key: string): string {
 }
 
 async function fetchJson(url: string, init: RequestInit): Promise<Record<string, unknown>> {
+  const endpoint = new URL(url);
+  if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password) throw Object.assign(new Error("OIDC requires HTTPS endpoints"), { status: 502 });
   const response = await fetch(url, {
     ...init,
     cache: "no-store",
+    redirect: "error",
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
@@ -78,6 +74,9 @@ export async function GET(req: NextRequest) {
       throw Object.assign(new Error("OIDC verifier cookie is missing"), { status: 400 });
     }
 
+    if (statePayload.verifierHash !== crypto.createHash("sha256").update(verifier).digest("base64url")) {
+      throw Object.assign(new Error("OIDC state does not belong to this browser session"), { status: 400 });
+    }
     const issuer = env.DISHA_OIDC_ISSUER;
     const clientId = env.DISHA_OIDC_CLIENT_ID;
     const clientSecret = env.DISHA_OIDC_CLIENT_SECRET;
@@ -90,6 +89,9 @@ export async function GET(req: NextRequest) {
       new URL(".well-known/openid-configuration", issuerBase).toString(),
       { headers: { accept: "application/json" } },
     );
+    if (discovery.issuer !== issuer) throw Object.assign(new Error("OIDC issuer mismatch"), { status: 502 });
+    const jwksUri = new URL(requiredString(discovery, "jwks_uri"));
+    if (jwksUri.protocol !== "https:") throw Object.assign(new Error("OIDC requires HTTPS JWKS"), { status: 502 });
     const tokenEndpoint = requiredString(discovery, "token_endpoint");
     const userinfoEndpoint = requiredString(discovery, "userinfo_endpoint");
 
@@ -114,6 +116,13 @@ export async function GET(req: NextRequest) {
       }),
     });
     const accessToken = requiredString(tokenSet, "access_token");
+    const idToken = requiredString(tokenSet, "id_token");
+    const { payload: identity } = await jwtVerify(idToken, createRemoteJWKSet(jwksUri), {
+      issuer, audience: clientId, algorithms: ["RS256", "PS256", "ES256"], requiredClaims: ["sub", "exp", "iat", "nonce"],
+    });
+    if (identity.nonce !== statePayload.nonce || (identity.azp && identity.azp !== clientId) || (Array.isArray(identity.aud) && identity.aud.length > 1 && identity.azp !== clientId)) {
+      throw Object.assign(new Error("OIDC identity binding failed"), { status: 401 });
+    }
 
     const profile = await fetchJson(userinfoEndpoint, {
       headers: {
@@ -122,18 +131,23 @@ export async function GET(req: NextRequest) {
       },
     });
     const email = typeof profile.email === "string" ? profile.email.trim().toLowerCase() : "";
-    if (!email || profile.email_verified !== true || typeof profile.sub !== "string") {
+    if (!email || profile.email_verified !== true || typeof profile.sub !== "string" || profile.sub !== identity.sub) {
       throw Object.assign(
         new Error("OIDC provider did not return a verified identity"),
         { status: 403 },
       );
     }
 
-    const session = await createSession(email, ["analyst"]);
+    const allowed = new Set((env.DISHA_OIDC_ALLOWED_EMAILS ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));
+    if (!allowed.has(email)) throw Object.assign(new Error("This identity is not admitted to this workspace"), { status: 403 });
+    const admins = new Set((env.DISHA_OIDC_ADMIN_EMAILS ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));
+    const userId = crypto.createHash("sha256").update(JSON.stringify([issuer, identity.sub])).digest("hex");
+    const session = await createSession(email, admins.has(email) ? ["admin"] : ["analyst"], { userId });
     const response = NextResponse.redirect(
       new URL(safeReturnUrl(statePayload.returnUrl), req.nextUrl.origin),
     );
     setSessionCookies(response, session.accessToken, session.refreshToken);
+    setCsrfCookie(response);
     response.cookies.set("disha_oidc_verifier", "", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",

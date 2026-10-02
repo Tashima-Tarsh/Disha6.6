@@ -13,14 +13,18 @@ COPY . .
 RUN npm run build
 
 FROM node:22-alpine AS runner
+ARG GIT_SHA=unknown
 WORKDIR /app
+ENV DISHA_RELEASE_SHA=$GIT_SHA
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME=0.0.0.0
 
 RUN addgroup --system --gid 1001 nextjs \
-  && adduser --system --uid 1001 nextjs
+  && adduser --system --uid 1001 nextjs \
+  && mkdir -p /data/workspaces \
+  && chown nextjs:nextjs /data/workspaces
 
 COPY --from=builder --chown=nextjs:nextjs /app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./

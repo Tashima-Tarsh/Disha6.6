@@ -11,6 +11,8 @@ const envSchema = z.object({
   DISHA_OIDC_ISSUER: z.string().url().optional(),
   DISHA_OIDC_CLIENT_ID: z.string().optional(),
   DISHA_OIDC_CLIENT_SECRET: z.string().optional(),
+  DISHA_OIDC_ALLOWED_EMAILS: z.string().optional(),
+  DISHA_OIDC_ADMIN_EMAILS: z.string().optional(),
   DISHA_MERI_PEHCHAN_AUTH_URL: z.string().url().optional(),
   DISHA_INTRA_ID_AUTH_URL: z.string().url().optional(),
   DISHA_OIDC_REDIRECT_URI: z.string().url().optional(),
@@ -66,70 +68,7 @@ let cachedEnv: RuntimeEnv | null = null;
 
 export function getEnv(): RuntimeEnv {
   if (cachedEnv) return cachedEnv;
-  try {
-    cachedEnv = envSchema.parse(process.env);
-  } catch (e) {
-    if (process.env.NODE_ENV === "production") throw e;
-    console.warn("[env] Strict env validation failed, using dev fallbacks:", e);
-    cachedEnv = {
-      DISHA_AUTH_MODE: "dev-jwt",
-      DISHA_JWT_SECRET: "dev-jwt-secret-for-local-testing-32bytes-long-enough",
-      DISHA_DEV_PASSWORD: "devpassword1234",
-      DISHA_DEV_ADMIN_EMAILS: undefined,
-      DISHA_OIDC_ISSUER: undefined,
-      DISHA_OIDC_CLIENT_ID: undefined,
-      DISHA_OIDC_CLIENT_SECRET: undefined,
-      DISHA_MERI_PEHCHAN_AUTH_URL: undefined,
-      DISHA_INTRA_ID_AUTH_URL: undefined,
-      DISHA_OIDC_REDIRECT_URI: undefined,
-      DATABASE_URL: undefined,
-      REDIS_URL: undefined,
-      DISHA_WORKSPACE_ROOT: process.cwd(),
-      DISHA_ALLOWED_ORIGINS: "http://localhost:3000",
-      DISHA_BACKEND_URL: "http://localhost:3001",
-      DISHA_BRAIN_URL: "http://localhost:8080",
-      DISHA_RESEARCH_RUNTIME_URL: undefined,
-      DISHA_RESEARCH_RUNTIME_TOKEN: undefined,
-      DISHA_RESEARCH_RUNTIME_TIMEOUT_MS: 2500,
-      NEXT_PUBLIC_APP_URL: "https://disha.your-production-domain.com",
-      DISHA_WEB_RATE_LIMIT: 120,
-      DISHA_EVIDENCE_LEDGER_MODE: "memory-dev",
-      DISHA_ALLOW_STATELESS_AUTH: "false",
-      DISHA_AGENT_MODE: "balanced",
-      DISHA_AGENT_INPUT_BUDGET_TOKENS: 8000,
-      DISHA_AGENT_CACHE_TTL_SECONDS: 3600,
-      DISHA_AGENT_MAX_CACHE_BYTES: 250000,
-      DISHA_WORKFLOW_NODE_TIMEOUT_MS: 15000,
-      DISHA_WORKFLOW_TOTAL_TIMEOUT_MS: 60000,
-      DISHA_WORKFLOW_ALLOWED_HOSTS: undefined,
-      DISHA_MODEL_PROVIDER: "disabled",
-      DISHA_MODEL_ROUTES_JSON: undefined,
-      DISHA_MODEL_ROLE: "analysis",
-      DISHA_WORKER_TOKEN: undefined,
-      DISHA_WORKFLOW_LEASE_SECONDS: 120,
-      DISHA_EMBEDDING_PROVIDER: "local-hash",
-      DISHA_EMBEDDING_BASE_URL: undefined,
-      DISHA_EMBEDDING_MODEL: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-      DISHA_EMBEDDING_TIMEOUT_MS: 3000,
-      DISHA_EMBEDDING_API_KEY: undefined,
-      DISHA_SCHEDULER_POLL_SECONDS: 30,
-      DISHA_RUNTIME_EVENT_STREAM: "disha:runtime-events",
-      DISHA_MODEL_TIMEOUT_MS: 20000,
-      ANTHROPIC_API_KEY: undefined,
-      ANTHROPIC_MODEL: "claude-sonnet-4-5",
-      ANTHROPIC_BASE_URL: "https://api.anthropic.com/v1",
-      ANTHROPIC_VERSION: "2023-06-01",
-      OPENAI_API_KEY: undefined,
-      OPENAI_MODEL: "gpt-5.6-luna",
-      OPENAI_BASE_URL: "https://api.openai.com/v1",
-      OPENAI_PROJECT: undefined,
-      OPENAI_ORGANIZATION: undefined,
-      DISHA_BRAIN_API_TOKEN: undefined,
-      NODE_ENV: "development",
-    } as RuntimeEnv;
-  }
-
-  const env = cachedEnv as RuntimeEnv;
+  const env = envSchema.parse(Object.fromEntries(Object.entries(process.env).map(([key, value]) => [key, value === "" ? undefined : value])));
   if (env.DISHA_AUTH_MODE === "oidc") {
     const missing = [
       ["DISHA_OIDC_ISSUER", env.DISHA_OIDC_ISSUER],
@@ -144,20 +83,23 @@ export function getEnv(): RuntimeEnv {
     throw new Error("DISHA_JWT_SECRET is required in production");
   }
   if (env.NODE_ENV === "production" && !env.DATABASE_URL) {
-    if (env.DISHA_ALLOW_STATELESS_AUTH !== "true") {
-      throw new Error("DATABASE_URL is required in production for the persistent Evidence Ledger");
-    }
-    console.warn("[env] DATABASE_URL is unavailable; explicit DISHA_ALLOW_STATELESS_AUTH=true keeps only the web/auth surface available in degraded stateless mode.");
+    throw new Error("DATABASE_URL is required in production for the persistent Evidence Ledger");
   }
   if (env.NODE_ENV === "production" && env.DISHA_AUTH_MODE === "dev-jwt") {
     throw new Error("DISHA_AUTH_MODE=dev-jwt is not allowed in production");
   }
-  if (env.DISHA_AUTH_MODE === "password" && !env.DISHA_DEV_PASSWORD) {
-    throw new Error("DISHA_DEV_PASSWORD is required when DISHA_AUTH_MODE=password");
+  if (env.DISHA_AUTH_MODE === "password" && !env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is required for individual password accounts");
   }
   if (env.NODE_ENV === "production" && !env.DISHA_WORKER_TOKEN) {
     throw new Error("DISHA_WORKER_TOKEN is required in production for internal scheduler/worker calls");
   }
+  if (env.NODE_ENV === "production") {
+    if (!env.REDIS_URL) throw new Error("REDIS_URL is required in production for distributed rate limiting");
+    if (env.DISHA_AUTH_MODE === "oidc" && !env.DISHA_OIDC_ALLOWED_EMAILS?.trim()) throw new Error("DISHA_OIDC_ALLOWED_EMAILS is required in production");
+    if (env.DISHA_EVIDENCE_LEDGER_MODE === "memory-dev") throw new Error("In-memory evidence is not allowed in production");
+  }
+  cachedEnv = env;
   return env;
 }
 

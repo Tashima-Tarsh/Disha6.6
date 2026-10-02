@@ -25,6 +25,7 @@ export function signJson(payload: Record<string, unknown>, secret: string): stri
 }
 
 export function verifySignedJson(token: string, secret: string): Record<string, unknown> {
+  if (token.split(".").length !== 3) throw new Error("Malformed token");
   const [header, body, signature] = token.split(".");
   if (!header || !body || !signature) throw new Error("Malformed token");
   const expected = crypto.createHmac("sha256", secret).update(`${header}.${body}`).digest("base64url");
@@ -37,7 +38,7 @@ export function verifySignedJson(token: string, secret: string): Record<string, 
     throw new Error("Invalid token signature");
   }
   const parsed = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
-  if (typeof parsed.exp === "number" && parsed.exp < Math.floor(Date.now() / 1000)) {
+  if (typeof parsed.exp !== "number" || !Number.isFinite(parsed.exp) || parsed.exp <= Math.floor(Date.now() / 1000)) {
     throw new Error("Token expired");
   }
   return parsed;

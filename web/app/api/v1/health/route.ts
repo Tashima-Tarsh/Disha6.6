@@ -1,29 +1,20 @@
 import { NextResponse } from "next/server";
-
-import { lensRegistry } from "@/lib/unified/lenses";
-import { openDataSources } from "@/lib/unified/data-integration";
-import { listAgentSkills } from "@/lib/unified/agentic-readiness";
 import { getEnv } from "@/lib/server/env";
-import { listSourceRegistry } from "@/lib/unified/source-registry";
-import { createDefaultOsintBus } from "@/lib/unified/osint-default-bus";
-
+import { getDbPool } from "@/lib/server/db";
+import { getRedisClient } from "@/lib/server/redis";
+export const dynamic = "force-dynamic";
 export async function GET() {
-  const env = getEnv();
-  const osint = createDefaultOsintBus();
-  return NextResponse.json({
-    status: "ok",
-    product: "disha6.6 Unified Policy-Gated Cognitive Intelligence OS",
-    lenses: Object.keys(lensRegistry),
-    agenticSkills: listAgentSkills().length,
-    openDataSources: openDataSources.length,
-    policyGate: "enabled",
-    evidenceLedger: "enabled",
-    agenticMission: "enabled",
-    modelProvider: env.DISHA_MODEL_PROVIDER,
-    learningMemory: "evidence_memory",
-    sourceRegistry: listSourceRegistry().length,
-    governedOsintAdapters: osint.list().length,
-    osintExecutionPolicy: "passive_public_only",
-    noDemoDataPolicy: "enabled",
-  });
+  try {
+    const env = getEnv();
+    const pool = getDbPool();
+    if (!pool) return NextResponse.json({ status: "unconfigured", database: "unconfigured" }, { status: 503 });
+    const schema = await pool.query("select to_regclass('public.evidence_events') as evidence, to_regclass('public.mission_results') as missions, to_regclass('public.durable_work_items') as workflows, to_regclass('public.password_credentials') as accounts");
+    if (!schema.rows[0]?.evidence || !schema.rows[0]?.missions || !schema.rows[0]?.workflows || !schema.rows[0]?.accounts) throw new Error("schema_unavailable");
+    const redis = await getRedisClient();
+    if (env.NODE_ENV === "production" && !redis) throw new Error("redis_unconfigured");
+    if (redis && await redis.ping() !== "PONG") throw new Error("redis_unavailable");
+    return NextResponse.json({ status: "ok", database: "ready", redis: redis ? "ready" : "unconfigured", release: process.env.DISHA_RELEASE_SHA ?? "unknown" }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ status: "unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
 }

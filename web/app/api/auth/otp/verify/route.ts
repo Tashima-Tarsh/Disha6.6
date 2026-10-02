@@ -25,6 +25,8 @@ export async function POST(req: NextRequest) {
     });
     return finalResponse;
   } catch (error) {
-    return errorResponse(error, req);
+    const failure = errorResponse(error, req);
+    response.cookies.getAll().forEach((cookie) => failure.cookies.set(cookie));
+    return failure;
   }
 }

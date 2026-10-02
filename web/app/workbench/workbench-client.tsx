@@ -1,4 +1,5 @@
 "use client";
+import { authenticatedFetch } from "@/lib/client-fetch";
 
 import {
   AlertTriangle,
@@ -308,7 +309,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch("/api/dashboard/command", { cache: "no-store", signal: controller.signal })
+    void authenticatedFetch("/api/dashboard/command", { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error(readApiError(payload, response.status));
@@ -334,7 +335,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
       const indicators = indicatorValue.trim()
         ? [{ type: indicatorType, value: indicatorValue.trim(), source: "workbench-input" }]
         : [];
-      const response = await fetch("/api/v1/agentic/mission", {
+      const response = await authenticatedFetch("/api/v1/agentic/mission", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
@@ -352,7 +353,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
       const agenticResult = payload as AgenticMissionResult;
       setResult(agenticResult);
 
-      const evidenceResponse = await fetch(`/api/v1/evidence/${encodeURIComponent(agenticResult.mission.missionId)}`, {
+      const evidenceResponse = await authenticatedFetch(`/api/v1/evidence/${encodeURIComponent(agenticResult.mission.missionId)}`, {
         credentials: "same-origin",
       });
       const evidencePayload = await evidenceResponse.json();
@@ -377,7 +378,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
     setOsintSearching(true);
     setOsintError(null);
     try {
-      const res = await fetch(`/api/v1/osint/search?q=${encodeURIComponent(target)}`, {
+      const res = await authenticatedFetch(`/api/v1/osint/search?q=${encodeURIComponent(target)}`, {
         cache: "no-store",
       });
       const data = await res.json();

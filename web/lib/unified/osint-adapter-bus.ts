@@ -1,6 +1,6 @@
 import { hashValue } from "./hash";
 
-export type AdapterHealth = "healthy" | "degraded" | "unavailable" | "not_configured";
+export type AdapterHealth = "healthy" | "configured" | "degraded" | "unavailable" | "not_configured";
 export type AdapterAuth = "none" | "api_key" | "oauth2" | "session" | "service_account";
 export type AdapterExecutionClass = "passive_public" | "credentialed_public_api" | "active_recon" | "identity_enumeration" | "prohibited";
 
@@ -122,8 +122,14 @@ export class OsintAdapterBus {
         return this.result<TOutput>(adapterId, "cancelled", started, attempt - 1, [], [], undefined, "cancelled");
       }
       try {
-        await this.acquireRateLimit(adapter.metadata);
-        const output = await this.withTimeout(adapter.execute(input, context), adapter.metadata.timeoutMs, context.signal);
+        const controller = new AbortController();
+        const signal = AbortSignal.any([controller.signal, ...(context.signal ? [context.signal] : [])]);
+        const timer = setTimeout(() => controller.abort(new Error("adapter_timeout")), adapter.metadata.timeoutMs);
+        let output;
+        try {
+          await this.withTimeout(this.acquireRateLimit(adapter.metadata, signal), adapter.metadata.timeoutMs, context.signal);
+          output = await this.withTimeout(adapter.execute(input, { ...context, signal }), adapter.metadata.timeoutMs, signal);
+        } finally { clearTimeout(timer); controller.abort(); }
         return this.result<TOutput>(adapterId, output.warnings?.length ? "partial" : "completed", started, attempt, output.evidence, output.warnings ?? [], output.data);
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -141,9 +147,10 @@ export class OsintAdapterBus {
     return this.result<TOutput>(adapterId, "failed", started, maxAttempts, [], [], undefined, lastError);
   }
 
-  private async acquireRateLimit(metadata: AdapterMetadata): Promise<void> {
+  private async acquireRateLimit(metadata: AdapterMetadata, signal?: AbortSignal): Promise<void> {
     const limit = Math.max(1, Math.trunc(metadata.rateLimitPerMinute ?? 60));
     for (;;) {
+      if (signal?.aborted) throw new Error("adapter_cancelled");
       const now = Date.now();
       const cutoff = now - 60_000;
       const current = (adapterRequestWindows.get(metadata.id) ?? []).filter((timestamp) => timestamp > cutoff);
@@ -153,7 +160,7 @@ export class OsintAdapterBus {
         return;
       }
       const waitMs = Math.max(10, current[0]! + 60_000 - now);
-      await this.sleep(waitMs);
+      await this.withTimeout(this.sleep(waitMs), waitMs + 1, signal);
     }
   }
 
@@ -163,7 +170,7 @@ export class OsintAdapterBus {
     const timeout = new Promise<never>((_, reject) => {
       timer = setTimeout(() => reject(new Error("adapter_timeout")), timeoutMs);
       if (signal) {
-        abortHandler = () => reject(new Error("adapter_cancelled"));
+        abortHandler = () => reject(new Error(signal.reason instanceof Error && signal.reason.message === "adapter_timeout" ? "adapter_timeout" : "adapter_cancelled"));
         signal.addEventListener("abort", abortHandler, { once: true });
       }
     });

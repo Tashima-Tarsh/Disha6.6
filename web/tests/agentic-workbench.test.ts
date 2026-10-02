@@ -7,7 +7,7 @@ import {
   fuseLensResults,
   normalizeMission,
   recommendLenses,
-} from "../app/workbench/demo-engine";
+} from "./fixtures/agentic-workbench-engine";
 
 describe("agentic workbench demo engine", () => {
   it("normalizes a mission into a source-aware DISHA signal", () => {

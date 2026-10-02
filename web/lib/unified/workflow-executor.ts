@@ -6,11 +6,14 @@ import { runContinuousOsintWatch } from "./continuous-osint";
 export type WorkflowTickResult = { workerId: string; leased: number; completed: string[]; failed: Array<{ workId: string; error: string }> };
 
 export async function processWorkflowTick(input: { workerId: string; maxJobs?: number; leaseSeconds?: number }): Promise<WorkflowTickResult> {
-  const items = await leaseWorkflowItems({ workerId: input.workerId, workflowTypes: ["source_ingestion","osint_watch","intelligence_activation"], maxItems: input.maxJobs ?? 10, leaseSeconds: input.leaseSeconds ?? 120 });
   const completed: string[] = []; const failed: Array<{workId:string;error:string}> = [];
-  for (const item of items) {
+  let leased = 0;
+  for (let index = 0; index < (input.maxJobs ?? 10); index++) {
+    const [item] = await leaseWorkflowItems({ workerId: input.workerId, workflowTypes: ["source_ingestion","osint_watch","intelligence_activation"], maxItems: 1, leaseSeconds: input.leaseSeconds ?? 120 });
+    if (!item) break;
+    leased += 1;
     const leaseSeconds = input.leaseSeconds ?? 120;
-    const heartbeat = setInterval(() => { void renewWorkflowLease(item.workId, input.workerId, leaseSeconds); }, Math.max(5_000, Math.floor(leaseSeconds * 1000 / 3)));
+    const heartbeat = setInterval(() => { void renewWorkflowLease(item.workId, input.workerId, leaseSeconds).catch((error: unknown) => console.error("workflow_lease_renewal_failed", error)); }, Math.max(5_000, Math.floor(leaseSeconds * 1000 / 3)));
     try {
       const result = await execute(item);
       if (!await completeWorkflow(item.workId, input.workerId, result)) throw new Error("workflow_lease_lost_before_completion");
@@ -22,7 +25,7 @@ export async function processWorkflowTick(input: { workerId: string; maxJobs?: n
       clearInterval(heartbeat);
     }
   }
-  return { workerId: input.workerId, leased: items.length, completed, failed };
+  return { workerId: input.workerId, leased, completed, failed };
 }
 
 async function execute(item: DurableWorkItem): Promise<unknown> {

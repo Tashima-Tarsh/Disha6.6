@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   description: "Continuous intelligence change-impact and analyst review surface.",
 };
 
-function requirePrincipal(token: string) {
+async function requirePrincipal(token: string) {
   try {
-    return principalFromAccessToken(token);
+    return await principalFromAccessToken(token);
   } catch {
     redirect("/login?mode=password&returnUrl=%2Fintelligence");
   }
@@ -24,6 +24,6 @@ export default async function IntelligencePage() {
   const token = cookieStore.get(ACCESS_COOKIE_NAME)?.value;
   if (!token) redirect("/login?mode=password&returnUrl=%2Fintelligence");
 
-  const principal = requirePrincipal(token);
+  const principal = await requirePrincipal(token);
   return <IntelligenceClient principal={{ email: principal.email, roles: principal.roles }} />;
 }

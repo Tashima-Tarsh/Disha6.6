@@ -10,6 +10,9 @@
     "db:migrate": "node scripts/apply-schema.mjs",
     "db:verify-schema": "node scripts/apply-schema.mjs --verify-only",
     "db:rollback": "node scripts/apply-schema.mjs --rollback",
+    "auth:create-user": "node scripts/manage-account.mjs create",
+    "auth:reset-password": "node scripts/manage-account.mjs reset",
+    "auth:disable-user": "node scripts/manage-account.mjs disable",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "type-check:full": "tsc --noEmit -p tsconfig.full.json",
@@ -39,6 +42,8 @@
     "clsx": "^2.1.1",
     "cytoscape": "3.34.3",
     "framer-motion": "^12.38.0",
+    "ipaddr.js": "^2.5.0",
+    "jose": "^6.2.12",
     "lucide-react": "^1.8.0",
     "maplibre-gl": "6.10.0",
     "nanoid": "^6.0.1",
@@ -54,10 +59,12 @@
     "swr": "^2.5.1",
     "tailwind-merge": "^3.5.0",
     "three": "0.186.0",
+    "undici": "^8.11.2",
     "zod": "^4.6.5",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@next/bundle-analyzer": "^16.3.6",
     "@opennextjs/cloudflare": "1.20.6",
     "@tailwindcss/postcss": "^4.3.3",
@@ -72,7 +79,8 @@
     "postcss": "8.5.27",
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "wrangler": "4.146.0"
   },
   "engines": {
     "node": "22.x"

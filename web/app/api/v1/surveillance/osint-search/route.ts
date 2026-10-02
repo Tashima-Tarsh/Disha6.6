@@ -1,75 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { withContext } from "@/lib/unified/api";
 import { createDefaultOsintBus } from "@/lib/unified/osint-default-bus";
 import { runUniversalOsintSearch, sanitizeUniversalQuery } from "@/lib/unified/universal-osint-search";
+import { audit } from "@/lib/server/audit";
+import type { RequestContext } from "@/lib/server/types";
 
 export const dynamic = "force-dynamic";
-
-async function executeOsintSearch(rawQuery: string, signal?: AbortSignal) {
-  const query = sanitizeUniversalQuery(rawQuery);
-  const bus = createDefaultOsintBus({
-    policyCheck: (metadata) => {
-      const executionClass = metadata.executionClass ?? "passive_public";
-      return (
-        (executionClass === "passive_public" || executionClass === "credentialed_public_api") &&
-        metadata.defaultEnabled !== false
-      );
-    },
+const querySchema = z.string().trim().min(1).max(512);
+async function execute(req: NextRequest, ctx: RequestContext, raw: unknown) {
+  const query = sanitizeUniversalQuery(querySchema.parse(raw));
+  const bus = createDefaultOsintBus({ policyCheck: (metadata) =>
+    ["passive_public", "credentialed_public_api"].includes(metadata.executionClass ?? "passive_public") && metadata.defaultEnabled !== false,
   });
-
-  const abortSignal = signal
-    ? AbortSignal.any([signal, AbortSignal.timeout(8000)])
-    : AbortSignal.timeout(8000);
-
-  const context = {
-    missionId: "surveillance-live-query",
-    userId: "surveillance-operator",
-    purpose: "Governed live public OSINT query on surveillance board",
-    signal: abortSignal,
-  };
-
-  const [health, search] = await Promise.all([
-    bus.health(),
-    runUniversalOsintSearch(bus, query, context),
-  ]);
-
+  const search = await runUniversalOsintSearch(bus, query, {
+    missionId: ctx.requestId, userId: ctx.principal.userId,
+    purpose: "Authenticated public OSINT query",
+    signal: AbortSignal.any([req.signal, AbortSignal.timeout(8_000)]),
+  });
+  await audit({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "osint.search", outcome: "success", metadata: { adapters: search.executedAdapters } });
   return NextResponse.json({
-    generatedAt: new Date().toISOString(),
-    query,
-    kind: search.kind,
+    generatedAt: new Date().toISOString(), query, kind: search.kind,
     executedAdapters: search.executedAdapters,
-    runs: search.runs.map((r) => ({
-      adapterId: r.adapterId,
-      status: r.status,
-      durationMs: r.durationMs,
-      evidenceCount: r.evidence.length,
-      sample:
-        r.evidence[0]?.summary ??
-        r.error ??
-        (r.status === "completed" ? "Query executed successfully" : "No records found"),
+    runs: search.runs.map((run) => ({
+      adapterId: run.adapterId, status: run.status, durationMs: run.durationMs,
+      evidenceCount: run.evidence.length,
+      sample: run.evidence[0]?.summary ?? run.error ?? "No evidence returned",
+      evidence: run.evidence,
     })),
-    healthSummary: {
-      total: health.length,
-      healthy: health.filter((h) => h.status === "healthy").length,
-    },
-  });
+    warnings: search.warnings,
+    notice: "Live source observations; use the mission evidence workflow for durable preservation.",
+  }, { headers: { "X-Request-ID": ctx.requestId, "Cache-Control": "no-store" } });
 }
-
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q") ?? req.nextUrl.searchParams.get("query") ?? "India government";
-  return executeOsintSearch(q, req.signal);
+  return withContext(req, "agent:read", (ctx) => execute(req, ctx, req.nextUrl.searchParams.get("q") ?? req.nextUrl.searchParams.get("query")));
 }
-
 export async function POST(req: NextRequest) {
-  let q = "India government";
-  try {
-    const body = await req.json();
-    if (typeof body?.query === "string" && body.query.trim()) {
-      q = body.query.trim();
-    } else if (typeof body?.q === "string" && body.q.trim()) {
-      q = body.q.trim();
-    }
-  } catch {
-    // fallback
-  }
-  return executeOsintSearch(q, req.signal);
+  return withContext(req, "agent:read", async (ctx) => {
+    const body = z.object({ query: querySchema.optional(), q: querySchema.optional() }).parse(await req.json());
+    return execute(req, ctx, body.query ?? body.q);
+  });
 }

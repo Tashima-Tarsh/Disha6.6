@@ -1,7 +1,7 @@
 import fs from "fs/promises";
-import path from "node:path";
+import { constants } from "node:fs";
 import { audit } from "@/lib/server/audit";
-import { resolveWorkspacePath } from "@/lib/server/security";
+import { checkedWorkspacePath } from "@/lib/server/security";
 import type { RequestContext } from "@/lib/server/types";
 
 const IMAGE_MIME: Record<string, string> = {
@@ -15,7 +15,7 @@ const IMAGE_MIME: Record<string, string> = {
 };
 
 export async function readWorkspaceFile(ctx: RequestContext, filePath: string) {
-  const resolvedPath = resolveWorkspacePath(filePath);
+  const resolvedPath = await checkedWorkspacePath(filePath);
   const stats = await fs.stat(resolvedPath);
   if (stats.isDirectory()) throw Object.assign(new Error("path is a directory"), { status: 400 });
   if (stats.size > 2_000_000) throw Object.assign(new Error("file too large"), { status: 413 });
@@ -43,9 +43,9 @@ export async function readWorkspaceFile(ctx: RequestContext, filePath: string) {
 }
 
 export async function writeWorkspaceFile(ctx: RequestContext, filePath: string, content: string) {
-  const resolvedPath = resolveWorkspacePath(filePath);
-  await fs.mkdir(path.dirname(resolvedPath), { recursive: true });
-  await fs.writeFile(resolvedPath, content, "utf-8");
+  const resolvedPath = await checkedWorkspacePath(filePath, true);
+  const handle = await fs.open(resolvedPath, constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | constants.O_NOFOLLOW, 0o600);
+  try { await handle.writeFile(content, "utf-8"); } finally { await handle.close(); }
   const stats = await fs.stat(resolvedPath);
   await audit({
     requestId: ctx.requestId,

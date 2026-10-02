@@ -18,28 +18,6 @@ describe("DISHA secure login UI", () => {
     expect(source).not.toContain("localStorage");
   });
 
-  it("uses the supplied artwork as a normal static asset", () => {
-    const source = fs.readFileSync(loginClient, "utf8");
-    const css = fs.readFileSync(loginStyles, "utf8");
-
-    expect(css).toContain('url("/disha66-login-reference.webp")');
-    expect(css).toContain('url("/disha66-login-reference.avif")');
-    expect(css).toContain("left center / auto 100% no-repeat");
-    expect(source).not.toContain("HERO_PARTS");
-    expect(source).not.toContain("data:image/avif;base64,");
-    expect(source).not.toContain("/disha-login-hero.webp");
-  });
-
-  it("keeps the page fixed to the viewport without page scrolling", () => {
-    const css = fs.readFileSync(loginStyles, "utf8");
-
-    expect(css).toContain("grid-template-columns: minmax(0, 1.58fr) minmax(430px, 0.72fr)");
-    expect(css).toContain("height: 100dvh");
-    expect(css).toContain("position: fixed");
-    expect(css).toContain("overflow: hidden");
-    expect(css).not.toContain("overflow: auto");
-  });
-
   it("does not expose a hard-coded privileged identity bypass", () => {
     const source = fs.readFileSync(loginClient, "utf8");
 

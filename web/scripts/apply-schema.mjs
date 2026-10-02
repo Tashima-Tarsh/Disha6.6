@@ -65,11 +65,19 @@ const migrations = [
     upPath: path.join(databaseRoot, "202609190002_continuous_osint.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202609190002_continuous_osint.down.sql"),
   },
+  {
+    version: "202610020001",
+    name: "password_accounts",
+    upPath: path.join(databaseRoot, "202610020001_password_accounts.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610020001_password_accounts.down.sql"),
+  },
 ];
 
 const requiredTables = [
   "schema_migrations",
   "users",
+  "password_credentials",
+  "refresh_tokens",
   "audit_events",
   "evidence_events",
   "mission_results",
@@ -112,6 +120,8 @@ const requiredTables = [
 ];
 
 const requiredIndexes = [
+  "refresh_tokens_active_session_idx",
+  "refresh_tokens_user_idx",
   "evidence_events_mission_chain_idx",
   "mission_results_user_updated_idx",
   "source_ingestion_runs_source_idx",

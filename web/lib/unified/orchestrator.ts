@@ -10,7 +10,7 @@ import {
 import { appendEvidenceEvent, getEvidenceEvents } from "./evidence-ledger";
 import { evaluatePolicy } from "./policy-gate";
 import { lensRegistry, selectLenses } from "./lenses";
-import { clearMissionStoreForTests, getMissionResult, saveMissionResult } from "./mission-store";
+import { clearMissionStoreForTests, getMissionResult, saveMissionResult, reserveMissionId } from "./mission-store";
 import type { Principal } from "../server/types";
 
 export type MissionInput = {
@@ -62,6 +62,7 @@ export type FusionResult = {
 
 export async function runMission(input: MissionInput): Promise<MissionResult> {
   const signal = normalizeMission(input);
+  await reserveMissionId(signal.missionId ?? signal.id, signal.userId, signal.input);
   const eventIds: string[] = [];
 
   eventIds.push((await appendEvidenceEvent({
@@ -147,12 +148,17 @@ export async function runMission(input: MissionInput): Promise<MissionResult> {
     actor: "disha-orchestrator",
     action: "report_generated",
     input: { missionId: result.missionId },
-    output: result,
+    output: missionReportPayload(result),
     policyDecision: responsePolicyDecision,
   })).eventId);
   result.evidenceEventIds = eventIds;
   await saveMissionResult(result);
   return result;
+}
+
+export function missionReportPayload(result: MissionResult) {
+  const { evidenceEventIds: _eventIds, ...report } = result;
+  return report;
 }
 
 export async function analyzeLens(name: LensName, signal: DishaSignal): Promise<DishaLensResult> {

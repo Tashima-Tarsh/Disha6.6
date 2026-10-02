@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { getDbPool } from "../server/db";
 import { hashValue } from "./hash";
 import { emitRuntimeEvent } from "./runtime-event-bus";
@@ -13,7 +14,7 @@ const memory = new Map<string, DurableWorkItem>();
 export async function enqueueWorkflow(input: { workflowType: string; dedupeKey?: string; priority?: number; payload: Record<string, unknown>; availableAt?: string; maxAttempts?: number }): Promise<DurableWorkItem> {
   const now = new Date().toISOString();
   const dedupeKey = input.dedupeKey?.trim() || undefined;
-  const workId = `work-${hashValue({ type: input.workflowType, dedupeKey: dedupeKey ?? hashValue(input.payload) }).slice(0,24)}`;
+  const workId = `work-${hashValue({ type: input.workflowType, dedupeKey: dedupeKey ?? crypto.randomUUID() }).slice(0,24)}`;
   const base: DurableWorkItem = { workId, workflowType: input.workflowType, dedupeKey, priority: Math.max(0, Math.min(1000, Math.trunc(input.priority ?? 100))), status: "queued", payload: input.payload, availableAt: input.availableAt ?? now, attempts: 0, maxAttempts: Math.max(1, Math.min(20, Math.trunc(input.maxAttempts ?? 5))), createdAt: now, updatedAt: now };
   const pool = getDbPool();
   if (!pool) {
