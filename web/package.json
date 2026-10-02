@@ -75,6 +75,9 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
   },
+  "overrides": {
+    "undici": ">=7.30.0"
+  },
   "engines": {
     "node": "22.x"
   }
