@@ -13,6 +13,7 @@ import {
   Layers3,
   Map as MapIcon,
   Network,
+  Search,
   Settings2,
   ShieldCheck,
   Waypoints,
@@ -25,6 +26,11 @@ import type {
   WorkspaceTimelineItem,
 } from "@/lib/intelligence/workspace-contract";
 import type { OperationalGeoFeature } from "@/lib/geospatial/contracts";
+import type {
+  CanonicalSourceRuntimeNode,
+  OsintSystemSystemDefinition,
+} from "@/lib/unified/canonical-source-registry";
+import type { ActiveInvestigationVisualState } from "@/components/visual/OsintUniverse3D";
 import { LiveOsintPlane } from "@/components/intelligence/LiveOsintPlane";
 import { DishaMotionField } from "@/components/visual/DishaMotionField";
 import { CommandPalette } from "./command-palette";
@@ -37,6 +43,10 @@ const GeospatialCommandMap = dynamic(
 const IntelligenceGraph = dynamic(
   () => import("@/components/intelligence/IntelligenceGraph").then((module) => module.IntelligenceGraph),
   { ssr: false, loading: () => <div className={styles.graphLoading}>Loading persisted entity graph…</div> },
+);
+const OsintUniverse3D = dynamic(
+  () => import("@/components/visual/OsintUniverse3D").then((module) => module.OsintUniverse3D),
+  { ssr: false, loading: () => <div className={styles.mapLoading}>Initializing 3D OSINT Universe runtime…</div> },
 );
 
 type PrincipalView = { email: string; roles: string[] };
@@ -53,6 +63,73 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
   const [playing, setPlaying] = useState(false);
   const [playbackIndex, setPlaybackIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [universeData, setUniverseData] = useState<{
+    sources: CanonicalSourceRuntimeNode[];
+    systems: OsintSystemSystemDefinition[];
+    summary?: {
+      totalSources: number;
+      healthySources: number;
+      unconfiguredSources: number;
+      referenceOnlySources: number;
+      blockedSources: number;
+      persistedEvidenceTotal: number;
+    };
+  } | null>(null);
+  const [investigationQuery, setInvestigationQuery] = useState("");
+  const [isInvestigating, setIsInvestigating] = useState(false);
+  const [activeInvestigation, setActiveInvestigation] = useState<ActiveInvestigationVisualState | null>(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+  const [selectedSource, setSelectedSource] = useState<CanonicalSourceRuntimeNode | null>(null);
+
+  useEffect(() => {
+    fetch("/api/v1/osint/universe", { credentials: "same-origin" })
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data) => {
+        if (data && Array.isArray(data.sources)) {
+          setUniverseData(data);
+        }
+      })
+      .catch(() => {
+        // gracefully handle fetch failure
+      });
+  }, []);
+
+  async function handleLaunchInvestigation(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    const target = investigationQuery.trim();
+    if (!target || isInvestigating) return;
+
+    setIsInvestigating(true);
+    try {
+      const res = await fetch("/api/v1/osint/investigations", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ target }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setActiveInvestigation({
+        investigationId: data.investigationId,
+        query: target,
+        normalizedTarget: data.normalizedTarget,
+        targetType: data.targetType,
+        executedAdapters: (data.runs ?? []).map((r: { adapterId: string }) => r.adapterId),
+        evidence: data.evidence ?? [],
+        candidateClusters: data.candidateClusters ?? [],
+      });
+      if (data.candidateClusters?.[0]) {
+        setSelectedCandidateId(data.candidateClusters[0].candidateId);
+      }
+    } catch (err) {
+      console.info("Investigation dispatch returned:", err);
+    } finally {
+      setIsInvestigating(false);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -146,6 +223,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
         </Link>
 
         <nav className={styles.nav} aria-label="Primary">
+          <a href="#universe"><Globe size={16} /> 3D OSINT Universe</a>
           <a href="#map" className={styles.navActive}><MapIcon size={16} /> Situation map</a>
           <a href="#timeline"><Clock3 size={16} /> Timeline</a>
           <a href="#graph"><Network size={16} /> Entity graph</a>
@@ -220,6 +298,8 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
               entity={selectedEntity}
               timeline={selectedTimeline}
               latestEvidence={data.evidence[0] ?? null}
+              selectedSource={selectedSource}
+              activeInvestigation={activeInvestigation}
             />
           </aside>
 
@@ -232,6 +312,66 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
           </section>
 
           <LiveOsintPlane />
+
+          <section className={styles.universePanel} id="universe" aria-labelledby="universe-heading">
+            <header className={styles.sectionHead}>
+              <div>
+                <span className={styles.kicker}>Authenticated 3D Intelligence Universe</span>
+                <h2 id="universe-heading">OSINT Investigation Space</h2>
+              </div>
+              <div className={styles.mapMeta}>
+                <span><ShieldCheck size={14} /> {universeData?.sources.length ?? 125} cataloged sources</span>
+                <span><Activity size={14} /> {universeData?.summary?.healthySources ?? 0} active live</span>
+                <span><Layers3 size={14} /> {universeData?.summary?.persistedEvidenceTotal ?? 0} persisted evidence</span>
+              </div>
+            </header>
+
+            <form className={styles.investigationBar} onSubmit={handleLaunchInvestigation}>
+              <Search size={16} color="#00f0ff" />
+              <input
+                className={styles.investigationInput}
+                type="text"
+                placeholder="Enter investigative target (domain, person, IP, phone, email, handle)..."
+                value={investigationQuery}
+                onChange={(e) => setInvestigationQuery(e.target.value)}
+              />
+              <span className={styles.typeBadge}>
+                {classifyTargetPreview(investigationQuery)}
+              </span>
+              <button
+                className={styles.investigationButton}
+                type="submit"
+                disabled={isInvestigating || !investigationQuery.trim()}
+              >
+                {isInvestigating ? "Executing…" : "Investigate"}
+              </button>
+            </form>
+
+            {activeInvestigation?.candidateClusters && activeInvestigation.candidateClusters.length > 0 && (
+              <div className={styles.clusterBar}>
+                <span className={styles.clusterLabel}>Identities:</span>
+                {activeInvestigation.candidateClusters.map((cluster) => (
+                  <button
+                    key={cluster.candidateId}
+                    type="button"
+                    className={`${styles.clusterPill} ${selectedCandidateId === cluster.candidateId ? styles.clusterPillActive : ""}`}
+                    onClick={() => setSelectedCandidateId(cluster.candidateId)}
+                  >
+                    <span>{cluster.label}</span>
+                    <small>({cluster.evidenceIds.length} ev)</small>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <OsintUniverse3D
+              sources={universeData?.sources}
+              systems={universeData?.systems}
+              activeInvestigation={activeInvestigation}
+              onSelectSource={(source) => setSelectedSource(source)}
+              onSelectCandidate={(id) => setSelectedCandidateId(id)}
+            />
+          </section>
 
           <section className={styles.graphPanel} id="graph">
             <header className={styles.sectionHead}>
@@ -294,12 +434,39 @@ function Inspector({
   entity,
   timeline,
   latestEvidence,
+  selectedSource,
+  activeInvestigation,
 }: {
   feature: OperationalGeoFeature | null;
   entity: WorkspaceEntity | null;
   timeline: WorkspaceTimelineItem | null;
   latestEvidence: IntelligenceWorkspace["evidence"][number] | null;
+  selectedSource?: CanonicalSourceRuntimeNode | null;
+  activeInvestigation?: ActiveInvestigationVisualState | null;
 }) {
+  if (selectedSource) {
+    return (
+      <div className={styles.inspectorBody}>
+        <StatusChip>{selectedSource.health}</StatusChip>
+        <h3>{selectedSource.name}</h3>
+        <Definition label="System" value={selectedSource.system} />
+        <Definition label="Category" value={selectedSource.originalCategory} />
+        <Definition label="Mode" value={selectedSource.mode} />
+        <Definition label="Persisted Evidence" value={String(selectedSource.evidenceCount)} />
+        {selectedSource.errorMessage ? <Definition label="Detail" value={selectedSource.errorMessage} /> : null}
+        <div className={styles.linkList}>
+          <span>Capabilities</span>
+          {selectedSource.capabilities.map((cap) => (
+            <code key={cap}>{cap}</code>
+          ))}
+        </div>
+        {selectedSource.providerUrl ? (
+          <a href={selectedSource.providerUrl} target="_blank" rel="noreferrer">Open canonical source <ArrowUpRight size={13} /></a>
+        ) : null}
+      </div>
+    );
+  }
+
   if (feature) {
     return (
       <div className={styles.inspectorBody}>
@@ -407,4 +574,15 @@ function formatDateTime(value: string): string {
 }
 function formatCompactDate(value: string): string {
   return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+}
+
+function classifyTargetPreview(query: string): string {
+  const trimmed = query.trim();
+  if (!trimmed) return "OSINT TARGET";
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return "EMAIL";
+  if (/^\+?[0-9]{7,15}$/.test(trimmed.replace(/[\s\-()]/g, ""))) return "PHONE";
+  if (/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(trimmed)) return "IPV4";
+  if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) return "DOMAIN";
+  if (trimmed.startsWith("@")) return "HANDLE";
+  return "PERSON / ENTITY";
 }

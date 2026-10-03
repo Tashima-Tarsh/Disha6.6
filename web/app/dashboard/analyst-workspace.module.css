@@ -140,6 +140,135 @@
   to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mapPanel,.inspector,.graphPanel,.timelinePanel,.intelStrip { animation:none; transition:none; }
-  .mapPanel:hover,.inspector:hover,.graphPanel:hover,.timelinePanel:hover,.intelStrip:hover { transform:none; }
+  .mapPanel,.inspector,.graphPanel,.timelinePanel,.intelStrip,.universePanel { animation:none; transition:none; }
+  .mapPanel:hover,.inspector:hover,.graphPanel:hover,.timelinePanel:hover,.intelStrip:hover,.universePanel:hover { transform:none; }
+}
+
+.universePanel {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(147,174,179,.14);
+  background: linear-gradient(180deg,rgba(9,19,25,.88),rgba(7,16,22,.82));
+  backdrop-filter: blur(18px) saturate(112%);
+  box-shadow: 0 22px 52px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.018);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.universePanel:hover {
+  border-color: rgba(0,240,255,.25);
+  box-shadow: 0 28px 70px rgba(0,0,0,.32), 0 0 20px rgba(0,240,255,.05);
+}
+
+.investigationBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,10,18,.65);
+  border: 1px solid rgba(0,240,255,.2);
+  border-radius: 12px;
+  padding: 6px 12px;
+}
+
+.investigationInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #e6eeec;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.investigationInput::placeholder {
+  color: rgba(147,174,179,.4);
+}
+
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0,240,255,.08);
+  border: 1px solid rgba(0,240,255,.25);
+  color: #00f0ff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.investigationButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,240,255,.4);
+  background: linear-gradient(135deg, rgba(0,240,255,.15), rgba(0,100,180,.25));
+  color: #00f0ff;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 750;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.investigationButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0,240,255,.3), rgba(0,120,220,.4));
+  box-shadow: 0 0 16px rgba(0,240,255,.3);
+  transform: translateY(-1px);
+}
+
+.investigationButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.clusterBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.clusterLabel {
+  color: rgba(147,174,179,.6);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.clusterPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(147,174,179,.2);
+  background: rgba(255,255,255,.02);
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clusterPill:hover {
+  border-color: rgba(0,240,255,.4);
+  color: #00f0ff;
+}
+
+.clusterPillActive {
+  border-color: #00f0ff;
+  background: rgba(0,240,255,.12);
+  color: #00f0ff;
+  font-weight: 650;
 }

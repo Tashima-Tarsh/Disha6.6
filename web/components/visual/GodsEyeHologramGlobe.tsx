@@ -9,28 +9,14 @@ import styles from "./gods-eye-globe.module.css";
 export type StrategicNode = {
   id: string;
   name: string;
-  category: "command" | "subsea" | "satcom" | "cloud" | "border" | "international";
+  category: "source" | "geospatial" | "infrastructure" | "evidence" | "connector";
   lat: number;
   lng: number;
-  status: "active" | "defending" | "monitoring" | "intercepting";
-  traffic: string;
+  status: "admitted" | "reachable" | "degraded" | "unavailable";
   details: string;
+  sourceId?: string;
+  provenanceHash?: string;
 };
-
-export const STRATEGIC_GLOBAL_NODES: StrategicNode[] = [
-  { id: "geo-delhi-01", name: "Delhi Supreme Cyber Command", category: "command", lat: 28.6139, lng: 77.2090, status: "defending", traffic: "94.2 Gbps", details: "Core national governance neural backbone, Vyuha chakra policy root." },
-  { id: "geo-mumbai-02", name: "Mumbai Subsea Gateway Alpha", category: "subsea", lat: 18.9220, lng: 72.8347, status: "intercepting", traffic: "1.42 Tbps", details: "Arabian Sea undersea cable landing, international high-capacity fiber conduit." },
-  { id: "geo-bengaluru-03", name: "Bengaluru Cloud Defense Hub", category: "cloud", lat: 12.9716, lng: 77.5946, status: "active", traffic: "620 Gbps", details: "Critical sovereign cloud data exchange, AI model cluster telemetry." },
-  { id: "geo-hyderabad-04", name: "Hyderabad SatCom Control", category: "satcom", lat: 17.3850, lng: 78.4867, status: "active", traffic: "310 Gbps", details: "Orbital telemetry downlink, GSAT satellite command transceiver." },
-  { id: "geo-chennai-05", name: "Chennai Bay Gateway", category: "subsea", lat: 13.0827, lng: 80.2707, status: "active", traffic: "890 Gbps", details: "Bay of Bengal subsea interconnect, Southeast Asia fiber landing point." },
-  { id: "geo-kolkata-06", name: "Kolkata Eastern Frontier Node", category: "border", lat: 22.5726, lng: 88.3639, status: "monitoring", traffic: "240 Gbps", details: "Eastern corridor surveillance radar, border gateway monitoring." },
-  { id: "geo-singapore-07", name: "Singapore ASEAN Relay", category: "international", lat: 1.3521, lng: 103.8198, status: "monitoring", traffic: "450 Gbps", details: "International sovereign proxy node, Pacific routing telemetry." },
-  { id: "geo-frankfurt-08", name: "Frankfurt European Exchange", category: "international", lat: 50.1109, lng: 8.6821, status: "monitoring", traffic: "380 Gbps", details: "DE-CIX sovereign link, European intelligence telemetry." },
-  { id: "geo-tokyo-09", name: "Tokyo Far-East Relay", category: "international", lat: 35.6762, lng: 139.6503, status: "monitoring", traffic: "290 Gbps", details: "Asia-Pacific defense data bridge, Trans-Pacific cable junction." },
-  { id: "geo-london-10", name: "London Sovereign Link", category: "international", lat: 51.5074, lng: -0.1278, status: "monitoring", traffic: "340 Gbps", details: "Atlantic governance bridge, European financial telemetry." },
-  { id: "geo-sv-11", name: "Silicon Valley Tech Relay", category: "international", lat: 37.3861, lng: -122.0839, status: "monitoring", traffic: "510 Gbps", details: "US-West gateway, sovereign identity validation beacon." },
-  { id: "geo-ladakh-12", name: "Ladakh Northern High-Altitude Post", category: "border", lat: 34.1526, lng: 77.5771, status: "defending", traffic: "88 Gbps", details: "Northern border electronic warfare sensor array, high-altitude sat receiver." },
-];
 
 export type SatelliteOrbit = {
   id: string;
@@ -42,12 +28,7 @@ export type SatelliteOrbit = {
   sensor: string;
 };
 
-export const SATELLITE_ORBITS: SatelliteOrbit[] = [
-  { id: "GS-01", name: "GS-01 Sovereignty SAR", orbitRadius: 2.35, inclination: 0.45, speed: 0.008, color: "#38bdf8", sensor: "Synthetic Aperture Radar" },
-  { id: "GS-04", name: "GS-04 Orbital Intercept", orbitRadius: 2.65, inclination: -0.62, speed: 0.006, color: "#c084fc", sensor: "High-Band RF Spectrum Scanner" },
-  { id: "GS-07", name: "GS-07 Maritime Recon", orbitRadius: 2.95, inclination: 0.85, speed: 0.005, color: "#34d399", sensor: "AIS + Multi-Spectral Imagery" },
-  { id: "GS-12", name: "GS-12 Deep Space Relay", orbitRadius: 3.25, inclination: 0.20, speed: 0.003, color: "#f59e0b", sensor: "Quantum Cryptographic Uplink" },
-];
+
 
 function latLngToVector3(lat: number, lng: number, radius: number) {
   const phi = (90 - lat) * (Math.PI / 180);
@@ -60,6 +41,8 @@ function latLngToVector3(lat: number, lng: number, radius: number) {
 
 interface GodsEyeHologramGlobeProps {
   formation: string;
+  nodes?: StrategicNode[];
+  orbits?: SatelliteOrbit[];
   onSelectNode?: (node: StrategicNode) => void;
   selectedNodeId?: string | null;
   drillActive?: boolean;
@@ -67,17 +50,21 @@ interface GodsEyeHologramGlobeProps {
 
 export function GodsEyeHologramGlobe({
   formation,
+  nodes = [],
+  orbits = [],
   onSelectNode,
   selectedNodeId,
   drillActive = false,
 }: GodsEyeHologramGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedNode, setSelectedNode] = useState<StrategicNode | null>(
-    STRATEGIC_GLOBAL_NODES.find((n) => n.id === (selectedNodeId || "geo-delhi-01")) || STRATEGIC_GLOBAL_NODES[0]
-  );
+  const [localSelectedNodeId, setLocalSelectedNodeId] = useState<string | null>(selectedNodeId ?? null);
   const [timeDimension, setTimeDimension] = useState<number>(0);
   const [isPlayingTime, setIsPlayingTime] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
+  const selectedNode =
+    nodes.find((node) => node.id === (selectedNodeId ?? localSelectedNodeId)) ??
+    nodes[0] ??
+    null;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -138,10 +125,18 @@ export function GodsEyeHologramGlobe({
     // 2. Add Strategic Ground Nodes
     const nodeGeometry = new THREE.SphereGeometry(0.045, 12, 12);
 
-    STRATEGIC_GLOBAL_NODES.forEach((node) => {
+    nodes.forEach((node) => {
       const pos = latLngToVector3(node.lat, node.lng, globeRadius);
-      const isDefending = node.category === "command" || node.category === "border";
-      const nodeColor = isDefending ? 0xc084fc : node.category === "subsea" ? 0x38bdf8 : 0x34d399;
+      const nodeColor =
+        node.category === "evidence"
+          ? 0xd4af37
+          : node.category === "connector"
+          ? 0xc084fc
+          : node.category === "infrastructure"
+          ? 0x34d399
+          : node.category === "source"
+          ? 0x8a7db2
+          : 0x38bdf8;
 
       const nodeMat = new THREE.MeshBasicMaterial({ color: nodeColor });
       const nodeMesh = new THREE.Mesh(nodeGeometry, nodeMat);
@@ -162,36 +157,12 @@ export function GodsEyeHologramGlobe({
       mainGroup.add(halo);
     });
 
-    // 3. Dynamic Telemetry Arcs between Delhi/Mumbai and other hubs
-    const arcsGroup = new THREE.Group();
-    mainGroup.add(arcsGroup);
+    // 3. Relationship arcs are intentionally omitted unless backed by authenticated evidence.
+    // The component never infers or fabricates connectivity between admitted nodes.
 
-    const delhiPos = latLngToVector3(28.6139, 77.2090, globeRadius);
-    const mumbaiPos = latLngToVector3(18.9220, 72.8347, globeRadius);
-
-    STRATEGIC_GLOBAL_NODES.forEach((targetNode) => {
-      if (targetNode.id === "geo-delhi-01" || targetNode.id === "geo-mumbai-02") return;
-      const targetPos = latLngToVector3(targetNode.lat, targetNode.lng, globeRadius);
-      const originPos = targetNode.category === "subsea" || targetNode.category === "international" ? mumbaiPos : delhiPos;
-
-      const midPoint = originPos.clone().add(targetPos).multiplyScalar(0.5);
-      const distance = originPos.distanceTo(targetPos);
-      midPoint.normalize().multiplyScalar(globeRadius + distance * 0.28);
-
-      const curve = new THREE.QuadraticBezierCurve3(originPos, midPoint, targetPos);
-      const points = curve.getPoints(32);
-      const arcGeo = new THREE.BufferGeometry().setFromPoints(points);
-      const arcMat = new THREE.LineBasicMaterial({
-        color: targetNode.category === "international" ? 0xf59e0b : 0x38bdf8,
-        transparent: true,
-        opacity: 0.45,
-      });
-      arcsGroup.add(new THREE.Line(arcGeo, arcMat));
-    });
-
-    // 4. Orbital Satellites (GS-01 to GS-12)
+    // 4. Orbital objects supplied by an admitted runtime feed
     const satSprites: { mesh: InstanceType<typeof THREE.Mesh>; orbit: SatelliteOrbit; angle: number }[] = [];
-    SATELLITE_ORBITS.forEach((orbit, idx) => {
+    orbits.forEach((orbit, idx) => {
       const orbitCurve = new THREE.EllipseCurve(0, 0, orbit.orbitRadius, orbit.orbitRadius, 0, Math.PI * 2, false, 0);
       const orbitPoints = orbitCurve.getPoints(64).map((p: { x: number; y: number }) => new THREE.Vector3(p.x, 0, p.y));
       const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
@@ -275,7 +246,7 @@ export function GodsEyeHologramGlobe({
       renderer.dispose();
       if (container) container.innerHTML = "";
     };
-  }, [formation, autoRotate, drillActive, isPlayingTime]);
+  }, [formation, autoRotate, drillActive, isPlayingTime, nodes, orbits]);
 
   useEffect(() => {
     if (!isPlayingTime) return;
@@ -289,7 +260,7 @@ export function GodsEyeHologramGlobe({
   }, [isPlayingTime]);
 
   const handleNodeClick = (node: StrategicNode) => {
-    setSelectedNode(node);
+    setLocalSelectedNodeId(node.id);
     if (onSelectNode) onSelectNode(node);
   };
 
@@ -297,14 +268,14 @@ export function GodsEyeHologramGlobe({
     <div className={styles.globeWrapper}>
       <div ref={containerRef} className={styles.canvasContainer} />
 
-      {/* 4D Space-Time Temporal Scrubber */}
+      {/* Visual time offset control. This changes presentation only; it is not a prediction engine. */}
       <div className={styles.timeScrubberPanel}>
         <div className={styles.timeControlsRow}>
           <div className={styles.timeHeader}>
             <Clock size={14} color="#38bdf8" />
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0" }}>4D TEMPORAL VECTOR SCRUBBER</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0" }}>VISUAL TIME OFFSET</span>
             <span className={styles.timeBadge}>
-              {timeDimension === 0 ? "REFERENCE (T0)" : timeDimension > 0 ? `FORWARD VIEW (T+${timeDimension}h)` : `HISTORICAL VIEW (T${timeDimension}h)`}
+              {timeDimension === 0 ? "REFERENCE (T0)" : timeDimension > 0 ? `DISPLAY OFFSET (T+${timeDimension}h)` : `DISPLAY OFFSET (T${timeDimension}h)`}
             </span>
           </div>
           <div className={styles.timeActions}>
@@ -353,6 +324,17 @@ export function GodsEyeHologramGlobe({
         </div>
       </div>
 
+      {!nodes.length && (
+        <div className={styles.nodeCardOverlay}>
+          <div className={styles.nodeCardHeader}>
+            <strong style={{ fontSize: 13, color: "#f8fafc" }}>NO ADMITTED GEO NODES</strong>
+          </div>
+          <div style={{ fontSize: 11, color: "#94a3b8", margin: "4px 0" }}>
+            The authenticated runtime has not supplied source-backed geospatial records. Synthetic operational nodes are disabled.
+          </div>
+        </div>
+      )}
+
       {/* Floating Node Info Overlay */}
       {selectedNode && (
         <div className={styles.nodeCardOverlay}>
@@ -375,7 +357,7 @@ export function GodsEyeHologramGlobe({
 
       {/* Interactive Node Selector Pills */}
       <div className={styles.nodesBar}>
-        {STRATEGIC_GLOBAL_NODES.slice(0, 6).map((node) => (
+        {nodes.slice(0, 6).map((node) => (
           <button
             key={node.id}
             className={`${styles.nodePill} ${selectedNode?.id === node.id ? styles.nodePillActive : ""}`}

@@ -31,7 +31,7 @@ import type { OperationalFeatureCollection } from "@/lib/geospatial/contracts";
 import type { getOsintSourceUniverseSummary, OsintSourceUniverseEntry } from "@/lib/unified/osint-source-universe";
 import type { OsintToolCatalogEntry } from "@/lib/unified/osint-tool-catalog";
 import { authFetchHeaders } from "@/lib/utils";
-import { GodsEyeHologramGlobe, SATELLITE_ORBITS, STRATEGIC_GLOBAL_NODES } from "@/components/visual/GodsEyeHologramGlobe";
+import { GodsEyeHologramGlobe, type StrategicNode } from "@/components/visual/GodsEyeHologramGlobe";
 import styles from "./surveillance.module.css";
 
 type LogEntry = {
@@ -66,10 +66,30 @@ export function SurveillanceClient({
 }: SurveillanceClientProps) {
   const [activeTab, setActiveTab] = useState<"gods-eye" | "sources" | "tools" | "search" | "fleet">("gods-eye");
   const [selectedFormation, setSelectedFormation] = useState("chakra");
-  const [telemetryCount, setTelemetryCount] = useState<number>(initialGeo.features.length + sources.length);
+  const [telemetryCount, setTelemetryCount] = useState<number>(initialGeo.features.length);
   const [drillActive, setDrillActive] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
+
+  const globeNodes = useMemo<StrategicNode[]>(() => (
+    initialGeo.features.flatMap((feature) => {
+      if (feature.geometry.type !== "Point") return [];
+      const [lng, lat] = feature.geometry.coordinates;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return [];
+      const properties = feature.properties;
+      return [{
+        id: feature.id,
+        name: properties.name ?? properties.sourceId,
+        category: "geospatial" as const,
+        lat,
+        lng,
+        status: "admitted" as const,
+        details: `${properties.attribution} · source ${properties.sourceId} · observed ${new Date(properties.observedAt).toLocaleString()}`,
+        sourceId: properties.sourceId,
+        provenanceHash: properties.provenanceHash,
+      }];
+    }).slice(0, 250)
+  ), [initialGeo.features]);
 
   // OSINT Source Filter State
   const [sourceSearch, setSourceSearch] = useState("");
@@ -202,7 +222,7 @@ export function SurveillanceClient({
             id: `eval-${Date.now()}-2`,
             time: evalTime,
             category: "evidence",
-            message: `Cryptographic Evidence Block sealed · Formation: ${selectedFormation.toUpperCase()} · Provenance bound to Merkle root.`,
+            message: `Policy evaluation completed for ${selectedFormation.toUpperCase()}. No operational action or evidence persistence is implied unless returned by the authenticated evidence service.`,
           },
           ...prev,
         ]);
@@ -335,12 +355,12 @@ export function SurveillanceClient({
         {/* Global HUD Metrics */}
         <div className={styles.hudMetrics}>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>Reference Nodes</div>
-            <div className={styles.hudVal}>{STRATEGIC_GLOBAL_NODES.length} mapped</div>
+            <div className={styles.hudLabel}>Admitted Geo Nodes</div>
+            <div className={styles.hudVal}>{globeNodes.length} mapped</div>
           </div>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>OSINT Sources Active</div>
-            <div className={styles.hudVal} style={{ color: "#34d399" }}>{sources.length}+ Cataloged</div>
+            <div className={styles.hudLabel}>OSINT Registry</div>
+            <div className={styles.hudVal} style={{ color: "#34d399" }}>{sources.length} cataloged</div>
           </div>
           <div className={styles.hudCard}>
             <div className={styles.hudLabel}>Admitted Signals</div>
@@ -392,10 +412,10 @@ export function SurveillanceClient({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16, flexWrap: "wrap", gap: 14 }}>
               <div>
                 <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
-                  God&apos;s Eye 3D/4D Tactical Surveillance &amp; Vyuha Defense Matrix
+                  God&apos;s Eye 3D Authenticated Evidence Space
                 </h1>
                 <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                  Three-dimensional reference topology layered with authenticated evidence events and policy-gated defensive evaluation.
+                  Source-backed geospatial records only. Missing runtime data remains visibly unavailable; the client does not create synthetic operational nodes.
                 </p>
               </div>
               <button
@@ -411,7 +431,7 @@ export function SurveillanceClient({
 
             <div className={styles.gridOps}>
               {/* 3D / 4D Vector Hologram Globe */}
-              <GodsEyeHologramGlobe formation={selectedFormation} drillActive={drillActive} />
+              <GodsEyeHologramGlobe formation={selectedFormation} drillActive={drillActive} nodes={globeNodes} orbits={[]} />
 
               {/* Vyuha Cyber Formations Controller */}
               <section className={styles.vyuhaConsole}>
@@ -685,7 +705,7 @@ export function SurveillanceClient({
                 Universal Multi-Domain OSINT Search Console
               </h1>
               <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                Simultaneously query Wayback Machine, GDELT, SEC EDGAR, NIST CVEs, ThreatFox, and Satellite registries with Merkle evidence binding.
+                Route the query through the authenticated governed search endpoint. The result panel shows only adapters that actually ran and the evidence they returned.
               </p>
             </div>
 
@@ -744,32 +764,11 @@ export function SurveillanceClient({
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
-              {SATELLITE_ORBITS.map((sat) => (
-                <div
-                  key={sat.id}
-                  style={{
-                    background: "rgba(10, 22, 35, 0.8)",
-                    border: `1px solid ${sat.color}40`,
-                    borderRadius: 10,
-                    padding: 16,
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <strong style={{ fontSize: 15, color: sat.color }}>{sat.name}</strong>
-                    <span style={{ fontSize: 10, background: `${sat.color}20`, color: sat.color, padding: "2px 6px", borderRadius: 4 }}>
-                      ONLINE
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8 }}>
-                    <strong>Payload:</strong> {sat.sensor}
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b", display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8 }}>
-                    <span>Altitude: {(sat.orbitRadius * 240).toFixed(0)} km</span>
-                    <span>Inclination: {(sat.inclination * 57.3).toFixed(1)}°</span>
-                  </div>
-                </div>
-              ))}
+            <div style={{ background: "rgba(10, 22, 35, 0.8)", border: "1px solid rgba(56, 189, 248, 0.2)", borderRadius: 10, padding: 18 }}>
+              <strong style={{ fontSize: 14, color: "#f8fafc" }}>No admitted orbital tracks loaded</strong>
+              <p style={{ margin: "6px 0 0", fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+                Orbital objects will appear here only when an authenticated connector returns source-backed orbital data. Built-in fictional satellites are disabled.
+              </p>
             </div>
           </div>
         )}
