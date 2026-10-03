@@ -95,6 +95,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610030005_astra6_run_durability.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610030005_astra6_run_durability.down.sql"),
   },
+  {
+    version: "202610030006",
+    name: "cyber_rls_hardening",
+    upPath: path.join(databaseRoot, "202610030006_cyber_rls_hardening.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610030006_cyber_rls_hardening.down.sql"),
+  },
 ];
 
 const requiredTables = [
@@ -273,6 +279,11 @@ const requiredRlsTables = [
   "disha_state_transitions",
   "disha_canonical_contradictions",
   "disha_canonical_corroborations",
+  "disha_attack_surface_assets",
+  "disha_vulnerabilities_kev",
+  "disha_threat_indicators",
+  "disha_worker_jobs",
+  "disha_worker_heartbeats",
 ];
 
 const mode = process.argv.includes("--verify-only") ? "verify" : process.argv.includes("--rollback") ? "rollback" : "migrate";
