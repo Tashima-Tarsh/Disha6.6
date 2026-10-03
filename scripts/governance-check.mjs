@@ -112,14 +112,26 @@ if (process.env.EVENT_NAME === "pull_request" && governedRuntimeChanged && !regr
 }
 
 try {
-  const whitespace = runGit(["diff", "--check", range, "--"]).trim();
+  // GitHub pull_request jobs are checked out at a synthetic merge commit.
+  // Checking BASE_SHA...HEAD can fail on that detached merge ref even when the
+  // underlying PR patch is valid. For PRs, compare the merge commit's first
+  // parent (the base) directly to HEAD; for pushes, retain the normal range.
+  const whitespaceRange =
+    process.env.EVENT_NAME === "pull_request" ? "HEAD^1..HEAD" : range;
+  const whitespace = runGit(["diff", "--check", whitespaceRange, "--"]).trim();
   if (whitespace) {
     for (const line of whitespace.split("\n")) {
       addViolation("diff", "whitespace error", line);
     }
   }
 } catch (error) {
-  addViolation("diff", "unable to run whitespace check", error.message);
+  const detail =
+    error && typeof error === "object" && "stderr" in error && error.stderr
+      ? String(error.stderr).trim()
+      : error instanceof Error
+        ? error.message
+        : String(error);
+  addViolation("diff", "unable to run whitespace check", detail);
 }
 
 if (violations.length > 0) {
