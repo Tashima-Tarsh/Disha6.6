@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { FormEvent, PointerEvent as ReactPointerEvent, useMemo, useRef, useState } from "react";
 
-import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
+import { DishaIdentityScene3D } from "@/components/auth/DishaIdentityScene3D";
 import styles from "./login.module.css";
 
 type SubmitState = "idle" | "submitting" | "verified" | "error";
@@ -59,7 +59,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
         throw new Error("Secure sign-in is temporarily unavailable. Please try again.");
       }
 
-      // Smooth transition into command center (Tasks 44 & 45)
+      // Smooth camera push and gateway dissolve into command center
       setState("verified");
       window.setTimeout(() => {
         window.location.assign(returnUrl);
@@ -75,8 +75,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
     window.location.assign(new URL(`/api/auth/oidc/start?${params.toString()}`, window.location.origin).toString());
   }
 
-  // Premium spatial parallax: the gateway card floats and tilts toward the pointer,
-  // with a radial sheen that tracks the cursor position across the glass surface.
+  // Shallow pointer tilt and cursor sheen tracking
   function trackCardParallax(event: ReactPointerEvent<HTMLDivElement>) {
     const card = cardRef.current;
     if (!card || state === "verified") return;
@@ -85,10 +84,10 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
     const ratioX = (event.clientX - rect.left) / rect.width - 0.5;
     const ratioY = (event.clientY - rect.top) / rect.height - 0.5;
 
-    card.style.setProperty("--tilt-y", `${(ratioX * 10).toFixed(2)}deg`);
-    card.style.setProperty("--tilt-x", `${(-ratioY * 10).toFixed(2)}deg`);
-    card.style.setProperty("--glow-x", `${(((ratioX + 0.5) * 100)).toFixed(1)}%`);
-    card.style.setProperty("--glow-y", `${(((ratioY + 0.5) * 100)).toFixed(1)}%`);
+    card.style.setProperty("--tilt-y", `${(ratioX * 6).toFixed(2)}deg`);
+    card.style.setProperty("--tilt-x", `${(-ratioY * 6).toFixed(2)}deg`);
+    card.style.setProperty("--glow-x", `${((ratioX + 0.5) * 100).toFixed(1)}%`);
+    card.style.setProperty("--glow-y", `${((ratioY + 0.5) * 100).toFixed(1)}%`);
   }
 
   function resetCardParallax() {
@@ -102,19 +101,19 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
   return (
     <main className={styles.shell}>
-      {/* Aurora + particle depth atmosphere layered behind the WebGL scene */}
+      {/* Subtle depth lighting and starfield layers */}
       <div className={styles.atmosphere} aria-hidden="true" />
       <div className={styles.starField} aria-hidden="true" />
 
-      {/* Immersive 3D Spatial Environment (Tasks 39-42) */}
-      <section className={styles.visualLayer} aria-label="disha6.6 sovereign intelligence environment">
-        <SovereignCyberMatrix3D />
+      {/* Dedicated top 0.1% Pre-Auth 3D Identity Scene */}
+      <section className={styles.visualLayer} aria-label="DISHA 6.6 sovereign intelligence environment">
+        <DishaIdentityScene3D transitionState={state} />
       </section>
 
-      {/* Cinematic vignette to focus the eye on the gateway */}
+      {/* Vignette to guide eye focus to the centered gateway */}
       <div className={styles.vignette} aria-hidden="true" />
 
-      {/* Floating Spatial Gateway Overlay (Tasks 43-45) */}
+      {/* Centered Floating Spatial Gateway Overlay */}
       <section className={styles.spatialGatewayContainer} aria-labelledby="secure-access-title">
         <div
           className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}
@@ -123,8 +122,9 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
           ref={cardRef}
         >
           <div className={styles.cardSheen} aria-hidden="true" />
+
           <div className={styles.headingBlock}>
-            <p className={styles.kicker}>SECURE IDENTITY</p>
+            <p className={styles.kicker}>SECURE ACCESS</p>
             <h1 id="secure-access-title">DISHA 6.6</h1>
             <p className={styles.subtitle}>Evidence-Grade Intelligence</p>
           </div>
@@ -132,7 +132,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
           <form className={styles.loginForm} onSubmit={signIn} noValidate>
             <label className={styles.field}>
               <span className={styles.srOnly}>Email address or User ID</span>
-              <Mail aria-hidden="true" size={20} />
+              <Mail aria-hidden="true" size={18} />
               <input
                 autoComplete="username"
                 inputMode="email"
@@ -150,7 +150,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
             <label className={styles.field}>
               <span className={styles.srOnly}>Password</span>
-              <LockKeyhole aria-hidden="true" size={20} />
+              <LockKeyhole aria-hidden="true" size={18} />
               <input
                 autoComplete="current-password"
                 minLength={passwordMinLength}
@@ -170,7 +170,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
                 onClick={() => setShowPassword((visible) => !visible)}
                 type="button"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </label>
 
@@ -184,7 +184,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             {error ? <div className={styles.error} role="alert">{error}</div> : null}
             {state === "verified" ? (
               <div className={styles.successNotice} role="status">
-                <CheckCircle2 size={18} />
+                <CheckCircle2 size={16} />
                 <span>Identity verified · Entering Mission Command...</span>
               </div>
             ) : null}
@@ -192,17 +192,17 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             <button className={styles.loginButton} disabled={!formValid || state === "submitting" || state === "verified"} type="submit">
               {state === "submitting" ? (
                 <>
-                  <Loader2 className={styles.spin} size={20} />
+                  <Loader2 className={styles.spin} size={18} />
                   <span>VERIFYING IDENTITY...</span>
                 </>
               ) : state === "verified" ? (
                 <>
-                  <CheckCircle2 size={20} />
+                  <CheckCircle2 size={18} />
                   <span>ACCESS GRANTED</span>
                 </>
               ) : (
                 <>
-                  <ShieldCheck size={20} />
+                  <ShieldCheck size={18} />
                   <span>[ ENTER ]</span>
                   <span className={styles.loginArrow}>→</span>
                 </>
@@ -214,19 +214,18 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
           <div className={styles.identityGrid}>
             <button onClick={() => startOidc("meri-pehchan")} type="button">
-              <Fingerprint size={21} />
+              <Fingerprint size={18} />
               <span><small>Continue with</small>Meri Pehchan</span>
             </button>
             <button onClick={() => startOidc("intra-id")} type="button">
-              <Building2 size={21} />
+              <Building2 size={18} />
               <span><small>Continue with</small>Intra ID</span>
             </button>
           </div>
 
           <footer className={styles.securityFooter}>
-            <div><ShieldCheck size={20} /><span>Signed<br />session</span></div>
-            <div><Fingerprint size={20} /><span>CSRF<br />protected</span></div>
-            <div><CheckCircle2 size={20} /><span>Audit<br />logged</span></div>
+            <p className={styles.securityClaims}>SECURE SESSION · CSRF PROTECTED · AUDIT LOGGED</p>
+            <p className={styles.preAuthDisclaimer}>PRE-AUTH VISUALIZATION · LIVE INTELLIGENCE AFTER SIGN-IN</p>
           </footer>
         </div>
       </section>

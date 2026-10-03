@@ -1,0 +1,113 @@
+.sceneContainer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Subtle atmospheric lighting layer behind globe */
+.backlight {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(70vw, 70vh);
+  height: min(70vw, 70vh);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(34, 72, 112, 0.16) 0%,
+    rgba(14, 30, 52, 0.08) 45%,
+    transparent 70%
+  );
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle corner technical watermarks - restrained, minimal, non-operational */
+.metaWatermark {
+  position: absolute;
+  bottom: 24px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: var(--font-mono, "SF Mono", "Fira Code", monospace);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(148, 175, 206, 0.45);
+  pointer-events: none;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.metaWatermark strong {
+  color: rgba(226, 238, 255, 0.65);
+  font-weight: 600;
+}
+
+.orientationBadge {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, "SF Mono", "Fira Code", monospace);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(148, 175, 206, 0.5);
+  pointer-events: none;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.orientationDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c9a96e;
+  box-shadow: 0 0 8px rgba(201, 169, 110, 0.6);
+}
+
+/* WebGL fallback background if context creation fails */
+.fallbackScene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(20, 42, 68, 0.45) 0%, transparent 65%),
+    linear-gradient(135deg, #05070b 0%, #09111d 50%, #05070b 100%);
+  z-index: 1;
+}
+
+.fallbackGlobeDisc {
+  width: min(50vw, 440px);
+  height: min(50vw, 440px);
+  border-radius: 50%;
+  border: 1px solid rgba(69, 199, 244, 0.18);
+  background: radial-gradient(circle at 35% 35%, #0d1e34 0%, #060c16 80%);
+  box-shadow: 0 0 60px rgba(10, 24, 44, 0.8), inset 0 0 40px rgba(69, 199, 244, 0.1);
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .metaWatermark,
+  .orientationBadge {
+    display: none;
+  }
+}

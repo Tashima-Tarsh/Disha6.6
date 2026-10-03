@@ -20,6 +20,18 @@ describe("truthful OSINT universe boundaries", () => {
     expect(source).not.toContain("CERT-In National CSIRT");
   });
 
+  it("ensures the dedicated DishaIdentityScene3D contains zero operational intelligence records", () => {
+    const identityScenePath = path.resolve(__dirname, "../components/auth/DishaIdentityScene3D.tsx");
+    const source = fs.readFileSync(identityScenePath, "utf8");
+
+    expect(source).toContain("INDIA_CENTER_LON");
+    expect(source).toContain("datameet-india-land-simplified.geojson");
+    expect(source).not.toContain("fakeNodes");
+    expect(source).not.toContain("satelliteOrbit");
+    expect(source).not.toContain("threatLevel");
+    expect(source).not.toContain("interceptedPackets");
+  });
+
   it("does not synthesize workspace or geospatial intelligence when persistence is unavailable", () => {
     const workspace = fs.readFileSync(workspaceRoute, "utf8");
     const geo = fs.readFileSync(spatialQuery, "utf8");

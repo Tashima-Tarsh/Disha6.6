@@ -3,11 +3,11 @@
   box-sizing: border-box;
 }
 
-/* Full-viewport immersive 3D intelligence environment (Tasks 39-49) */
+/* Full-viewport immersive 3D intelligence environment */
 .shell {
   background:
-    radial-gradient(circle at 50% 50%, rgba(13, 44, 84, 0.4), transparent 60%),
-    linear-gradient(135deg, #020711 0%, #040f1f 50%, #020711 100%);
+    radial-gradient(circle at 50% 50%, rgba(9, 22, 40, 0.45), transparent 60%),
+    linear-gradient(135deg, #05070b 0%, #09111d 50%, #05070b 100%);
   color: #e8f2ff;
   height: 100dvh;
   inset: 0;
@@ -16,428 +16,288 @@
   width: 100vw;
 }
 
-/* Slow-drifting aurora nebulae for premium depth behind the globe */
+/* Atmosphere glow behind globe */
 .atmosphere {
   position: absolute;
-  inset: -20%;
+  inset: -15%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.85;
+  opacity: 0.65;
   background:
-    radial-gradient(closest-side at 22% 28%, rgba(56, 189, 248, 0.28), transparent 70%),
-    radial-gradient(closest-side at 78% 22%, rgba(16, 185, 129, 0.18), transparent 70%),
-    radial-gradient(closest-side at 62% 82%, rgba(2, 132, 199, 0.26), transparent 72%);
-  filter: blur(38px) saturate(1.15);
-  animation: auroraDrift 24s ease-in-out infinite alternate;
+    radial-gradient(closest-side at 30% 35%, rgba(69, 199, 244, 0.12), transparent 70%),
+    radial-gradient(closest-side at 70% 30%, rgba(30, 64, 175, 0.14), transparent 70%),
+    radial-gradient(closest-side at 50% 70%, rgba(15, 23, 42, 0.3), transparent 75%);
+  filter: blur(44px);
 }
 
-@keyframes auroraDrift {
-  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
-  50% { transform: translate3d(2%, 2%, 0) scale(1.06); }
-  100% { transform: translate3d(-1%, 1.5%, 0) scale(1.02); }
-}
-
-/* Fine starfield for spatial parallax texture */
+/* Restrained starfield texture */
 .starField {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.35;
   background-image:
-    radial-gradient(1px 1px at 12% 22%, rgba(226, 232, 240, 0.9), transparent),
-    radial-gradient(1px 1px at 68% 12%, rgba(148, 197, 253, 0.8), transparent),
-    radial-gradient(1.5px 1.5px at 82% 62%, rgba(226, 232, 240, 0.65), transparent),
-    radial-gradient(1px 1px at 34% 78%, rgba(165, 243, 252, 0.75), transparent),
-    radial-gradient(1px 1px at 52% 44%, rgba(226, 232, 240, 0.55), transparent),
-    radial-gradient(1.5px 1.5px at 8% 66%, rgba(148, 197, 253, 0.6), transparent);
+    radial-gradient(1px 1px at 15% 25%, rgba(226, 232, 240, 0.8), transparent),
+    radial-gradient(1px 1px at 75% 15%, rgba(148, 197, 253, 0.7), transparent),
+    radial-gradient(1px 1px at 85% 65%, rgba(226, 232, 240, 0.6), transparent),
+    radial-gradient(1px 1px at 25% 85%, rgba(165, 243, 252, 0.65), transparent),
+    radial-gradient(1px 1px at 55% 45%, rgba(226, 232, 240, 0.5), transparent);
   background-repeat: repeat;
-  background-size: 340px 340px;
-  animation: starDrift 60s linear infinite;
+  background-size: 320px 320px;
 }
 
-@keyframes starDrift {
-  from { background-position: 0 0; }
-  to { background-position: 340px 340px; }
-}
-
-/* Cinematic vignette to pull focus toward the gateway */
+/* Cinematic vignette framing */
 .vignette {
   position: absolute;
   inset: 0;
-  z-index: 5;
+  z-index: 3;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 50% 46%, transparent 40%, rgba(1, 4, 10, 0.55) 100%),
-    linear-gradient(to top, rgba(1, 4, 10, 0.6), transparent 32%);
+    radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(2, 4, 8, 0.7) 100%),
+    linear-gradient(to top, rgba(2, 4, 8, 0.65) 0%, transparent 25%);
 }
 
-
-/* 3D WebGL Canvas Layer fills 100% of the screen */
+/* 3D WebGL Canvas Layer fills viewport */
 .visualLayer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 2;
   overflow: hidden;
 }
 
-/* Floating spatial gateway layer */
+/* Centered spatial gateway container */
 .spatialGatewayContainer {
   position: absolute;
   inset: 0;
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: clamp(20px, 4vh, 60px) clamp(24px, 6vw, 120px);
+  justify-content: center;
+  padding: 20px;
   pointer-events: none;
-  perspective: 1500px;
+  perspective: 1200px;
 }
 
-@media (max-width: 900px) {
-  .spatialGatewayContainer {
-    justify-content: center;
-    padding: 16px;
-  }
-}
-
-/* Compact floating dark identity gateway card (width: 380-440px per Task 43) */
+/* Compact, spatial identity card (350-380px target width) */
 .spatialGatewayCard {
-  position: relative;
-  pointer-events: auto;
   width: 100%;
-  max-width: 420px;
-  background: linear-gradient(180deg, rgba(9, 22, 42, 0.9) 0%, rgba(4, 13, 27, 0.86) 100%);
+  max-width: 370px;
+  background: rgba(6, 12, 22, 0.78);
   backdrop-filter: blur(28px) saturate(1.2);
   -webkit-backdrop-filter: blur(28px) saturate(1.2);
-  border: 1px solid rgba(56, 189, 248, 0.26);
-  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 26px 26px 22px;
   box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.72),
-    0 0 0 1px rgba(56, 189, 248, 0.1) inset,
-    0 0 48px rgba(56, 189, 248, 0.12),
-    0 1px 0 rgba(255, 255, 255, 0.06) inset;
-  padding: clamp(24px, 3vh, 36px) clamp(24px, 2.5vw, 36px);
-  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 40px rgba(10, 25, 48, 0.4);
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
   transform-style: preserve-3d;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease, box-shadow 0.35s ease;
-  animation: gatewayEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
-  will-change: transform;
+  transform: rotateY(var(--tilt-y, 0deg)) rotateX(var(--tilt-x, 0deg)) translateZ(16px);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
 }
 
-/* Light-catching top edge */
-.spatialGatewayCard::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 12%;
-  right: 12%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.9), transparent);
-  opacity: 0.75;
-}
-
-/* Cursor-tracking glass sheen */
+/* Cursor-reactive sheen */
 .cardSheen {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 3;
+  border-radius: 16px;
   background: radial-gradient(
-    340px circle at var(--glow-x, 50%) var(--glow-y, 0%),
-    rgba(125, 211, 252, 0.16),
-    transparent 60%
+    circle at var(--glow-x, 50%) var(--glow-y, 0%),
+    rgba(69, 199, 244, 0.1) 0%,
+    transparent 55%
   );
-  transition: background 0.12s linear;
-}
-
-@keyframes gatewayEntrance {
-  from {
-    opacity: 0;
-    translate: 0 22px;
-    scale: 0.96;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
-}
-
-/* Login success transition: Gateway contracts and dissolves into command center (Task 45) */
-.gatewayDissolving {
-  opacity: 0;
-  scale: 0.92;
-  translate: 0 -12px;
   pointer-events: none;
-  transition:
-    opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-    scale 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-    translate 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
 }
 
-/* Give the card's content subtle Z-depth for a layered holographic feel */
-.spatialGatewayCard > .headingBlock {
-  position: relative;
-  z-index: 2;
-  transform: translateZ(32px);
+/* Dissolve transition on authentication success */
+.gatewayDissolving {
+  transform: scale(0.96) translateZ(-40px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.spatialGatewayCard > .loginForm {
-  position: relative;
-  z-index: 2;
-  transform: translateZ(28px);
-}
-
-.spatialGatewayCard > .divider {
-  position: relative;
-  z-index: 2;
-  transform: translateZ(20px);
-}
-
-.spatialGatewayCard > .identityGrid {
-  position: relative;
-  z-index: 2;
-  transform: translateZ(24px);
-}
-
-.spatialGatewayCard > .securityFooter {
-  position: relative;
-  z-index: 2;
-  transform: translateZ(16px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .atmosphere,
-  .starField,
-  .previewIndicator {
-    animation: none;
-  }
-
-  .spatialGatewayCard {
-    animation: none;
-    transition: opacity 0.3s ease;
-    transform: none;
-  }
-}
-
 
 .headingBlock {
-  margin: 0 0 clamp(18px, 2.5vh, 26px);
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .kicker {
-  color: #38bdf8;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  margin: 0 0 6px;
+  font-family: var(--font-mono, "SF Mono", "Fira Code", monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #45c7f4;
+  margin: 0 0 4px;
   text-transform: uppercase;
 }
 
 .headingBlock h1 {
-  font-size: clamp(1.4rem, 2vw, 1.75rem);
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin: 0 0 6px;
-  background: linear-gradient(135deg, #ffffff 0%, #bae6fd 55%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ffffff;
+  letter-spacing: 0.14em;
+  color: #f4f7fb;
+  margin: 0 0 4px;
 }
 
-.headingBlock p:last-child,
 .subtitle {
-  color: #94a3b8;
-  font-size: 0.85rem;
-  line-height: 1.4;
+  font-size: 12px;
+  color: rgba(148, 175, 206, 0.7);
+  letter-spacing: 0.04em;
   margin: 0;
 }
 
-.runtimeTag {
-  display: inline-block;
-  margin-top: 6px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 4px;
-  padding: 2px 8px;
-}
-
 .loginForm {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .field {
-  align-items: center;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 12px;
   display: flex;
-  gap: 12px;
-  padding: 10px 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 18, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 9px;
+  padding: 10px 12px;
+  color: rgba(148, 175, 206, 0.7);
+  transition: all 0.2s ease;
 }
 
 .field:focus-within {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-}
-
-.field svg {
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.field:focus-within svg {
-  color: #38bdf8;
+  border-color: #45c7f4;
+  box-shadow: 0 0 0 1px #45c7f4, 0 0 14px rgba(69, 199, 244, 0.2);
+  color: #f4f7fb;
 }
 
 .field input {
+  flex: 1;
   background: transparent;
   border: none;
-  color: #f8fafc;
-  flex: 1;
-  font-size: 0.92rem;
   outline: none;
-  width: 100%;
+  color: #f4f7fb;
+  font-size: 13px;
+  letter-spacing: 0.02em;
 }
 
 .field input::placeholder {
-  color: #64748b;
+  color: rgba(148, 175, 206, 0.45);
 }
 
 .revealButton {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: rgba(148, 175, 206, 0.6);
   cursor: pointer;
+  padding: 2px;
   display: flex;
-  padding: 0;
-  transition: color 0.2s;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
 }
 
-.revealButton:hover {
-  color: #e2e8f0;
+.revealButton:hover,
+.revealButton:focus-visible {
+  color: #f4f7fb;
+  outline: none;
 }
 
 .formMeta {
-  align-items: center;
   display: flex;
-  font-size: 0.82rem;
+  align-items: center;
   justify-content: space-between;
-  margin: 2px 0 4px;
+  margin: -2px 0 2px;
 }
 
 .rememberLabel {
+  display: flex;
   align-items: center;
-  color: #94a3b8;
-  cursor: pointer;
-  display: inline-flex;
   gap: 8px;
+  font-size: 11px;
+  color: rgba(148, 175, 206, 0.75);
+  cursor: pointer;
   user-select: none;
 }
 
 .rememberLabel input {
-  accent-color: #38bdf8;
+  accent-color: #45c7f4;
   cursor: pointer;
 }
 
 .error {
   background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
   color: #fca5a5;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  padding: 8px 12px;
+  text-align: center;
 }
 
 .successNotice {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.45);
-  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
   color: #6ee7b7;
-  font-size: 0.85rem;
-  line-height: 1.4;
-  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
 }
 
 .loginButton {
-  align-items: center;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 60%, #0284c7 100%);
-  border: 1px solid rgba(125, 211, 252, 0.4);
-  border-radius: 14px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9px;
   color: #ffffff;
-  cursor: pointer;
+  padding: 11px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   display: flex;
-  font-size: 0.88rem;
-  font-weight: 700;
-  gap: 10px;
+  align-items: center;
   justify-content: center;
-  letter-spacing: 0.08em;
-  overflow: hidden;
-  padding: 13px 18px;
-  position: relative;
-  text-transform: uppercase;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow:
-    0 6px 24px rgba(2, 132, 199, 0.4),
-    0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 -8px 18px rgba(2, 6, 23, 0.35) inset;
-}
-
-/* Diagonal light sweep on hover for a premium tactile response */
-.loginButton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 45%;
-  height: 100%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: skewX(-18deg);
-  transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.loginButton:hover:not(:disabled)::after {
-  left: 130%;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+  transition: all 0.2s ease;
+  margin-top: 4px;
 }
 
 .loginButton:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-  box-shadow: 0 6px 28px rgba(14, 165, 233, 0.5);
+  background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+  box-shadow: 0 6px 22px rgba(14, 165, 233, 0.45);
   transform: translateY(-1px);
 }
 
 .loginButton:disabled {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(71, 85, 105, 0.3);
-  color: #64748b;
+  opacity: 0.45;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .loginArrow {
-  font-size: 1.1rem;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 
 .loginButton:hover:not(:disabled) .loginArrow {
-  transform: translateX(4px);
+  transform: translateX(3px);
 }
 
 .spin {
@@ -445,103 +305,126 @@
 }
 
 @keyframes spin {
+  from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
 .divider {
-  align-items: center;
-  color: #475569;
-  display: flex;
-  font-size: 0.68rem;
-  font-weight: 700;
-  gap: 12px;
-  letter-spacing: 0.12em;
-  margin: 18px 0;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin: 16px 0 12px;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.divider span {
+  position: relative;
+  background: rgba(6, 12, 22, 0.95);
+  padding: 0 10px;
+  font-family: var(--font-mono, "SF Mono", "Fira Code", monospace);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(148, 175, 206, 0.5);
   text-transform: uppercase;
 }
 
-.divider::before,
-.divider::after {
-  background: rgba(148, 163, 184, 0.15);
-  content: "";
-  flex: 1;
-  height: 1px;
-}
-
+/* Compact side-by-side OIDC identity providers */
 .identityGrid {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .identityGrid button {
-  align-items: center;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 12px;
-  color: #e2e8f0;
-  cursor: pointer;
+  background: rgba(10, 18, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: rgba(226, 238, 255, 0.85);
+  font-size: 11px;
+  font-weight: 500;
   display: flex;
-  gap: 10px;
-  padding: 10px 12px;
-  text-align: left;
-  transition: background 0.2s, border-color 0.2s;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
 }
 
 .identityGrid button:hover {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(56, 189, 248, 0.35);
-}
-
-.identityGrid button svg {
-  color: #38bdf8;
-  flex-shrink: 0;
+  background: rgba(18, 32, 54, 0.8);
+  border-color: rgba(69, 199, 244, 0.35);
+  color: #ffffff;
 }
 
 .identityGrid button span {
   display: flex;
   flex-direction: column;
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.25;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.2;
 }
 
 .identityGrid button small {
-  color: #64748b;
-  font-size: 0.68rem;
+  font-size: 9px;
+  color: rgba(148, 175, 206, 0.5);
   font-weight: 400;
 }
 
+/* Restrained single-line security footer */
 .securityFooter {
-  border-top: 1px solid rgba(148, 163, 184, 0.12);
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
   padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
 }
 
-.securityFooter div {
-  align-items: center;
-  color: #64748b;
-  display: flex;
-  gap: 8px;
-  font-size: 0.68rem;
-  line-height: 1.25;
+.securityClaims {
+  font-family: var(--font-mono, "SF Mono", "Fira Code", monospace);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: rgba(148, 175, 206, 0.5);
+  text-transform: uppercase;
+  margin: 0 0 6px;
 }
 
-.securityFooter div svg {
-  color: #38bdf8;
-  flex-shrink: 0;
+.preAuthDisclaimer {
+  font-family: var(--font-mono, "SF Mono", "Fira Code", monospace);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: rgba(148, 175, 206, 0.35);
+  text-transform: uppercase;
+  margin: 0;
 }
 
 .srOnly {
-  border: 0;
-  clip: rect(0, 0, 0, 0);
+  position: absolute;
+  width: 1px;
   height: 1px;
+  padding: 0;
   margin: -1px;
   overflow: hidden;
-  padding: 0;
-  position: absolute;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  width: 1px;
+  border-width: 0;
+}
+
+@media (max-width: 480px) {
+  .spatialGatewayCard {
+    max-width: 100%;
+    padding: 22px 18px 18px;
+  }
 }
