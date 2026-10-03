@@ -1,30 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
-  Activity,
-  ArrowLeft,
-  CheckCircle2,
   Cpu,
   Database,
   ExternalLink,
   Eye,
   Filter,
-  Flame,
   Globe2,
-  Lock,
-  Radio,
   Search,
-  Server,
   Shield,
-  ShieldAlert,
   ShieldCheck,
-  Sparkles,
   Terminal as TerminalIcon,
-  Wifi,
-  Zap,
 } from "lucide-react";
 
 import type { OperationalFeatureCollection } from "@/lib/geospatial/contracts";
@@ -66,7 +54,7 @@ export function SurveillanceClient({
 }: SurveillanceClientProps) {
   const [activeTab, setActiveTab] = useState<"gods-eye" | "sources" | "tools" | "search">("gods-eye");
   const [selectedFormation, setSelectedFormation] = useState("chakra");
-  const [telemetryCount, setTelemetryCount] = useState<number>(initialGeo.features.length + sources.length);
+  const [telemetryCount, setTelemetryCount] = useState<number>(initialGeo.features.length);
   const [drillActive, setDrillActive] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(INITIAL_LOGS);
@@ -149,7 +137,7 @@ export function SurveillanceClient({
     setDrillActive(true);
     const time = new Date().toLocaleTimeString();
     setLogs((prev) => [
-      { id: `probe-${Date.now()}`, time, category: "vyuha", message: `Initiating real-time Vyuha policy gate evaluation for posture: ${selectedFormation.toUpperCase()}...` },
+      { id: `probe-${Date.now()}`, time, category: "vyuha", message: `Initiating target-free Vyuha policy self-test for posture: ${selectedFormation.toUpperCase()}...` },
       ...prev,
     ]);
 
@@ -164,17 +152,17 @@ export function SurveillanceClient({
             timestamp: new Date().toISOString(),
             userId: "operator",
             input: {
-              rawText: `Tactical perimeter defense verification under ${selectedFormation} formation across strategic gateway nodes.`,
+              rawText: `Policy self-test for the ${selectedFormation} defensive posture. No external target or execution action is requested.`,
               files: [],
-              locations: [{ latitude: 18.9220, longitude: 72.8347, label: "Mumbai Gateway" }],
-              indicators: [{ type: "domain", value: "gateway.disha.nic.in" }],
+              locations: [],
+              indicators: [],
             },
             context: {
               intent: "defense_containment",
               entities: [{ type: "formation", value: selectedFormation }],
               memoryRefs: [],
-              dataSources: [{ sourceId: "src-policy-gate", name: "Vyuha Policy Core" }],
-              sensitivity: "controlled",
+              dataSources: [],
+              sensitivity: "public",
             },
             riskContext: {
               userRole: "operator",
@@ -358,8 +346,8 @@ export function SurveillanceClient({
             <div className={styles.hudVal}>{sources.length} cataloged</div>
           </div>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>OSINT Sources Active</div>
-            <div className={styles.hudVal} style={{ color: "#34d399" }}>{sources.length}+ Cataloged</div>
+            <div className={styles.hudLabel}>OSINT Source Catalog</div>
+            <div className={styles.hudVal} style={{ color: "#34d399" }}>{sources.length} declared</div>
           </div>
           <div className={styles.hudCard}>
             <div className={styles.hudLabel}>Admitted Signals</div>
@@ -514,7 +502,7 @@ export function SurveillanceClient({
                 Complete OSINT Source Universe ({sources.length} Intelligence Feeds)
               </h1>
               <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                Multi-domain open-source intelligence feeds encompassing internet scanners, malware IOCs, orbital space telemetry, sanctions, and darkweb archives.
+                Declared multi-domain public-source resources. Each card states whether it is builtin, connector-ready, configuration-dependent, reference-only, or blocked by default.
               </p>
             </div>
 
@@ -634,7 +622,7 @@ export function SurveillanceClient({
                 Governed Cyber &amp; Forensics Tool Suite ({tools.length} Tools)
               </h1>
               <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                Industry-standard offensive/defensive forensics engines mapped into DISHA&apos;s strict policy-gated execution containment layer.
+                Reviewed public-intelligence and defensive tooling mapped into DISHA&apos;s policy-gated execution layer. Catalog entries are not treated as executable unless a governed adapter is configured.
               </p>
             </div>
 
