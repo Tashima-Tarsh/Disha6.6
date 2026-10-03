@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { hashSecret, signJson, verifySecret, verifySignedJson } from "../lib/server/crypto";
 import { getEnv, resetEnvForTests } from "../lib/server/env";
 import { can, assertCan } from "../lib/server/policy";
-import { createShareSchema, fileWriteSchema, loginSchema } from "../lib/server/schemas/api";
+import { createShareSchema, fileWriteSchema, loginSchema, oidcStartSchema } from "../lib/server/schemas/api";
 import type { Principal } from "../lib/server/types";
 
 afterEach(() => {
@@ -64,6 +64,11 @@ describe("schemas", () => {
       }),
     ).toThrow();
   });
+
+  it("accepts only the verified Meri Pehchaan OIDC provider", () => {
+    expect(oidcStartSchema.parse({ provider: "meri-pehchan" }).provider).toBe("meri-pehchan");
+    expect(() => oidcStartSchema.parse({ provider: "intra-id" })).toThrow();
+  });
 });
 
 describe("development admin configuration", () => {
@@ -92,13 +97,31 @@ describe("production environment hardening", () => {
     expect(() => getEnv()).toThrow("dev-jwt is not allowed");
   });
 
+  it("requires Meri Pehchaan credentials in oidc mode", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DISHA_AUTH_MODE", "oidc");
+    vi.stubEnv("DISHA_JWT_SECRET", "a".repeat(32));
+    vi.stubEnv("DATABASE_URL", "postgres://user:pass@localhost:5432/disha");
+    vi.stubEnv("DISHA_WORKER_TOKEN", "worker-token-that-is-at-least-24-chars");
+    vi.stubEnv("DISHA_MERI_PEHCHAN_CLIENT_ID", "");
+    vi.stubEnv("DISHA_MERI_PEHCHAN_CLIENT_SECRET", "");
+    resetEnvForTests();
+    expect(() => getEnv()).toThrow("DISHA_MERI_PEHCHAN_CLIENT_ID");
+  });
+
+  it("accepts hybrid auth while Meri Pehchaan onboarding is pending", () => {
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("DISHA_AUTH_MODE", "hybrid");
+    resetEnvForTests();
+    expect(getEnv().DISHA_AUTH_MODE).toBe("hybrid");
+  });
+
   it("requires DATABASE_URL in production", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("DISHA_AUTH_MODE", "oidc");
     vi.stubEnv("DISHA_JWT_SECRET", "a".repeat(32));
-    vi.stubEnv("DISHA_OIDC_ISSUER", "https://issuer.example");
-    vi.stubEnv("DISHA_OIDC_CLIENT_ID", "client");
-    vi.stubEnv("DISHA_OIDC_CLIENT_SECRET", "secret");
+    vi.stubEnv("DISHA_MERI_PEHCHAN_CLIENT_ID", "client");
+    vi.stubEnv("DISHA_MERI_PEHCHAN_CLIENT_SECRET", "secret");
     vi.stubEnv("DATABASE_URL", "");
     resetEnvForTests();
     expect(() => getEnv()).toThrow("DATABASE_URL is required");
