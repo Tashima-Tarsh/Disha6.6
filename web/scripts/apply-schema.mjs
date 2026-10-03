@@ -89,6 +89,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610030004_cyber_defense_attack_surface.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610030004_cyber_defense_attack_surface.down.sql"),
   },
+  {
+    version: "202610030005",
+    name: "astra6_run_durability",
+    upPath: path.join(databaseRoot, "202610030005_astra6_run_durability.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610030005_astra6_run_durability.down.sql"),
+  },
 ];
 
 const requiredTables = [
@@ -227,6 +233,7 @@ const requiredIndexes = [
   "astra6_connector_runs_mission_idx",
   "astra6_connector_runs_user_idx",
   "astra6_connector_runs_status_idx",
+  "astra6_connector_runs_lease_idx",
   "astra6_observations_run_idx",
   "astra6_observations_entity_idx",
   "astra6_observations_tool_idx",
