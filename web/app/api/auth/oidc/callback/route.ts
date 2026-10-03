@@ -11,7 +11,6 @@ import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
 import {
   fetchMeriPehchaanJson,
-  readDisplayEmailFromIdToken,
   requiredProviderString,
 } from "@/lib/server/meri-pehchaan";
 import { requestId } from "@/lib/server/security";
@@ -89,9 +88,6 @@ export async function GET(req: NextRequest) {
       method: "POST",
       headers: {
         accept: "application/json",
-        authorization:
-          "Basic " +
-          Buffer.from(clientId + ":" + clientSecret, "utf8").toString("base64"),
         "content-type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
@@ -99,6 +95,7 @@ export async function GET(req: NextRequest) {
         code,
         redirect_uri: redirectUri,
         client_id: clientId,
+        client_secret: clientSecret,
         code_verifier: verifier,
       }),
     });
@@ -115,11 +112,8 @@ export async function GET(req: NextRequest) {
     const digilockerId = requiredProviderString(profile, "digilockerid");
     requiredProviderString(profile, "name");
 
-    // Authorization identity comes from the authenticated government /user response.
-    // The ID-token email, when present, is display-only and is not used as the session subject.
-    const displayIdentity =
-      readDisplayEmailFromIdToken(tokenSet.id_token) ??
-      `meri-pehchaan:${digilockerId}`;
+    // Session identity comes only from the authenticated government /user response.
+    const displayIdentity = `meri-pehchaan:${digilockerId}`;
 
     const session = await createSession(displayIdentity, ["analyst"], {
       subject: `meri-pehchaan:${digilockerId}`,
