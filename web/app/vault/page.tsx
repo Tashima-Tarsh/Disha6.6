@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Cryptographic Evidence Vault | DISHA 6.6",
-  description: "SHA-256 Merkle-verified immutable provenance, line-level version diffs, and non-destructive evidence preservation.",
+  description: "SHA-256 hash-verified version provenance, line-level version diffs, and non-destructive evidence preservation.",
 };
 
 export default async function VaultPage() {
