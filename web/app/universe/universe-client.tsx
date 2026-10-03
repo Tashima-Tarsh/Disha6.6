@@ -92,6 +92,23 @@ type SearchResponse = {
   notice: string;
 };
 
+type AstraDispatchRun = {
+  toolId: string;
+  status: string;
+  data?: { runId?: string; dispatchStatus?: string };
+  error?: string;
+};
+
+type AstraRunState = {
+  runId: string;
+  toolId: string;
+  status: string;
+  durationMs?: number;
+  provenanceHash?: string;
+  error?: string | null;
+  evidence?: Array<{ sourceName?: string; summary?: string; provenanceHash?: string }>;
+};
+
 type ViewMode = "all" | "live" | "configurable" | "reference" | "blocked";
 
 function modeMatches(node: OsintUniverseNode, view: ViewMode) {
@@ -113,6 +130,8 @@ export function OsintUniverseClient() {
   const [searching, setSearching] = useState(false);
   const [search, setSearch] = useState<SearchResponse | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [astraDispatching, setAstraDispatching] = useState(false);
+  const [astraRuns, setAstraRuns] = useState<AstraRunState[]>([]);
   const [selected, setSelected] = useState<OsintUniverseNode | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [category, setCategory] = useState("all");
@@ -201,6 +220,36 @@ export function OsintUniverseClient() {
 
   const handleSelect = useCallback((node: OsintUniverseNode | null) => setSelected(node), []);
 
+  useEffect(() => {
+    const pending = astraRuns.filter((run) => ["queued", "running"].includes(run.status));
+    if (!pending.length) return;
+
+    let cancelled = false;
+    const poll = async () => {
+      const updates = await Promise.all(pending.map(async (run) => {
+        try {
+          const response = await fetch(`/api/v1/osint/astra/runs/${encodeURIComponent(run.runId)}`, {
+            credentials: "same-origin",
+            cache: "no-store",
+          });
+          if (!response.ok) return run;
+          return await response.json() as AstraRunState;
+        } catch {
+          return run;
+        }
+      }));
+      if (cancelled) return;
+      setAstraRuns((current) => current.map((run) => updates.find((item) => item.runId === run.runId) ?? run));
+    };
+
+    void poll();
+    const timer = window.setInterval(() => { void poll(); }, 2500);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [astraRuns]);
+
   async function runSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = query.trim();
@@ -221,6 +270,39 @@ export function OsintUniverseClient() {
       setSearchError(error instanceof Error ? error.message : "Search failed");
     } finally {
       setSearching(false);
+    }
+  }
+
+  async function runDeepAstra() {
+    if (!search || astraDispatching || !["domain", "ip"].includes(search.search.kind)) return;
+    setAstraDispatching(true);
+    setSearchError(null);
+    try {
+      const response = await fetch("/api/v1/osint/astra/dispatch", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: search.search.normalizedTarget,
+          targetType: search.search.kind,
+          purpose: "Deep passive ASTRA enrichment from the OSINT Universe",
+        }),
+      });
+      const body = await response.json() as { runs?: AstraDispatchRun[]; error?: string };
+      if (!response.ok) throw new Error(body.error ?? `ASTRA dispatch failed (${response.status})`);
+      const queued = (body.runs ?? [])
+        .map((run) => ({
+          runId: run.data?.runId ?? "",
+          toolId: run.toolId,
+          status: run.data?.dispatchStatus === "queued" ? "queued" : run.status,
+          error: run.error,
+        }))
+        .filter((run) => run.runId);
+      setAstraRuns(queued);
+    } catch (error) {
+      setSearchError(error instanceof Error ? error.message : "ASTRA dispatch failed");
+    } finally {
+      setAstraDispatching(false);
     }
   }
 
@@ -266,6 +348,12 @@ export function OsintUniverseClient() {
             </button>
           </div>
           <p className={styles.searchHint}>Examples: example.org · 8.8.8.8 · CVE-2026-12345 · AS13335 · OpenAI · India flood response</p>
+          {search && ["domain", "ip"].includes(search.search.kind) ? (
+            <button className={styles.deepButton} type="button" onClick={runDeepAstra} disabled={astraDispatching}>
+              {astraDispatching ? <Loader2 className={styles.spin} size={16} /> : <Activity size={16} />}
+              Deep ASTRA · passive worker tools
+            </button>
+          ) : null}
         </form>
 
         <div className={styles.truthNotice}>
@@ -353,6 +441,17 @@ export function OsintUniverseClient() {
                 </div>
               ))}
             </div>
+            {astraRuns.length ? (
+              <div className={styles.astraRuns}>
+                <strong>ASTRA worker runs</strong>
+                {astraRuns.map((run) => (
+                  <div key={run.runId}>
+                    <span>{run.toolId}</span>
+                    <span>{run.status}{run.durationMs ? ` · ${run.durationMs} ms` : ""}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             {search.search.blockedCapabilities.length ? (
               <div className={styles.boundaryList}>
                 {search.search.blockedCapabilities.map((item) => <p key={item}>{item}</p>)}
