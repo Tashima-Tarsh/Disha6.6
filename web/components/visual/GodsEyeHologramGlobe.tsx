@@ -304,7 +304,7 @@ export function GodsEyeHologramGlobe({
             <Clock size={14} color="#38bdf8" />
             <span style={{ fontSize: 11, fontWeight: 700, color: "#e2e8f0" }}>4D TEMPORAL VECTOR SCRUBBER</span>
             <span className={styles.timeBadge}>
-              {timeDimension === 0 ? "LIVE (T-00:00)" : timeDimension > 0 ? `PREDICTIVE (T+0${timeDimension}h)` : `HISTORICAL (T${timeDimension}h)`}
+              {timeDimension === 0 ? "REFERENCE (T0)" : timeDimension > 0 ? `FORWARD VIEW (T+${timeDimension}h)` : `HISTORICAL VIEW (T${timeDimension}h)`}
             </span>
           </div>
           <div className={styles.timeActions}>
@@ -321,7 +321,7 @@ export function GodsEyeHologramGlobe({
                 setTimeDimension(0);
                 setIsPlayingTime(false);
               }}
-              title="Reset to Live Real-Time"
+              title="Reset time reference"
             >
               <RotateCcw size={12} />
             </button>
@@ -345,11 +345,11 @@ export function GodsEyeHologramGlobe({
           className={styles.slider4D}
         />
         <div className={styles.sliderLabels}>
-          <span>T-24h (Archive)</span>
+          <span>T-24h</span>
           <span>T-12h</span>
-          <span style={{ color: "#38bdf8", fontWeight: 700 }}>T-0 (Real-Time)</span>
+          <span style={{ color: "#38bdf8", fontWeight: 700 }}>T0 (Reference)</span>
           <span>T+3h</span>
-          <span style={{ color: "#c084fc" }}>T+6h (Predictive)</span>
+          <span style={{ color: "#c084fc" }}>T+6h</span>
         </div>
       </div>
 
@@ -367,7 +367,7 @@ export function GodsEyeHologramGlobe({
           </div>
           <div style={{ fontSize: 11, color: "#94a3b8", margin: "4px 0" }}>{selectedNode.details}</div>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#64748b", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 6 }}>
-            <span>Traffic: <strong style={{ color: "#34d399" }}>{selectedNode.traffic}</strong></span>
+            <span>Reference topology</span>
             <span>Coord: [{selectedNode.lat.toFixed(2)}, {selectedNode.lng.toFixed(2)}]</span>
           </div>
         </div>
