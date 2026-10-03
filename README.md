@@ -13,51 +13,36 @@
 
 ## Executive Overview
 
-**DISHA 6.6** (Defense Intelligence & Sovereign Homeland Analytics) is an enterprise-grade cognitive defense operating system engineered for national security analysts, cyber-defense operators, and sovereign command authorities.
+**DISHA 6.6** (Defense Intelligence & Sovereign Homeland Analytics) is an evidence-governed intelligence operating system for public-source research, cyber-defense analysis, provenance review, and policy-controlled agent workflows.
 
 DISHA operates as **one unified intelligence operating system**:
 * **Public OSINT & Infrastructure Reconnaissance:** Authoritative multi-source intelligence gathering across passive DNS, RDAP, Certificate Transparency, and public repositories.
 * **Cyber Threat Intelligence (CTI) & Attack Surface Defense:** Dynamic attack surface asset mapping, technology fingerprinting, CVE-to-CISA-KEV exploit correlation, and look-alike domain protection.
 * **Constitutional Contradiction & Corroboration Engine:** Automated detection of statement vs. statement conflicts, gazette-to-action discrepancies, and independent source family validation.
-* **Astra 6 3D Spatial Gateway:** Full-screen WebGL three-dimensional spatial identity command surface anchoring national defense hubs across India.
-* **Zero-Mock Policy & Cryptographic Provenance:** Every displayed indicator, entity node, geospatial district, and observation is anchored in a tamper-evident SHA-256 Merkle-chained evidence ledger.
+* **Astra 6 3D Gateway & OSINT Universe:** Full-screen WebGL login gateway plus an authenticated source universe whose planets are bound to declared OSINT sources, connector modes, runtime health, and live evidence.
+* **No Synthetic Operational Intelligence & Cryptographic Provenance:** Production intelligence APIs fail closed when required persistence is unavailable; admitted evidence events use a tamper-evident SHA-256 append-only hash chain.
 
 ```
 OPERATIONAL DATA CHAIN:
-Public Sensor Intercept ──► Universal Target Classifier ──► Constitutional Policy Gate ──► Distributed Worker Bus ──► SHA-256 Evidence Vault ──► Command Review
+Public Source Observation ──► Universal Target Classifier ──► Constitutional Policy Gate ──► Governed Adapter / Worker Bus ──► SHA-256 Evidence Ledger & Vault ──► Human Review
 ```
 
 ---
 
-## 3D Spatial Gateway & Visual Architecture
+## 3D Spatial Gateway & OSINT Universe
 
-The **Astra 6 Sovereign Cyber Matrix** provides an immersive, full-screen `100vw × 100dvh` WebGL spatial command visualization:
+The login route uses a capability-only Three.js scene. Before authentication it shows architecture concepts such as Public Sources, Policy Gate, Evidence Ledger, Intelligence Graph, Universal Search, and ASTRA Workers; it does **not** present synthetic operational targets or telemetry.
 
-```
-                                  ▲ NORTH (Ladakh / Siachen / Kashmir)
-                                  │
-                  [Srinagar Cyber Node]
-                           │
-       [Western Energy]    │
-       (Ahmedabad) ────────┼──────── [NEW DELHI ROOT VAULT] (28.6139° N, 77.2090° E)
-                           │                   │
-         [Mumbai Subsea] ──┴── [Hyderabad CTI] └── [Kolkata Eastern Node]
-         (Subsea Core)                 │                     │
-                  │             [Bengaluru Aerospace] ────── [Guwahati Matrix]
-                  │                    │
-                  └── [Chennai Landing]│
-                               │       │
-                        [Kochi Node] ──┴── [Kanyakumari Apex]
-                                                  │
-                                          [Port Blair Array]
-```
+After authentication, `/universe` renders the governed OSINT source catalog as a navigable planetary system:
 
-### Dynamic 5-Color Telemetry Stream
-* 🟠 **Saffron (`#FF6600`):** Sovereign Command Authority, Gazette Verification, and National Root Defense.
-* ⚪ **White (`#FFFFFF`):** Constitutional Policy Gates, Judicial Precedent, and Integrity Ledgers.
-* 🟢 **Green (`#00E676`):** PostGIS Spatial Geometry, Resilient Infrastructure, and Civil Coordination.
-* 🔵 **Navy (`#0077FF`):** Passive Network Intercepts, DNS Resolution, and Certificate Transparency Streams.
-* 🟡 **Gold (`#FFD700`):** Cryptographic Provenance Proofs, Merkle Roots, and Non-Repudiation Vault Artifacts.
+- **Builtin planets** represent executable public/passive adapters and expose current adapter health.
+- **Connector-ready / requires-configuration planets** remain visible but are clearly marked until credentials, licensing, or deployment configuration is present.
+- **Reference-only planets** are discovery resources and are never presented as live integrations.
+- **Blocked-by-default planets** identify sources whose data or usage needs separate legal/policy review.
+- **Gold live-result planets** are created only from evidence returned by a live governed search and carry a source reference plus SHA-256 provenance hash.
+- **Deep ASTRA** is available for supported passive infrastructure targets as a durable worker job; long-running jobs are polled by run ID rather than simulated synchronously.
+
+The scene supports drag rotation, zoom, source/category filtering, connector inspection, and evidence selection. The frontend consumes the same authenticated `/api/v1/osint/*` control plane used by non-visual clients.
 
 ---
 
@@ -94,10 +79,10 @@ flowchart TB
 
     subgraph Persistence ["Managed GCP Storage & State"]
         CloudSQL[("Cloud SQL PostgreSQL 16 Enterprise")]
-        PostGIS["PostGIS Spatial Intelligence (762 Dist.)"]
+        PostGIS["PostGIS Admitted Spatial Intelligence"]
         PgVector["pgvector 384D Vector Embeddings"]
         Redis[("Memorystore Redis 7 Session & Cache")]
-        VaultBucket["Cloud Storage Evidence Vault (WORM Bucket)"]
+        VaultBucket["Cloud Storage Evidence Vault (Retention Policy; Optional Irreversible Lock)"]
         Secrets["GCP Secret Manager (API & Encryption Keys)"]
     end
 
@@ -122,20 +107,22 @@ flowchart TB
 
 ---
 
-## 10 Integrated Operational Surfaces
+## Integrated Operational Surfaces
 
 | Surface | Route | Operational Function |
 | :--- | :--- | :--- |
-| **Astra 6 Spatial Login** | `/login` | Full-screen 3D WebGL sovereign gateway, biometric OIDC (Meri Pehchan, Intra ID), signed sessions. |
-| **Mission Command** | `/` | Central intelligence workbench, operational lenses, mission planner, live telemetry streams. |
-| **Cyber Defense Engine** | `/cyber-defense` | Attack surface nodes, technology fingerprinting, CVE-to-CISA-KEV correlation, look-alike domain defense. |
-| **Contradiction Center** | `/contradictions` | Statement vs statement conflicts, gazette vs action divergence, temporal anomalies, review gates. |
-| **Corroboration Engine** | `/corroboration` | Multi-source clustering, source family independence breakdown, anti-syndication ratios. |
-| **Evidence Vault** | `/vault` | Cryptographic evidence repository, SHA-256 content-addressable storage, document diffing. |
-| **Public Surveillance** | `/surveillance` | Real-time public sensor feeds: Google DNS-over-HTTPS, crt.sh Certificate Transparency, RDAP. |
-| **Spatial Intelligence** | `/geospatial` | PostGIS-grounded 762 district boundaries, defense installations, subsea landing clusters. |
-| **Cognitive Graph** | `/graph` | Constitutional entity resolution, relationship lineage, Merkle provenance visualization. |
-| **Governance Ledger** | `/governance` | Cryptographic audit trail, policy decision history, non-repudiation verification. |
+| **Astra 6 Spatial Login** | `/login` | Capability-only 3D WebGL gateway with password or configured OIDC/PKCE identity providers and signed sessions. |
+| **OSINT Universe** | `/universe` | 3D source/connector universe, runtime health, universal live search, evidence planets, and durable Deep ASTRA runs. |
+| **Mission Command** | `/` | Central authenticated mission surface. |
+| **Dashboard** | `/dashboard` | Governed operational summaries sourced from admitted records. |
+| **Intelligence Workspace** | `/intelligence` | Entities, temporal graph, reviews, evidence lineage, and live intelligence state. |
+| **Mission Workbench** | `/workbench` | Policy-gated mission and agent workflows. |
+| **Cyber Defense Engine** | `/cyber-defense` | Defensive attack-surface, vulnerability-priority, and secret-exposure analysis. |
+| **Contradiction Center** | `/contradictions` | Claim conflicts, temporal/unit/definition divergence, and review gates. |
+| **Corroboration Engine** | `/corroboration` | Independent-source-family corroboration and anti-syndication analysis. |
+| **Evidence Vault** | `/vault` | SHA-256 content integrity, version lineage, and non-destructive evidence history. |
+| **Public OSINT Workspace** | `/surveillance` | Governed source catalog, public/passive search, reference visualization, and evidence event stream. |
+| **System Status** | `/system` | Production/readiness and runtime status surfaces. |
 
 ---
 
@@ -143,7 +130,7 @@ flowchart TB
 
 To ensure maximum security and stability, CLI-heavy tools are executed outside the Next.js process boundary in dedicated, hardened worker containers:
 
-* **Identity OSINT Worker:** `PhoneInfoga` (v2.11.0), `Sherlock` (v0.15.0) — gated behind explicit operator policy approval.
+* **Identity OSINT Worker:** `PhoneInfoga` (v2.11.0), `Sherlock` (v0.15.0) — dispatch requires an authorized operator/admin context **and** explicit deployment approval; it is not exposed through the ordinary universal-search path.
 * **Infrastructure OSINT Worker:** `ProjectDiscovery Subfinder` (v2.6.6), `OWASP Amass` (v4.2.0 passive), `theHarvester` (v4.6.0 passive).
 * **Document Intelligence Worker:** `ExifTool` (v12.76), `PyPDF`, SHA-256 / SHA-512 cryptographic hashing.
 * **Cyber Threat Intelligence Worker:** MITRE CVE, CISA KEV (Known Exploited Vulnerabilities), FIRST EPSS scoring models.
@@ -151,18 +138,21 @@ To ensure maximum security and stability, CLI-heavy tools are executed outside t
 ### Execution Security Directives
 * Every worker executes under **least-privilege non-root** service accounts (`uid 10001`).
 * **Zero shell command concatenation:** All processes invoked via `execFile(binary, args[])` with strict regex argument guards.
-* Read-only container root filesystems with ephemeral memory-backed `/tmp`.
-* Automatic lease renewal, heartbeat monitoring, and dead-letter queue escalation.
+* Workers run as unprivileged users; deployment-specific container/VM hardening remains part of the production environment.
+* Durable workflow queues use leases, heartbeats, retry backoff, and dead-letter state; ASTRA connector runs are persisted separately and exposed by run ID.
 
 ---
 
 ## Production Verification & Quality Gates
 
-The codebase strictly enforces automated quality and security gates:
-* **Zero-Mock Policy:** Zero mock data in production adapters, databases, and mission runners.
-* **Console Logging Policy:** `console.info()` strictly enforced across all components; `console.log()` banned.
-* **Zero-Debt Policy:** Zero `TODO`, `FIXME`, `HACK`, `@ts-ignore`, or `eslint-disable` annotations permitted in merged branches.
-* **Non-Repudiation Rule:** AI agents are cryptographically prohibited from assigning a `VERIFIED` state to any evidence or claim. Human operator review is strictly mandatory.
+The active product has automated lint, strict TypeScript type-checking, Vitest, Next.js production build, standalone-artifact, and database-migration verification. Production claims follow these rules:
+
+* **No synthetic operational intelligence:** runtime intelligence/geospatial endpoints return empty/unconfigured states when required persistence is unavailable rather than inventing entities, events, counts, hashes, or telemetry.
+* **Evidence truthfulness:** the ledger is a SHA-256 append-only hash chain; the artifact vault uses SHA-256 content integrity and version lineage. It is not described as a Merkle tree.
+* **Storage retention:** the GCP evidence bucket has a configurable retention policy. Irreversible retention locking is an explicit production deployment decision (`evidence_retention_lock=true`), not an assumed default.
+* **Changed-line governance:** CI rejects newly introduced debt markers and selected unsafe workflow patterns in changed lines.
+* **Human verification:** model/agent output remains advisory; policy and review controls prevent automated promotion of unsupported claims to verified truth.
+* **Deployment verification still matters:** OIDC/MFA configuration, KMS/secrets, HA/backup restore, observability, load/chaos testing, penetration testing, prompt-injection testing, and disaster-recovery exercises must be validated in the target environment.
 
 ---
 
