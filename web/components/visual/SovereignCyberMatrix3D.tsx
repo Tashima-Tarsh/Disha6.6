@@ -109,7 +109,7 @@ export interface IntelligenceNode {
   altitude: number; // 0.03 (surface) to 0.85 (outer)
   sourceClass: "sovereign_core" | "public_passive" | "verified_gazette" | "infrastructure" | "osint";
   confidence: number;
-  status: "active" | "monitored" | "admitted" | "flagged";
+  status: "preview" | "active" | "monitored" | "admitted" | "flagged";
   details: string;
 }
 
@@ -135,50 +135,33 @@ export const SEMANTIC_COLORS: Record<SemanticEntityType, string> = {
   SOURCE: "#8a7db2",        // Muted Violet
 };
 
-// Authoritative Reference Nodes (Pre-Auth)
+// Capability Preview Nodes (Pre-Auth)
+// These are abstract product capabilities placed on the globe only as visual anchors.
+// They do not represent live infrastructure, connector health, incidents, or operational status.
 const INITIAL_INTELLIGENCE_NODES: IntelligenceNode[] = [
-  // Surface Layer (Geography / Core Reference)
-  { id: "delhi", name: "NEW DELHI ROOT", type: "LOCATION", lat: 28.6139, lon: 77.2090, altitude: 0.03, sourceClass: "sovereign_core", confidence: 1.0, status: "admitted", details: "National Sovereign Identity & Constitutional Defense Vault" },
-  { id: "mumbai", name: "MUMBAI INGRESS", type: "LOCATION", lat: 19.0760, lon: 72.8777, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.98, status: "active", details: "Subsea Cable Landing Core & Western Gate" },
-  { id: "bengaluru", name: "BENGALURU CORE", type: "LOCATION", lat: 12.9716, lon: 77.5946, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.99, status: "active", details: "Aerospace & High-Performance Cognitive Mesh" },
-  { id: "hyderabad", name: "HYDERABAD CTI", type: "LOCATION", lat: 17.3850, lon: 78.4867, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.97, status: "active", details: "Threat Intelligence & Dynamic Defense Router" },
-  { id: "chennai", name: "CHENNAI MARITIME", type: "LOCATION", lat: 13.0827, lon: 80.2707, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.96, status: "active", details: "Bay of Bengal Subsea Telemetry Ingress" },
-  { id: "kolkata", name: "KOLKATA SENTINEL", type: "LOCATION", lat: 22.5726, lon: 88.3639, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.95, status: "active", details: "Eastern Frontier Surveillance Node" },
-  { id: "srinagar", name: "SRINAGAR SHIELD", type: "LOCATION", lat: 34.0837, lon: 74.7973, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.96, status: "active", details: "Northern High-Altitude Geospatial Array" },
-  { id: "ahmedabad", name: "AHMEDABAD GRID", type: "LOCATION", lat: 23.0225, lon: 72.5714, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.94, status: "active", details: "Western Critical Energy Infrastructure Sentinel" },
-  { id: "guwahati", name: "GUWAHATI FRONTIER", type: "LOCATION", lat: 26.1445, lon: 91.7362, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.93, status: "active", details: "Northeast Cross-Border Telemetry Point" },
-  { id: "kochi", name: "KOCHI SUBSEA", type: "LOCATION", lat: 9.9312, lon: 76.2673, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.95, status: "active", details: "Arabian Sea Fiber Transit Landing Terminal" },
-  { id: "portblair", name: "PORT BLAIR SENTINEL", type: "LOCATION", lat: 11.6600, lon: 92.7400, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.97, status: "active", details: "Andaman & Nicobar Strategic Maritime Sensor" },
-
-  // Low Altitude Layer (Public Critical Infrastructure)
-  { id: "cert_in", name: "CERT-In National CSIRT", type: "INFRASTRUCTURE", lat: 28.5500, lon: 77.2500, altitude: 0.22, sourceClass: "infrastructure", confidence: 1.0, status: "admitted", details: "National Cyber Incident Response & Vulnerability Advisory Hub" },
-  { id: "nixi_hub", name: "NIXI Mumbai IXP", type: "INFRASTRUCTURE", lat: 19.1200, lon: 72.8500, altitude: 0.22, sourceClass: "infrastructure", confidence: 0.99, status: "active", details: "National Internet Exchange of India Root Peering Node" },
-  { id: "isro_telemetry", name: "ISTRAC Ground Station", type: "INFRASTRUCTURE", lat: 13.0300, lon: 77.5100, altitude: 0.25, sourceClass: "infrastructure", confidence: 0.99, status: "active", details: "Sovereign Satellite Tracking & Telemetry Reception" },
-
-  // Mid Altitude Layer (Entity Relationships & Target Fingerprints)
-  { id: "cve_kev_gateway", name: "CISA KEV / NVD Synchronizer", type: "ALERT", lat: 20.0000, lon: 75.0000, altitude: 0.45, sourceClass: "osint", confidence: 0.92, status: "monitored", details: "Active Exploitation Vulnerability Correlation Pipeline" },
-  { id: "gov_in_domain", name: "gov.in National Namespace", type: "DOMAIN", lat: 26.5000, lon: 78.5000, altitude: 0.42, sourceClass: "public_passive", confidence: 1.0, status: "admitted", details: "Authoritative Sovereign DNS Hierarchy" },
-  { id: "asn_55836", name: "AS55836 National Informatics", type: "IP", lat: 24.5000, lon: 74.0000, altitude: 0.48, sourceClass: "public_passive", confidence: 0.98, status: "active", details: "Sovereign Backbone Autonomous System Routing Cluster" },
-
-  // High Altitude Layer (Evidence Lineage & Gazette Provenance)
-  { id: "egazette_vault", name: "Gazette of India Cryptographic Anchor", type: "EVIDENCE", lat: 28.6200, lon: 77.2100, altitude: 0.72, sourceClass: "verified_gazette", confidence: 1.0, status: "admitted", details: "SHA-256 Merkle Provenance Ledger for Statutory Notifications" },
-  { id: "sci_judgments", name: "Supreme Court Registry Archive", type: "ORGANIZATION", lat: 28.6230, lon: 77.2390, altitude: 0.75, sourceClass: "verified_gazette", confidence: 1.0, status: "admitted", details: "Constitutional Precedent & Fundamental Rights Admissibility Engine" }
+  { id: "cap-source-registry", name: "SOURCE REGISTRY", type: "SOURCE", lat: 28.6139, lon: 77.2090, altitude: 0.18, sourceClass: "osint", confidence: 0, status: "preview", details: "Capability preview: governed source catalog, access mode, risk metadata, and provenance requirements. No connector is claimed live before authentication." },
+  { id: "cap-connector-health", name: "CONNECTOR HEALTH", type: "INFRASTRUCTURE", lat: 19.0760, lon: 72.8777, altitude: 0.24, sourceClass: "public_passive", confidence: 0, status: "preview", details: "Capability preview: authenticated reachability and parser-health checks populate the operational universe after login." },
+  { id: "cap-universal-search", name: "UNIVERSAL SEARCH", type: "DOMAIN", lat: 12.9716, lon: 77.5946, altitude: 0.38, sourceClass: "osint", confidence: 0, status: "preview", details: "Capability preview: governed public-source query routing with source-by-source execution and explicit adapter results." },
+  { id: "cap-evidence-vault", name: "EVIDENCE VAULT", type: "EVIDENCE", lat: 23.0225, lon: 72.5714, altitude: 0.62, sourceClass: "verified_gazette", confidence: 0, status: "preview", details: "Capability preview: source-linked evidence, hashes, lineage, retention, and review boundaries." },
+  { id: "cap-corroboration", name: "CORROBORATION", type: "EVIDENCE", lat: 22.5726, lon: 88.3639, altitude: 0.54, sourceClass: "osint", confidence: 0, status: "preview", details: "Capability preview: compare independent evidence families without inventing support where none exists." },
+  { id: "cap-contradiction", name: "CONTRADICTION", type: "ALERT", lat: 26.1445, lon: 91.7362, altitude: 0.50, sourceClass: "osint", confidence: 0, status: "preview", details: "Capability preview: surface conflicting statements, temporal divergence, and evidence gaps for analyst review." },
+  { id: "cap-geospatial", name: "GEOSPATIAL LAYER", type: "LOCATION", lat: 20.5937, lon: 78.9629, altitude: 0.12, sourceClass: "public_passive", confidence: 0, status: "preview", details: "Capability preview: admitted geospatial records only. Missing PostGIS or datasets render as unavailable, never as synthetic locations." },
+  { id: "cap-cti", name: "CYBER CTI", type: "ALERT", lat: 13.0827, lon: 80.2707, altitude: 0.44, sourceClass: "public_passive", confidence: 0, status: "preview", details: "Capability preview: public defensive intelligence adapters, vulnerability records, and policy-gated enrichment." },
+  { id: "cap-spaceint", name: "SPACEINT", type: "SOURCE", lat: 17.3850, lon: 78.4867, altitude: 0.70, sourceClass: "public_passive", confidence: 0, status: "preview", details: "Capability preview: orbital and space-weather sources appear only when admitted source data is available." },
+  { id: "cap-astra", name: "ASTRA GOVERNED RUNS", type: "INFRASTRUCTURE", lat: 9.9312, lon: 76.2673, altitude: 0.32, sourceClass: "sovereign_core", confidence: 0, status: "preview", details: "Capability preview: queued ASTRA runs, authorization, worker state, and evidence output become visible only after authentication." },
 ];
 
-// Connected Relationship Arcs
+// Conceptual capability-flow arcs. These encode product workflow, not real-world telemetry.
 const INITIAL_INTELLIGENCE_ARCS: IntelligenceArc[] = [
-  { id: "arc_delhi_mumbai", sourceId: "delhi", targetId: "mumbai", type: "infrastructure", color: "#38bdf8", pulseSpeed: 0.8 },
-  { id: "arc_delhi_bengaluru", sourceId: "delhi", targetId: "bengaluru", type: "telemetry", color: "#00f0ff", pulseSpeed: 1.0 },
-  { id: "arc_delhi_kolkata", sourceId: "delhi", targetId: "kolkata", type: "telemetry", color: "#d4af37", pulseSpeed: 0.7 },
-  { id: "arc_delhi_srinagar", sourceId: "delhi", targetId: "srinagar", type: "infrastructure", color: "#10b981", pulseSpeed: 0.6 },
-  { id: "arc_mumbai_chennai", sourceId: "mumbai", targetId: "chennai", type: "infrastructure", color: "#38bdf8", pulseSpeed: 0.9 },
-  { id: "arc_mumbai_kochi", sourceId: "mumbai", targetId: "kochi", type: "infrastructure", color: "#4682b4", pulseSpeed: 0.75 },
-  { id: "arc_bengaluru_hyderabad", sourceId: "bengaluru", targetId: "hyderabad", type: "telemetry", color: "#00f0ff", pulseSpeed: 1.1 },
-  { id: "arc_chennai_portblair", sourceId: "chennai", targetId: "portblair", type: "infrastructure", color: "#38bdf8", pulseSpeed: 0.85 },
-  { id: "arc_cert_delhi", sourceId: "cert_in", targetId: "delhi", type: "provenance", color: "#ff6b4a", pulseSpeed: 1.2 },
-  { id: "arc_vault_delhi", sourceId: "egazette_vault", targetId: "delhi", type: "provenance", color: "#20b2aa", pulseSpeed: 0.5 },
-  { id: "arc_isro_bengaluru", sourceId: "isro_telemetry", targetId: "bengaluru", type: "infrastructure", color: "#10b981", pulseSpeed: 0.95 },
-  { id: "arc_sci_vault", sourceId: "sci_judgments", targetId: "egazette_vault", type: "corroboration", color: "#d4af37", pulseSpeed: 0.6 }
+  { id: "cap-arc-01", sourceId: "cap-source-registry", targetId: "cap-connector-health", type: "provenance", color: "#38bdf8", pulseSpeed: 0.7 },
+  { id: "cap-arc-02", sourceId: "cap-connector-health", targetId: "cap-universal-search", type: "provenance", color: "#00f0ff", pulseSpeed: 0.8 },
+  { id: "cap-arc-03", sourceId: "cap-universal-search", targetId: "cap-evidence-vault", type: "provenance", color: "#20b2aa", pulseSpeed: 0.9 },
+  { id: "cap-arc-04", sourceId: "cap-evidence-vault", targetId: "cap-corroboration", type: "corroboration", color: "#d4af37", pulseSpeed: 0.6 },
+  { id: "cap-arc-05", sourceId: "cap-evidence-vault", targetId: "cap-contradiction", type: "corroboration", color: "#ff6b4a", pulseSpeed: 0.6 },
+  { id: "cap-arc-06", sourceId: "cap-geospatial", targetId: "cap-evidence-vault", type: "provenance", color: "#10b981", pulseSpeed: 0.5 },
+  { id: "cap-arc-07", sourceId: "cap-cti", targetId: "cap-universal-search", type: "provenance", color: "#4682b4", pulseSpeed: 0.7 },
+  { id: "cap-arc-08", sourceId: "cap-spaceint", targetId: "cap-universal-search", type: "provenance", color: "#8a7db2", pulseSpeed: 0.5 },
+  { id: "cap-arc-09", sourceId: "cap-astra", targetId: "cap-evidence-vault", type: "provenance", color: "#38bdf8", pulseSpeed: 0.8 },
 ];
 
 const EARTH_RADIUS = 3.0;
@@ -374,7 +357,7 @@ export function SovereignCyberMatrix3D({
       const hexColor = SEMANTIC_COLORS[node.type] || "#38bdf8";
 
       // Node core sphere
-      const size = node.id === "delhi" ? 0.09 : node.type === "LOCATION" ? 0.065 : 0.055;
+      const size = node.id === "cap-source-registry" ? 0.09 : node.type === "LOCATION" ? 0.065 : 0.055;
       const sphereGeom = new THREE.SphereGeometry(size, 16, 16);
       const sphereMat = new THREE.MeshBasicMaterial({
         color: new THREE.Color(hexColor),
@@ -383,8 +366,8 @@ export function SovereignCyberMatrix3D({
       nodeMesh.position.copy(position);
       nodeMesh.userData = { nodeData: node };
 
-      // Root beacon ring for Delhi
-      if (node.id === "delhi") {
+      // Root beacon ring for the capability model entry point
+      if (node.id === "cap-source-registry") {
         const ringGeom = new THREE.RingGeometry(0.12, 0.15, 32);
         const ringMat = new THREE.MeshBasicMaterial({
           color: 0xff9933,
@@ -625,11 +608,11 @@ export function SovereignCyberMatrix3D({
           <span className={styles.liveDot} />
           <span className={styles.systemName}>DISHA 6.6</span>
           <span className={styles.systemSep}>·</span>
-          <span className={styles.runtimeBadge}>RUNTIME: ASTRA 6</span>
+          <span className={styles.runtimeBadge}>{mode === "pre-auth" ? "PRE-AUTH CAPABILITY MODEL" : "AUTHENTICATED RUNTIME"}</span>
         </div>
         <div className={styles.coords}>
-          <span>ANCHOR: 28.6139° N, 77.2090° E</span>
-          <small>NEW DELHI ROOT DEFENSE VAULT</small>
+          <span>{mode === "pre-auth" ? "NON-OPERATIONAL CAPABILITY SCENE" : "AUTHENTICATED DATA SCENE"}</span>
+          <small>{mode === "pre-auth" ? "No live connector, incident, infrastructure, or intelligence status is asserted before login." : "Render only authenticated, source-backed runtime data."}</small>
         </div>
       </div>
 
@@ -693,9 +676,18 @@ export function SovereignCyberMatrix3D({
           <h4>{hoveredNode.name}</h4>
           <p>{hoveredNode.details}</p>
           <div className={styles.tooltipMeta}>
-            <span>LOC: {hoveredNode.lat.toFixed(4)}°, {hoveredNode.lon.toFixed(4)}°</span>
-            <span>ALT: {(hoveredNode.altitude * 100).toFixed(0)}km</span>
-            <span>CONF: {(hoveredNode.confidence * 100).toFixed(0)}%</span>
+            {mode === "pre-auth" ? (
+              <>
+                <span>CAPABILITY PREVIEW</span>
+                <span>NO LIVE STATUS</span>
+              </>
+            ) : (
+              <>
+                <span>LOC: {hoveredNode.lat.toFixed(4)}°, {hoveredNode.lon.toFixed(4)}°</span>
+                <span>ALT: {(hoveredNode.altitude * 100).toFixed(0)}km</span>
+                <span>CONF: {(hoveredNode.confidence * 100).toFixed(0)}%</span>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -706,7 +698,7 @@ export function SovereignCyberMatrix3D({
           <div className={styles.inspectorHead}>
             <div className={styles.headLeft}>
               <Crosshair size={16} />
-              <span>ACTIVE NODE INSPECTION</span>
+              <span>{mode === "pre-auth" ? "CAPABILITY INSPECTION" : "ACTIVE NODE INSPECTION"}</span>
             </div>
             <button
               type="button"
@@ -725,22 +717,45 @@ export function SovereignCyberMatrix3D({
           </span>
           <p className={styles.nodeDetails}>{selectedNode.details}</p>
           <div className={styles.inspectorGrid}>
-            <div>
-              <small>COORDINATES</small>
-              <strong>{selectedNode.lat.toFixed(4)}° N, {selectedNode.lon.toFixed(4)}° E</strong>
-            </div>
-            <div>
-              <small>CONFIDENCE</small>
-              <strong>{(selectedNode.confidence * 100).toFixed(0)}% ADMITTED</strong>
-            </div>
-            <div>
-              <small>SOURCE CLASS</small>
-              <strong>{selectedNode.sourceClass.toUpperCase()}</strong>
-            </div>
-            <div>
-              <small>ALTITUDE LAYER</small>
-              <strong>{(selectedNode.altitude * 100).toFixed(0)}km SPHERE</strong>
-            </div>
+            {mode === "pre-auth" ? (
+              <>
+                <div>
+                  <small>SCENE TYPE</small>
+                  <strong>CAPABILITY ONLY</strong>
+                </div>
+                <div>
+                  <small>RUNTIME CLAIM</small>
+                  <strong>NONE</strong>
+                </div>
+                <div>
+                  <small>CAPABILITY CLASS</small>
+                  <strong>{selectedNode.sourceClass.toUpperCase()}</strong>
+                </div>
+                <div>
+                  <small>DATA ACCESS</small>
+                  <strong>AUTH REQUIRED</strong>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <small>COORDINATES</small>
+                  <strong>{selectedNode.lat.toFixed(4)}° N, {selectedNode.lon.toFixed(4)}° E</strong>
+                </div>
+                <div>
+                  <small>CONFIDENCE</small>
+                  <strong>{(selectedNode.confidence * 100).toFixed(0)}%</strong>
+                </div>
+                <div>
+                  <small>SOURCE CLASS</small>
+                  <strong>{selectedNode.sourceClass.toUpperCase()}</strong>
+                </div>
+                <div>
+                  <small>ALTITUDE LAYER</small>
+                  <strong>{(selectedNode.altitude * 100).toFixed(0)}km SPHERE</strong>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
