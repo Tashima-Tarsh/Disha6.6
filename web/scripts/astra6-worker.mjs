@@ -65,10 +65,15 @@ async function processNextJob() {
   try {
     await client.query("BEGIN");
     const result = await client.query(
-      `SELECT run_id, tool_id, mission_id, user_id, target, target_type, dispatch_input
+      `SELECT run_id, tool_id, mission_id, user_id, target, target_type, dispatch_input, attempts, max_attempts
        FROM astra6_connector_runs
-       WHERE status = 'queued'
-       ORDER BY queued_at ASC
+       WHERE (
+         status = 'queued'
+         OR (status = 'running' AND lease_expires_at IS NOT NULL AND lease_expires_at <= NOW())
+       )
+         AND COALESCE(next_attempt_at, queued_at) <= NOW()
+         AND attempts < max_attempts
+       ORDER BY COALESCE(next_attempt_at, queued_at) ASC, queued_at ASC
        LIMIT 1
        FOR UPDATE SKIP LOCKED`
     );
@@ -77,7 +82,12 @@ async function processNextJob() {
       job = result.rows[0];
       await client.query(
         `UPDATE astra6_connector_runs
-         SET status = 'running', started_at = NOW(), worker_id = $1
+         SET status = 'running',
+             started_at = NOW(),
+             completed_at = NULL,
+             worker_id = $1,
+             attempts = attempts + 1,
+             lease_expires_at = NOW() + interval '15 minutes'
          WHERE run_id = $2`,
         [WORKER_ID, job.run_id]
       );
@@ -98,6 +108,7 @@ async function processNextJob() {
   try {
     const manifest = getAstra6ToolManifest(job.tool_id);
     if (!manifest) throw new Error(`Unknown tool manifest: ${job.tool_id}`);
+    await extendJobLease(job.run_id, manifest.timeoutMs + 60_000);
 
     // Command injection guard validation
     const safeTarget = validateCommandTarget(job.target, manifest.commandInjectionGuard);
@@ -190,14 +201,26 @@ function parseToolResult(toolId, raw, target, targetType) {
   }
 }
 
+async function extendJobLease(runId, requestedMs) {
+  if (!pool) return;
+  const leaseSeconds = Math.max(120, Math.min(900, Math.ceil(requestedMs / 1000)));
+  await pool.query(
+    `UPDATE astra6_connector_runs
+     SET lease_expires_at = NOW() + make_interval(secs => $2::int)
+     WHERE run_id = $1 AND status = 'running' AND worker_id = $3`,
+    [runId, leaseSeconds, WORKER_ID]
+  );
+}
+
 async function recordJobSuccess(runId, toolId, rawOutput, parsedData, evidence, durationMs, provenanceHash) {
   if (!pool) return;
   await pool.query(
     `UPDATE astra6_connector_runs
      SET status = 'completed', raw_output = $1, parsed_output = $2, evidence = $3,
-         duration_ms = $4, provenance_hash = $5, completed_at = NOW()
-     WHERE run_id = $6`,
-    [rawOutput, JSON.stringify(parsedData), JSON.stringify(evidence), durationMs, provenanceHash, runId]
+         duration_ms = $4, provenance_hash = $5, completed_at = NOW(),
+         lease_expires_at = NULL, next_attempt_at = NOW()
+     WHERE run_id = $6 AND worker_id = $7`,
+    [rawOutput, JSON.stringify(parsedData), JSON.stringify(evidence), durationMs, provenanceHash, runId, WORKER_ID]
   );
 }
 
@@ -205,9 +228,18 @@ async function recordJobFailure(runId, errorMessage, durationMs) {
   if (!pool) return;
   await pool.query(
     `UPDATE astra6_connector_runs
-     SET status = 'failed', error = $1, duration_ms = $2, completed_at = NOW()
-     WHERE run_id = $3`,
-    [errorMessage, durationMs, runId]
+     SET status = CASE WHEN attempts >= max_attempts THEN 'failed' ELSE 'queued' END,
+         error = $1,
+         duration_ms = $2,
+         completed_at = CASE WHEN attempts >= max_attempts THEN NOW() ELSE NULL END,
+         next_attempt_at = CASE
+           WHEN attempts >= max_attempts THEN NOW()
+           ELSE NOW() + make_interval(secs => LEAST(900, (POWER(2, GREATEST(0, attempts - 1))::int * 15)))
+         END,
+         lease_expires_at = NULL,
+         worker_id = CASE WHEN attempts >= max_attempts THEN worker_id ELSE NULL END
+     WHERE run_id = $3 AND worker_id = $4`,
+    [errorMessage.slice(0, 4000), durationMs, runId, WORKER_ID]
   );
 }
 
