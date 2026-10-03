@@ -6,6 +6,7 @@ import { authSigningSecret } from "@/lib/server/auth";
 import { signJson } from "@/lib/server/crypto";
 import { getEnv } from "@/lib/server/env";
 import { assertPublicRequestGuards, errorResponse } from "@/lib/server/http";
+import { assertTrustedMeriPehchaanUrl } from "@/lib/server/meri-pehchaan";
 import { oidcStartSchema } from "@/lib/server/schemas/api";
 import { requestId } from "@/lib/server/security";
 
@@ -16,30 +17,47 @@ function safeReturnUrl(value?: string) {
   return value;
 }
 
+function browserAcceptsJson(req: NextRequest) {
+  return req.headers.get("accept")?.includes("application/json") ?? false;
+}
+
+function configurationError(req: NextRequest, returnUrl?: string) {
+  if (browserAcceptsJson(req)) {
+    return NextResponse.json(
+      {
+        error: "Meri Pehchaan sign-in is awaiting application credentials issued through the official partner onboarding process.",
+        code: "meri_pehchaan_not_configured",
+        partnerPortal: "https://dlpartners.meripehchaan.gov.in/welcome/",
+      },
+      { status: 503 },
+    );
+  }
+  const login = new URL("/login", req.nextUrl.origin);
+  login.searchParams.set("authError", "meri-pehchaan-not-configured");
+  login.searchParams.set("returnUrl", safeReturnUrl(returnUrl));
+  return NextResponse.redirect(login);
+}
+
 export async function GET(req: NextRequest) {
   try {
     await assertPublicRequestGuards(req);
     const query = oidcStartSchema.parse(Object.fromEntries(req.nextUrl.searchParams.entries()));
     const env = getEnv();
-    const authUrl =
-      query.provider === "meri-pehchan"
-        ? env.DISHA_MERI_PEHCHAN_AUTH_URL
-        : env.DISHA_INTRA_ID_AUTH_URL;
-    const clientId = env.DISHA_OIDC_CLIENT_ID;
 
-    if (!authUrl || !clientId) {
-      return NextResponse.json(
-        {
-          error: `${query.provider} sign-in is not configured. Add the official OIDC authorization URL and client ID to enable this provider.`,
-        },
-        { status: 503 },
-      );
+    if (env.DISHA_AUTH_MODE !== "oidc" && env.DISHA_AUTH_MODE !== "hybrid") {
+      return configurationError(req, query.returnUrl);
     }
 
+    const clientId = env.DISHA_MERI_PEHCHAN_CLIENT_ID;
+    if (!clientId) return configurationError(req, query.returnUrl);
+
+    const authUrl = assertTrustedMeriPehchaanUrl(env.DISHA_MERI_PEHCHAN_AUTH_URL);
     const redirectUri =
+      env.DISHA_MERI_PEHCHAN_REDIRECT_URI ??
       env.DISHA_OIDC_REDIRECT_URI ??
       new URL("/api/auth/oidc/callback", req.nextUrl.origin).toString();
-    const verifier = crypto.randomBytes(32).toString("base64url");
+
+    const verifier = crypto.randomBytes(48).toString("base64url");
     const challenge = crypto.createHash("sha256").update(verifier).digest("base64url");
     const state = signJson(
       {
@@ -50,14 +68,14 @@ export async function GET(req: NextRequest) {
       },
       authSigningSecret(),
     );
-    const url = new URL(authUrl);
-    url.searchParams.set("client_id", clientId);
-    url.searchParams.set("redirect_uri", redirectUri);
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("scope", "openid profile email");
-    url.searchParams.set("state", state);
-    url.searchParams.set("code_challenge", challenge);
-    url.searchParams.set("code_challenge_method", "S256");
+
+    authUrl.searchParams.set("client_id", clientId);
+    authUrl.searchParams.set("redirect_uri", redirectUri);
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("scope", "openid");
+    authUrl.searchParams.set("state", state);
+    authUrl.searchParams.set("code_challenge", challenge);
+    authUrl.searchParams.set("code_challenge_method", "S256");
 
     await audit({
       requestId: requestId(req),
@@ -66,9 +84,9 @@ export async function GET(req: NextRequest) {
       metadata: { provider: query.provider },
     });
 
-    const response = req.headers.get("accept")?.includes("application/json")
-      ? NextResponse.json({ redirectUrl: url.toString() })
-      : NextResponse.redirect(url);
+    const response = browserAcceptsJson(req)
+      ? NextResponse.json({ redirectUrl: authUrl.toString() })
+      : NextResponse.redirect(authUrl);
     response.cookies.set(OIDC_VERIFIER_COOKIE, verifier, {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
