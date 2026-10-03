@@ -8,6 +8,11 @@ resource "google_storage_bucket" "evidence_vault" {
     enabled = true
   }
 
+  retention_policy {
+    retention_period = var.retention_period_seconds
+    is_locked        = var.lock_retention_policy
+  }
+
   lifecycle_rule {
     action {
       type          = "SetStorageClass"
