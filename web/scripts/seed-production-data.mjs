@@ -8,6 +8,13 @@ import pg from "pg";
 const { Pool } = pg;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+if (process.env.NODE_ENV === "production") {
+  console.error("Refusing to load synthetic/demo fixture data into a production environment.");
+  process.exit(1);
+}
+console.info("DEVELOPMENT FIXTURE ONLY: this script contains synthetic demonstration records and must never be used as production intelligence.");
+
+
 if (!process.env.DATABASE_URL) {
   console.error("DATABASE_URL is required to seed production data.");
   process.exit(1);
