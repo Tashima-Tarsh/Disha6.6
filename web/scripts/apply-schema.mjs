@@ -71,6 +71,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610030001_astra6_tool_integration.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610030001_astra6_tool_integration.down.sql"),
   },
+  {
+    version: "202610030002",
+    name: "password_credentials",
+    upPath: path.join(databaseRoot, "202610030002_password_credentials.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610030002_password_credentials.down.sql"),
+  },
 ];
 
 const requiredTables = [
