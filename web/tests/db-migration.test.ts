@@ -105,6 +105,19 @@ describe("DISHA database migration contract", () => {
     expect(runner).toContain('"continuous_osint_runs"');
   });
 
+  it("adds database-backed production password credentials without rewriting the core migration", () => {
+    const migration = fs.readFileSync(path.join(webRoot, "database/202610030002_password_credentials.sql"), "utf8");
+    const rollback = fs.readFileSync(path.join(webRoot, "database/rollbacks/202610030002_password_credentials.down.sql"), "utf8");
+    const runner = fs.readFileSync(path.join(webRoot, "scripts/apply-schema.mjs"), "utf8");
+
+    expect(migration).toContain("password_hash");
+    expect(migration).toContain("disabled_at");
+    expect(migration).toContain("users_email_lower_idx");
+    expect(rollback).toContain("drop column if exists password_hash");
+    expect(runner).toContain('"202610030002"');
+    expect(runner).toContain('"password_credentials"');
+  });
+
   it("exposes explicit migration commands from the web package", () => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(webRoot, "package.json"), "utf8"));
 
