@@ -80,9 +80,9 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
       <section className={styles.loginPanel} aria-labelledby="secure-access-title">
         <div className={styles.panelInner}>
           <div className={styles.headingBlock}>
-            <p className={styles.kicker}>PROTECTED IDENTITY GATEWAY</p>
-            <h1 id="secure-access-title">Secure Access</h1>
-            <p>For a safer, stronger and smarter India</p>
+            <p className={styles.kicker}>ASTRA 6 · SOVEREIGN IDENTITY GATEWAY</p>
+            <h1 id="secure-access-title">DISHA 6.6 Secure Access</h1>
+            <p>Evidence-grade intelligence. Governed access.</p>
           </div>
 
           <form className={styles.loginForm} onSubmit={signIn} noValidate>
@@ -160,9 +160,9 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
           </div>
 
           <footer className={styles.securityFooter}>
-            <div><ShieldCheck size={20} /><span>Secure<br />session</span></div>
+            <div><ShieldCheck size={20} /><span>Signed<br />session</span></div>
             <div><Fingerprint size={20} /><span>CSRF<br />protected</span></div>
-            <div><CheckCircle2 size={20} /><span>Audited<br />access</span></div>
+            <div><CheckCircle2 size={20} /><span>Audit<br />logged</span></div>
           </footer>
         </div>
       </section>
