@@ -57,3 +57,15 @@ variable "worker_max_replicas" {
   description = "Maximum worker instances in the managed instance group during heavy load."
   default     = 5
 }
+
+variable "evidence_retention_seconds" {
+  type        = number
+  description = "Minimum retention period for evidence objects in seconds."
+  default     = 31536000
+}
+
+variable "evidence_retention_lock" {
+  type        = bool
+  description = "Irreversibly lock the evidence bucket retention policy. Set true for the reviewed production deployment."
+  default     = false
+}
