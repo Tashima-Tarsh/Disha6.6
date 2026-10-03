@@ -126,11 +126,13 @@ try {
   }
 } catch (error) {
   const detail =
-    error && typeof error === "object" && "stderr" in error && error.stderr
-      ? String(error.stderr).trim()
-      : error instanceof Error
-        ? error.message
-        : String(error);
+    error && typeof error === "object" && "stdout" in error && error.stdout
+      ? String(error.stdout).trim()
+      : error && typeof error === "object" && "stderr" in error && error.stderr
+        ? String(error.stderr).trim()
+        : error instanceof Error
+          ? error.message
+          : String(error);
   addViolation("diff", "unable to run whitespace check", detail);
 }
 
