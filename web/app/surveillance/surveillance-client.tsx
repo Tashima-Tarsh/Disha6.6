@@ -31,7 +31,7 @@ import type { OperationalFeatureCollection } from "@/lib/geospatial/contracts";
 import type { getOsintSourceUniverseSummary, OsintSourceUniverseEntry } from "@/lib/unified/osint-source-universe";
 import type { OsintToolCatalogEntry } from "@/lib/unified/osint-tool-catalog";
 import { authFetchHeaders } from "@/lib/utils";
-import { GodsEyeHologramGlobe, SATELLITE_ORBITS, STRATEGIC_GLOBAL_NODES } from "@/components/visual/GodsEyeHologramGlobe";
+import { OsintUniverse3D, type OsintUniverseNode } from "@/components/visual/OsintUniverse3D";
 import styles from "./surveillance.module.css";
 
 type LogEntry = {
@@ -64,7 +64,7 @@ export function SurveillanceClient({
   tools = [],
   universeSummary = {},
 }: SurveillanceClientProps) {
-  const [activeTab, setActiveTab] = useState<"gods-eye" | "sources" | "tools" | "search" | "fleet">("gods-eye");
+  const [activeTab, setActiveTab] = useState<"gods-eye" | "sources" | "tools" | "search">("gods-eye");
   const [selectedFormation, setSelectedFormation] = useState("chakra");
   const [telemetryCount, setTelemetryCount] = useState<number>(initialGeo.features.length + sources.length);
   const [drillActive, setDrillActive] = useState(false);
@@ -302,6 +302,22 @@ export function SurveillanceClient({
 
   const activeFormationData = VYUHA_FORMATIONS.find((f) => f.id === selectedFormation);
 
+  const surveillanceUniverseNodes = useMemo<OsintUniverseNode[]>(
+    () => sources.map((source) => ({
+      id: `source:${source.id}`,
+      name: source.name,
+      category: source.category,
+      mode: source.mode,
+      health: "unknown",
+      capabilities: source.capabilities,
+      adapterId: source.adapterId,
+      homeUrl: source.homeUrl,
+      risk: source.risk,
+      notes: source.notes,
+    })),
+    [sources],
+  );
+
   return (
     <main className={styles.container}>
       <div className={styles.shell}>
@@ -317,8 +333,11 @@ export function SurveillanceClient({
           </div>
 
           <nav className={styles.navLinks}>
+            <Link href="/universe" className={styles.navLink}>
+              OSINT Universe
+            </Link>
             <Link href="/surveillance" className={`${styles.navLink} ${styles.navLinkActive}`}>
-              God&apos;s Eye 3D/4D
+              Analysis
             </Link>
             <Link href="/dashboard" className={styles.navLink}>
               Dashboard
@@ -335,8 +354,8 @@ export function SurveillanceClient({
         {/* Global HUD Metrics */}
         <div className={styles.hudMetrics}>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>Reference Nodes</div>
-            <div className={styles.hudVal}>{STRATEGIC_GLOBAL_NODES.length} mapped</div>
+            <div className={styles.hudLabel}>Source Planets</div>
+            <div className={styles.hudVal}>{sources.length} cataloged</div>
           </div>
           <div className={styles.hudCard}>
             <div className={styles.hudLabel}>OSINT Sources Active</div>
@@ -358,7 +377,7 @@ export function SurveillanceClient({
             className={`${styles.tabBtn} ${activeTab === "gods-eye" ? styles.tabBtnActive : ""}`}
             onClick={() => setActiveTab("gods-eye")}
           >
-            <Globe2 size={16} /> 1. 3D/4D God&apos;s Eye Space
+            <Globe2 size={16} /> 1. 3D Public Source Universe
           </button>
           <button
             className={`${styles.tabBtn} ${activeTab === "sources" ? styles.tabBtnActive : ""}`}
@@ -378,12 +397,7 @@ export function SurveillanceClient({
           >
             <Search size={16} /> 4. Universal OSINT Search
           </button>
-          <button
-            className={`${styles.tabBtn} ${activeTab === "fleet" ? styles.tabBtnActive : ""}`}
-            onClick={() => setActiveTab("fleet")}
-          >
-            <Radio size={16} /> 5. Orbital Space Fleet
-          </button>
+
         </div>
 
         {/* TAB 1: 3D/4D God's Eye Cyber Space */}
@@ -392,10 +406,10 @@ export function SurveillanceClient({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16, flexWrap: "wrap", gap: 14 }}>
               <div>
                 <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
-                  God&apos;s Eye 3D/4D Tactical Surveillance &amp; Vyuha Defense Matrix
+                  Governed 3D Public-Source Intelligence &amp; Vyuha Defense Matrix
                 </h1>
                 <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                  Three-dimensional reference topology layered with authenticated evidence events and policy-gated defensive evaluation.
+                  Three-dimensional source catalog layered with authenticated evidence events and policy-gated defensive evaluation. Planets are source declarations, not synthetic operational assets.
                 </p>
               </div>
               <button
@@ -410,8 +424,10 @@ export function SurveillanceClient({
             </div>
 
             <div className={styles.gridOps}>
-              {/* 3D / 4D Vector Hologram Globe */}
-              <GodsEyeHologramGlobe formation={selectedFormation} drillActive={drillActive} />
+              {/* 3D governed source universe; no synthetic infrastructure or satellite telemetry. */}
+              <div style={{ minHeight: 470, position: "relative", borderRadius: 12, overflow: "hidden" }}>
+                <OsintUniverse3D nodes={surveillanceUniverseNodes} mode="operational" />
+              </div>
 
               {/* Vyuha Cyber Formations Controller */}
               <section className={styles.vyuhaConsole}>
@@ -732,47 +748,6 @@ export function SurveillanceClient({
           </div>
         )}
 
-        {/* TAB 5: Orbital Space Fleet */}
-        {activeTab === "fleet" && (
-          <div>
-            <div style={{ marginBottom: 16 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
-                Reference Orbital Visualization
-              </h1>
-              <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                Conceptual orbital layer for spatial orientation. It does not represent a live satellite feed unless backed by admitted source data.
-              </p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
-              {SATELLITE_ORBITS.map((sat) => (
-                <div
-                  key={sat.id}
-                  style={{
-                    background: "rgba(10, 22, 35, 0.8)",
-                    border: `1px solid ${sat.color}40`,
-                    borderRadius: 10,
-                    padding: 16,
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <strong style={{ fontSize: 15, color: sat.color }}>{sat.name}</strong>
-                    <span style={{ fontSize: 10, background: `${sat.color}20`, color: sat.color, padding: "2px 6px", borderRadius: 4 }}>
-                      ONLINE
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 8 }}>
-                    <strong>Payload:</strong> {sat.sensor}
-                  </div>
-                  <div style={{ fontSize: 11, color: "#64748b", display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8 }}>
-                    <span>Altitude: {(sat.orbitRadius * 240).toFixed(0)} km</span>
-                    <span>Inclination: {(sat.inclination * 57.3).toFixed(1)}°</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </main>
   );
