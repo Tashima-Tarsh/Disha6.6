@@ -11,10 +11,12 @@ module "iam" {
 }
 
 module "secret_manager" {
-  source          = "./modules/secret-manager"
-  environment     = var.environment
-  web_sa_email    = module.iam.web_sa_email
-  worker_sa_email = module.iam.worker_sa_email
+  source            = "./modules/secret-manager"
+  environment       = var.environment
+  web_sa_email      = module.iam.web_sa_email
+  worker_sa_email   = module.iam.worker_sa_email
+  db_password       = module.cloud_sql.db_password
+  redis_auth_string = module.redis.auth_string
 }
 
 module "artifact_registry" {
@@ -68,6 +70,7 @@ module "cloud_run" {
   db_password_secret_id   = module.secret_manager.db_password_secret_id
   jwt_secret_id           = module.secret_manager.jwt_secret_id
   worker_token_secret_id  = module.secret_manager.worker_token_secret_id
+  redis_auth_secret_id    = module.secret_manager.redis_auth_secret_id
   redis_host              = module.redis.host
   redis_port              = module.redis.port
   osint_topic_id          = module.pubsub.osint_jobs_topic_id
