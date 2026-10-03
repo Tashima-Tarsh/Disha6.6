@@ -57,16 +57,14 @@ export function GodsEyeHologramGlobe({
   drillActive = false,
 }: GodsEyeHologramGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedNode, setSelectedNode] = useState<StrategicNode | null>(
-    nodes.find((node) => node.id === selectedNodeId) ?? nodes[0] ?? null
-  );
+  const [localSelectedNodeId, setLocalSelectedNodeId] = useState<string | null>(selectedNodeId ?? null);
   const [timeDimension, setTimeDimension] = useState<number>(0);
   const [isPlayingTime, setIsPlayingTime] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
-
-  useEffect(() => {
-    setSelectedNode(nodes.find((node) => node.id === selectedNodeId) ?? nodes[0] ?? null);
-  }, [nodes, selectedNodeId]);
+  const selectedNode =
+    nodes.find((node) => node.id === (selectedNodeId ?? localSelectedNodeId)) ??
+    nodes[0] ??
+    null;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -262,7 +260,7 @@ export function GodsEyeHologramGlobe({
   }, [isPlayingTime]);
 
   const handleNodeClick = (node: StrategicNode) => {
-    setSelectedNode(node);
+    setLocalSelectedNodeId(node.id);
     if (onSelectNode) onSelectNode(node);
   };
 
