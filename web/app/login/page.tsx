@@ -18,6 +18,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 }
 
 function sanitizeReturnUrl(requested?: string) {
-  if (!requested || !requested.startsWith("/") || requested.startsWith("//")) return "/dashboard";
+  if (!requested || !requested.startsWith("/") || requested.startsWith("//")) return "/universe";
   return requested;
 }
