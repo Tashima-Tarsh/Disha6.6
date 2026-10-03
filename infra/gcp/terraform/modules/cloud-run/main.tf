@@ -35,6 +35,26 @@ resource "google_cloud_run_v2_service" "web" {
         value = "production"
       }
       env {
+        name  = "DISHA_AUTH_MODE"
+        value = "password"
+      }
+      env {
+        name  = "DISHA_EVIDENCE_LEDGER_MODE"
+        value = "postgres"
+      }
+      env {
+        name  = "DISHA_ALLOW_STATELESS_AUTH"
+        value = "false"
+      }
+      env {
+        name  = "DISHA_COOKIE_SECURE"
+        value = "true"
+      }
+      env {
+        name  = "DISHA_ASTRA6_ALL_TOOLS_ENABLED"
+        value = "true"
+      }
+      env {
         name  = "DISHA_DATABASE_HOST"
         value = var.db_host
       }
@@ -74,10 +94,20 @@ resource "google_cloud_run_v2_service" "web" {
       }
 
       env {
-        name = "DISHA_AUTH_SECRET"
+        name = "DISHA_JWT_SECRET"
         value_source {
           secret_key_ref {
             secret  = var.jwt_secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "DISHA_WORKER_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = var.worker_token_secret_id
             version = "latest"
           }
         }
