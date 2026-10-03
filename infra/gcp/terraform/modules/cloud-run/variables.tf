@@ -15,3 +15,4 @@ variable "osint_topic_id" { type = string }
 variable "evidence_bucket_name" { type = string }
 
 variable "worker_token_secret_id" { type = string }
+variable "redis_auth_secret_id" { type = string }
