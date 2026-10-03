@@ -29,13 +29,15 @@ describe("DISHA secure login UI", () => {
     expect(source).not.toContain("/disha-login-hero.webp");
   });
 
-  it("keeps the page fixed to the viewport without page scrolling", () => {
+  it("keeps the page fixed to the viewport without page scrolling and enforces spatial gateway architecture", () => {
     const css = fs.readFileSync(loginStyles, "utf8");
 
-    expect(css).toContain("grid-template-columns: minmax(0, 1.58fr) minmax(430px, 0.72fr)");
     expect(css).toContain("height: 100dvh");
+    expect(css).toContain("width: 100vw");
     expect(css).toContain("position: fixed");
     expect(css).toContain("overflow: hidden");
+    expect(css).toContain("max-width: 420px");
+    expect(css).toContain("backdrop-filter: blur(28px)");
     expect(css).not.toContain("overflow: auto");
   });
 

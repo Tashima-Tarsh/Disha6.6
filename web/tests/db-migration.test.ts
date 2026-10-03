@@ -118,6 +118,21 @@ describe("DISHA database migration contract", () => {
     expect(runner).toContain('"password_credentials"');
   });
 
+  it("adds cyber defense, attack surface assets, KEV tracking, and worker queue jobs", () => {
+    const migration = fs.readFileSync(path.join(webRoot, "database/202610030004_cyber_defense_attack_surface.sql"), "utf8");
+    const rollback = fs.readFileSync(path.join(webRoot, "database/rollbacks/202610030004_cyber_defense_attack_surface.down.sql"), "utf8");
+    const runner = fs.readFileSync(path.join(webRoot, "scripts/apply-schema.mjs"), "utf8");
+
+    expect(migration).toContain("create table if not exists disha_attack_surface_assets");
+    expect(migration).toContain("create table if not exists disha_vulnerabilities_kev");
+    expect(migration).toContain("create table if not exists disha_threat_indicators");
+    expect(migration).toContain("create table if not exists disha_worker_jobs");
+    expect(migration).toContain("create table if not exists disha_worker_heartbeats");
+    expect(rollback).toContain("drop table if exists disha_attack_surface_assets cascade");
+    expect(runner).toContain('"202610030004"');
+    expect(runner).toContain('"cyber_defense_attack_surface"');
+  });
+
   it("exposes explicit migration commands from the web package", () => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(webRoot, "package.json"), "utf8"));
 

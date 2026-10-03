@@ -17,8 +17,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
 import styles from "./login.module.css";
 
-
-type SubmitState = "idle" | "submitting" | "error";
+type SubmitState = "idle" | "submitting" | "verified" | "error";
 type OidcProvider = "meri-pehchan" | "intra-id";
 
 export function LoginClient({ returnUrl }: { returnUrl: string }) {
@@ -37,7 +36,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!formValid || state === "submitting") return;
+    if (!formValid || state === "submitting" || state === "verified") return;
 
     setState("submitting");
     setError(null);
@@ -59,7 +58,11 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
         throw new Error("Secure sign-in is temporarily unavailable. Please try again.");
       }
 
-      window.location.assign(returnUrl);
+      // Smooth transition into command center (Tasks 44 & 45)
+      setState("verified");
+      window.setTimeout(() => {
+        window.location.assign(returnUrl);
+      }, 750);
     } catch (caught) {
       setState("error");
       setError(caught instanceof Error ? caught.message : "Secure sign-in failed.");
@@ -73,16 +76,18 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
   return (
     <main className={styles.shell}>
-      <section className={styles.visualLayer} aria-label="disha6.6 secure access artwork">
+      {/* Immersive 3D Spatial Environment (Tasks 39-42) */}
+      <section className={styles.visualLayer} aria-label="disha6.6 sovereign intelligence environment">
         <SovereignCyberMatrix3D />
       </section>
 
-      <section className={styles.loginPanel} aria-labelledby="secure-access-title">
-        <div className={styles.panelInner}>
+      {/* Floating Spatial Gateway Overlay (Tasks 43-45) */}
+      <section className={styles.spatialGatewayContainer} aria-labelledby="secure-access-title">
+        <div className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}>
           <div className={styles.headingBlock}>
-            <p className={styles.kicker}>ASTRA 6 · SOVEREIGN IDENTITY GATEWAY</p>
-            <h1 id="secure-access-title">DISHA 6.6 Secure Access</h1>
-            <p>Evidence-grade intelligence. Governed access.</p>
+            <p className={styles.kicker}>DISHA 6.6 · ASTRA SECURE IDENTITY</p>
+            <h1 id="secure-access-title">DISHA 6.6</h1>
+            <p>Evidence-Grade Intelligence</p>
           </div>
 
           <form className={styles.loginForm} onSubmit={signIn} noValidate>
@@ -97,7 +102,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
                   setError(null);
                   if (state === "error") setState("idle");
                 }}
-                placeholder="Email Address / User ID"
+                placeholder="Email / Identity"
                 required
                 type="email"
                 value={email}
@@ -138,11 +143,31 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             </div>
 
             {error ? <div className={styles.error} role="alert">{error}</div> : null}
+            {state === "verified" ? (
+              <div className={styles.successNotice} role="status">
+                <CheckCircle2 size={18} />
+                <span>Identity verified · Entering Mission Command...</span>
+              </div>
+            ) : null}
 
-            <button className={styles.loginButton} disabled={!formValid || state === "submitting"} type="submit">
-              {state === "submitting" ? <Loader2 className={styles.spin} size={20} /> : <ShieldCheck size={20} />}
-              <span>{state === "submitting" ? "VERIFYING IDENTITY" : "LOGIN SECURELY"}</span>
-              {state !== "submitting" ? <span className={styles.loginArrow}>→</span> : null}
+            <button className={styles.loginButton} disabled={!formValid || state === "submitting" || state === "verified"} type="submit">
+              {state === "submitting" ? (
+                <>
+                  <Loader2 className={styles.spin} size={20} />
+                  <span>VERIFYING IDENTITY...</span>
+                </>
+              ) : state === "verified" ? (
+                <>
+                  <CheckCircle2 size={20} />
+                  <span>ACCESS GRANTED</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={20} />
+                  <span>[ ENTER DISHA ]</span>
+                  <span className={styles.loginArrow}>→</span>
+                </>
+              )}
             </button>
           </form>
 
@@ -155,7 +180,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             </button>
             <button onClick={() => startOidc("intra-id")} type="button">
               <Building2 size={21} />
-              <span><small>Continue with</small>Microsoft / Intra ID</span>
+              <span><small>Continue with</small>Intra ID</span>
             </button>
           </div>
 
