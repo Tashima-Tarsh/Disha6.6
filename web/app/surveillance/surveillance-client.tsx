@@ -41,19 +41,14 @@ type LogEntry = {
   message: string;
 };
 
-const INITIAL_LOGS: LogEntry[] = [
-  { id: "init-1", time: "BOOT", category: "vyuha", message: "Vyuha Defensive Engine core policy gate initialized. Sovereign perimeter active." },
-  { id: "init-2", time: "AUTH", category: "evidence", message: "PostgreSQL 16 + PostGIS + pgvector cryptographic schema verified." },
-  { id: "init-3", time: "INTEL", category: "evidence", message: "Constitutional evidence ledger active with SHA-256 Merkle chaining." },
-  { id: "init-4", time: "GEO", category: "sat", message: "National spatial boundary and strategic cyber node coordinates synchronized." },
-];
+const INITIAL_LOGS: LogEntry[] = [];
 
 const VYUHA_FORMATIONS = [
-  { id: "chakra", name: "Chakra Vyuha", desc: "Multi-tier rotational perimeter containment with active honeypot diversion.", activeThreats: 2, containmentScore: "99.4%" },
-  { id: "padma", name: "Padma Vyuha", desc: "Layered petal decoy grid designed for adversary isolation and deep forensic capture.", activeThreats: 1, containmentScore: "98.1%" },
-  { id: "suchi", name: "Suchi Vyuha", desc: "Needle-point rapid surgical isolation targeting high-velocity zero-day exploits.", activeThreats: 0, containmentScore: "99.9%" },
-  { id: "garuda", name: "Garuda Vyuha", desc: "High-speed aerial and orbital satellite sensor synchronization.", activeThreats: 0, containmentScore: "96.8%" },
-  { id: "trishula", name: "Trishula Vyuha", desc: "Tri-pronged coordinated passive defense covering Subsea, Space, and Cloud.", activeThreats: 0, containmentScore: "99.7%" },
+  { id: "chakra", name: "Chakra Vyuha", desc: "Multi-tier defensive policy posture for governed containment review." },
+  { id: "padma", name: "Padma Vyuha", desc: "Layered defensive posture for isolation and forensic review." },
+  { id: "suchi", name: "Suchi Vyuha", desc: "Focused defensive posture for high-priority incident review." },
+  { id: "garuda", name: "Garuda Vyuha", desc: "Distributed defensive posture for coordinated sensor review." },
+  { id: "trishula", name: "Trishula Vyuha", desc: "Multi-domain defensive posture spanning network, spatial, and cloud evidence." },
 ];
 
 interface SurveillanceClientProps {
@@ -317,7 +312,7 @@ export function SurveillanceClient({
               <Eye size={20} color="#38bdf8" /> DISHA 6.6 GOD&apos;S EYE
             </div>
             <span className={styles.radarBadge}>
-              <span className={styles.pulseDot} /> 3D/4D CYBER RADAR ACTIVE
+              <span className={styles.pulseDot} /> REFERENCE 3D · LIVE EVIDENCE
             </span>
           </div>
 
@@ -340,20 +335,20 @@ export function SurveillanceClient({
         {/* Global HUD Metrics */}
         <div className={styles.hudMetrics}>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>Active Ingress Nodes</div>
-            <div className={styles.hudVal}>{STRATEGIC_GLOBAL_NODES.length} / {STRATEGIC_GLOBAL_NODES.length} Operational</div>
+            <div className={styles.hudLabel}>Reference Nodes</div>
+            <div className={styles.hudVal}>{STRATEGIC_GLOBAL_NODES.length} mapped</div>
           </div>
           <div className={styles.hudCard}>
             <div className={styles.hudLabel}>OSINT Sources Active</div>
             <div className={styles.hudVal} style={{ color: "#34d399" }}>{sources.length}+ Cataloged</div>
           </div>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>Telemetry Intercepts</div>
-            <div className={styles.hudVal}>{telemetryCount.toLocaleString()} verified</div>
+            <div className={styles.hudLabel}>Admitted Signals</div>
+            <div className={styles.hudVal}>{telemetryCount.toLocaleString()} records</div>
           </div>
           <div className={styles.hudCard}>
-            <div className={styles.hudLabel}>Vyuha Defense Status</div>
-            <div className={styles.hudVal} style={{ color: "#c084fc" }}>{activeFormationData?.name} ({activeFormationData?.containmentScore})</div>
+            <div className={styles.hudLabel}>Policy Posture</div>
+            <div className={styles.hudVal} style={{ color: "#c084fc" }}>{activeFormationData?.name} · governed</div>
           </div>
         </div>
 
@@ -400,7 +395,7 @@ export function SurveillanceClient({
                   God&apos;s Eye 3D/4D Tactical Surveillance &amp; Vyuha Defense Matrix
                 </h1>
                 <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                  Three-dimensional vector wireframe sphere with 4D temporal vector scrubbing, orbital satellite telemetry, and real-time Vyuha containment.
+                  Three-dimensional reference topology layered with authenticated evidence events and policy-gated defensive evaluation.
                 </p>
               </div>
               <button
@@ -448,7 +443,7 @@ export function SurveillanceClient({
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
                         <strong style={{ fontSize: 13 }}>{formation.name}</strong>
-                        <span style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>Containment: {formation.containmentScore}</span>
+                        <span style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>Policy-gated</span>
                       </div>
                       <div style={{ fontSize: 11, color: "#94a3b8" }}>{formation.desc}</div>
                     </button>
@@ -461,12 +456,12 @@ export function SurveillanceClient({
             <section className={styles.terminalPanel}>
               <div className={styles.panelHeader} style={{ marginBottom: 12 }}>
                 <div className={styles.panelTitle} style={{ color: "#4ade80" }}>
-                  <TerminalIcon size={18} color="#4ade80" /> Live Telemetry Intercept Stream
+                  <TerminalIcon size={18} color="#4ade80" /> Live Evidence Event Stream
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span className={styles.pulseDot} />
                   <span style={{ fontSize: 11, color: "#4ade80", fontFamily: "'JetBrains Mono', monospace" }}>
-                    STREAMING 100% REAL-TIME
+                    POLLING AUTHENTICATED FEED
                   </span>
                 </div>
               </div>
@@ -742,10 +737,10 @@ export function SurveillanceClient({
           <div>
             <div style={{ marginBottom: 16 }}>
               <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
-                Orbital Defense Satellite Fleet (GS-01 to GS-12)
+                Reference Orbital Visualization
               </h1>
               <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                Orbital Space Situational Awareness (SSA), high-band RF spectrum interception, and space weather telemetry.
+                Conceptual orbital layer for spatial orientation. It does not represent a live satellite feed unless backed by admitted source data.
               </p>
             </div>
 
