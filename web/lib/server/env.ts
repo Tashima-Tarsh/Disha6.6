@@ -3,6 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   DISHA_AUTH_MODE: z.enum(["dev-jwt", "password", "oidc"]).default("dev-jwt"),
   DISHA_JWT_SECRET: z.string().min(32).optional(),
+  DISHA_AUTH_SECRET: z.string().min(32).optional(),
   DISHA_DEV_PASSWORD: z.string().min(12).optional(),
   DISHA_DEV_ADMIN_EMAILS: z.preprocess(
     (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
@@ -15,7 +16,14 @@ const envSchema = z.object({
   DISHA_INTRA_ID_AUTH_URL: z.string().url().optional(),
   DISHA_OIDC_REDIRECT_URI: z.string().url().optional(),
   DATABASE_URL: z.string().optional(),
+  DISHA_DATABASE_HOST: z.string().optional(),
+  DISHA_DATABASE_PORT: z.coerce.number().int().positive().default(5432),
+  DISHA_DATABASE_NAME: z.string().optional(),
+  DISHA_DATABASE_USER: z.string().optional(),
+  DISHA_DATABASE_PASSWORD: z.string().optional(),
   REDIS_URL: z.string().optional(),
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.coerce.number().int().positive().default(6379),
   DISHA_WORKSPACE_ROOT: z.string().optional(),
   DISHA_ALLOWED_ORIGINS: z.string().optional(),
   DISHA_BACKEND_URL: z.string().url().default("http://localhost:3001"),
@@ -68,12 +76,31 @@ export function getEnv(): RuntimeEnv {
   if (cachedEnv) return cachedEnv;
   try {
     cachedEnv = envSchema.parse(process.env);
+    if (!cachedEnv.DISHA_JWT_SECRET && cachedEnv.DISHA_AUTH_SECRET) {
+      cachedEnv.DISHA_JWT_SECRET = cachedEnv.DISHA_AUTH_SECRET;
+    }
+    if (
+      !cachedEnv.DATABASE_URL
+      && cachedEnv.DISHA_DATABASE_HOST
+      && cachedEnv.DISHA_DATABASE_NAME
+      && cachedEnv.DISHA_DATABASE_USER
+      && cachedEnv.DISHA_DATABASE_PASSWORD
+    ) {
+      const user = encodeURIComponent(cachedEnv.DISHA_DATABASE_USER);
+      const password = encodeURIComponent(cachedEnv.DISHA_DATABASE_PASSWORD);
+      const database = encodeURIComponent(cachedEnv.DISHA_DATABASE_NAME);
+      cachedEnv.DATABASE_URL = `postgresql://${user}:${password}@${cachedEnv.DISHA_DATABASE_HOST}:${cachedEnv.DISHA_DATABASE_PORT}/${database}`;
+    }
+    if (!cachedEnv.REDIS_URL && cachedEnv.REDIS_HOST) {
+      cachedEnv.REDIS_URL = `redis://${cachedEnv.REDIS_HOST}:${cachedEnv.REDIS_PORT}`;
+    }
   } catch (e) {
     if (process.env.NODE_ENV === "production") throw e;
     console.warn("[env] Strict env validation failed, using dev fallbacks:", e);
     cachedEnv = {
       DISHA_AUTH_MODE: "dev-jwt",
       DISHA_JWT_SECRET: "dev-jwt-secret-for-local-testing-32bytes-long-enough",
+      DISHA_AUTH_SECRET: undefined,
       DISHA_DEV_PASSWORD: "devpassword1234",
       DISHA_DEV_ADMIN_EMAILS: undefined,
       DISHA_OIDC_ISSUER: undefined,
@@ -83,7 +110,14 @@ export function getEnv(): RuntimeEnv {
       DISHA_INTRA_ID_AUTH_URL: undefined,
       DISHA_OIDC_REDIRECT_URI: undefined,
       DATABASE_URL: undefined,
+      DISHA_DATABASE_HOST: undefined,
+      DISHA_DATABASE_PORT: 5432,
+      DISHA_DATABASE_NAME: undefined,
+      DISHA_DATABASE_USER: undefined,
+      DISHA_DATABASE_PASSWORD: undefined,
       REDIS_URL: undefined,
+      REDIS_HOST: undefined,
+      REDIS_PORT: 6379,
       DISHA_WORKSPACE_ROOT: process.cwd(),
       DISHA_ALLOWED_ORIGINS: "http://localhost:3000",
       DISHA_BACKEND_URL: "http://localhost:3001",
