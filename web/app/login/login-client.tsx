@@ -85,9 +85,10 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
       <section className={styles.spatialGatewayContainer} aria-labelledby="secure-access-title">
         <div className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}>
           <div className={styles.headingBlock}>
-            <p className={styles.kicker}>DISHA 6.6 · ASTRA SECURE IDENTITY</p>
+            <p className={styles.kicker}>SECURE IDENTITY</p>
             <h1 id="secure-access-title">DISHA 6.6</h1>
-            <p>Evidence-Grade Intelligence</p>
+            <p className={styles.subtitle}>Evidence-Grade Intelligence</p>
+            <div className={styles.runtimeTag}>Runtime: Astra 6</div>
           </div>
 
           <form className={styles.loginForm} onSubmit={signIn} noValidate>
@@ -164,7 +165,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
               ) : (
                 <>
                   <ShieldCheck size={20} />
-                  <span>[ ENTER DISHA ]</span>
+                  <span>[ ENTER ]</span>
                   <span className={styles.loginArrow}>→</span>
                 </>
               )}
