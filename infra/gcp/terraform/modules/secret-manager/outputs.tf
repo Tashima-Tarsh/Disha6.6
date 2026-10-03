@@ -13,3 +13,7 @@ output "encryption_key_secret_id" {
 output "worker_token_secret_id" {
   value = google_secret_manager_secret.worker_token.secret_id
 }
+
+output "redis_auth_secret_id" {
+  value = google_secret_manager_secret.redis_auth.secret_id
+}
