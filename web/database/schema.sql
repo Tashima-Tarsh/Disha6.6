@@ -14,8 +14,13 @@ create table if not exists users (
   id text primary key,
   email text not null unique,
   roles text[] not null default array['analyst'],
+  password_hash text,
+  disabled_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+alter table users add column if not exists password_hash text;
+alter table users add column if not exists disabled_at timestamptz;
 
 create table if not exists refresh_tokens (
   jti text primary key,
