@@ -82,7 +82,7 @@ export function VaultClient({ principal }: { principal: PrincipalView }) {
             <span className={styles.kicker}>CRYPTOGRAPHIC PROVENANCE SYSTEM</span>
             <h1 className={styles.title}>Immutable Evidence Vault</h1>
             <p className={styles.subtitle}>
-              SHA-256 Merkle-verified evidence preservation. Admitted artifacts are never mutated in-place; all source updates generate cryptographically linked new versions with automated line diffs.
+              SHA-256 content-hash evidence preservation. Admitted artifacts are never mutated in-place; source updates create linked new versions with automated line diffs.
             </p>
           </div>
         </header>
@@ -193,7 +193,7 @@ export function VaultClient({ principal }: { principal: PrincipalView }) {
             ) : (
               <div className={styles.emptyNotice}>
                 <FileText size={24} />
-                <span>Enter an admitted source URI to audit its Merkle root and version lineage.</span>
+                <span>Enter an admitted source URI to audit its SHA-256 content hash and version lineage.</span>
               </div>
             )}
           </section>
