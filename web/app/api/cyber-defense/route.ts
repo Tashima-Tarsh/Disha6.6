@@ -17,23 +17,25 @@ export async function GET(req: NextRequest) {
     let vulnerabilities: unknown[] = [];
     let indicators: unknown[] = [];
 
-    try {
-      const assetRes = await pool.query(
-        "select * from disha_attack_surface_assets order by last_seen_at desc limit 50",
-      );
-      assets = assetRes.rows;
+    if (pool) {
+      try {
+        const assetRes = await pool.query(
+          "select * from disha_attack_surface_assets order by last_seen_at desc limit 50",
+        );
+        assets = assetRes.rows;
 
-      const vulnRes = await pool.query(
-        "select * from disha_vulnerabilities_kev order by published_date desc limit 50",
-      );
-      vulnerabilities = vulnRes.rows;
+        const vulnRes = await pool.query(
+          "select * from disha_vulnerabilities_kev order by published_date desc limit 50",
+        );
+        vulnerabilities = vulnRes.rows;
 
-      const indRes = await pool.query(
-        "select * from disha_threat_indicators order by observed_at desc limit 50",
-      );
-      indicators = indRes.rows;
-    } catch {
-      // In unmigrated dev environments, fall back to empty arrays
+        const indRes = await pool.query(
+          "select * from disha_threat_indicators order by observed_at desc limit 50",
+        );
+        indicators = indRes.rows;
+      } catch {
+        // In unmigrated dev environments, fall back to empty arrays
+      }
     }
 
     return NextResponse.json(

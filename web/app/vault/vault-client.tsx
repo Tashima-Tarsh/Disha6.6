@@ -139,10 +139,10 @@ export function VaultClient({ principal }: { principal: PrincipalView }) {
               <div className={styles.successSeal}>
                 <CheckCircle2 size={18} className={styles.checkIcon} />
                 <div>
-                  <strong>SEALED AS VERSION {storedArtifact.version_number}</strong>
+                  <strong>SEALED AS VERSION {storedArtifact.versionIndex}</strong>
                   <div className={styles.hashBox}>
                     <Hash size={12} />
-                    <span>SHA-256: {storedArtifact.sha256_hash}</span>
+                    <span>SHA-256: {storedArtifact.contentHash}</span>
                   </div>
                 </div>
               </div>
@@ -180,13 +180,13 @@ export function VaultClient({ principal }: { principal: PrincipalView }) {
             {versions.length > 0 ? (
               <div className={styles.versionList}>
                 {versions.map((v) => (
-                  <div key={v.artifact_id} className={styles.versionItem}>
+                  <div key={v.artifactId} className={styles.versionItem}>
                     <div className={styles.vHeader}>
-                      <span className={styles.vBadge}>VERSION {v.version_number}</span>
-                      <small>{new Date(v.retrieval_timestamp).toLocaleString()}</small>
+                      <span className={styles.vBadge}>VERSION {v.versionIndex}</span>
+                      <small>{new Date(v.createdAt).toLocaleString()}</small>
                     </div>
-                    <div className={styles.hashText}>SHA: {v.sha256_hash}</div>
-                    <div className={styles.authorityText}>AUTHORITY: {v.source_authority}</div>
+                    <div className={styles.hashText}>SHA: {v.contentHash}</div>
+                    <div className={styles.authorityText}>AUTHORITY: {v.sourceAuthority}</div>
                   </div>
                 ))}
               </div>
