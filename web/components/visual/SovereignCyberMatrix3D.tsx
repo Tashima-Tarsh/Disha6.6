@@ -19,6 +19,15 @@ import {
 } from "lucide-react";
 import styles from "./sovereign-cyber-matrix.module.css";
 
+type ThreeScene = InstanceType<typeof THREE.Scene>;
+type ThreeCamera = InstanceType<typeof THREE.PerspectiveCamera>;
+type ThreeRenderer = InstanceType<typeof THREE.WebGLRenderer>;
+type ThreeGroup = InstanceType<typeof THREE.Group>;
+type ThreeMesh = InstanceType<typeof THREE.Mesh>;
+type ThreePoints = InstanceType<typeof THREE.Points>;
+type ThreeCurve = InstanceType<typeof THREE.CatmullRomCurve3>;
+type ThreeDisposable = { geometry?: { dispose: () => void }; material?: { dispose: () => void } | Array<{ dispose: () => void }> };
+
 // ============================================================================
 // 1. AUTHORITATIVE GEOGRAPHIC COORDINATES
 // ============================================================================
@@ -167,7 +176,7 @@ const INITIAL_INTELLIGENCE_ARCS: IntelligenceArc[] = [
 const EARTH_RADIUS = 3.0;
 
 // Spherical coordinate transformation: (lat, lon, altitude) -> 3D Vector3
-export function latLonToVector3(lat: number, lon: number, radius = EARTH_RADIUS, altitude = 0): THREE.Vector3 {
+export function latLonToVector3(lat: number, lon: number, radius = EARTH_RADIUS, altitude = 0) {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lon + 180) * (Math.PI / 180);
   const r = radius + altitude;
@@ -202,17 +211,17 @@ export function SovereignCyberMatrix3D({
   const [currentPreset, setCurrentPreset] = useState<string>(activePreset);
 
   // References to keep across renders
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const globeGroupRef = useRef<THREE.Group | null>(null);
-  const targetCamPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.2, 5.8));
+  const sceneRef = useRef<ThreeScene | null>(null);
+  const cameraRef = useRef<ThreeCamera | null>(null);
+  const rendererRef = useRef<ThreeRenderer | null>(null);
+  const globeGroupRef = useRef<ThreeGroup | null>(null);
+  const targetCamPosRef = useRef(new THREE.Vector3(0, 1.2, 5.8));
   const isDraggingRef = useRef(false);
   const previousMousePositionRef = useRef({ x: 0, y: 0 });
-  const raycasterRef = useRef<THREE.Raycaster>(new THREE.Raycaster());
-  const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2(-999, -999));
-  const nodeMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map());
-  const starFieldRef = useRef<THREE.Points | null>(null);
+  const raycasterRef = useRef(new THREE.Raycaster());
+  const mouseRef = useRef(new THREE.Vector2(-999, -999));
+  const nodeMeshesRef = useRef<Map<string, ThreeMesh>>(new Map());
+  const starFieldRef = useRef<ThreePoints | null>(null);
 
   // Camera presets
   const applyPreset = useCallback((preset: string) => {
@@ -390,7 +399,7 @@ export function SovereignCyberMatrix3D({
     });
 
     for (const polygon of CONTINENT_OUTLINES) {
-      const points: THREE.Vector3[] = polygon.map(([lon, lat]) =>
+      const points = polygon.map(([lon, lat]) =>
         latLonToVector3(lat, lon, EARTH_RADIUS, 0.008)
       );
       const geom = new THREE.BufferGeometry().setFromPoints(points);
@@ -424,7 +433,7 @@ export function SovereignCyberMatrix3D({
     globeGroup.add(new THREE.LineLoop(indiaHaloGeom, indiaHaloMat));
 
     // 7. Data Nodes Layer across Semantic Altitudes
-    const nodeMeshes = new Map<string, THREE.Mesh>();
+    const nodeMeshes = new Map<string, ThreeMesh>();
     nodeMeshesRef.current = nodeMeshes;
 
     INITIAL_INTELLIGENCE_NODES.forEach((node) => {
@@ -472,8 +481,8 @@ export function SovereignCyberMatrix3D({
 
     // 8. Great-Circle Curved Network Arcs
     const arcObjects: Array<{
-      curve: THREE.CatmullRomCurve3;
-      pulseMesh: THREE.Mesh;
+      curve: ThreeCurve;
+      pulseMesh: ThreeMesh;
       speed: number;
     }> = [];
 
@@ -563,7 +572,7 @@ export function SovereignCyberMatrix3D({
       const intersects = raycasterRef.current.intersectObjects(meshes);
 
       if (intersects.length > 0) {
-        const hit = intersects[0]?.object as THREE.Mesh;
+        const hit = intersects[0]?.object as ThreeMesh;
         const nodeData = hit.userData.nodeData as IntelligenceNode;
         if (nodeData) {
           setSelectedNode(nodeData);
@@ -640,7 +649,7 @@ export function SovereignCyberMatrix3D({
         const intersects = raycasterRef.current.intersectObjects(meshes);
 
         if (intersects.length > 0) {
-          const hit = intersects[0]?.object as THREE.Mesh;
+          const hit = intersects[0]?.object as ThreeMesh;
           const nodeData = hit.userData.nodeData as IntelligenceNode;
 
           // Check if node is on the front side of Earth (Occlusion Test)
@@ -677,13 +686,14 @@ export function SovereignCyberMatrix3D({
 
       if (sceneRef.current) {
         sceneRef.current.traverse((obj) => {
-          if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
-            obj.geometry?.dispose();
-            if (Array.isArray(obj.material)) {
-              obj.material.forEach((m) => m.dispose());
-            } else if (obj.material) {
-              obj.material.dispose();
-            }
+          const item = obj as unknown as ThreeDisposable;
+          if (item.geometry) {
+            item.geometry.dispose();
+          }
+          if (Array.isArray(item.material)) {
+            item.material.forEach((m: { dispose: () => void }) => m.dispose());
+          } else if (item.material) {
+            item.material.dispose();
           }
         });
       }
