@@ -97,12 +97,15 @@ services:
     image: ${DISHA_IMAGE_REGISTRY:-ghcr.io/tashima-tarsh}/disha-web:${DISHA_IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
-      DISHA_AUTH_MODE: oidc
+      DISHA_AUTH_MODE: ${DISHA_AUTH_MODE:-hybrid}
       DISHA_JWT_SECRET: ${DISHA_JWT_SECRET:?set-in-production-environment}
-      DISHA_OIDC_ISSUER: ${DISHA_OIDC_ISSUER:-}
-      DISHA_OIDC_CLIENT_ID: ${DISHA_OIDC_CLIENT_ID:-}
-      DISHA_OIDC_CLIENT_SECRET: ${DISHA_OIDC_CLIENT_SECRET:-}
       DISHA_OIDC_REDIRECT_URI: ${DISHA_OIDC_REDIRECT_URI:-}
+      DISHA_MERI_PEHCHAN_AUTH_URL: ${DISHA_MERI_PEHCHAN_AUTH_URL:-https://digilocker.meripehchaan.gov.in/public/oauth2/1/authorize}
+      DISHA_MERI_PEHCHAN_TOKEN_URL: ${DISHA_MERI_PEHCHAN_TOKEN_URL:-https://digilocker.meripehchaan.gov.in/public/oauth2/2/token}
+      DISHA_MERI_PEHCHAN_USER_URL: ${DISHA_MERI_PEHCHAN_USER_URL:-https://digilocker.meripehchaan.gov.in/public/oauth2/1/user}
+      DISHA_MERI_PEHCHAN_CLIENT_ID: ${DISHA_MERI_PEHCHAN_CLIENT_ID:-}
+      DISHA_MERI_PEHCHAN_CLIENT_SECRET: ${DISHA_MERI_PEHCHAN_CLIENT_SECRET:-}
+      DISHA_MERI_PEHCHAN_REDIRECT_URI: ${DISHA_MERI_PEHCHAN_REDIRECT_URI:-}
       DATABASE_URL: postgresql://disha:${POSTGRES_PASSWORD:?set-postgres-password}@postgres:5432/disha
       REDIS_URL: redis://redis:6379
       DISHA_ALLOWED_ORIGINS: ${DISHA_ALLOWED_ORIGINS:?set-in-production-environment}

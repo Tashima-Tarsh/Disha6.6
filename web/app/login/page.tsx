@@ -8,13 +8,17 @@ export const metadata: Metadata = {
 };
 
 type LoginPageProps = {
-  searchParams?: Promise<{ returnUrl?: string | string[] }>;
+  searchParams?: Promise<{
+    returnUrl?: string | string[];
+    authError?: string | string[];
+  }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const requested = Array.isArray(params?.returnUrl) ? params.returnUrl[0] : params?.returnUrl;
-  return <LoginClient returnUrl={sanitizeReturnUrl(requested)} />;
+  const authError = Array.isArray(params?.authError) ? params.authError[0] : params?.authError;
+  return <LoginClient authError={authError} returnUrl={sanitizeReturnUrl(requested)} />;
 }
 
 function sanitizeReturnUrl(requested?: string) {

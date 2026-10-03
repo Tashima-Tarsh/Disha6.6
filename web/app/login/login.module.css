@@ -346,7 +346,8 @@
   gap: 8px;
 }
 
-.identityGrid button {
+.identityGrid button,
+.identityGrid a {
   background: rgba(10, 18, 30, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
@@ -360,15 +361,18 @@
   gap: 8px;
   cursor: pointer;
   transition: all 0.18s ease;
+  text-decoration: none;
 }
 
-.identityGrid button:hover {
+.identityGrid button:hover,
+.identityGrid a:hover {
   background: rgba(18, 32, 54, 0.8);
   border-color: rgba(69, 199, 244, 0.35);
   color: #ffffff;
 }
 
-.identityGrid button span {
+.identityGrid button span,
+.identityGrid a span {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -376,7 +380,8 @@
   line-height: 1.2;
 }
 
-.identityGrid button small {
+.identityGrid button small,
+.identityGrid a small {
   font-size: 9px;
   color: rgba(148, 175, 206, 0.5);
   font-weight: 400;

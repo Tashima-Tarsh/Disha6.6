@@ -11,23 +11,37 @@ import {
   Mail,
   ShieldCheck,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { FormEvent, PointerEvent as ReactPointerEvent, useMemo, useRef, useState } from "react";
 
 import { DishaIdentityScene3D } from "@/components/auth/DishaIdentityScene3D";
 import styles from "./login.module.css";
 
 type SubmitState = "idle" | "submitting" | "verified" | "error";
-type OidcProvider = "meri-pehchan" | "intra-id";
 
-export function LoginClient({ returnUrl }: { returnUrl: string }) {
-  const router = useRouter();
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  "meri-pehchaan-not-configured":
+    "Meri Pehchaan is ready in DISHA but still requires the client ID and secret issued to this application by the government partner portal.",
+  "government-signin-cancelled":
+    "Government identity sign-in was cancelled before authorization completed.",
+  "government-signin-failed":
+    "Government identity sign-in could not be completed. Please try again or use password access if enabled.",
+};
+
+export function LoginClient({
+  returnUrl,
+  authError,
+}: {
+  returnUrl: string;
+  authError?: string;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [state, setState] = useState<SubmitState>("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    authError ? AUTH_ERROR_MESSAGES[authError] ?? "Government identity sign-in was not completed." : null,
+  );
   const cardRef = useRef<HTMLDivElement>(null);
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -53,13 +67,12 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
       if (!response.ok) {
         if (response.status === 401) throw new Error("Email/User ID or password is incorrect.");
         if (response.status === 403) {
-          throw new Error("Password sign-in is not enabled for this account. Use an approved identity provider below.");
+          throw new Error("Password sign-in is not enabled for this account. Use Meri Pehchaan below.");
         }
         if (response.status === 429) throw new Error("Too many sign-in attempts. Please wait before trying again.");
         throw new Error("Secure sign-in is temporarily unavailable. Please try again.");
       }
 
-      // Smooth camera push and gateway dissolve into command center
       setState("verified");
       window.setTimeout(() => {
         window.location.assign(returnUrl);
@@ -70,12 +83,12 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
     }
   }
 
-  function startOidc(provider: OidcProvider) {
-    const params = new URLSearchParams({ provider, returnUrl });
+  function startMeriPehchaan() {
+    setError(null);
+    const params = new URLSearchParams({ provider: "meri-pehchan", returnUrl });
     window.location.assign(new URL(`/api/auth/oidc/start?${params.toString()}`, window.location.origin).toString());
   }
 
-  // Shallow pointer tilt and cursor sheen tracking
   function trackCardParallax(event: ReactPointerEvent<HTMLDivElement>) {
     const card = cardRef.current;
     if (!card || state === "verified") return;
@@ -101,19 +114,15 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
   return (
     <main className={styles.shell}>
-      {/* Subtle depth lighting and starfield layers */}
       <div className={styles.atmosphere} aria-hidden="true" />
       <div className={styles.starField} aria-hidden="true" />
 
-      {/* Dedicated top 0.1% Pre-Auth 3D Identity Scene */}
       <section className={styles.visualLayer} aria-label="DISHA 6.6 sovereign intelligence environment">
         <DishaIdentityScene3D transitionState={state} />
       </section>
 
-      {/* Vignette to guide eye focus to the centered gateway */}
       <div className={styles.vignette} aria-hidden="true" />
 
-      {/* Centered Floating Spatial Gateway Overlay */}
       <section className={styles.spatialGatewayContainer} aria-labelledby="secure-access-title">
         <div
           className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}
@@ -185,7 +194,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             {state === "verified" ? (
               <div className={styles.successNotice} role="status">
                 <CheckCircle2 size={16} />
-                <span>Identity verified · Entering Mission Command...</span>
+                <span>Identity verified · Entering secure workspace...</span>
               </div>
             ) : null}
 
@@ -210,17 +219,21 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             </button>
           </form>
 
-          <div className={styles.divider}><span>OR USE APPROVED IDENTITY</span></div>
+          <div className={styles.divider}><span>OR USE GOVERNMENT IDENTITY</span></div>
 
           <div className={styles.identityGrid}>
-            <button onClick={() => startOidc("meri-pehchan")} type="button">
+            <button onClick={startMeriPehchaan} type="button">
               <Fingerprint size={18} />
-              <span><small>Continue with</small>Meri Pehchan</span>
+              <span><small>Continue with</small>Meri Pehchaan</span>
             </button>
-            <button onClick={() => startOidc("intra-id")} type="button">
+            <a
+              href="https://epramaan.meripehchaan.gov.in/"
+              rel="noreferrer"
+              target="_blank"
+            >
               <Building2 size={18} />
-              <span><small>Continue with</small>Intra ID</span>
-            </button>
+              <span><small>Create / manage</small>Government ID</span>
+            </a>
           </div>
 
           <footer className={styles.securityFooter}>

@@ -84,10 +84,10 @@ function createToken(
 export async function createSession(
   email: string,
   roles: Role[] = ["analyst"],
-  options: { persistent?: boolean } = {},
+  options: { persistent?: boolean; subject?: string } = {},
 ) {
   const persistent = options.persistent ?? true;
-  const userId = email.toLowerCase();
+  const userId = (options.subject ?? email).trim().toLowerCase();
   const sessionId = randomToken();
   const base = { sub: userId, email, roles, sessionId, persistent };
   const access = createToken(base, "access");
@@ -110,7 +110,10 @@ export async function rotateSession(refreshToken: string) {
   if (payload.typ !== "refresh") throw Object.assign(new Error("Refresh token required"), { status: 401 });
   await ensureRefreshUsable(payload);
   await revokeRefreshToken(payload.jti);
-  return createSession(payload.email, payload.roles, { persistent: payload.persistent ?? true });
+  return createSession(payload.email, payload.roles, {
+    persistent: payload.persistent ?? true,
+    subject: payload.sub,
+  });
 }
 
 export function setSessionCookies(
@@ -170,7 +173,7 @@ export async function passwordLogin(email: string, password: string, persistent 
     return createSession(normalizedEmail, roles, { persistent });
   }
 
-  if (env.DISHA_AUTH_MODE !== "password") {
+  if (env.DISHA_AUTH_MODE !== "password" && env.DISHA_AUTH_MODE !== "hybrid") {
     throw Object.assign(new Error("Password login is disabled"), { status: 403 });
   }
 
@@ -194,5 +197,8 @@ export async function passwordLogin(email: string, password: string, persistent 
     throw Object.assign(new Error("Invalid credentials"), { status: 401 });
   }
 
-  return createSession(user.email, user.roles?.length ? user.roles : ["analyst"], { persistent });
+  return createSession(user.email, user.roles?.length ? user.roles : ["analyst"], {
+    persistent,
+    subject: user.id,
+  });
 }
