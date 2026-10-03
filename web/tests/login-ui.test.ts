@@ -22,7 +22,8 @@ describe("DISHA secure login UI", () => {
     const source = fs.readFileSync(loginClient, "utf8");
     const css = fs.readFileSync(loginStyles, "utf8");
 
-    expect(source).toContain("SovereignCyberMatrix3D");
+    expect(source).toContain("OsintUniverse3D");
+    expect(source).toContain('<OsintUniverse3D mode="gateway" />');
     expect(css).not.toContain('url("/disha66-login-reference.webp")');
     expect(css).not.toContain('url("/disha66-login-reference.avif")');
     expect(source).not.toContain("data:image/avif;base64,");
