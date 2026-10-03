@@ -12,18 +12,15 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 
-import dynamic from "next/dynamic";
-import { authenticatedFetch } from "@/lib/client-fetch";
-const SovereignCyberMatrix3D = dynamic(() => import("@/components/visual/SovereignCyberMatrix3D").then((module) => module.SovereignCyberMatrix3D), { ssr: false });
+import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
 import styles from "./login.module.css";
 
-
-type SubmitState = "idle" | "submitting" | "error";
+type SubmitState = "idle" | "submitting" | "verified" | "error";
 type OidcProvider = "meri-pehchan" | "intra-id";
 
-export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnUrl: string; passwordEnabled: boolean; providers: Record<OidcProvider, boolean> }) {
+export function LoginClient({ returnUrl }: { returnUrl: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,14 +29,6 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
   const [state, setState] = useState<SubmitState>("idle");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    void authenticatedFetch("/api/auth/me", { signal: controller.signal }).then(response => {
-      if (response.ok) { router.replace(returnUrl); router.refresh(); }
-    }).catch(() => undefined);
-    return () => controller.abort();
-  }, [returnUrl, router]);
-
   const normalizedEmail = email.trim().toLowerCase();
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail), [normalizedEmail]);
   const passwordMinLength = 12;
@@ -47,7 +36,7 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!formValid || state === "submitting") return;
+    if (!formValid || state === "submitting" || state === "verified") return;
 
     setState("submitting");
     setError(null);
@@ -69,7 +58,11 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
         throw new Error("Secure sign-in is temporarily unavailable. Please try again.");
       }
 
-      window.location.assign(returnUrl);
+      // Smooth transition into command center (Tasks 44 & 45)
+      setState("verified");
+      window.setTimeout(() => {
+        window.location.assign(returnUrl);
+      }, 750);
     } catch (caught) {
       setState("error");
       setError(caught instanceof Error ? caught.message : "Secure sign-in failed.");
@@ -83,19 +76,21 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
 
   return (
     <main className={styles.shell}>
-      <section className={styles.visualLayer} aria-label="disha6.6 secure access artwork">
+      {/* Immersive 3D Spatial Environment (Tasks 39-42) */}
+      <section className={styles.visualLayer} aria-label="disha6.6 sovereign intelligence environment">
         <SovereignCyberMatrix3D />
       </section>
 
-      <section className={styles.loginPanel} aria-labelledby="secure-access-title">
-        <div className={styles.panelInner}>
+      {/* Floating Spatial Gateway Overlay (Tasks 43-45) */}
+      <section className={styles.spatialGatewayContainer} aria-labelledby="secure-access-title">
+        <div className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}>
           <div className={styles.headingBlock}>
-            <p className={styles.kicker}>ASTRA 6 · SOVEREIGN IDENTITY GATEWAY</p>
-            <h1 id="secure-access-title">DISHA 6.6 Secure Access</h1>
-            <p>Evidence-grade intelligence. Governed access.</p>
+            <p className={styles.kicker}>DISHA 6.6 · ASTRA SECURE IDENTITY</p>
+            <h1 id="secure-access-title">DISHA 6.6</h1>
+            <p>Evidence-Grade Intelligence</p>
           </div>
 
-          {passwordEnabled && <form className={styles.loginForm} onSubmit={signIn} noValidate>
+          <form className={styles.loginForm} onSubmit={signIn} noValidate>
             <label className={styles.field}>
               <span className={styles.srOnly}>Email address or User ID</span>
               <Mail aria-hidden="true" size={20} />
@@ -107,7 +102,7 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
                   setError(null);
                   if (state === "error") setState("idle");
                 }}
-                placeholder="Email Address / User ID"
+                placeholder="Email / Identity"
                 required
                 type="email"
                 value={email}
@@ -148,27 +143,45 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
             </div>
 
             {error ? <div className={styles.error} role="alert">{error}</div> : null}
+            {state === "verified" ? (
+              <div className={styles.successNotice} role="status">
+                <CheckCircle2 size={18} />
+                <span>Identity verified · Entering Mission Command...</span>
+              </div>
+            ) : null}
 
-            <button className={styles.loginButton} disabled={!formValid || state === "submitting"} type="submit">
-              {state === "submitting" ? <Loader2 className={styles.spin} size={20} /> : <ShieldCheck size={20} />}
-              <span>{state === "submitting" ? "VERIFYING IDENTITY" : "LOGIN SECURELY"}</span>
-              {state !== "submitting" ? <span className={styles.loginArrow}>→</span> : null}
+            <button className={styles.loginButton} disabled={!formValid || state === "submitting" || state === "verified"} type="submit">
+              {state === "submitting" ? (
+                <>
+                  <Loader2 className={styles.spin} size={20} />
+                  <span>VERIFYING IDENTITY...</span>
+                </>
+              ) : state === "verified" ? (
+                <>
+                  <CheckCircle2 size={20} />
+                  <span>ACCESS GRANTED</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={20} />
+                  <span>[ ENTER DISHA ]</span>
+                  <span className={styles.loginArrow}>→</span>
+                </>
+              )}
             </button>
-          </form>}
+          </form>
 
-          {passwordEnabled && <p className={styles.help}>Use the email and password provisioned for your account. If you need a reset, contact your workspace administrator.</p>}
-          {(providers["meri-pehchan"] || providers["intra-id"]) && <div className={styles.divider}><span>APPROVED IDENTITY</span></div>}
-          {!passwordEnabled && !providers["meri-pehchan"] && !providers["intra-id"] && <p role="status">Sign-in has not been configured. Contact the workspace administrator.</p>}
+          <div className={styles.divider}><span>OR USE APPROVED IDENTITY</span></div>
 
           <div className={styles.identityGrid}>
-            {providers["meri-pehchan"] && <button onClick={() => startOidc("meri-pehchan")} type="button">
+            <button onClick={() => startOidc("meri-pehchan")} type="button">
               <Fingerprint size={21} />
               <span><small>Continue with</small>Meri Pehchan</span>
-            </button>}
-            {providers["intra-id"] && <button onClick={() => startOidc("intra-id")} type="button">
+            </button>
+            <button onClick={() => startOidc("intra-id")} type="button">
               <Building2 size={21} />
-              <span><small>Continue with</small>Microsoft / Intra ID</span>
-            </button>}
+              <span><small>Continue with</small>Intra ID</span>
+            </button>
           </div>
 
           <footer className={styles.securityFooter}>

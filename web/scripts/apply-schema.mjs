@@ -83,6 +83,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610030003_canonical_evidence_os.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610030003_canonical_evidence_os.down.sql"),
   },
+  {
+    version: "202610030004",
+    name: "cyber_defense_attack_surface",
+    upPath: path.join(databaseRoot, "202610030004_cyber_defense_attack_surface.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610030004_cyber_defense_attack_surface.down.sql"),
+  },
 ];
 
 const requiredTables = [
@@ -143,6 +149,11 @@ const requiredTables = [
   "disha_state_transitions",
   "disha_canonical_contradictions",
   "disha_canonical_corroborations",
+  "disha_attack_surface_assets",
+  "disha_vulnerabilities_kev",
+  "disha_threat_indicators",
+  "disha_worker_jobs",
+  "disha_worker_heartbeats",
 ];
 
 const requiredIndexes = [

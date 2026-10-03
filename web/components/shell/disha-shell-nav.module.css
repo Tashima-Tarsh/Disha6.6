@@ -1,0 +1,100 @@
+.header {
+  align-items: center;
+  background: rgba(4, 15, 30, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  display: flex;
+  height: 56px;
+  justify-content: space-between;
+  padding: 0 clamp(16px, 2vw, 32px);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.brandGroup {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.brandBadge {
+  align-items: center;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px 10px;
+}
+
+.pulseDot {
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+  height: 8px;
+  width: 8px;
+}
+
+.brandTitle {
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.brandSub {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.navRail {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.navItem {
+  align-items: center;
+  border-radius: 6px;
+  color: #94a3b8;
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 600;
+  gap: 6px;
+  padding: 6px 12px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  background: rgba(30, 41, 59, 0.6);
+  color: #e2e8f0;
+}
+
+.navItemActive {
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.securityMeta {
+  display: flex;
+  align-items: center;
+}
+
+.secTag {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+}

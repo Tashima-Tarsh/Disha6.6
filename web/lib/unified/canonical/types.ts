@@ -274,3 +274,5 @@ export const dishaStateTransitionSchema = z.object({
   transitionHash: z.string().min(16),
 });
 export type DISHAStateTransition = z.infer<typeof dishaStateTransitionSchema>;
+
+export type { EvidenceVaultArtifact, EvidenceVaultArtifact as DISHAEvidenceVaultArtifact } from "../evidence-vault";

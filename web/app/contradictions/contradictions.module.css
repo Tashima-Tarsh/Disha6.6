@@ -1,0 +1,224 @@
+.shell {
+  background: #020711;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+.main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.hero {
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  padding-bottom: 24px;
+}
+
+.kicker {
+  color: #f59e0b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 6px 0 8px;
+  color: #ffffff;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 0 0 16px;
+  max-width: 760px;
+}
+
+.safetyBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.contraList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contraCard {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metaRow {
+  display: flex;
+  gap: 10px;
+}
+
+.confBadge {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.reviewReq {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.reviewDone {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.explanation {
+  font-size: 0.95rem;
+  color: #f1f5f9;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.evidenceComparison {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.claimSide {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sideLabel {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.08em;
+}
+
+.claimText {
+  color: #e2e8f0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.claimSide small {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.vsDivider {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 50%;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  padding-top: 12px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.timeTag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.emptyCard {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 14px;
+  padding: 56px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkIcon {
+  color: #10b981;
+}
+
+.emptyCard h2 {
+  color: #ffffff;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.emptyCard p {
+  color: #94a3b8;
+  max-width: 580px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
