@@ -75,11 +75,14 @@ describe("DISHA secure login UI", () => {
     expect(source).toContain("Audit<br />logged");
   });
 
-  it("explicitly displays the pre-auth CAPABILITY PREVIEW boundary and rejects fake operational labels", () => {
+  it("displays clean identity header and strictly rejects fake operational labels", () => {
     const source = fs.readFileSync(loginClient, "utf8");
 
-    expect(source).toContain("CAPABILITY PREVIEW");
-    expect(source).toContain("Non-operational · Live intelligence admitted post-login");
+    expect(source).toContain("SECURE IDENTITY");
+    expect(source).toContain("DISHA 6.6");
+    expect(source).toContain("Evidence-Grade Intelligence");
+    expect(source).not.toContain("CAPABILITY PREVIEW");
+    expect(source).not.toContain("Runtime: Astra 6");
     expect(source).not.toContain("94 Gbps");
     expect(source).not.toContain("active threat");
     expect(source).not.toContain("intercepting traffic");
@@ -93,6 +96,5 @@ describe("DISHA secure login UI", () => {
     expect(css).toContain("perspective: 1500px");
     expect(css).toContain("transform-style: preserve-3d");
     expect(css).toContain("translateZ");
-    expect(css).toContain("capabilityPreviewBadge");
   });
 });

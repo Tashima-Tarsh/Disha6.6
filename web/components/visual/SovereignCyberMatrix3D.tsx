@@ -27,6 +27,8 @@ type ThreeMesh = InstanceType<typeof THREE.Mesh>;
 type ThreePoints = InstanceType<typeof THREE.Points>;
 type ThreeCurve = InstanceType<typeof THREE.CatmullRomCurve3>;
 type ThreeObject = InstanceType<typeof THREE.Object3D>;
+type ThreeBufferGeometry = InstanceType<typeof THREE.BufferGeometry>;
+type ThreeVector3 = InstanceType<typeof THREE.Vector3>;
 type ThreeDisposable = { geometry?: { dispose: () => void }; material?: { dispose: () => void } | Array<{ dispose: () => void }> };
 
 // ============================================================================
@@ -51,6 +53,42 @@ const INDIA_BORDER_GEO: [number, number][] = [
   [71.0, 24.5], [70.5, 25.5], [70.2, 26.8], [71.5, 28.0], [72.5, 29.5],
   [74.0, 30.5], [74.6, 31.6], [74.9, 32.3], [74.5, 33.2], [74.0, 34.2],
   [74.0, 35.5]
+];
+
+// Sovereign India Internal Strategic Corridors & Grid Vectors [lon, lat][]
+const INDIA_INTERNAL_CORRIDORS: [number, number][][] = [
+  // Northern Crown Vector: Srinagar -> Leh -> Jammu -> New Delhi
+  [[74.8, 34.1], [77.6, 34.15], [74.87, 32.73], [77.21, 28.61]],
+  // Western Strategic Vector: New Delhi -> Jaipur -> Ahmedabad -> Mumbai -> Goa
+  [[77.21, 28.61], [75.8, 26.9], [72.57, 23.02], [72.88, 19.08], [73.83, 15.5]],
+  // Southern Technological & Subsea Vector: Mumbai -> Bengaluru -> Kochi -> Thiruvananthapuram -> Kanyakumari
+  [[72.88, 19.08], [77.59, 12.97], [76.27, 9.93], [76.94, 8.52], [77.55, 8.08]],
+  // Coromandel / Eastern Subsea Landing Vector: Kanyakumari -> Chennai -> Visakhapatnam -> Bhubaneswar -> Kolkata
+  [[77.55, 8.08], [80.27, 13.08], [83.3, 17.7], [85.82, 20.3], [88.36, 22.57]],
+  // Deccan Intelligence Core: Bengaluru -> Hyderabad -> Nagpur -> New Delhi
+  [[77.59, 12.97], [78.48, 17.38], [79.08, 21.15], [77.21, 28.61]],
+  // Gangetic Sovereign Line: New Delhi -> Lucknow -> Varanasi -> Patna -> Kolkata
+  [[77.21, 28.61], [80.95, 26.85], [82.97, 25.32], [85.14, 25.61], [88.36, 22.57]],
+  // Siliguri Strategic Gateway to North-East: Kolkata -> Siliguri -> Guwahati -> Shillong -> Itanagar
+  [[88.36, 22.57], [88.43, 26.73], [91.74, 26.14], [91.88, 25.57], [93.61, 27.1]],
+  // Andaman & Nicobar Sovereign Maritime Corridor: Chennai -> Port Blair
+  [[80.27, 13.08], [86.5, 12.3], [92.73, 11.62]],
+  // Lakshadweep Sea Vector: Kochi -> Kavaratti
+  [[76.27, 9.93], [72.64, 10.57]],
+];
+
+// Strategic Indian Intelligence Reference Anchors on Earth Surface
+const INDIA_STRATEGIC_ANCHORS = [
+  { name: "NEW DELHI", lat: 28.6139, lon: 77.2090, label: "National Command Matrix" },
+  { name: "MUMBAI", lat: 19.0760, lon: 72.8777, label: "Subsea Landing & Financial Gateway" },
+  { name: "BENGALURU", lat: 12.9716, lon: 77.5946, label: "Cyber & Aerospace Hub" },
+  { name: "HYDERABAD", lat: 17.3850, lon: 78.4867, label: "Defense & Strategic Matrix" },
+  { name: "CHENNAI", lat: 13.0827, lon: 80.2707, label: "Indo-Pacific Subsea Gateway" },
+  { name: "KOLKATA", lat: 22.5726, lon: 88.3639, label: "Eastern Maritime Corridor" },
+  { name: "GUWAHATI", lat: 26.1445, lon: 91.7362, label: "North-Eastern Sector Hub" },
+  { name: "SRINAGAR", lat: 34.0837, lon: 74.7973, label: "Northern Sovereign Perimeter" },
+  { name: "AHMEDABAD", lat: 23.0225, lon: 72.5714, label: "Western Border Vector" },
+  { name: "PORT BLAIR", lat: 11.6234, lon: 92.7265, label: "Andaman Maritime Sentinel" },
 ];
 
 // Major Continental Polygons [lon, lat][] for True Planetary Context
@@ -371,25 +409,45 @@ export function SovereignCyberMatrix3D({
     const outerAtmosphereMesh = new THREE.Mesh(outerAtmosphereGeometry, outerAtmosphereMaterial);
     globeGroup.add(outerAtmosphereMesh);
 
-    // Concentric Orbital Capability Rings at Semantic Altitudes
-    const ORBITAL_RING_CONFIGS = [
-      { radius: EARTH_RADIUS + 0.18, color: 0x0284c7, opacity: 0.18, tiltX: 0.12, tiltZ: 0.05 },
-      { radius: EARTH_RADIUS + 0.38, color: 0x38bdf8, opacity: 0.22, tiltX: -0.18, tiltZ: 0.14 },
-      { radius: EARTH_RADIUS + 0.62, color: 0x20b2aa, opacity: 0.16, tiltX: 0.28, tiltZ: -0.22 },
-    ];
+    // 4. Authentic Sovereign India Strategic Corridors & Grid Vectors
+    const corridorMaterial = new THREE.LineBasicMaterial({
+      color: 0x0ea5e9,
+      transparent: true,
+      opacity: 0.72,
+    });
 
-    ORBITAL_RING_CONFIGS.forEach((cfg) => {
-      const ringGeom = new THREE.RingGeometry(cfg.radius - 0.006, cfg.radius + 0.006, 96);
+    for (const corridor of INDIA_INTERNAL_CORRIDORS) {
+      const points = corridor.map(([lon, lat]) =>
+        latLonToVector3(lat, lon, EARTH_RADIUS, 0.012)
+      );
+      const geom = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geom, corridorMaterial);
+      globeGroup.add(line);
+    }
+
+    // India Strategic Ground Anchors with Pulsing Beacons
+    const anchorBeacons: Array<{ mesh: ThreeMesh; ring: ThreeMesh }> = [];
+    INDIA_STRATEGIC_ANCHORS.forEach((anchor) => {
+      const pos = latLonToVector3(anchor.lat, anchor.lon, EARTH_RADIUS, 0.014);
+      const dotGeom = new THREE.SphereGeometry(0.024, 8, 8);
+      const dotMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const dotMesh = new THREE.Mesh(dotGeom, dotMat);
+      dotMesh.position.copy(pos);
+
+      const ringGeom = new THREE.RingGeometry(0.035, 0.05, 24);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: cfg.color,
+        color: 0x00f0ff,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: cfg.opacity,
+        opacity: 0.7,
       });
       const ringMesh = new THREE.Mesh(ringGeom, ringMat);
-      ringMesh.rotation.x = Math.PI / 2 + cfg.tiltX;
-      ringMesh.rotation.z = cfg.tiltZ;
+      ringMesh.position.copy(pos);
+      ringMesh.lookAt(pos.clone().multiplyScalar(2));
+
+      globeGroup.add(dotMesh);
       globeGroup.add(ringMesh);
+      anchorBeacons.push({ mesh: dotMesh, ring: ringMesh });
     });
 
     // 5. Continents & Political Boundary Lines
@@ -433,12 +491,15 @@ export function SovereignCyberMatrix3D({
     });
     globeGroup.add(new THREE.LineLoop(indiaHaloGeom, indiaHaloMat));
 
-    // 7. Data Nodes Layer across Semantic Altitudes
+    // 7. Data Nodes Layer across Semantic Altitudes (Dancing OSINT Graph)
     const nodeMeshes = new Map<string, ThreeMesh>();
+    const nodeBasePositions = new Map<string, ThreeVector3>();
+    const nodePillarLines = new Map<string, { line: InstanceType<typeof THREE.Line>; geom: ThreeBufferGeometry; surfacePos: ThreeVector3 }>();
     nodeMeshesRef.current = nodeMeshes;
 
     INITIAL_INTELLIGENCE_NODES.forEach((node) => {
       const position = latLonToVector3(node.lat, node.lon, EARTH_RADIUS, node.altitude);
+      nodeBasePositions.set(node.id, position.clone());
       const hexColor = SEMANTIC_COLORS[node.type] || "#38bdf8";
 
       // Node core sphere
@@ -475,16 +536,21 @@ export function SovereignCyberMatrix3D({
       });
       const pillar = new THREE.Line(pillarGeom, pillarMat);
       globeGroup.add(pillar);
+      nodePillarLines.set(node.id, { line: pillar, geom: pillarGeom, surfacePos });
 
       globeGroup.add(nodeMesh);
       nodeMeshes.set(node.id, nodeMesh);
     });
 
-    // 8. Great-Circle Curved Network Arcs
+    // 8. Great-Circle Curved Dynamic Network Arcs
     const arcObjects: Array<{
+      sourceId: string;
+      targetId: string;
       curve: ThreeCurve;
+      lineGeom: ThreeBufferGeometry;
       pulseMesh: ThreeMesh;
       speed: number;
+      arcAltitude: number;
     }> = [];
 
     INITIAL_INTELLIGENCE_ARCS.forEach((arc) => {
@@ -502,13 +568,13 @@ export function SovereignCyberMatrix3D({
       mid.normalize().multiplyScalar(EARTH_RADIUS + arcAltitude);
 
       const curve = new THREE.CatmullRomCurve3([p1, mid, p2]);
-      const curvePoints = curve.getPoints(48);
+      const curvePoints = curve.getPoints(40);
 
       const arcGeom = new THREE.BufferGeometry().setFromPoints(curvePoints);
       const arcMat = new THREE.LineBasicMaterial({
         color: new THREE.Color(arc.color),
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.65,
       });
       const arcLine = new THREE.Line(arcGeom, arcMat);
       globeGroup.add(arcLine);
@@ -522,9 +588,13 @@ export function SovereignCyberMatrix3D({
       globeGroup.add(pulseMesh);
 
       arcObjects.push({
+        sourceId: arc.sourceId,
+        targetId: arc.targetId,
         curve,
+        lineGeom: arcGeom,
         pulseMesh,
         speed: arc.pulseSpeed,
+        arcAltitude,
       });
     });
 
@@ -636,11 +706,49 @@ export function SovereignCyberMatrix3D({
         starFieldRef.current.rotation.y -= 0.00015;
       }
 
-      // Update arc telemetry pulse packets
+      // Organic Dancing OSINT Graph Network
+      INITIAL_INTELLIGENCE_NODES.forEach((node, idx) => {
+        const mesh = nodeMeshes.get(node.id);
+        const base = nodeBasePositions.get(node.id);
+        const pillar = nodePillarLines.get(node.id);
+        if (mesh && base && !prefersReducedMotion) {
+          const waveY = Math.sin(elapsed * 1.6 + idx * 0.75) * 0.05;
+          const waveX = Math.cos(elapsed * 1.2 + idx * 0.55) * 0.04;
+          const waveZ = Math.sin(elapsed * 1.9 + idx * 0.95) * 0.035;
+          mesh.position.set(base.x + waveX, base.y + waveY, base.z + waveZ);
+
+          if (pillar) {
+            pillar.geom.setFromPoints([pillar.surfacePos, mesh.position]);
+          }
+        }
+      });
+
+      // Update dynamic curved OSINT edges & telemetry pulses
       arcObjects.forEach((arc) => {
-        const t = (elapsed * arc.speed * 0.35) % 1;
-        const point = arc.curve.getPointAt(t);
-        arc.pulseMesh.position.copy(point);
+        const srcMesh = nodeMeshes.get(arc.sourceId);
+        const tgtMesh = nodeMeshes.get(arc.targetId);
+        if (srcMesh && tgtMesh) {
+          const p1 = srcMesh.position;
+          const p2 = tgtMesh.position;
+          const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+          mid.normalize().multiplyScalar(EARTH_RADIUS + arc.arcAltitude);
+          const curve = new THREE.CatmullRomCurve3([p1, mid, p2]);
+          arc.curve = curve;
+          const pts = curve.getPoints(36);
+          arc.lineGeom.setFromPoints(pts);
+
+          const t = (elapsed * arc.speed * 0.35) % 1;
+          const point = curve.getPointAt(t);
+          arc.pulseMesh.position.copy(point);
+        }
+      });
+
+      // Dynamic scale pulsation for India strategic anchor ground beacons
+      anchorBeacons.forEach((b, i) => {
+        if (!prefersReducedMotion) {
+          const scale = 1 + 0.32 * Math.sin(elapsed * 2.4 + i * 0.65);
+          b.ring.scale.set(scale, scale, scale);
+        }
       });
 
       // Hover Raycasting for Depth-Aware Tooltips
