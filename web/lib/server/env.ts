@@ -24,6 +24,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().optional(),
   REDIS_HOST: z.string().optional(),
   REDIS_PORT: z.coerce.number().int().positive().default(6379),
+  REDIS_PASSWORD: z.string().optional(),
   DISHA_WORKSPACE_ROOT: z.string().optional(),
   DISHA_ALLOWED_ORIGINS: z.string().optional(),
   DISHA_BACKEND_URL: z.string().url().default("http://localhost:3001"),
@@ -92,7 +93,8 @@ export function getEnv(): RuntimeEnv {
       cachedEnv.DATABASE_URL = `postgresql://${user}:${password}@${cachedEnv.DISHA_DATABASE_HOST}:${cachedEnv.DISHA_DATABASE_PORT}/${database}`;
     }
     if (!cachedEnv.REDIS_URL && cachedEnv.REDIS_HOST) {
-      cachedEnv.REDIS_URL = `redis://${cachedEnv.REDIS_HOST}:${cachedEnv.REDIS_PORT}`;
+      const auth = cachedEnv.REDIS_PASSWORD ? `:${encodeURIComponent(cachedEnv.REDIS_PASSWORD)}@` : "";
+      cachedEnv.REDIS_URL = `redis://${auth}${cachedEnv.REDIS_HOST}:${cachedEnv.REDIS_PORT}`;
     }
   } catch (e) {
     if (process.env.NODE_ENV === "production") throw e;
@@ -118,6 +120,7 @@ export function getEnv(): RuntimeEnv {
       REDIS_URL: undefined,
       REDIS_HOST: undefined,
       REDIS_PORT: 6379,
+      REDIS_PASSWORD: undefined,
       DISHA_WORKSPACE_ROOT: process.cwd(),
       DISHA_ALLOWED_ORIGINS: "http://localhost:3000",
       DISHA_BACKEND_URL: "http://localhost:3001",
