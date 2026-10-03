@@ -2,11 +2,11 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { Pool } from "pg";
 import { createClient } from "redis";
-import { hashValue } from "../lib/unified/hash.js";
+import { hashValue } from "../lib/unified/hash.ts";
 import {
   getAstra6ToolManifest,
   validateCommandTarget,
-} from "../lib/unified/astra6-tool-manifest.js";
+} from "../lib/unified/astra6-tool-manifest.ts";
 import {
   parsePhoneInfogaOutput,
   parseSherlockOutput,
@@ -14,7 +14,7 @@ import {
   parseSpiderfootOutput,
   parseAmassOutput,
   parseSubfinderOutput,
-} from "../lib/unified/astra6-output-parsers.js";
+} from "../lib/unified/astra6-output-parsers.ts";
 
 const execFileAsync = promisify(execFile);
 
