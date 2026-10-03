@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import styles from "./sovereign-cyber-matrix.module.css";
 
@@ -105,32 +105,8 @@ function geoTo3D(lon: number, lat: number, alt = 0): ThreeVector3 {
   return new THREE.Vector3(x, y, z);
 }
 
-type CyberTelemetry = {
-  activeStreams: number;
-  policyGateLatency: string;
-  formationStatus: string;
-  verifiedHashes: number;
-};
-
 export function SovereignCyberMatrix3D() {
   const hostRef = useRef<HTMLDivElement>(null);
-  const [telemetry, setTelemetry] = useState<CyberTelemetry>({
-    activeStreams: 142,
-    policyGateLatency: "0.84ms",
-    formationStatus: "KURMA NFU",
-    verifiedHashes: 18490,
-  });
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setTelemetry((prev) => ({
-        ...prev,
-        activeStreams: 140 + Math.floor(Math.sin(Date.now() / 1500) * 8),
-        verifiedHashes: prev.verifiedHashes + 1,
-      }));
-    }, 3000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -595,11 +571,11 @@ export function SovereignCyberMatrix3D() {
         <div className={styles.hudTop}>
           <div className={styles.hudTag}>
             <span className={styles.liveDot} />
-            <span>Constitutional Defense OS · 6.6</span>
+            <span>ASTRA 6 · DISHA 6.6 SECURE VISUALIZATION</span>
           </div>
           <div className={styles.hudCoordinates}>
             <div>SYS-LOC: 28.6139° N, 77.2090° E</div>
-            <div>NEW DELHI ROOT DEFENSE VAULT</div>
+            <div>INDIA GEOSPATIAL REFERENCE</div>
           </div>
         </div>
 
@@ -612,7 +588,7 @@ export function SovereignCyberMatrix3D() {
             <p className={styles.hudEyebrow}>EVIDENCE-FIRST SOVEREIGN RUNTIME</p>
             <h2 className={styles.hudTitle}>Governed Public Intelligence</h2>
             <p className={styles.hudDescription}>
-              Every assertion backed by cryptographic provenance. Autonomous defensive formations operating under strict No-First-Use doctrine.
+              Spatial orientation for the authenticated intelligence workspace. Operational status and evidence metrics are shown only after verified sign-in.
             </p>
 
             <div className={styles.colorStreamBar} aria-label="3D Sovereign 5-Color Vector Streams">
@@ -641,16 +617,16 @@ export function SovereignCyberMatrix3D() {
 
           <div className={styles.telemetryGrid}>
             <div className={styles.telemetryItem}>
-              <span className={styles.telemetryLabel}>Telemetry Streams</span>
-              <span className={styles.telemetryValue}>{telemetry.activeStreams} Active</span>
+              <span className={styles.telemetryLabel}>Visualization</span>
+              <span className={styles.telemetryValue}>Three.js / WebGL</span>
             </div>
             <div className={styles.telemetryItem}>
-              <span className={styles.telemetryLabel}>Policy Gate</span>
-              <span className={styles.telemetryValue}>{telemetry.policyGateLatency}</span>
+              <span className={styles.telemetryLabel}>Runtime Metrics</span>
+              <span className={styles.telemetryValue}>After Sign-In</span>
             </div>
             <div className={styles.telemetryItem}>
-              <span className={styles.telemetryLabel}>Evidence Hashes</span>
-              <span className={styles.telemetryValue}>#{telemetry.verifiedHashes}</span>
+              <span className={styles.telemetryLabel}>Evidence State</span>
+              <span className={styles.telemetryValue}>Authenticated</span>
             </div>
           </div>
         </div>
