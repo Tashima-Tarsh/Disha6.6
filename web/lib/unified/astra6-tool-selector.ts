@@ -13,14 +13,14 @@ export type Astra6SelectionPlan = {
 const DOMAIN_RE = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,63}$/i;
 const IPV4_RE = /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/;
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-const PHONE_RE = /^\+?[0-9][0-9\s\-().]{6,20}$/;
+const PHONE_RE = /^\+?[0-9][0-9\s\-()]{6,20}$/;
 const USERNAME_RE = /^@?[A-Za-z0-9_.]{2,64}$/;
 
 export function classifyAstra6Target(input: string): Astra6TargetType {
   const trimmed = input.trim();
+  if (IPV4_RE.test(trimmed)) return "ip";
   if (EMAIL_RE.test(trimmed)) return "email";
   if (PHONE_RE.test(trimmed)) return "phone_number";
-  if (IPV4_RE.test(trimmed)) return "ip";
   if (trimmed.startsWith("@") || USERNAME_RE.test(trimmed)) {
     if (!DOMAIN_RE.test(trimmed.replace(/^@/, ""))) return "username";
   }

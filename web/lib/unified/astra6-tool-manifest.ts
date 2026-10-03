@@ -26,7 +26,7 @@ export type DishaToolManifest = {
 };
 
 // Command injection guard: blocks shell metacharacters
-const SHELL_INJECTION_GUARD = /[;&|`$(){}\\[\\]<>!\\n\\r\\\\"']/;
+const SHELL_INJECTION_GUARD = /[;&|`$(){}[\]<>!\n\r\\"']/;
 
 export function validateCommandTarget(target: string, guard: RegExp): string {
   const trimmed = target.trim();

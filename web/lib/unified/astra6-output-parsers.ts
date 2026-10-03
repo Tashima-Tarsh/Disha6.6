@@ -54,7 +54,7 @@ export type SubfinderResult = {
 };
 
 export function parsePhoneInfogaOutput(raw: string, inputNumber: string): { data: PhoneInfogaResult; evidence: AdapterEvidence[] } {
-  const lines = raw.trim().split("\\n").filter(Boolean);
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   const jsonLines = lines.flatMap((line) => {
     try { return [JSON.parse(line) as Record<string, unknown>]; } catch { return []; }
   });
@@ -84,7 +84,7 @@ export function parsePhoneInfogaOutput(raw: string, inputNumber: string): { data
 }
 
 export function parseSherlockOutput(raw: string, inputUsername: string): { data: SherlockResult; evidence: AdapterEvidence[] } {
-  const lines = raw.trim().split("\\n").filter(Boolean);
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   const jsonLines = lines.flatMap((line) => {
     try { return [JSON.parse(line) as Record<string, unknown>]; } catch { return []; }
   });
@@ -116,7 +116,7 @@ export function parseSherlockOutput(raw: string, inputUsername: string): { data:
 export function parseTheHarvesterOutput(raw: string, inputDomain: string): { data: TheHarvesterResult; evidence: AdapterEvidence[] } {
   let parsed: Record<string, unknown> = {};
   try { parsed = JSON.parse(raw) as Record<string, unknown>; } catch {
-    const jsonMatch = raw.match(/\\{[\\s\\S]*\\}/);
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (jsonMatch) try { parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>; } catch { /* raw text fallback */ }
   }
   const toStringArray = (val: unknown): string[] =>
@@ -137,7 +137,7 @@ export function parseTheHarvesterOutput(raw: string, inputDomain: string): { dat
 }
 
 export function parseSpiderfootOutput(raw: string, target: string, targetType: string): { data: SpiderfootResult; evidence: AdapterEvidence[] } {
-  const lines = raw.trim().split("\\n").filter(Boolean);
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   const events: SpiderfootResult["events"] = [];
   const modules = new Set<string>();
   for (const line of lines) {
@@ -162,7 +162,7 @@ export function parseSpiderfootOutput(raw: string, target: string, targetType: s
 }
 
 export function parseAmassOutput(raw: string, inputDomain: string): { data: AmassResult; evidence: AdapterEvidence[] } {
-  const lines = raw.trim().split("\\n").filter(Boolean);
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   const subdomains: AmassResult["subdomains"] = [];
   const seen = new Set<string>();
   for (const line of lines) {
@@ -192,7 +192,7 @@ export function parseAmassOutput(raw: string, inputDomain: string): { data: Amas
 }
 
 export function parseSubfinderOutput(raw: string, inputDomain: string): { data: SubfinderResult; evidence: AdapterEvidence[] } {
-  const lines = raw.trim().split("\\n").filter(Boolean);
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
   const subdomains: SubfinderResult["subdomains"] = [];
   const seen = new Set<string>();
   for (const line of lines) {

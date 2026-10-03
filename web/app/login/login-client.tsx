@@ -59,8 +59,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
         throw new Error("Secure sign-in is temporarily unavailable. Please try again.");
       }
 
-      router.replace(returnUrl);
-      router.refresh();
+      window.location.assign(returnUrl);
     } catch (caught) {
       setState("error");
       setError(caught instanceof Error ? caught.message : "Secure sign-in failed.");

@@ -7,10 +7,14 @@ const CSRF_HEADER = "x-csrf-token";
 
 export function setCsrfCookie(response: NextResponse): string {
   const token = randomToken();
+  const isHttps = process.env.NEXT_PUBLIC_APP_URL?.startsWith("https://") ?? false;
+  const forceSecure = process.env.DISHA_COOKIE_SECURE === "true";
+  const disableSecure = process.env.DISHA_COOKIE_SECURE === "false";
+  const secure = disableSecure ? false : (forceSecure || (isProduction() && isHttps));
   response.cookies.set(CSRF_COOKIE, token, {
     httpOnly: false,
-    secure: isProduction(),
-    sameSite: "strict",
+    secure,
+    sameSite: "lax",
     path: "/",
   });
   return token;

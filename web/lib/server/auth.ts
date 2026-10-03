@@ -27,10 +27,14 @@ export function authSigningSecret(): string {
 }
 
 function cookieOptions(maxAge: number) {
+  const isHttps = process.env.NEXT_PUBLIC_APP_URL?.startsWith("https://") ?? false;
+  const forceSecure = process.env.DISHA_COOKIE_SECURE === "true";
+  const disableSecure = process.env.DISHA_COOKIE_SECURE === "false";
+  const secure = disableSecure ? false : (forceSecure || (isProduction() && isHttps));
   return {
     httpOnly: true,
-    secure: isProduction(),
-    sameSite: "strict" as const,
+    secure,
+    sameSite: "lax" as const,
     path: "/",
     maxAge,
   };
