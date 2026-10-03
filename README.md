@@ -4,7 +4,7 @@
 
 [![Product CI](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml)
 [![Database Migrations](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/db-migrations.yml)
-[![CodeQL Advanced](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml)
+(https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/codeql.yml)
 ![Platform](https://img.shields.io/badge/Platform-Google%20Cloud%20Platform-4285F4?logo=googlecloud&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016%20Standalone-000000?logo=nextdotjs&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2016%20%2B%20PostGIS%20%2B%20pgvector-336791?logo=postgresql&logoColor=white)
