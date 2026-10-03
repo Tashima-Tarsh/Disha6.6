@@ -75,6 +75,15 @@ resource "google_cloud_run_v2_service" "web" {
         value = tostring(var.redis_port)
       }
       env {
+        name = "REDIS_PASSWORD"
+        value_source {
+          secret_key_ref {
+            secret  = var.redis_auth_secret_id
+            version = "latest"
+          }
+        }
+      }
+      env {
         name  = "DISHA_PUBSUB_OSINT_TOPIC"
         value = var.osint_topic_id
       }
