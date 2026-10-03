@@ -65,6 +65,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202609190002_continuous_osint.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202609190002_continuous_osint.down.sql"),
   },
+  {
+    version: "202610030001",
+    name: "astra6_tool_integration",
+    upPath: path.join(databaseRoot, "202610030001_astra6_tool_integration.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610030001_astra6_tool_integration.down.sql"),
+  },
 ];
 
 const requiredTables = [
@@ -109,6 +115,11 @@ const requiredTables = [
   "geospatial_feature_links",
   "continuous_osint_watches",
   "continuous_osint_runs",
+  "astra6_tool_manifests",
+  "astra6_connector_health",
+  "astra6_connector_runs",
+  "astra6_observations",
+  "astra6_entities",
 ];
 
 const requiredIndexes = [
@@ -178,6 +189,17 @@ const requiredIndexes = [
   "continuous_osint_runs_watch_idx",
   "continuous_osint_runs_changed_idx",
   "continuous_osint_runs_status_idx",
+  "astra6_tool_manifests_enabled_idx",
+  "astra6_connector_health_latest_idx",
+  "astra6_connector_runs_tool_idx",
+  "astra6_connector_runs_mission_idx",
+  "astra6_connector_runs_user_idx",
+  "astra6_connector_runs_status_idx",
+  "astra6_observations_run_idx",
+  "astra6_observations_entity_idx",
+  "astra6_observations_tool_idx",
+  "astra6_entities_canonical_idx",
+  "astra6_entities_last_seen_idx",
 ];
 
 const requiredRlsTables = [
@@ -187,6 +209,11 @@ const requiredRlsTables = [
   "geospatial_feature_links",
   "continuous_osint_watches",
   "continuous_osint_runs",
+  "astra6_tool_manifests",
+  "astra6_connector_health",
+  "astra6_connector_runs",
+  "astra6_observations",
+  "astra6_entities",
 ];
 
 const mode = process.argv.includes("--verify-only") ? "verify" : process.argv.includes("--rollback") ? "rollback" : "migrate";
