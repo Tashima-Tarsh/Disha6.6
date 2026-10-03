@@ -54,13 +54,13 @@ jobs:
         run: npm ci
 
       - name: Dependency audit
-        run: npm audit --audit-level=high || echo "::warning::Dependency audit advisories detected; review in continuous development"
+        run: npm audit --audit-level=high
 
       - name: Lint
         run: npm run lint
 
       - name: Type-check
-        run: npm run type-check
+        run: npm run type-check:full
 
       - name: Test
         run: npm test
