@@ -49,6 +49,10 @@ describe("production OSINT universe hardening", () => {
     expect(dockerfile).toContain("phoneinfoga/v2@v2.11.0");
     expect(dockerfile).toContain("--branch v4.0");
     expect(dockerfile).toContain("tsx");
+    expect(worker).toContain("lease_expires_at");
+    expect(worker).toContain("max_attempts");
+    expect(worker).toContain("next_attempt_at");
+    expect(worker).toContain("FOR UPDATE SKIP LOCKED");
   });
 
   it("renders a capability-only login universe and an authenticated live OSINT universe", () => {
@@ -61,6 +65,16 @@ describe("production OSINT universe hardening", () => {
     expect(universe).toContain("/api/v1/osint/search");
     expect(universe).toContain("/api/v1/osint/astra/dispatch");
     expect(universe).toContain("/api/v1/osint/astra/runs/");
+  });
+
+  it("keeps active 3D surveillance free of synthetic strategic nodes and satellites", () => {
+    const surveillance = readWeb("app/surveillance/surveillance-client.tsx");
+    const geo = readWeb("lib/geospatial/spatial-query.ts");
+    expect(surveillance).toContain("OsintUniverse3D");
+    expect(surveillance).not.toContain("GodsEyeHologramGlobe");
+    expect(surveillance).not.toContain("STRATEGIC_GLOBAL_NODES");
+    expect(surveillance).not.toContain("SATELLITE_ORBITS");
+    expect(geo).not.toContain("Mumbai Subsea Gateway");
   });
 
   it("enforces Cloud Storage retention instead of describing ordinary versioning as WORM", () => {
