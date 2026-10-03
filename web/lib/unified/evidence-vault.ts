@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { getDbPool } from "../server/db";
+import { isProduction } from "../server/env";
 import { hashValue } from "./hash";
 
 export type EvidenceVaultArtifact = {
@@ -74,6 +75,7 @@ export class EvidenceVault {
     const pool = getDbPool();
 
     if (!pool) {
+      if (isProduction()) throw new Error("Evidence vault requires DATABASE_URL in production");
       return this.storeInMemory(input, contentHash);
     }
 
@@ -190,7 +192,8 @@ export class EvidenceVault {
       } finally {
         client.release();
       }
-    } catch {
+    } catch (error) {
+      if (isProduction()) throw error;
       return this.storeInMemory(input, contentHash);
     }
   }
@@ -264,6 +267,7 @@ export class EvidenceVault {
   static async getArtifact(artifactId: string): Promise<EvidenceVaultArtifact | null> {
     const pool = getDbPool();
     if (!pool) {
+      if (isProduction()) throw new Error("Evidence vault requires DATABASE_URL in production");
       return memoryArtifacts.get(artifactId) ?? null;
     }
 
@@ -304,7 +308,8 @@ export class EvidenceVault {
         previousArtifactId: r.previous_artifact_id ?? undefined,
         createdAt: r.created_at.toISOString(),
       };
-    } catch {
+    } catch (error) {
+      if (isProduction()) throw error;
       return memoryArtifacts.get(artifactId) ?? null;
     }
   }
@@ -334,6 +339,7 @@ export class EvidenceVault {
   static async getHistory(sourceUri: string): Promise<EvidenceVaultArtifact[]> {
     const pool = getDbPool();
     if (!pool) {
+      if (isProduction()) throw new Error("Evidence vault requires DATABASE_URL in production");
       const ids = memoryUriIndex.get(sourceUri) ?? [];
       return ids.map((id) => memoryArtifacts.get(id)).filter((a): a is EvidenceVaultArtifact => Boolean(a));
     }
@@ -375,7 +381,8 @@ export class EvidenceVault {
         previousArtifactId: r.previous_artifact_id ?? undefined,
         createdAt: r.created_at.toISOString(),
       }));
-    } catch {
+    } catch (error) {
+      if (isProduction()) throw error;
       const ids = memoryUriIndex.get(sourceUri) ?? [];
       return ids.map((id) => memoryArtifacts.get(id)).filter((a): a is EvidenceVaultArtifact => Boolean(a));
     }
