@@ -23,6 +23,14 @@ describe("production OSINT universe hardening", () => {
     expect(source).not.toContain("Honeypot Decoy Trap Triggered");
   });
 
+  it("does not manufacture geospatial provenance when the database is unavailable", () => {
+    const source = readWeb("lib/geospatial/spatial-query.ts");
+    expect(source).not.toContain("fallbackOperationalFeatures");
+    expect(source).not.toContain("hash-prov-");
+    expect(source).not.toContain("CERT-In National Cyber Defense Core");
+    expect(source).toContain('return { type: "FeatureCollection", features: [] }');
+  });
+
   it("durably enqueues ASTRA worker runs instead of returning a cosmetic queued state", () => {
     const source = readWeb("lib/unified/astra6-governed-adapters.ts");
     expect(source).toContain("insert into astra6_connector_runs");
