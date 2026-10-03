@@ -133,6 +133,23 @@ describe("DISHA database migration contract", () => {
     expect(runner).toContain('"cyber_defense_attack_surface"');
   });
 
+  it("hardens ASTRA connector runs with leases, bounded retries, and cyber table access controls", () => {
+    const astra = fs.readFileSync(path.join(webRoot, "database/202610030005_astra6_run_durability.sql"), "utf8");
+    const cyber = fs.readFileSync(path.join(webRoot, "database/202610030006_cyber_rls_hardening.sql"), "utf8");
+    const runner = fs.readFileSync(path.join(webRoot, "scripts/apply-schema.mjs"), "utf8");
+
+    expect(astra).toContain("lease_expires_at");
+    expect(astra).toContain("next_attempt_at");
+    expect(astra).toContain("max_attempts");
+    expect(astra).toContain("astra6_connector_runs_lease_idx");
+    expect(cyber).toContain("drop policy if exists p_disha_attack_surface_all");
+    expect(cyber).toContain("revoke all privileges on table disha_worker_jobs from public");
+    expect(cyber).toContain("from authenticated");
+    expect(runner).toContain('"202610030005"');
+    expect(runner).toContain('"202610030006"');
+    expect(runner).toContain('"astra6_connector_runs_lease_idx"');
+  });
+
   it("exposes explicit migration commands from the web package", () => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(webRoot, "package.json"), "utf8"));
 
