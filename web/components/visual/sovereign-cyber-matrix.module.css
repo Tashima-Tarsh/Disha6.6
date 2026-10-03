@@ -1,244 +1,360 @@
-.container {
-  position: relative;
+.host {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 60% 35%, rgba(13, 44, 84, 0.95), rgba(4, 15, 30, 0.98)),
-    linear-gradient(135deg, #020914 0%, #061830 50%, #020a17 100%);
+  background: radial-gradient(circle at 45% 45%, #051428 0%, #020713 70%, #01040a 100%);
 }
 
-.canvasHost {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.canvasHost canvas {
+.host canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
+  cursor: grab;
+  outline: none;
 }
 
-.hudLayer {
+.host canvas:active {
+  cursor: grabbing;
+}
+
+/* Subtle Spatial Depth Grid */
+.gridOverlay {
   position: absolute;
   inset: 0;
-  z-index: 2;
   pointer-events: none;
+  opacity: 0.08;
+  background-size: 48px 48px;
+  background-image:
+    linear-gradient(to right, rgba(56, 189, 248, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+  z-index: 2;
+}
+
+/* Top Left: Sovereign System Header & Geo Coordinates */
+.topHud {
+  position: absolute;
+  top: clamp(14px, 2.8vh, 24px);
+  left: clamp(16px, 3vw, 32px);
+  z-index: 5;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(20px, 3vw, 40px);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: #e2f1ff;
+  gap: 6px;
+  pointer-events: none;
 }
 
-.hudTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.hudTag {
+.systemTag {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(8, 30, 60, 0.72);
-  border: 1px solid rgba(82, 168, 255, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 999px;
-  padding: 6px 14px;
+  background: rgba(4, 15, 30, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.72rem;
-  font-weight: 600;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #79c0ff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-}
-
-.liveDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #38ef7d;
-  box-shadow: 0 0 10px #38ef7d;
-  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
-}
-
-.hudCoordinates {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  color: rgba(144, 194, 245, 0.65);
-  text-align: right;
-  line-height: 1.4;
-}
-
-.hudCenter {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  pointer-events: none;
-  opacity: 0.85;
-}
-
-.centerCrosshair {
-  width: 220px;
-  height: 220px;
-  border: 1px dashed rgba(82, 168, 255, 0.18);
-  border-radius: 50%;
-  position: relative;
-  margin: 0 auto 12px;
-  animation: rotateCrosshair 60s linear infinite;
-}
-
-.centerCrosshair::before,
-.centerCrosshair::after {
-  content: "";
-  position: absolute;
-  background: rgba(82, 168, 255, 0.25);
-}
-
-.centerCrosshair::before {
-  top: 50%;
-  left: -10px;
-  right: -10px;
-  height: 1px;
-}
-
-.centerCrosshair::after {
-  left: 50%;
-  top: -10px;
-  bottom: -10px;
-  width: 1px;
-}
-
-@keyframes rotateCrosshair {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.hudBottom {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.hudTitleBlock {
-  max-width: 480px;
-}
-
-.hudEyebrow {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #38bdf8;
-  margin: 0 0 4px;
-}
-
-.hudTitle {
-  font-size: clamp(1.4rem, 2.2vw, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  margin: 0 0 8px;
-  background: linear-gradient(135deg, #ffffff 40%, #a5d8ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.hudDescription {
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: rgba(200, 225, 250, 0.78);
-  margin: 0;
-}
-
-.telemetryGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  background: rgba(5, 20, 42, 0.65);
-  border: 1px solid rgba(82, 168, 255, 0.22);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: 12px 16px;
-}
-
-.telemetryItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.telemetryLabel {
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(144, 194, 245, 0.65);
-  font-weight: 600;
-}
-
-.telemetryValue {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #58a6ff;
-}
-
-.gridBackdrop {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.colorStreamBar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-  padding: 6px 12px;
-  background: rgba(5, 20, 42, 0.55);
-  border: 1px solid rgba(82, 168, 255, 0.2);
-  border-radius: 999px;
+  color: #bae6fd;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   width: fit-content;
 }
 
-.colorStreamItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.62rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: rgba(226, 241, 255, 0.88);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: pulseDot 2.4s ease-in-out infinite;
 }
 
-.colorDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+}
+
+.systemName {
+  font-weight: 700;
+  color: #f0f9ff;
+}
+
+.systemSep {
+  color: rgba(186, 230, 253, 0.35);
+}
+
+.runtimeBadge {
+  color: #38bdf8;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.coords {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  color: rgba(186, 230, 253, 0.72);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.coords small {
+  color: rgba(186, 230, 253, 0.42);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+}
+
+/* Bottom Left: Spatial Presets HUD */
+.cameraPresets {
+  position: absolute;
+  bottom: clamp(16px, 3vh, 26px);
+  left: clamp(16px, 3vw, 32px);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.presetLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(186, 230, 253, 0.65);
+  text-transform: uppercase;
+}
+
+.presetButtons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.presetButtons button {
+  background: rgba(4, 15, 30, 0.82);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  color: rgba(186, 230, 253, 0.85);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.18s ease;
+}
+
+.presetButtons button:hover {
+  background: rgba(14, 43, 82, 0.9);
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #ffffff;
+}
+
+.activePreset {
+  background: rgba(14, 116, 144, 0.55) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+/* Hover Tooltip (Occlusion & Depth Aware) */
+.hoverTooltip {
+  position: absolute;
+  top: clamp(20px, 3.5vh, 36px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+  background: rgba(4, 15, 30, 0.9);
+  border: 1px solid rgba(56, 189, 248, 0.38);
+  border-radius: 8px;
+  padding: 10px 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+  max-width: 360px;
+  width: max-content;
+  animation: tooltipFade 0.15s ease-out;
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.tooltipHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.typeBadge {
   display: inline-block;
-  flex-shrink: 0;
+  padding: 2px 6px;
+  border: 1px solid;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.statusBadge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  color: #38bdf8;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.hoverTooltip h4 {
+  margin: 0 0 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.hoverTooltip p {
+  margin: 0 0 6px;
+  font-size: 0.74rem;
+  color: rgba(226, 232, 240, 0.82);
+  line-height: 1.35;
+}
+
+.tooltipMeta {
+  display: flex;
+  gap: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.63rem;
+  color: rgba(148, 163, 184, 0.9);
+  border-top: 1px solid rgba(56, 189, 248, 0.16);
+  padding-top: 5px;
+}
+
+/* Selected Node Inspector Drawer (Non-blocking compact HUD) */
+.inspectorCard {
+  position: absolute;
+  bottom: clamp(16px, 3vh, 26px);
+  right: clamp(16px, 3vw, 460px);
+  z-index: 6;
+  pointer-events: auto;
+  background: rgba(4, 15, 30, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 10px;
+  padding: 14px 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8);
+  width: 330px;
+  max-width: calc(100vw - 32px);
+  animation: cardSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inspectorHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.16);
+  padding-bottom: 6px;
+}
+
+.headLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #38bdf8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: rgba(226, 232, 240, 0.6);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.closeBtn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.inspectorCard h3 {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.nodeDetails {
+  margin: 6px 0 10px;
+  font-size: 0.76rem;
+  color: rgba(203, 213, 225, 0.88);
+  line-height: 1.4;
+}
+
+.inspectorGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border-top: 1px solid rgba(56, 189, 248, 0.16);
+  padding-top: 8px;
+}
+
+.inspectorGrid small {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.58rem;
+  color: rgba(148, 163, 184, 0.75);
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+
+.inspectorGrid strong {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.7rem;
+  color: #bae6fd;
+  font-weight: 600;
 }

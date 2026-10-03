@@ -105,11 +105,25 @@
   color: #ffffff;
 }
 
-.headingBlock p:last-child {
+.headingBlock p:last-child,
+.subtitle {
   color: #94a3b8;
   font-size: 0.85rem;
   line-height: 1.4;
   margin: 0;
+}
+
+.runtimeTag {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 4px;
+  padding: 2px 8px;
 }
 
 .loginForm {

@@ -1,636 +1,752 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
+import {
+  Globe,
+  Compass,
+  Layers,
+  Network,
+  Shield,
+  Eye,
+  Crosshair,
+  Maximize2,
+  RefreshCw,
+  Activity,
+  Server,
+  Database,
+  Lock,
+} from "lucide-react";
 import styles from "./sovereign-cyber-matrix.module.css";
 
-// High-fidelity perimeter coordinates of India [lon, lat]
+// ============================================================================
+// 1. AUTHORITATIVE GEOGRAPHIC COORDINATES
+// ============================================================================
+
+// High-precision sovereign perimeter of India [lon, lat]
 const INDIA_BORDER_GEO: [number, number][] = [
-  // Northern Crown - Ladakh, Siachen & Kashmir
   [74.0, 35.5], [75.0, 36.2], [76.5, 36.0], [77.8, 35.5], [78.8, 35.0],
   [79.2, 33.8], [78.8, 32.6], [78.5, 31.6], [79.8, 31.0], [80.5, 29.8],
-  // Indo-Nepal corridor & Uttarakhand
   [80.2, 28.8], [82.0, 27.8], [84.5, 27.2], [86.0, 26.6], [88.0, 26.5],
-  // Sikkim
-  [88.2, 27.8], [88.8, 28.0], [88.9, 27.2],
-  // Bhutan border corridor & Western Assam
-  [91.5, 26.8],
-  // Arunachal Pradesh
-  [92.5, 27.8], [94.0, 28.8], [95.5, 29.2], [97.0, 28.3], [97.3, 27.5],
-  // Eastern Border - Nagaland, Manipur, Mizoram
-  [95.5, 26.5], [94.5, 25.0], [93.5, 23.8], [92.8, 22.0], [92.5, 23.5], [91.8, 24.2],
-  // Tripura & Meghalaya
-  [91.2, 23.5], [91.8, 25.2], [89.8, 25.5], [89.0, 25.0],
-  // West Bengal & Sunderbans
-  [88.2, 22.5], [88.3, 21.6],
-  // Odisha Coast
-  [87.0, 21.4], [86.0, 20.2], [85.0, 19.3],
-  // Andhra Coast
-  [83.3, 17.7], [82.2, 16.5], [80.5, 15.5], [80.1, 14.0],
-  // Tamil Nadu Coast & Chennai
-  [80.3, 13.1], [79.8, 11.5], [79.8, 10.3], [79.0, 9.3],
-  // Southern Apex - Kanyakumari
-  [77.55, 8.08],
-  // Kerala Coast / Arabian Sea
-  [76.5, 9.0], [76.2, 9.9], [75.5, 11.5], [75.0, 12.5],
-  // Karnataka & Goa
-  [74.5, 14.0], [73.8, 15.4],
-  // Maharashtra Coast & Mumbai
-  [73.3, 16.8], [72.88, 19.08], [72.8, 20.2],
-  // Gujarat - Gulf of Khambhat & Kathiawar Peninsula
-  [72.8, 21.1], [72.0, 21.8], [71.0, 20.8], [69.8, 21.5], [69.0, 22.2],
-  // Gulf of Kutch & Rann of Kutch
-  [69.5, 23.0], [68.5, 23.7], [70.0, 24.2], [71.0, 24.5],
-  // Rajasthan Western Border
-  [70.5, 25.5], [70.2, 26.8], [71.5, 28.0], [72.5, 29.5],
-  // Punjab Border (Amritsar / Wagah)
-  [74.0, 30.5], [74.6, 31.6], [74.9, 32.3],
-  // Jammu & Kashmir Line of Control
-  [74.5, 33.2], [74.0, 34.2], [74.0, 35.5]
+  [88.2, 27.8], [88.8, 28.0], [88.9, 27.2], [91.5, 26.8], [92.5, 27.8],
+  [94.0, 28.8], [95.5, 29.2], [97.0, 28.3], [97.3, 27.5], [95.5, 26.5],
+  [94.5, 25.0], [93.5, 23.8], [92.8, 22.0], [92.5, 23.5], [91.8, 24.2],
+  [91.2, 23.5], [91.8, 25.2], [89.8, 25.5], [89.0, 25.0], [88.2, 22.5],
+  [88.3, 21.6], [87.0, 21.4], [86.0, 20.2], [85.0, 19.3], [83.3, 17.7],
+  [82.2, 16.5], [80.5, 15.5], [80.1, 14.0], [80.3, 13.1], [79.8, 11.5],
+  [79.8, 10.3], [79.0, 9.3], [77.55, 8.08], [76.5, 9.0], [76.2, 9.9],
+  [75.5, 11.5], [75.0, 12.5], [74.5, 14.0], [73.8, 15.4], [73.3, 16.8],
+  [72.88, 19.08], [72.8, 20.2], [72.8, 21.1], [72.0, 21.8], [71.0, 20.8],
+  [69.8, 21.5], [69.0, 22.2], [69.5, 23.0], [68.5, 23.7], [70.0, 24.2],
+  [71.0, 24.5], [70.5, 25.5], [70.2, 26.8], [71.5, 28.0], [72.5, 29.5],
+  [74.0, 30.5], [74.6, 31.6], [74.9, 32.3], [74.5, 33.2], [74.0, 34.2],
+  [74.0, 35.5]
 ];
 
-// Strategic National Cyber & Defense Hubs
-const STRATEGIC_HUBS = [
-  { id: "delhi", name: "NEW DELHI", lat: 28.6139, lon: 77.2090, role: "National Root Defense Vault", color: "#FF9933", hubSize: 0.13, isRoot: true },
-  { id: "mumbai", name: "MUMBAI", lat: 19.0760, lon: 72.8777, role: "Subsea Cable Gateway Core", color: "#38BDF8", hubSize: 0.09, isRoot: false },
-  { id: "bengaluru", name: "BENGALURU", lat: 12.9716, lon: 77.5946, role: "Sovereign Aerospace Core", color: "#10B981", hubSize: 0.09, isRoot: false },
-  { id: "hyderabad", name: "HYDERABAD", lat: 17.3850, lon: 78.4867, role: "Threat Intelligence Matrix", color: "#F59E0B", hubSize: 0.08, isRoot: false },
-  { id: "chennai", name: "CHENNAI", lat: 13.0827, lon: 80.2707, role: "Maritime Landing Array", color: "#00E5FF", hubSize: 0.08, isRoot: false },
-  { id: "kolkata", name: "KOLKATA", lat: 22.5726, lon: 88.3639, role: "Eastern Border Cyber Node", color: "#A855F7", hubSize: 0.08, isRoot: false },
-  { id: "ahmedabad", name: "AHMEDABAD", lat: 23.0225, lon: 72.5714, role: "Western Energy Grid Ingress", color: "#F97316", hubSize: 0.08, isRoot: false },
-  { id: "srinagar", name: "SRINAGAR", lat: 34.0837, lon: 74.7973, role: "Northern Geospatial Shield", color: "#38BDF8", hubSize: 0.08, isRoot: false },
-  { id: "guwahati", name: "GUWAHATI", lat: 26.1445, lon: 91.7362, role: "Northeast Frontier Node", color: "#34D399", hubSize: 0.08, isRoot: false },
-  { id: "kochi", name: "KOCHI", lat: 9.9312, lon: 76.2673, role: "Arabian Sea Telemetry Sensor", color: "#06B6D4", hubSize: 0.07, isRoot: false },
-  { id: "portblair", name: "PORT BLAIR", lat: 11.6600, lon: 92.7400, role: "Andaman Strategic Sentinel", color: "#EC4899", hubSize: 0.07, isRoot: false },
+// Major Continental Polygons [lon, lat][] for True Planetary Context
+const CONTINENT_OUTLINES: [number, number][][] = [
+  // Eurasia / Europe / Asia
+  [
+    [-9.5, 36.0], [-9.0, 43.0], [-1.5, 46.0], [5.0, 53.5], [8.5, 57.0],
+    [14.0, 55.5], [20.0, 64.5], [28.0, 71.0], [40.0, 68.0], [60.0, 70.0],
+    [80.0, 73.0], [105.0, 77.5], [140.0, 73.0], [170.0, 66.0], [180.0, 65.0],
+    [170.0, 60.0], [160.0, 54.0], [142.0, 50.0], [131.0, 43.0], [122.0, 37.5],
+    [120.0, 32.0], [118.0, 24.5], [109.0, 18.0], [105.0, 10.0], [100.0, 3.0],
+    [98.5, 10.0], [92.0, 21.0], [80.0, 28.0], [70.0, 24.0], [60.0, 25.0],
+    [50.0, 26.0], [44.0, 12.5], [43.0, 28.0], [35.0, 32.0], [28.0, 41.0],
+    [15.0, 40.0], [3.0, 42.0], [-5.5, 36.0], [-9.5, 36.0]
+  ],
+  // Africa
+  [
+    [-5.5, 36.0], [11.0, 37.0], [25.0, 32.0], [32.0, 31.5], [43.0, 12.5],
+    [51.0, 10.5], [41.0, -4.0], [40.5, -15.0], [35.0, -24.0], [32.0, -28.0],
+    [28.0, -32.5], [18.5, -34.5], [17.5, -30.0], [12.0, -17.0], [9.0, 1.0],
+    [3.0, 6.0], [-7.5, 4.5], [-17.5, 14.5], [-16.0, 21.0], [-10.0, 29.0],
+    [-5.5, 36.0]
+  ],
+  // North America
+  [
+    [-168.0, 66.0], [-150.0, 71.0], [-130.0, 70.0], [-95.0, 75.0], [-70.0, 62.0],
+    [-55.0, 52.0], [-65.0, 44.0], [-75.0, 35.0], [-80.0, 25.0], [-82.0, 23.0],
+    [-97.0, 26.0], [-96.0, 16.0], [-85.0, 13.0], [-77.0, 8.0], [-84.0, 9.5],
+    [-92.0, 15.0], [-105.0, 20.0], [-115.0, 30.0], [-124.0, 40.0], [-124.0, 48.0],
+    [-135.0, 57.0], [-165.0, 54.0], [-168.0, 66.0]
+  ],
+  // South America
+  [
+    [-77.0, 8.0], [-65.0, 10.5], [-50.0, 0.0], [-35.0, -6.0], [-38.0, -18.0],
+    [-48.0, -28.0], [-55.0, -38.0], [-65.0, -48.0], [-68.0, -55.0], [-75.0, -45.0],
+    [-72.0, -35.0], [-70.0, -20.0], [-80.0, -5.0], [-77.0, 8.0]
+  ],
+  // Australia
+  [
+    [114.0, -22.0], [124.0, -16.0], [136.0, -12.0], [142.0, -11.0], [153.0, -28.0],
+    [150.0, -37.0], [140.0, -38.0], [130.0, -32.0], [115.0, -34.0], [114.0, -22.0]
+  ]
 ];
 
-// Hub interconnection backbone
-const INTERCONNECT_PAIRS: [string, string][] = [
-  ["delhi", "mumbai"],
-  ["delhi", "kolkata"],
-  ["delhi", "bengaluru"],
-  ["delhi", "srinagar"],
-  ["delhi", "ahmedabad"],
-  ["mumbai", "ahmedabad"],
-  ["mumbai", "bengaluru"],
-  ["mumbai", "kochi"],
-  ["bengaluru", "chennai"],
-  ["bengaluru", "hyderabad"],
-  ["hyderabad", "chennai"],
-  ["hyderabad", "kolkata"],
-  ["kolkata", "guwahati"],
-  ["chennai", "portblair"],
+// ============================================================================
+// 2. SEMANTIC ALTITUDE LAYERS & INTELLIGENCE DATA MODEL
+// ============================================================================
+
+export type SemanticEntityType =
+  | "LOCATION"
+  | "INFRASTRUCTURE"
+  | "DOMAIN"
+  | "IP"
+  | "PERSON"
+  | "ORGANIZATION"
+  | "EVIDENCE"
+  | "ALERT"
+  | "SOURCE";
+
+export interface IntelligenceNode {
+  id: string;
+  name: string;
+  type: SemanticEntityType;
+  lat: number;
+  lon: number;
+  altitude: number; // 0.03 (surface) to 0.85 (outer)
+  sourceClass: "sovereign_core" | "public_passive" | "verified_gazette" | "infrastructure" | "osint";
+  confidence: number;
+  status: "active" | "monitored" | "admitted" | "flagged";
+  details: string;
+}
+
+export interface IntelligenceArc {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  type: "telemetry" | "provenance" | "corroboration" | "infrastructure";
+  color: string;
+  pulseSpeed: number;
+}
+
+// Semantic node color scheme strictly adhering to master prompt
+export const SEMANTIC_COLORS: Record<SemanticEntityType, string> = {
+  DOMAIN: "#00f0ff",        // Cyan
+  IP: "#4682b4",            // Steel Blue
+  PERSON: "#f0f4f8",        // Neutral White
+  ORGANIZATION: "#d4af37",  // Muted Gold
+  EVIDENCE: "#20b2aa",      // Teal
+  ALERT: "#ff6b4a",         // Controlled Amber/Red
+  LOCATION: "#e2e8f0",      // Geographic Marker
+  INFRASTRUCTURE: "#10b981",// Emerald
+  SOURCE: "#8a7db2",        // Muted Violet
+};
+
+// Authoritative Reference Nodes (Pre-Auth)
+const INITIAL_INTELLIGENCE_NODES: IntelligenceNode[] = [
+  // Surface Layer (Geography / Core Reference)
+  { id: "delhi", name: "NEW DELHI ROOT", type: "LOCATION", lat: 28.6139, lon: 77.2090, altitude: 0.03, sourceClass: "sovereign_core", confidence: 1.0, status: "admitted", details: "National Sovereign Identity & Constitutional Defense Vault" },
+  { id: "mumbai", name: "MUMBAI INGRESS", type: "LOCATION", lat: 19.0760, lon: 72.8777, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.98, status: "active", details: "Subsea Cable Landing Core & Western Gate" },
+  { id: "bengaluru", name: "BENGALURU CORE", type: "LOCATION", lat: 12.9716, lon: 77.5946, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.99, status: "active", details: "Aerospace & High-Performance Cognitive Mesh" },
+  { id: "hyderabad", name: "HYDERABAD CTI", type: "LOCATION", lat: 17.3850, lon: 78.4867, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.97, status: "active", details: "Threat Intelligence & Dynamic Defense Router" },
+  { id: "chennai", name: "CHENNAI MARITIME", type: "LOCATION", lat: 13.0827, lon: 80.2707, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.96, status: "active", details: "Bay of Bengal Subsea Telemetry Ingress" },
+  { id: "kolkata", name: "KOLKATA SENTINEL", type: "LOCATION", lat: 22.5726, lon: 88.3639, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.95, status: "active", details: "Eastern Frontier Surveillance Node" },
+  { id: "srinagar", name: "SRINAGAR SHIELD", type: "LOCATION", lat: 34.0837, lon: 74.7973, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.96, status: "active", details: "Northern High-Altitude Geospatial Array" },
+  { id: "ahmedabad", name: "AHMEDABAD GRID", type: "LOCATION", lat: 23.0225, lon: 72.5714, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.94, status: "active", details: "Western Critical Energy Infrastructure Sentinel" },
+  { id: "guwahati", name: "GUWAHATI FRONTIER", type: "LOCATION", lat: 26.1445, lon: 91.7362, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.93, status: "active", details: "Northeast Cross-Border Telemetry Point" },
+  { id: "kochi", name: "KOCHI SUBSEA", type: "LOCATION", lat: 9.9312, lon: 76.2673, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.95, status: "active", details: "Arabian Sea Fiber Transit Landing Terminal" },
+  { id: "portblair", name: "PORT BLAIR SENTINEL", type: "LOCATION", lat: 11.6600, lon: 92.7400, altitude: 0.03, sourceClass: "sovereign_core", confidence: 0.97, status: "active", details: "Andaman & Nicobar Strategic Maritime Sensor" },
+
+  // Low Altitude Layer (Public Critical Infrastructure)
+  { id: "cert_in", name: "CERT-In National CSIRT", type: "INFRASTRUCTURE", lat: 28.5500, lon: 77.2500, altitude: 0.22, sourceClass: "infrastructure", confidence: 1.0, status: "admitted", details: "National Cyber Incident Response & Vulnerability Advisory Hub" },
+  { id: "nixi_hub", name: "NIXI Mumbai IXP", type: "INFRASTRUCTURE", lat: 19.1200, lon: 72.8500, altitude: 0.22, sourceClass: "infrastructure", confidence: 0.99, status: "active", details: "National Internet Exchange of India Root Peering Node" },
+  { id: "isro_telemetry", name: "ISTRAC Ground Station", type: "INFRASTRUCTURE", lat: 13.0300, lon: 77.5100, altitude: 0.25, sourceClass: "infrastructure", confidence: 0.99, status: "active", details: "Sovereign Satellite Tracking & Telemetry Reception" },
+
+  // Mid Altitude Layer (Entity Relationships & Target Fingerprints)
+  { id: "cve_kev_gateway", name: "CISA KEV / NVD Synchronizer", type: "ALERT", lat: 20.0000, lon: 75.0000, altitude: 0.45, sourceClass: "osint", confidence: 0.92, status: "monitored", details: "Active Exploitation Vulnerability Correlation Pipeline" },
+  { id: "gov_in_domain", name: "gov.in National Namespace", type: "DOMAIN", lat: 26.5000, lon: 78.5000, altitude: 0.42, sourceClass: "public_passive", confidence: 1.0, status: "admitted", details: "Authoritative Sovereign DNS Hierarchy" },
+  { id: "asn_55836", name: "AS55836 National Informatics", type: "IP", lat: 24.5000, lon: 74.0000, altitude: 0.48, sourceClass: "public_passive", confidence: 0.98, status: "active", details: "Sovereign Backbone Autonomous System Routing Cluster" },
+
+  // High Altitude Layer (Evidence Lineage & Gazette Provenance)
+  { id: "egazette_vault", name: "Gazette of India Cryptographic Anchor", type: "EVIDENCE", lat: 28.6200, lon: 77.2100, altitude: 0.72, sourceClass: "verified_gazette", confidence: 1.0, status: "admitted", details: "SHA-256 Merkle Provenance Ledger for Statutory Notifications" },
+  { id: "sci_judgments", name: "Supreme Court Registry Archive", type: "ORGANIZATION", lat: 28.6230, lon: 77.2390, altitude: 0.75, sourceClass: "verified_gazette", confidence: 1.0, status: "admitted", details: "Constitutional Precedent & Fundamental Rights Admissibility Engine" }
 ];
 
-type ThreeVector3 = InstanceType<typeof THREE.Vector3>;
-type ThreeMesh = InstanceType<typeof THREE.Mesh>;
-type ThreeBufferGeometry = InstanceType<typeof THREE.BufferGeometry>;
-type ThreeMaterial = InstanceType<typeof THREE.Material>;
-type ThreeCatmullRomCurve3 = InstanceType<typeof THREE.CatmullRomCurve3>;
-type ThreeMeshBasicMaterial = InstanceType<typeof THREE.MeshBasicMaterial>;
+// Connected Relationship Arcs
+const INITIAL_INTELLIGENCE_ARCS: IntelligenceArc[] = [
+  { id: "arc_delhi_mumbai", sourceId: "delhi", targetId: "mumbai", type: "infrastructure", color: "#38bdf8", pulseSpeed: 0.8 },
+  { id: "arc_delhi_bengaluru", sourceId: "delhi", targetId: "bengaluru", type: "telemetry", color: "#00f0ff", pulseSpeed: 1.0 },
+  { id: "arc_delhi_kolkata", sourceId: "delhi", targetId: "kolkata", type: "telemetry", color: "#d4af37", pulseSpeed: 0.7 },
+  { id: "arc_delhi_srinagar", sourceId: "delhi", targetId: "srinagar", type: "infrastructure", color: "#10b981", pulseSpeed: 0.6 },
+  { id: "arc_mumbai_chennai", sourceId: "mumbai", targetId: "chennai", type: "infrastructure", color: "#38bdf8", pulseSpeed: 0.9 },
+  { id: "arc_mumbai_kochi", sourceId: "mumbai", targetId: "kochi", type: "infrastructure", color: "#4682b4", pulseSpeed: 0.75 },
+  { id: "arc_bengaluru_hyderabad", sourceId: "bengaluru", targetId: "hyderabad", type: "telemetry", color: "#00f0ff", pulseSpeed: 1.1 },
+  { id: "arc_chennai_portblair", sourceId: "chennai", targetId: "portblair", type: "infrastructure", color: "#38bdf8", pulseSpeed: 0.85 },
+  { id: "arc_cert_delhi", sourceId: "cert_in", targetId: "delhi", type: "provenance", color: "#ff6b4a", pulseSpeed: 1.2 },
+  { id: "arc_vault_delhi", sourceId: "egazette_vault", targetId: "delhi", type: "provenance", color: "#20b2aa", pulseSpeed: 0.5 },
+  { id: "arc_isro_bengaluru", sourceId: "isro_telemetry", targetId: "bengaluru", type: "infrastructure", color: "#10b981", pulseSpeed: 0.95 },
+  { id: "arc_sci_vault", sourceId: "sci_judgments", targetId: "egazette_vault", type: "corroboration", color: "#d4af37", pulseSpeed: 0.6 }
+];
 
-const CENTER_LON = 78.9629;
-const CENTER_LAT = 22.5937;
-const SPHERE_RADIUS = 3.1;
+const EARTH_RADIUS = 3.0;
 
-// Converts geographic lat/lon to 3D spherical dome coordinates centered on India
-function geoTo3D(lon: number, lat: number, alt = 0): ThreeVector3 {
-  const radLon = (lon - CENTER_LON) * (Math.PI / 180) * 1.08;
-  const radLat = (lat - CENTER_LAT) * (Math.PI / 180) * 1.08;
-  const r = SPHERE_RADIUS + alt;
+// Spherical coordinate transformation: (lat, lon, altitude) -> 3D Vector3
+export function latLonToVector3(lat: number, lon: number, radius = EARTH_RADIUS, altitude = 0): THREE.Vector3 {
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lon + 180) * (Math.PI / 180);
+  const r = radius + altitude;
 
-  const x = r * Math.sin(radLon) * Math.cos(radLat);
-  const y = r * Math.sin(radLat);
-  const z = r * Math.cos(radLon) * Math.cos(radLat) - (SPHERE_RADIUS * 0.42);
+  const x = -(r * Math.sin(phi) * Math.cos(theta));
+  const z = r * Math.sin(phi) * Math.sin(theta);
+  const y = r * Math.cos(phi);
+
   return new THREE.Vector3(x, y, z);
 }
 
-export function SovereignCyberMatrix3D() {
-  const hostRef = useRef<HTMLDivElement>(null);
+// ============================================================================
+// 3. SOVEREIGN 3D INTELLIGENCE GLOBE COMPONENT
+// ============================================================================
+
+export interface SovereignCyberMatrix3DProps {
+  mode?: "pre-auth" | "operational";
+  onNodeSelect?: (node: IntelligenceNode | null) => void;
+  selectedNodeId?: string | null;
+  activePreset?: "GLOBAL" | "INDIA" | "INFRASTRUCTURE" | "ENTITIES" | "EVIDENCE";
+}
+
+export function SovereignCyberMatrix3D({
+  mode = "pre-auth",
+  onNodeSelect,
+  selectedNodeId,
+  activePreset = "INDIA",
+}: SovereignCyberMatrix3DProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedNode, setSelectedNode] = useState<IntelligenceNode | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<IntelligenceNode | null>(null);
+  const [currentPreset, setCurrentPreset] = useState<string>(activePreset);
+
+  // References to keep across renders
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const globeGroupRef = useRef<THREE.Group | null>(null);
+  const targetCamPosRef = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.2, 5.8));
+  const isDraggingRef = useRef(false);
+  const previousMousePositionRef = useRef({ x: 0, y: 0 });
+  const raycasterRef = useRef<THREE.Raycaster>(new THREE.Raycaster());
+  const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2(-999, -999));
+  const nodeMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map());
+
+  // Camera presets
+  const applyPreset = useCallback((preset: string) => {
+    setCurrentPreset(preset);
+    if (!globeGroupRef.current) return;
+
+    if (preset === "INDIA") {
+      // Focus on India (Lat: 22, Lon: 78)
+      targetCamPosRef.current.set(0, 1.1, 5.6);
+      globeGroupRef.current.rotation.set(0.38, -1.35, 0);
+    } else if (preset === "GLOBAL") {
+      targetCamPosRef.current.set(0, 0.8, 8.4);
+    } else if (preset === "INFRASTRUCTURE") {
+      targetCamPosRef.current.set(0, 0.9, 5.2);
+      globeGroupRef.current.rotation.set(0.32, -1.28, 0);
+    } else if (preset === "ENTITIES") {
+      targetCamPosRef.current.set(0, 1.4, 5.0);
+      globeGroupRef.current.rotation.set(0.42, -1.42, 0);
+    } else if (preset === "EVIDENCE") {
+      targetCamPosRef.current.set(0, 1.8, 6.2);
+      globeGroupRef.current.rotation.set(0.48, -1.30, 0);
+    }
+  }, []);
 
   useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Check motion preference
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // 1. Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, host.clientWidth / Math.max(1, host.clientHeight), 0.1, 100);
-    camera.position.set(0, 0, 7.2);
+    sceneRef.current = scene;
+
+    const aspect = container.clientWidth / Math.max(1, container.clientHeight);
+    const camera = new THREE.PerspectiveCamera(42, aspect, 0.1, 100);
+    cameraRef.current = camera;
+    camera.position.set(0, 2.5, 10.5); // Start far for the intro dolly sequence
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
       powerPreference: "high-performance",
     });
-    renderer.setSize(host.clientWidth, host.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setClearColor(0x000000, 0);
-    host.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x020712, 1);
+    container.appendChild(renderer.domElement);
 
-    const rootGroup = new THREE.Group();
-    scene.add(rootGroup);
+    // Master Globe Transform Group
+    const globeGroup = new THREE.Group();
+    globeGroupRef.current = globeGroup;
+    scene.add(globeGroup);
 
-    // -------------------------------------------------------------
-    // 1. 3D INDIAN MAP GEOSPATIAL BOUNDARY & MESH
-    // -------------------------------------------------------------
-    const indiaMapGroup = new THREE.Group();
-    rootGroup.add(indiaMapGroup);
+    // Initial orientation: Face India toward the camera
+    // Longitude ~78° E, Latitude ~22° N
+    globeGroup.rotation.y = -1.35;
+    globeGroup.rotation.x = 0.38;
 
-    // Border polyline
-    const borderPoints = INDIA_BORDER_GEO.map(([lon, lat]) => geoTo3D(lon, lat, 0.05));
-    const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPoints);
-    const borderMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color("#38bdf8"),
+    // 2. Earth Surface Mesh (Dark graphite land & deep navy absorption)
+    const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 64, 64);
+    const earthMaterial = new THREE.MeshStandardMaterial({
+      color: 0x08101e,
+      roughness: 0.85,
+      metalness: 0.15,
+      emissive: 0x02060f,
+    });
+    const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+    globeGroup.add(earthMesh);
+
+    // 3. Restrained Rim Lighting & Ambient Lights
+    const ambientLight = new THREE.AmbientLight(0x18283f, 1.2);
+    scene.add(ambientLight);
+
+    const keyDirectionalLight = new THREE.DirectionalLight(0xa5d8ff, 2.2);
+    keyDirectionalLight.position.set(5, 8, 7);
+    scene.add(keyDirectionalLight);
+
+    const rimLight = new THREE.DirectionalLight(0x0284c7, 1.8);
+    rimLight.position.set(-6, -4, -5);
+    scene.add(rimLight);
+
+    // 4. Atmosphere Shell (Soft Fresnel Twilight Scattering)
+    const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.025, 48, 48);
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0x103a60,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.35,
+    });
+    const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    globeGroup.add(atmosphereMesh);
+
+    // 5. Continents & Political Boundary Lines
+    const continentMaterial = new THREE.LineBasicMaterial({
+      color: 0x1c3148,
+      transparent: true,
+      opacity: 0.65,
+    });
+
+    for (const polygon of CONTINENT_OUTLINES) {
+      const points: THREE.Vector3[] = polygon.map(([lon, lat]) =>
+        latLonToVector3(lat, lon, EARTH_RADIUS, 0.008)
+      );
+      const geom = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.LineLoop(geom, continentMaterial);
+      globeGroup.add(line);
+    }
+
+    // 6. India Sovereign Highlight Layer (Restrained Cyan/Blue Glow)
+    const indiaPoints = INDIA_BORDER_GEO.map(([lon, lat]) =>
+      latLonToVector3(lat, lon, EARTH_RADIUS, 0.015)
+    );
+    const indiaGeom = new THREE.BufferGeometry().setFromPoints(indiaPoints);
+    const indiaLineMaterial = new THREE.LineBasicMaterial({
+      color: 0x38bdf8,
       transparent: true,
       opacity: 0.95,
-      blending: THREE.AdditiveBlending,
     });
-    const borderLine = new THREE.LineLoop(borderGeo, borderMat);
-    indiaMapGroup.add(borderLine);
+    const indiaBorder = new THREE.LineLoop(indiaGeom, indiaLineMaterial);
+    globeGroup.add(indiaBorder);
 
-    // Elevated secondary neon halo along India's border
-    const haloPoints = INDIA_BORDER_GEO.map(([lon, lat]) => geoTo3D(lon, lat, 0.12));
-    const haloGeo = new THREE.BufferGeometry().setFromPoints(haloPoints);
-    const haloMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color("#0284c7"),
-      transparent: true,
-      opacity: 0.45,
-      blending: THREE.AdditiveBlending,
-    });
-    const haloLine = new THREE.LineLoop(haloGeo, haloMat);
-    indiaMapGroup.add(haloLine);
-
-    // Internal sovereign geospatial grid lines (Parallels and Meridians across India)
-    const gridSegments: ThreeVector3[] = [];
-    for (let lat = 12; lat <= 32; lat += 5) {
-      for (let lon = 72; lon <= 88; lon += 4) {
-        gridSegments.push(geoTo3D(lon, lat, 0.01), geoTo3D(lon + 3, lat, 0.01));
-        gridSegments.push(geoTo3D(lon, lat, 0.01), geoTo3D(lon, lat + 4, 0.01));
-      }
-    }
-    const internalGridGeo = new THREE.BufferGeometry().setFromPoints(gridSegments);
-    const internalGridMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color("#0ea5e9"),
-      transparent: true,
-      opacity: 0.18,
-      blending: THREE.AdditiveBlending,
-    });
-    const internalGrid = new THREE.LineSegments(internalGridGeo, internalGridMat);
-    indiaMapGroup.add(internalGrid);
-
-    // Subtle 3D Wireframe Icosahedron Core beneath map
-    const coreGeo = new THREE.IcosahedronGeometry(2.3, 2);
-    const coreWireMat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#0369a1"),
-      wireframe: true,
-      transparent: true,
-      opacity: 0.16,
-    });
-    const coreMesh = new THREE.Mesh(coreGeo, coreWireMat);
-    indiaMapGroup.add(coreMesh);
-
-    // -------------------------------------------------------------
-    // 2. STRATEGIC NODES & NEW DELHI RADAR BEACON
-    // -------------------------------------------------------------
-    const hubMap = new Map<string, ThreeVector3>();
-    const nodeGeometries: ThreeBufferGeometry[] = [];
-    const nodeMaterials: ThreeMaterial[] = [];
-
-    let delhiPulseRing: ThreeMesh | null = null;
-    let delhiPulseRing2: ThreeMesh | null = null;
-
-    STRATEGIC_HUBS.forEach((hub) => {
-      const pos = geoTo3D(hub.lon, hub.lat, 0.08);
-      hubMap.set(hub.id, pos);
-
-      // Beacon Dot
-      const dotGeo = new THREE.SphereGeometry(hub.hubSize, 12, 12);
-      const dotMat = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(hub.color),
-        transparent: true,
-        opacity: 0.95,
-      });
-      const dotMesh = new THREE.Mesh(dotGeo, dotMat);
-      dotMesh.position.copy(pos);
-      indiaMapGroup.add(dotMesh);
-      nodeGeometries.push(dotGeo);
-      nodeMaterials.push(dotMat);
-
-      // New Delhi Radar Rings
-      if (hub.isRoot) {
-        const ringGeo = new THREE.RingGeometry(0.18, 0.22, 32);
-        const ringMat = new THREE.MeshBasicMaterial({
-          color: new THREE.Color("#ff9933"),
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.8,
-          blending: THREE.AdditiveBlending,
-        });
-        delhiPulseRing = new THREE.Mesh(ringGeo, ringMat);
-        delhiPulseRing.position.copy(pos);
-        indiaMapGroup.add(delhiPulseRing);
-        nodeGeometries.push(ringGeo);
-        nodeMaterials.push(ringMat);
-
-        const ring2Geo = new THREE.RingGeometry(0.28, 0.32, 32);
-        const ring2Mat = new THREE.MeshBasicMaterial({
-          color: new THREE.Color("#38bdf8"),
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.6,
-          blending: THREE.AdditiveBlending,
-        });
-        delhiPulseRing2 = new THREE.Mesh(ring2Geo, ring2Mat);
-        delhiPulseRing2.position.copy(pos);
-        indiaMapGroup.add(delhiPulseRing2);
-        nodeGeometries.push(ring2Geo);
-        nodeMaterials.push(ring2Mat);
-      }
-    });
-
-    // Neural Backbone Laser Lines between Strategic Hubs
-    const backbonePoints: ThreeVector3[] = [];
-    INTERCONNECT_PAIRS.forEach(([fromId, toId]) => {
-      const p1 = hubMap.get(fromId);
-      const p2 = hubMap.get(toId);
-      if (p1 && p2) {
-        backbonePoints.push(p1, p2);
-      }
-    });
-    const backboneGeo = new THREE.BufferGeometry().setFromPoints(backbonePoints);
-    const backboneMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color("#38bdf8"),
+    // Secondary subtle halo boundary
+    const indiaHaloPoints = INDIA_BORDER_GEO.map(([lon, lat]) =>
+      latLonToVector3(lat, lon, EARTH_RADIUS, 0.035)
+    );
+    const indiaHaloGeom = new THREE.BufferGeometry().setFromPoints(indiaHaloPoints);
+    const indiaHaloMat = new THREE.LineBasicMaterial({
+      color: 0x0284c7,
       transparent: true,
       opacity: 0.4,
-      blending: THREE.AdditiveBlending,
     });
-    const backboneMesh = new THREE.LineSegments(backboneGeo, backboneMat);
-    indiaMapGroup.add(backboneMesh);
+    globeGroup.add(new THREE.LineLoop(indiaHaloGeom, indiaHaloMat));
 
-    // -------------------------------------------------------------
-    // 3. COMBINATION OF 5 COLOR LINES IN MOTION
-    // -------------------------------------------------------------
-    // Line 1: Saffron (#FF7700) - Northern Sovereign Sky Arc
-    // Line 2: White (#FFFFFF)   - Central Cryptographic Provenance Spine
-    // Line 3: Green (#00E676)   - Coastal Maritime Defensive Perimeter
-    // Line 4: Navy (#0066FF)    - Ashoka Chakra Orbital Ring
-    // Line 5: Gold (#FFD700)    - Quantum Neural Data Interconnect
+    // 7. Data Nodes Layer across Semantic Altitudes
+    const nodeMeshes = new Map<string, THREE.Mesh>();
+    nodeMeshesRef.current = nodeMeshes;
 
-    const delhiPos = hubMap.get("delhi") ?? geoTo3D(77.209, 28.6139, 0.08);
-    const mumbaiPos = hubMap.get("mumbai") ?? geoTo3D(72.877, 19.076, 0.08);
-    const blrPos = hubMap.get("bengaluru") ?? geoTo3D(77.594, 12.971, 0.08);
-    const chnPos = hubMap.get("chennai") ?? geoTo3D(80.27, 13.082, 0.08);
-    const kolPos = hubMap.get("kolkata") ?? geoTo3D(88.36, 22.572, 0.08);
-    const hydPos = hubMap.get("hyderabad") ?? geoTo3D(78.48, 17.385, 0.08);
-    const sriPos = hubMap.get("srinagar") ?? geoTo3D(74.79, 34.08, 0.08);
-    const kchPos = hubMap.get("kochi") ?? geoTo3D(76.26, 9.93, 0.08);
-    const gwhPos = hubMap.get("guwahati") ?? geoTo3D(91.73, 26.14, 0.08);
-    const kanyakumariPos = geoTo3D(77.55, 8.08, 0.08);
+    INITIAL_INTELLIGENCE_NODES.forEach((node) => {
+      const position = latLonToVector3(node.lat, node.lon, EARTH_RADIUS, node.altitude);
+      const hexColor = SEMANTIC_COLORS[node.type] || "#38bdf8";
 
-    // Curve 1: Saffron (Northern and Orbital Celestial Arc)
-    const curve1 = new THREE.CatmullRomCurve3([
-      sriPos,
-      delhiPos,
-      new THREE.Vector3(0.3, 1.8, 1.4),
-      new THREE.Vector3(1.6, 1.5, 0.2),
-      new THREE.Vector3(2.4, 0.4, -0.6),
-      new THREE.Vector3(1.2, -0.8, -0.4),
-      new THREE.Vector3(-0.6, 0.2, 0.8),
-      sriPos,
-    ], true);
-
-    // Curve 2: White (Central Cryptographic Provenance Spine)
-    const curve2 = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-0.2, 2.6, 0.4),
-      delhiPos,
-      hydPos,
-      blrPos,
-      kanyakumariPos,
-      new THREE.Vector3(0.0, -2.4, 0.8),
-      new THREE.Vector3(-1.8, -1.2, -0.2),
-      new THREE.Vector3(-1.4, 1.2, 0.6),
-      new THREE.Vector3(-0.2, 2.6, 0.4),
-    ], true);
-
-    // Curve 3: Green (Coastal Maritime Shield Stream)
-    const curve3 = new THREE.CatmullRomCurve3([
-      geoTo3D(68.5, 23.7, 0.1),
-      mumbaiPos,
-      kchPos,
-      kanyakumariPos,
-      chnPos,
-      kolPos,
-      new THREE.Vector3(2.2, 0.2, 0.9),
-      new THREE.Vector3(1.4, -1.8, 0.4),
-      new THREE.Vector3(-0.4, -2.2, -0.2),
-      new THREE.Vector3(-2.0, -0.4, 0.2),
-      geoTo3D(68.5, 23.7, 0.1),
-    ], true);
-
-    // Curve 4: Ashoka Chakra Navy (Orbital Defense Inclined Ellipse)
-    const chakraPoints: ThreeVector3[] = [];
-    const CHAKRA_SEGMENTS = 64;
-    for (let i = 0; i <= CHAKRA_SEGMENTS; i += 1) {
-      const angle = (i / CHAKRA_SEGMENTS) * Math.PI * 2;
-      const rx = 3.2 * Math.cos(angle);
-      const ry = 2.7 * Math.sin(angle);
-      // Tilt in 3D
-      const x = rx * Math.cos(Math.PI / 5) - ry * Math.sin(Math.PI / 5) * 0.4;
-      const y = rx * Math.sin(Math.PI / 5) + ry * Math.cos(Math.PI / 5) * 0.9;
-      const z = -rx * 0.4 + Math.sin(angle) * 1.1;
-      chakraPoints.push(new THREE.Vector3(x, y, z));
-    }
-    const curve4 = new THREE.CatmullRomCurve3(chakraPoints, true);
-
-    // Curve 5: Golden Amber (Quantum Neural Hub Interconnect Spiral)
-    const curve5 = new THREE.CatmullRomCurve3([
-      delhiPos,
-      mumbaiPos,
-      blrPos,
-      chnPos,
-      hydPos,
-      kolPos,
-      gwhPos,
-      new THREE.Vector3(1.0, 1.2, 1.3),
-      delhiPos,
-    ], true);
-
-    const fiveLineConfigs = [
-      { curve: curve1, color: "#ff6600", speed: 0.16, size: 0.085, name: "saffron" },
-      { curve: curve2, color: "#ffffff", speed: 0.22, size: 0.080, name: "white" },
-      { curve: curve3, color: "#00e676", speed: 0.14, size: 0.080, name: "green" },
-      { curve: curve4, color: "#0077ff", speed: 0.26, size: 0.090, name: "navy" },
-      { curve: curve5, color: "#ffd700", speed: 0.19, size: 0.085, name: "gold" },
-    ];
-
-    const motionLinesGroup = new THREE.Group();
-    rootGroup.add(motionLinesGroup);
-
-    type MotionStream = {
-      curve: ThreeCatmullRomCurve3;
-      speed: number;
-      headMesh: ThreeMesh;
-      trailMesh: ThreeMesh;
-    };
-    const streams: MotionStream[] = [];
-
-    fiveLineConfigs.forEach((cfg) => {
-      // 1. Static/flowing guide line
-      const points = cfg.curve.getPoints(120);
-      const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-      const lineMat = new THREE.LineBasicMaterial({
-        color: new THREE.Color(cfg.color),
-        transparent: true,
-        opacity: 0.72,
-        blending: THREE.AdditiveBlending,
+      // Node core sphere
+      const size = node.id === "delhi" ? 0.09 : node.type === "LOCATION" ? 0.065 : 0.055;
+      const sphereGeom = new THREE.SphereGeometry(size, 16, 16);
+      const sphereMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(hexColor),
       });
-      const lineMesh = new THREE.Line(lineGeo, lineMat);
-      motionLinesGroup.add(lineMesh);
-      nodeGeometries.push(lineGeo);
-      nodeMaterials.push(lineMat);
+      const nodeMesh = new THREE.Mesh(sphereGeom, sphereMat);
+      nodeMesh.position.copy(position);
+      nodeMesh.userData = { nodeData: node };
 
-      // 2. High-speed Glowing Photon Pulse (Head)
-      const headGeo = new THREE.SphereGeometry(cfg.size, 10, 10);
-      const headMat = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(cfg.color),
-        transparent: true,
-        opacity: 1.0,
-        blending: THREE.AdditiveBlending,
-      });
-      const headMesh = new THREE.Mesh(headGeo, headMat);
-      motionLinesGroup.add(headMesh);
-      nodeGeometries.push(headGeo);
-      nodeMaterials.push(headMat);
-
-      // 3. Secondary Trailing Photon Pulse
-      const trailGeo = new THREE.SphereGeometry(cfg.size * 0.7, 8, 8);
-      const trailMat = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(cfg.color),
-        transparent: true,
-        opacity: 0.65,
-        blending: THREE.AdditiveBlending,
-      });
-      const trailMesh = new THREE.Mesh(trailGeo, trailMat);
-      motionLinesGroup.add(trailMesh);
-      nodeGeometries.push(trailGeo);
-      nodeMaterials.push(trailMat);
-
-      streams.push({
-        curve: cfg.curve,
-        speed: cfg.speed,
-        headMesh,
-        trailMesh,
-      });
-    });
-
-    // -------------------------------------------------------------
-    // 4. AMBIENT CYBER DUST PARTICLES
-    // -------------------------------------------------------------
-    const PARTICLE_COUNT = 320;
-    const particlePositions = new Float32Array(PARTICLE_COUNT * 3);
-    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
-      particlePositions[i * 3] = (Math.random() - 0.5) * 14;
-      particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 12;
-      particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 8 - 1;
-    }
-    const particlesGeo = new THREE.BufferGeometry();
-    particlesGeo.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
-    const particlesMat = new THREE.PointsMaterial({
-      color: new THREE.Color("#7dd3fc"),
-      size: 0.03,
-      transparent: true,
-      opacity: 0.45,
-      blending: THREE.AdditiveBlending,
-    });
-    const particles = new THREE.Points(particlesGeo, particlesMat);
-    scene.add(particles);
-
-    // -------------------------------------------------------------
-    // 5. INTERACTIVE 3D PARALLAX & ANIMATION LOOP
-    // -------------------------------------------------------------
-    const target = { x: 0, y: 0 };
-    const current = { x: 0, y: 0 };
-
-    const handlePointerMove = (e: PointerEvent) => {
-      const rect = host.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      target.x = x;
-      target.y = y;
-    };
-
-    const handleResize = () => {
-      if (!host) return;
-      const w = host.clientWidth;
-      const h = host.clientHeight;
-      camera.aspect = w / Math.max(1, h);
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("resize", handleResize);
-
-    let animId = 0;
-    const startTime = performance.now();
-
-    const animate = () => {
-      const elapsed = (performance.now() - startTime) * 0.001;
-      current.x += (target.x - current.x) * 0.04;
-      current.y += (target.y - current.y) * 0.04;
-
-      if (!reduceMotion) {
-        // Continuous organic 3D rotation of the Indian map & cyber matrix
-        indiaMapGroup.rotation.y = Math.sin(elapsed * 0.16) * 0.15;
-        indiaMapGroup.rotation.x = Math.sin(elapsed * 0.11) * 0.07;
-        indiaMapGroup.position.y = Math.sin(elapsed * 0.35) * 0.05;
-
-        // Animate the 5 Color Lines in 3D Motion
-        streams.forEach((stream, idx) => {
-          const t1 = (elapsed * stream.speed) % 1;
-          const t2 = (elapsed * stream.speed - 0.04 + 1) % 1;
-
-          const p1 = stream.curve.getPointAt(t1);
-          const p2 = stream.curve.getPointAt(t2);
-
-          stream.headMesh.position.copy(p1);
-          stream.trailMesh.position.copy(p2);
-
-          // Subtle breathing scale on the pulses
-          const pulseScale = 1 + Math.sin(elapsed * 4 + idx) * 0.25;
-          stream.headMesh.scale.setScalar(pulseScale);
+      // Root beacon ring for Delhi
+      if (node.id === "delhi") {
+        const ringGeom = new THREE.RingGeometry(0.12, 0.15, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: 0xff9933,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.85,
         });
-
-        // Pulsating radar ripple rings on New Delhi
-        if (delhiPulseRing && delhiPulseRing2) {
-          const r1Phase = (elapsed * 0.8) % 1;
-          const r2Phase = (elapsed * 0.8 + 0.5) % 1;
-
-          delhiPulseRing.scale.setScalar(1 + r1Phase * 2.6);
-          const r1Mat = delhiPulseRing.material as ThreeMeshBasicMaterial;
-          r1Mat.opacity = Math.max(0, 0.8 * (1 - r1Phase));
-
-          delhiPulseRing2.scale.setScalar(1 + r2Phase * 2.6);
-          const r2Mat = delhiPulseRing2.material as ThreeMeshBasicMaterial;
-          r2Mat.opacity = Math.max(0, 0.6 * (1 - r2Phase));
-        }
-
-        // Ambient particles rotation
-        particles.rotation.y = elapsed * 0.015;
-        particles.rotation.x = elapsed * 0.008;
+        const ring = new THREE.Mesh(ringGeom, ringMat);
+        ring.lookAt(position.clone().multiplyScalar(2));
+        nodeMesh.add(ring);
       }
 
-      // Parallax camera response
-      camera.position.x = current.x * 0.5;
-      camera.position.y = -current.y * 0.35;
-      camera.lookAt(0, 0, 0);
+      // Elevation pillar connecting node down to the surface
+      const surfacePos = latLonToVector3(node.lat, node.lon, EARTH_RADIUS, 0.005);
+      const pillarGeom = new THREE.BufferGeometry().setFromPoints([surfacePos, position]);
+      const pillarMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(hexColor),
+        transparent: true,
+        opacity: 0.35,
+      });
+      const pillar = new THREE.Line(pillarGeom, pillarMat);
+      globeGroup.add(pillar);
 
-      renderer.render(scene, camera);
-      if (!reduceMotion) {
-        animId = window.requestAnimationFrame(animate);
+      globeGroup.add(nodeMesh);
+      nodeMeshes.set(node.id, nodeMesh);
+    });
+
+    // 8. Great-Circle Curved Network Arcs
+    const arcObjects: Array<{
+      curve: THREE.CatmullRomCurve3;
+      pulseMesh: THREE.Mesh;
+      speed: number;
+    }> = [];
+
+    INITIAL_INTELLIGENCE_ARCS.forEach((arc) => {
+      const src = INITIAL_INTELLIGENCE_NODES.find((n) => n.id === arc.sourceId);
+      const tgt = INITIAL_INTELLIGENCE_NODES.find((n) => n.id === arc.targetId);
+      if (!src || !tgt) return;
+
+      const p1 = latLonToVector3(src.lat, src.lon, EARTH_RADIUS, src.altitude);
+      const p2 = latLonToVector3(tgt.lat, tgt.lon, EARTH_RADIUS, tgt.altitude);
+
+      // Great-circle midpoint arching over globe curvature
+      const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+      const dist = p1.distanceTo(p2);
+      const arcAltitude = dist * 0.38 + 0.15;
+      mid.normalize().multiplyScalar(EARTH_RADIUS + arcAltitude);
+
+      const curve = new THREE.CatmullRomCurve3([p1, mid, p2]);
+      const curvePoints = curve.getPoints(48);
+
+      const arcGeom = new THREE.BufferGeometry().setFromPoints(curvePoints);
+      const arcMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(arc.color),
+        transparent: true,
+        opacity: 0.55,
+      });
+      const arcLine = new THREE.Line(arcGeom, arcMat);
+      globeGroup.add(arcLine);
+
+      // Travelling telemetry pulse packet
+      const pulseGeom = new THREE.SphereGeometry(0.04, 8, 8);
+      const pulseMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(arc.color),
+      });
+      const pulseMesh = new THREE.Mesh(pulseGeom, pulseMat);
+      globeGroup.add(pulseMesh);
+
+      arcObjects.push({
+        curve,
+        pulseMesh,
+        speed: arc.pulseSpeed,
+      });
+    });
+
+    // 9. Interactive Drag to Orbit & Zoom
+    const handlePointerDown = (e: PointerEvent) => {
+      isDraggingRef.current = true;
+      previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const rect = container.getBoundingClientRect();
+      mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      if (!isDraggingRef.current || !globeGroupRef.current) return;
+
+      const deltaX = e.clientX - previousMousePositionRef.current.x;
+      const deltaY = e.clientY - previousMousePositionRef.current.y;
+
+      globeGroupRef.current.rotation.y += deltaX * 0.005;
+      globeGroupRef.current.rotation.x = Math.max(
+        -1.2,
+        Math.min(1.2, globeGroupRef.current.rotation.x + deltaY * 0.005)
+      );
+
+      previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handlePointerUp = () => {
+      isDraggingRef.current = false;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const currentDist = targetCamPosRef.current.z;
+      const newDist = Math.max(4.6, Math.min(10.5, currentDist + e.deltaY * 0.005));
+      targetCamPosRef.current.z = newDist;
+    };
+
+    // Node selection via Click
+    const handleClick = () => {
+      if (!cameraRef.current || !sceneRef.current) return;
+      raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+
+      const meshes = Array.from(nodeMeshesRef.current.values());
+      const intersects = raycasterRef.current.intersectObjects(meshes);
+
+      if (intersects.length > 0) {
+        const hit = intersects[0]?.object as THREE.Mesh;
+        const nodeData = hit.userData.nodeData as IntelligenceNode;
+        if (nodeData) {
+          setSelectedNode(nodeData);
+          if (onNodeSelect) onNodeSelect(nodeData);
+
+          // Focus camera toward selected node
+          const worldPos = new THREE.Vector3();
+          hit.getWorldPosition(worldPos);
+          targetCamPosRef.current.set(worldPos.x * 0.6, worldPos.y * 0.6 + 0.4, 5.2);
+        }
+      }
+    };
+
+    container.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("click", handleClick);
+
+    // Resize handler
+    const handleResize = () => {
+      if (!container || !rendererRef.current || !cameraRef.current) return;
+      const w = container.clientWidth;
+      const h = Math.max(1, container.clientHeight);
+      cameraRef.current.aspect = w / h;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(w, h);
+    };
+    window.addEventListener("resize", handleResize);
+
+    // Initial sequence trigger: Camera settles in 1.8s
+    applyPreset("INDIA");
+
+    // 10. Master Animation Loop
+    let animationFrameId: number;
+    let clock = new THREE.Clock();
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+
+      // Smooth camera interpolation towards target
+      if (cameraRef.current) {
+        cameraRef.current.position.lerp(targetCamPosRef.current, 0.05);
+        cameraRef.current.lookAt(0, 0, 0);
+      }
+
+      // Restrained idle rotation when user is not dragging
+      if (!isDraggingRef.current && globeGroupRef.current && !prefersReducedMotion) {
+        globeGroupRef.current.rotation.y += 0.0006;
+      }
+
+      // Update arc telemetry pulse packets
+      arcObjects.forEach((arc) => {
+        const t = (elapsed * arc.speed * 0.35) % 1;
+        const point = arc.curve.getPointAt(t);
+        arc.pulseMesh.position.copy(point);
+      });
+
+      // Hover Raycasting for Depth-Aware Tooltips
+      if (cameraRef.current) {
+        raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+        const meshes = Array.from(nodeMeshesRef.current.values());
+        const intersects = raycasterRef.current.intersectObjects(meshes);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0]?.object as THREE.Mesh;
+          const nodeData = hit.userData.nodeData as IntelligenceNode;
+
+          // Check if node is on the front side of Earth (Occlusion Test)
+          const worldPos = new THREE.Vector3();
+          hit.getWorldPosition(worldPos);
+          const camDir = cameraRef.current.position.clone().normalize();
+          const nodeDir = worldPos.clone().normalize();
+
+          if (nodeDir.dot(camDir) > 0.1) {
+            setHoveredNode(nodeData);
+          } else {
+            setHoveredNode(null);
+          }
+        } else {
+          setHoveredNode(null);
+        }
+      }
+
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
     };
 
     animate();
 
     return () => {
-      if (animId) window.cancelAnimationFrame(animId);
+      cancelAnimationFrame(animationFrameId);
+      container.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("click", handleClick);
       window.removeEventListener("resize", handleResize);
 
-      // Clean disposal
-      borderGeo.dispose();
-      borderMat.dispose();
-      haloGeo.dispose();
-      haloMat.dispose();
-      internalGridGeo.dispose();
-      internalGridMat.dispose();
-      coreGeo.dispose();
-      coreWireMat.dispose();
-      backboneGeo.dispose();
-      backboneMat.dispose();
-      particlesGeo.dispose();
-      particlesMat.dispose();
-
-      nodeGeometries.forEach((g) => g.dispose());
-      nodeMaterials.forEach((m) => m.dispose());
-
-      renderer.dispose();
-      if (renderer.domElement.parentNode) {
-        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      if (rendererRef.current?.domElement) {
+        container.removeChild(rendererRef.current.domElement);
+        rendererRef.current.dispose();
       }
     };
-  }, []);
+  }, [applyPreset, onNodeSelect]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.gridBackdrop} />
-      <div className={styles.canvasHost} ref={hostRef} />
+    <div className={styles.host} ref={containerRef}>
+      {/* Visual Depth Grid & Horizon */}
+      <div className={styles.gridOverlay} />
 
-      <div className={styles.hudLayer}>
-        <div className={styles.hudTop}>
-          <div className={styles.hudTag}>
-            <span className={styles.liveDot} />
-            <span>ASTRA 6 · DISHA 6.6 SECURE VISUALIZATION</span>
-          </div>
-          <div className={styles.hudCoordinates}>
-            <div>SYS-LOC: 28.6139° N, 77.2090° E</div>
-            <div>INDIA GEOSPATIAL REFERENCE</div>
-          </div>
+      {/* Top Left: Sovereign Header & Active Coordinates */}
+      <div className={styles.topHud}>
+        <div className={styles.systemTag}>
+          <span className={styles.liveDot} />
+          <span className={styles.systemName}>DISHA 6.6</span>
+          <span className={styles.systemSep}>·</span>
+          <span className={styles.runtimeBadge}>RUNTIME: ASTRA 6</span>
         </div>
-
-        <div className={styles.hudCenter}>
-          <div className={styles.centerCrosshair} />
-        </div>
-
-        <div className={styles.hudBottom}>
-          <div className={styles.hudTitleBlock}>
-            <p className={styles.hudEyebrow}>EVIDENCE-FIRST SOVEREIGN RUNTIME</p>
-            <h2 className={styles.hudTitle}>Governed Public Intelligence</h2>
-            <p className={styles.hudDescription}>
-              Spatial orientation for the authenticated intelligence workspace. Operational status and evidence metrics are shown only after verified sign-in.
-            </p>
-
-            <div className={styles.colorStreamBar} aria-label="3D Sovereign 5-Color Vector Streams">
-              <span className={styles.colorStreamItem}>
-                <span className={styles.colorDot} style={{ backgroundColor: "#ff7700", boxShadow: "0 0 8px #ff7700" }} />
-                <span>Saffron</span>
-              </span>
-              <span className={styles.colorStreamItem}>
-                <span className={styles.colorDot} style={{ backgroundColor: "#ffffff", boxShadow: "0 0 8px #ffffff" }} />
-                <span>White</span>
-              </span>
-              <span className={styles.colorStreamItem}>
-                <span className={styles.colorDot} style={{ backgroundColor: "#00e676", boxShadow: "0 0 8px #00e676" }} />
-                <span>Green</span>
-              </span>
-              <span className={styles.colorStreamItem}>
-                <span className={styles.colorDot} style={{ backgroundColor: "#0077ff", boxShadow: "0 0 8px #0077ff" }} />
-                <span>Navy</span>
-              </span>
-              <span className={styles.colorStreamItem}>
-                <span className={styles.colorDot} style={{ backgroundColor: "#ffd700", boxShadow: "0 0 8px #ffd700" }} />
-                <span>Gold</span>
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.telemetryGrid}>
-            <div className={styles.telemetryItem}>
-              <span className={styles.telemetryLabel}>Visualization</span>
-              <span className={styles.telemetryValue}>Three.js / WebGL</span>
-            </div>
-            <div className={styles.telemetryItem}>
-              <span className={styles.telemetryLabel}>Runtime Metrics</span>
-              <span className={styles.telemetryValue}>After Sign-In</span>
-            </div>
-            <div className={styles.telemetryItem}>
-              <span className={styles.telemetryLabel}>Evidence State</span>
-              <span className={styles.telemetryValue}>Authenticated</span>
-            </div>
-          </div>
+        <div className={styles.coords}>
+          <span>ANCHOR: 28.6139° N, 77.2090° E</span>
+          <small>NEW DELHI ROOT DEFENSE VAULT</small>
         </div>
       </div>
+
+      {/* Bottom Left: Navigable Spatial Camera Presets */}
+      <div className={styles.cameraPresets}>
+        <span className={styles.presetLabel}>
+          <Compass size={13} />
+          <span>SPATIAL PRESETS</span>
+        </span>
+        <div className={styles.presetButtons}>
+          <button
+            type="button"
+            className={currentPreset === "INDIA" ? styles.activePreset : ""}
+            onClick={() => applyPreset("INDIA")}
+          >
+            INDIA
+          </button>
+          <button
+            type="button"
+            className={currentPreset === "GLOBAL" ? styles.activePreset : ""}
+            onClick={() => applyPreset("GLOBAL")}
+          >
+            GLOBAL
+          </button>
+          <button
+            type="button"
+            className={currentPreset === "INFRASTRUCTURE" ? styles.activePreset : ""}
+            onClick={() => applyPreset("INFRASTRUCTURE")}
+          >
+            INFRASTRUCTURE
+          </button>
+          <button
+            type="button"
+            className={currentPreset === "ENTITIES" ? styles.activePreset : ""}
+            onClick={() => applyPreset("ENTITIES")}
+          >
+            ENTITIES
+          </button>
+          <button
+            type="button"
+            className={currentPreset === "EVIDENCE" ? styles.activePreset : ""}
+            onClick={() => applyPreset("EVIDENCE")}
+          >
+            EVIDENCE
+          </button>
+        </div>
+      </div>
+
+      {/* In-Scene Hover Inspection HUD */}
+      {hoveredNode && (
+        <div className={styles.hoverTooltip}>
+          <div className={styles.tooltipHeader}>
+            <span
+              className={styles.typeBadge}
+              style={{ backgroundColor: `${SEMANTIC_COLORS[hoveredNode.type]}22`, color: SEMANTIC_COLORS[hoveredNode.type], borderColor: SEMANTIC_COLORS[hoveredNode.type] }}
+            >
+              {hoveredNode.type}
+            </span>
+            <span className={styles.statusBadge}>{hoveredNode.status.toUpperCase()}</span>
+          </div>
+          <h4>{hoveredNode.name}</h4>
+          <p>{hoveredNode.details}</p>
+          <div className={styles.tooltipMeta}>
+            <span>LOC: {hoveredNode.lat.toFixed(4)}°, {hoveredNode.lon.toFixed(4)}°</span>
+            <span>ALT: {(hoveredNode.altitude * 100).toFixed(0)}km</span>
+            <span>CONF: {(hoveredNode.confidence * 100).toFixed(0)}%</span>
+          </div>
+        </div>
+      )}
+
+      {/* Selected Node Inspector Drawer (Non-blocking compact HUD) */}
+      {selectedNode && (
+        <div className={styles.inspectorCard}>
+          <div className={styles.inspectorHead}>
+            <div className={styles.headLeft}>
+              <Crosshair size={16} />
+              <span>ACTIVE NODE INSPECTION</span>
+            </div>
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={() => setSelectedNode(null)}
+            >
+              ✕
+            </button>
+          </div>
+          <h3>{selectedNode.name}</h3>
+          <span
+            className={styles.typeBadge}
+            style={{ backgroundColor: `${SEMANTIC_COLORS[selectedNode.type]}22`, color: SEMANTIC_COLORS[selectedNode.type], borderColor: SEMANTIC_COLORS[selectedNode.type] }}
+          >
+            {selectedNode.type}
+          </span>
+          <p className={styles.nodeDetails}>{selectedNode.details}</p>
+          <div className={styles.inspectorGrid}>
+            <div>
+              <small>COORDINATES</small>
+              <strong>{selectedNode.lat.toFixed(4)}° N, {selectedNode.lon.toFixed(4)}° E</strong>
+            </div>
+            <div>
+              <small>CONFIDENCE</small>
+              <strong>{(selectedNode.confidence * 100).toFixed(0)}% ADMITTED</strong>
+            </div>
+            <div>
+              <small>SOURCE CLASS</small>
+              <strong>{selectedNode.sourceClass.toUpperCase()}</strong>
+            </div>
+            <div>
+              <small>ALTITUDE LAYER</small>
+              <strong>{(selectedNode.altitude * 100).toFixed(0)}km SPHERE</strong>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+// Default export alias to guarantee backwards-compatibility
+export default SovereignCyberMatrix3D;
