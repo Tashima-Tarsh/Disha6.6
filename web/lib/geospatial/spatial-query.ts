@@ -190,4 +190,3 @@ function isMissingGeoSchema(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   return message.includes("geospatial_") && (message.includes("does not exist") || message.includes("undefined_table"));
 }
-
