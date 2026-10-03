@@ -60,7 +60,7 @@ const SECRET_PATTERNS: Array<{
 }> = [
   {
     type: "GCP_API_KEY",
-    regex: /AIza[0-9A-Za-z\\-_]{35}/g,
+    regex: /AIza[0-9A-Za-z_-]{35}/g,
     severity: "HIGH",
     remediation: "Revoke and restrict API key via Google Cloud Console credentials page.",
   },

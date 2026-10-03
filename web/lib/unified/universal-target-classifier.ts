@@ -30,15 +30,15 @@ export type TargetClassification = {
 
 // Strict, high-precision detection patterns
 const CVE_RE = /^CVE-\d{4}-\d{4,8}$/i;
-const IPV4_RE = /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/;
+const IPV4_RE = /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/;
 const IPV6_RE = /^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$/;
 const ASN_RE = /^AS\d{1,10}$/i;
-const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$/;
-const PHONE_RE = /^\\+?[1-9]\d{1,14}$/;
+const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/;
+const PHONE_RE = /^\+?[1-9]\d{1,14}$/;
 const MD5_RE = /^[a-fA-F0-9]{32}$/;
 const SHA1_RE = /^[a-fA-F0-9]{40}$/;
 const SHA256_RE = /^[a-fA-F0-9]{64}$/;
-const DOMAIN_RE = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\\.[a-zA-Z0-9-]{1,63}(?<!-))*\\.[a-zA-Z]{2,63}$/;
+const DOMAIN_RE = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))*\.[a-zA-Z]{2,63}$/;
 const REPOSITORY_RE = /^(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)\/?$/i;
 const VEHICLE_IN_RE = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/i; // Indian VAHAN format e.g. DL01AB1234
 const CERT_SHA1_FINGERPRINT = /^([0-9a-fA-F]{2}:){19}[0-9a-fA-F]{2}$/;

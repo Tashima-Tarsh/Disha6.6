@@ -1,4 +1,4 @@
-const ORIGIN = "https://disha-v6-web.onrender.com";
+const ORIGIN = "http://35.244.9.142";
 
 // Geodesic boundary coordinates of India [lon, lat]
 const INDIA_BORDER: [number, number][] = [
@@ -403,7 +403,7 @@ const proxy = {
       }
     }
 
-    responseHeaders.set("x-disha-edge", "cloudflare-render-proxy");
+    responseHeaders.set("x-disha-edge", "cloudflare-gcp-proxy");
 
     // 2. Synchronize /login with 3D Indian Map and 5-Color Motion Stream
     if (incomingUrl.pathname === "/login" && upstream.status === 200) {

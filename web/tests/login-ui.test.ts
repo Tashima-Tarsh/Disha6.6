@@ -14,7 +14,7 @@ describe("DISHA secure login UI", () => {
     expect(source).toContain('"/api/auth/login"');
     expect(source).toContain("/api/auth/oidc/start?");
     expect(source).toContain('type={showPassword ? "text" : "password"}');
-    expect(source).toContain('disabled={!formValid || state === "submitting"}');
+    expect(source).toContain('disabled={!formValid || state === "submitting" || state === "verified"}');
     expect(source).not.toContain("localStorage");
   });
 
