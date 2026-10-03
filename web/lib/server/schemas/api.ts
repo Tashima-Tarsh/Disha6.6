@@ -52,7 +52,7 @@ export const otpVerifySchema = otpRequestSchema.extend({
 });
 
 export const oidcStartSchema = z.object({
-  provider: z.enum(["meri-pehchan", "intra-id"]),
+  provider: z.literal("meri-pehchan"),
   returnUrl: z.string().optional(),
 });
 
