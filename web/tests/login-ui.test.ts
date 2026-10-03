@@ -54,16 +54,19 @@ describe("DISHA secure login UI", () => {
     expect(source).not.toContain("/api/auth/god-admin");
   });
 
-  it("shows only approved identity providers wired to the existing OIDC route", () => {
+  it("uses Meri Pehchaan and an official government account link instead of a fictional provider", () => {
     const source = fs.readFileSync(loginClient, "utf8");
 
-    expect(source).toContain('startOidc("meri-pehchan")');
-    expect(source).toContain('startOidc("intra-id")');
+    expect(source).toContain('provider: "meri-pehchan"');
+    expect(source).toContain("Meri Pehchaan");
+    expect(source).toContain("https://epramaan.meripehchaan.gov.in/");
+    expect(source).not.toContain("intra-id");
+    expect(source).not.toContain("Intra ID");
     expect(source).not.toContain("Continue with Google");
     expect(source).not.toContain("NIC SSO");
   });
 
-  it("does not advertise unsupported password reset or registration actions", () => {
+  it("does not advertise unsupported local password reset or registration actions", () => {
     const source = fs.readFileSync(loginClient, "utf8");
 
     expect(source).not.toContain('href="/forgot-password"');
