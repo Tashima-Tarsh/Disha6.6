@@ -26,6 +26,7 @@ type ThreeGroup = InstanceType<typeof THREE.Group>;
 type ThreeMesh = InstanceType<typeof THREE.Mesh>;
 type ThreePoints = InstanceType<typeof THREE.Points>;
 type ThreeCurve = InstanceType<typeof THREE.CatmullRomCurve3>;
+type ThreeObject = InstanceType<typeof THREE.Object3D>;
 type ThreeDisposable = { geometry?: { dispose: () => void }; material?: { dispose: () => void } | Array<{ dispose: () => void }> };
 
 // ============================================================================
@@ -685,7 +686,7 @@ export function SovereignCyberMatrix3D({
       window.removeEventListener("resize", handleResize);
 
       if (sceneRef.current) {
-        sceneRef.current.traverse((obj) => {
+        sceneRef.current.traverse((obj: ThreeObject) => {
           const item = obj as unknown as ThreeDisposable;
           if (item.geometry) {
             item.geometry.dispose();
