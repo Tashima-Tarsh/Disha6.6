@@ -48,15 +48,3 @@ export function requiredProviderString(
   return value.trim();
 }
 
-export function readDisplayEmailFromIdToken(idToken: unknown): string | null {
-  if (typeof idToken !== "string") return null;
-  const segments = idToken.split(".");
-  if (segments.length !== 3 || !segments[1]) return null;
-  try {
-    const payload = JSON.parse(Buffer.from(segments[1], "base64url").toString("utf8")) as Record<string, unknown>;
-    const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
-  } catch {
-    return null;
-  }
-}
