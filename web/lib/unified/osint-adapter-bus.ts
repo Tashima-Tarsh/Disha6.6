@@ -24,6 +24,7 @@ export type AdapterContext = {
   missionId: string;
   userId: string;
   purpose: string;
+  identityApproved?: boolean;
   signal?: AbortSignal;
 };
 
