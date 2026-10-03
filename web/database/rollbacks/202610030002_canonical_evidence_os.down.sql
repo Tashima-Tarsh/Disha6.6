@@ -1,0 +1,9 @@
+drop table if exists disha_canonical_corroborations cascade;
+drop table if exists disha_canonical_contradictions cascade;
+drop table if exists disha_state_transitions cascade;
+drop table if exists disha_evidence_vault_diffs cascade;
+drop table if exists disha_evidence_vault_artifacts cascade;
+drop table if exists disha_constitutional_relationships cascade;
+drop table if exists disha_constitutional_entities cascade;
+drop table if exists disha_canonical_claims cascade;
+drop table if exists disha_canonical_observations cascade;

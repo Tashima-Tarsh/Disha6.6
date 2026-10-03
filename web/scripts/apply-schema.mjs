@@ -71,6 +71,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610030001_astra6_tool_integration.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610030001_astra6_tool_integration.down.sql"),
   },
+  {
+    version: "202610030002",
+    name: "canonical_evidence_os",
+    upPath: path.join(databaseRoot, "202610030002_canonical_evidence_os.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610030002_canonical_evidence_os.down.sql"),
+  },
 ];
 
 const requiredTables = [
@@ -120,6 +126,15 @@ const requiredTables = [
   "astra6_connector_runs",
   "astra6_observations",
   "astra6_entities",
+  "disha_canonical_observations",
+  "disha_canonical_claims",
+  "disha_constitutional_entities",
+  "disha_constitutional_relationships",
+  "disha_evidence_vault_artifacts",
+  "disha_evidence_vault_diffs",
+  "disha_state_transitions",
+  "disha_canonical_contradictions",
+  "disha_canonical_corroborations",
 ];
 
 const requiredIndexes = [
@@ -200,6 +215,17 @@ const requiredIndexes = [
   "astra6_observations_tool_idx",
   "astra6_entities_canonical_idx",
   "astra6_entities_last_seen_idx",
+  "disha_canonical_observations_source_idx",
+  "disha_canonical_observations_hash_idx",
+  "disha_canonical_claims_subject_predicate_idx",
+  "disha_canonical_claims_review_idx",
+  "disha_constitutional_entities_type_idx",
+  "disha_constitutional_relationships_src_tgt_idx",
+  "disha_evidence_vault_uri_version_idx",
+  "disha_evidence_vault_diffs_uri_idx",
+  "disha_state_transitions_target_idx",
+  "disha_canonical_contradictions_conflict_type_idx",
+  "disha_canonical_corroborations_claim_idx",
 ];
 
 const requiredRlsTables = [
@@ -214,6 +240,15 @@ const requiredRlsTables = [
   "astra6_connector_runs",
   "astra6_observations",
   "astra6_entities",
+  "disha_canonical_observations",
+  "disha_canonical_claims",
+  "disha_constitutional_entities",
+  "disha_constitutional_relationships",
+  "disha_evidence_vault_artifacts",
+  "disha_evidence_vault_diffs",
+  "disha_state_transitions",
+  "disha_canonical_contradictions",
+  "disha_canonical_corroborations",
 ];
 
 const mode = process.argv.includes("--verify-only") ? "verify" : process.argv.includes("--rollback") ? "rollback" : "migrate";
