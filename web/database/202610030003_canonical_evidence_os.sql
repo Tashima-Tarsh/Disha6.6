@@ -197,54 +197,63 @@ alter table disha_state_transitions enable row level security;
 alter table disha_canonical_contradictions enable row level security;
 alter table disha_canonical_corroborations enable row level security;
 
+drop policy if exists disha_canonical_observations_service_policy on disha_canonical_observations;
 create policy disha_canonical_observations_service_policy
   on disha_canonical_observations
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_canonical_claims_service_policy on disha_canonical_claims;
 create policy disha_canonical_claims_service_policy
   on disha_canonical_claims
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_constitutional_entities_service_policy on disha_constitutional_entities;
 create policy disha_constitutional_entities_service_policy
   on disha_constitutional_entities
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_constitutional_relationships_service_policy on disha_constitutional_relationships;
 create policy disha_constitutional_relationships_service_policy
   on disha_constitutional_relationships
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_evidence_vault_artifacts_service_policy on disha_evidence_vault_artifacts;
 create policy disha_evidence_vault_artifacts_service_policy
   on disha_evidence_vault_artifacts
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_evidence_vault_diffs_service_policy on disha_evidence_vault_diffs;
 create policy disha_evidence_vault_diffs_service_policy
   on disha_evidence_vault_diffs
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_state_transitions_service_policy on disha_state_transitions;
 create policy disha_state_transitions_service_policy
   on disha_state_transitions
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_canonical_contradictions_service_policy on disha_canonical_contradictions;
 create policy disha_canonical_contradictions_service_policy
   on disha_canonical_contradictions
   for all
   using (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'))
   with check (current_user in ('disha_app', 'disha', 'postgres', 'disha_owner'));
 
+drop policy if exists disha_canonical_corroborations_service_policy on disha_canonical_corroborations;
 create policy disha_canonical_corroborations_service_policy
   on disha_canonical_corroborations
   for all
