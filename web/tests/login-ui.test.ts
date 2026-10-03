@@ -18,14 +18,13 @@ describe("DISHA secure login UI", () => {
     expect(source).not.toContain("localStorage");
   });
 
-  it("uses the supplied artwork as a normal static asset", () => {
+  it("uses the native Astra 6 Three.js scene instead of flattening the login into reference artwork", () => {
     const source = fs.readFileSync(loginClient, "utf8");
     const css = fs.readFileSync(loginStyles, "utf8");
 
-    expect(css).toContain('url("/disha66-login-reference.webp")');
-    expect(css).toContain('url("/disha66-login-reference.avif")');
-    expect(css).toContain("left center / auto 100% no-repeat");
-    expect(source).not.toContain("HERO_PARTS");
+    expect(source).toContain("SovereignCyberMatrix3D");
+    expect(css).not.toContain('url("/disha66-login-reference.webp")');
+    expect(css).not.toContain('url("/disha66-login-reference.avif")');
     expect(source).not.toContain("data:image/avif;base64,");
     expect(source).not.toContain("/disha-login-hero.webp");
   });
@@ -69,8 +68,8 @@ describe("DISHA secure login UI", () => {
   it("uses truthful security labels for existing controls", () => {
     const source = fs.readFileSync(loginClient, "utf8");
 
-    expect(source).toContain("Secure<br />session");
+    expect(source).toContain("Signed<br />session");
     expect(source).toContain("CSRF<br />protected");
-    expect(source).toContain("Audited<br />access");
+    expect(source).toContain("Audit<br />logged");
   });
 });
