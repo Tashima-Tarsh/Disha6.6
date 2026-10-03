@@ -166,6 +166,23 @@ services:
       web:
         condition: service_healthy
 
+  osint-worker:
+    build:
+      context: .
+      dockerfile: infra/workers/Dockerfile.osint-worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-disha}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-disha}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
+      DISHA_WORKER_ID: gcp-astra6-worker-1
+      DISHA_OSINT_POLL_MS: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   redis_data:
