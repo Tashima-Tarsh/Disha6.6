@@ -142,7 +142,7 @@ Enterprise orchestration of authoritative open-source intelligence frameworks un
 | **Mission Workbench** | `/workbench` | Structured multi-lens analysis execution, policy gates, hypothesis evaluation, evidence export. |
 | **Intelligence Review** | `/intelligence` | Watch bundles, indicator tracking, analyst review queue, cryptographic evidence timeline. |
 | **System Health** | `/system` | Microservice heartbeat monitoring, database connection pool statistics, Redis metrics. |
-| **Identity Gateway** | `/login` | High-security authenticated access with Argon2 password hashing and signed JWT session rotation. |
+| **Identity Gateway** | `/login` | High-security authenticated access with scrypt password hashing and signed JWT session rotation. |
 
 ---
 
