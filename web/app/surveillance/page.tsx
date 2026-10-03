@@ -6,8 +6,8 @@ import { SurveillanceClient } from "./surveillance-client";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "disha6.6 | 3D/4D God's Eye Cyber Space & OSINT Universe",
-  description: "Governed 3D/4D tactical cyber surveillance, complete 100+ OSINT source universe, live telemetry intercept, and Vyuha defense center.",
+  title: "DISHA 6.6 | Governed OSINT Analysis",
+  description: "Governed public-source intelligence analysis, 3D OSINT source universe, authenticated evidence events, and policy-gated defensive review.",
 };
 
 export default async function SurveillanceIntelligencePage() {
