@@ -41,10 +41,12 @@ module "redis" {
 }
 
 module "storage" {
-  source      = "./modules/storage"
-  project_id  = var.project_id
-  region      = var.region
-  environment = var.environment
+  source                  = "./modules/storage"
+  project_id              = var.project_id
+  region                  = var.region
+  environment             = var.environment
+  retention_period_seconds = var.evidence_retention_seconds
+  lock_retention_policy    = var.evidence_retention_lock
 }
 
 module "pubsub" {
