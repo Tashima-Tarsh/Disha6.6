@@ -38,8 +38,8 @@ function isToolAvailable(manifest: DishaToolManifest): boolean {
   return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
 }
 
-function identityPolicyApproved(): boolean {
-  return process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+function identityPolicyApproved(context: AdapterContext): boolean {
+  return process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true" && context.identityApproved === true;
 }
 
 function isIdentityTarget(targetType: string): boolean {
@@ -197,7 +197,7 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
         throw new Error(`target_type_mismatch: ${manifest.name} does not accept ${input.targetType}, expected ${manifest.targetTypes.join("/")}`);
       }
 
-      if (isIdentityTarget(input.targetType) && !identityPolicyApproved()) {
+      if (isIdentityTarget(input.targetType) && !identityPolicyApproved(context)) {
         const data: Astra6DispatchOutput = {
           toolId: manifest.toolId,
           target,
