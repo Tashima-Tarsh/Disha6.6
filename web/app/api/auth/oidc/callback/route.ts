@@ -9,7 +9,14 @@ import {
 import { verifySignedJson } from "@/lib/server/crypto";
 import { getEnv } from "@/lib/server/env";
 import { errorResponse } from "@/lib/server/http";
+import {
+  fetchMeriPehchaanJson,
+  readDisplayEmailFromIdToken,
+  requiredProviderString,
+} from "@/lib/server/meri-pehchaan";
 import { requestId } from "@/lib/server/security";
+
+const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
 function safeReturnUrl(value: unknown): string {
   if (
@@ -23,80 +30,62 @@ function safeReturnUrl(value: unknown): string {
   return value;
 }
 
-function requiredString(record: Record<string, unknown>, key: string): string {
-  const value = record[key];
-  if (typeof value !== "string" || value.length === 0) {
-    throw Object.assign(new Error("OIDC provider metadata is incomplete"), { status: 502 });
-  }
-  return value;
+function browserAcceptsJson(req: NextRequest) {
+  return req.headers.get("accept")?.includes("application/json") ?? false;
 }
 
-async function fetchJson(url: string, init: RequestInit): Promise<Record<string, unknown>> {
-  const response = await fetch(url, {
-    ...init,
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!response.ok) {
-    throw Object.assign(new Error("OIDC provider request failed"), { status: 502 });
-  }
-  const body = await response.json();
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    throw Object.assign(new Error("OIDC provider returned an invalid response"), { status: 502 });
-  }
-  return body as Record<string, unknown>;
+function loginErrorRedirect(req: NextRequest, code: string) {
+  const login = new URL("/login", req.nextUrl.origin);
+  login.searchParams.set("authError", code);
+  return NextResponse.redirect(login);
 }
 
 export async function GET(req: NextRequest) {
   try {
     const env = getEnv();
-    if (env.DISHA_AUTH_MODE !== "oidc") {
-      throw Object.assign(new Error("OIDC mode is disabled"), { status: 404 });
+    if (env.DISHA_AUTH_MODE !== "oidc" && env.DISHA_AUTH_MODE !== "hybrid") {
+      throw Object.assign(new Error("Government identity sign-in is disabled"), { status: 404 });
+    }
+
+    const providerError = req.nextUrl.searchParams.get("error");
+    if (providerError) {
+      if (!browserAcceptsJson(req)) return loginErrorRedirect(req, "government-signin-cancelled");
+      throw Object.assign(new Error("Government identity authorization was not completed"), { status: 401 });
     }
 
     const code = req.nextUrl.searchParams.get("code");
     const state = req.nextUrl.searchParams.get("state");
     if (!code || !state) {
-      throw Object.assign(new Error("OIDC callback requires code and state"), { status: 400 });
+      throw Object.assign(new Error("Meri Pehchaan callback requires code and state"), { status: 400 });
     }
 
     let statePayload: Record<string, unknown>;
     try {
       statePayload = verifySignedJson(state, authSigningSecret());
     } catch {
-      throw Object.assign(new Error("Invalid OIDC state"), { status: 400 });
+      throw Object.assign(new Error("Invalid Meri Pehchaan state"), { status: 400 });
     }
-    if (
-      statePayload.provider !== "meri-pehchan" &&
-      statePayload.provider !== "intra-id"
-    ) {
-      throw Object.assign(new Error("Invalid OIDC provider state"), { status: 400 });
+    if (statePayload.provider !== "meri-pehchan") {
+      throw Object.assign(new Error("Invalid government identity provider state"), { status: 400 });
     }
 
-    const verifier = req.cookies.get("disha_oidc_verifier")?.value;
+    const verifier = req.cookies.get(OIDC_VERIFIER_COOKIE)?.value;
     if (!verifier) {
-      throw Object.assign(new Error("OIDC verifier cookie is missing"), { status: 400 });
+      throw Object.assign(new Error("Meri Pehchaan PKCE verifier cookie is missing"), { status: 400 });
     }
 
-    const issuer = env.DISHA_OIDC_ISSUER;
-    const clientId = env.DISHA_OIDC_CLIENT_ID;
-    const clientSecret = env.DISHA_OIDC_CLIENT_SECRET;
-    if (!issuer || !clientId || !clientSecret) {
-      throw Object.assign(new Error("OIDC is not fully configured"), { status: 503 });
+    const clientId = env.DISHA_MERI_PEHCHAN_CLIENT_ID;
+    const clientSecret = env.DISHA_MERI_PEHCHAN_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      throw Object.assign(new Error("Meri Pehchaan client credentials are not configured"), { status: 503 });
     }
-
-    const issuerBase = issuer.endsWith("/") ? issuer : issuer + "/";
-    const discovery = await fetchJson(
-      new URL(".well-known/openid-configuration", issuerBase).toString(),
-      { headers: { accept: "application/json" } },
-    );
-    const tokenEndpoint = requiredString(discovery, "token_endpoint");
-    const userinfoEndpoint = requiredString(discovery, "userinfo_endpoint");
 
     const redirectUri =
+      env.DISHA_MERI_PEHCHAN_REDIRECT_URI ??
       env.DISHA_OIDC_REDIRECT_URI ??
       new URL("/api/auth/oidc/callback", req.nextUrl.origin).toString();
-    const tokenSet = await fetchJson(tokenEndpoint, {
+
+    const tokenSet = await fetchMeriPehchaanJson(env.DISHA_MERI_PEHCHAN_TOKEN_URL, {
       method: "POST",
       headers: {
         accept: "application/json",
@@ -113,42 +102,58 @@ export async function GET(req: NextRequest) {
         code_verifier: verifier,
       }),
     });
-    const accessToken = requiredString(tokenSet, "access_token");
+    const accessToken = requiredProviderString(tokenSet, "access_token");
 
-    const profile = await fetchJson(userinfoEndpoint, {
+    const profile = await fetchMeriPehchaanJson(env.DISHA_MERI_PEHCHAN_USER_URL, {
+      method: "GET",
       headers: {
         accept: "application/json",
         authorization: "Bearer " + accessToken,
       },
     });
-    const email = typeof profile.email === "string" ? profile.email.trim().toLowerCase() : "";
-    if (!email || profile.email_verified !== true || typeof profile.sub !== "string") {
-      throw Object.assign(
-        new Error("OIDC provider did not return a verified identity"),
-        { status: 403 },
-      );
-    }
 
-    const session = await createSession(email, ["analyst"]);
+    const digilockerId = requiredProviderString(profile, "digilockerid");
+    requiredProviderString(profile, "name");
+
+    // Authorization identity comes from the authenticated government /user response.
+    // The ID-token email, when present, is display-only and is not used as the session subject.
+    const displayIdentity =
+      readDisplayEmailFromIdToken(tokenSet.id_token) ??
+      `meri-pehchaan:${digilockerId}`;
+
+    const session = await createSession(displayIdentity, ["analyst"], {
+      subject: `meri-pehchaan:${digilockerId}`,
+    });
     const response = NextResponse.redirect(
       new URL(safeReturnUrl(statePayload.returnUrl), req.nextUrl.origin),
     );
     setSessionCookies(response, session.accessToken, session.refreshToken);
-    response.cookies.set("disha_oidc_verifier", "", {
+    response.cookies.set(OIDC_VERIFIER_COOKIE, "", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/api/auth/oidc",
       maxAge: 0,
     });
+
     await audit({
       requestId: requestId(req),
       action: "auth.oidc.callback",
       outcome: "success",
-      metadata: { provider: statePayload.provider },
+      metadata: { provider: "meri-pehchan" },
     });
     return response;
   } catch (error) {
+    if (!browserAcceptsJson(req)) {
+      const status =
+        typeof error === "object" && error !== null && "status" in error
+          ? Number(error.status)
+          : 500;
+      return loginErrorRedirect(
+        req,
+        status === 503 ? "meri-pehchaan-not-configured" : "government-signin-failed",
+      );
+    }
     return errorResponse(error, req);
   }
 }
