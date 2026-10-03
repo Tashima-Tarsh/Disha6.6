@@ -19,7 +19,9 @@
     "test": "vitest run",
     "prebuild": "node scripts/copy-maplibre-assets.mjs",
     "predev": "node scripts/copy-maplibre-assets.mjs",
-    "geo:import": "node scripts/geospatial/import-authoritative-geojson.mjs"
+    "geo:import": "node scripts/geospatial/import-authoritative-geojson.mjs",
+    "db:seed": "node scripts/seed-production-data.mjs",
+    "auth:set-password": "node scripts/set-user-password.mjs"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "9.4.0",
@@ -66,7 +68,6 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@next/bundle-analyzer": "^16.3.6",
-    "@opennextjs/cloudflare": "1.20.6",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.2",
     "@types/pg": "^8.20.0",
@@ -81,6 +82,11 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.11",
     "wrangler": "4.146.0"
+  },
+  "overrides": {
+    "undici": ">=7.30.0",
+    "braces": ">=3.0.3",
+    "micromatch": ">=4.0.8"
   },
   "engines": {
     "node": "22.x"

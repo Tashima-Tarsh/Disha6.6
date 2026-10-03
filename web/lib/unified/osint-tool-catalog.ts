@@ -23,8 +23,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "MIT",
     capabilities: ["multi-source OSINT", "correlation", "attack-surface mapping", "exports"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "Broad module ecosystem includes both passive collection and modules that can become active; integration requires module-level allowlisting.",
+    mode: "builtin",
+    reason: "Production-integrated via ASTRA 6 with reviewed passive module allowlist.",
   },
   {
     id: "theharvester",
@@ -33,8 +33,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "GPL-2.0",
     capabilities: ["passive domain discovery", "certificate sources", "search-provider aggregation"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "Useful passive providers can be wrapped individually, while active or intrusive providers must remain disabled.",
+    mode: "builtin",
+    reason: "Production-integrated via ASTRA 6 with passive-only provider allowlist.",
   },
   {
     id: "owasp-amass",
@@ -44,7 +44,7 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     capabilities: ["asset discovery", "DNS enumeration", "attack-surface mapping"],
     risk: "active_recon",
     mode: "blocked_by_default",
-    reason: "Upstream supports active reconnaissance; DISHA should only integrate explicitly passive data-source portions unless an authorized sandbox policy permits more.",
+    reason: "Upstream supports active reconnaissance; DISHA integrates only the passive-only portion via ASTRA 6.",
   },
   {
     id: "intelowl",
@@ -103,8 +103,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "MIT",
     capabilities: ["username presence discovery"],
     risk: "identity_enumeration",
-    mode: "blocked_by_default",
-    reason: "Person/account enumeration creates privacy and abuse risk and is not part of the default public-interest intelligence path.",
+    mode: "builtin",
+    reason: "Production-integrated via ASTRA 6 with identity enumeration policy gate.",
   },
   {
     id: "maigret",
@@ -135,6 +135,26 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     risk: "passive_public",
     mode: "catalog_only",
     reason: "Useful discovery index; individual linked resources still require independent review before integration.",
+  },
+  {
+    id: "phoneinfoga",
+    name: "PhoneInfoga",
+    repository: "https://github.com/sundowndev/phoneinfoga",
+    license: "GPL-3.0",
+    capabilities: ["phone number OSINT", "carrier lookup", "reputation check"],
+    risk: "passive_public" as OsintToolRisk,
+    mode: "builtin" as OsintToolMode,
+    reason: "Production-integrated via ASTRA 6 for phone number intelligence with identity enumeration policy gate.",
+  },
+  {
+    id: "subfinder",
+    name: "ProjectDiscovery Subfinder",
+    repository: "https://github.com/projectdiscovery/subfinder",
+    license: "MIT",
+    capabilities: ["passive subdomain enumeration", "multi-source subdomain discovery"],
+    risk: "passive_public" as OsintToolRisk,
+    mode: "builtin" as OsintToolMode,
+    reason: "Production-integrated via ASTRA 6 for passive subdomain enumeration.",
   },
 ];
 

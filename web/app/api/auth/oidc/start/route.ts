@@ -12,6 +12,10 @@ import { requestId } from "@/lib/server/security";
 
 const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
+function safeReturnUrl(value?: string) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
+  return value;
+}
 
 export async function GET(req: NextRequest) {
   try {

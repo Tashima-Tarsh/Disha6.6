@@ -5,6 +5,7 @@ import { Activity, AlertTriangle, ArrowLeft, CheckCircle2, Clock3, RefreshCw, Sh
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { authFetchHeaders } from "@/lib/utils";
 import styles from "./intelligence.module.css";
 
 type Change = {
@@ -78,7 +79,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
 
   const load = useCallback(async () => {
     try {
-      const response = await authenticatedFetch("/api/v1/intelligence/live?limit=150", { cache: "no-store" });
+      const response = await fetch("/api/v1/intelligence/live?limit=150", { cache: "no-store", credentials: "same-origin" });
       if (!response.ok) throw new Error(`Live intelligence request failed (${response.status})`);
       setFeed(await response.json() as LiveFeed);
       setError(null);
@@ -104,7 +105,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
     setSelectedChangeId(change.changeId);
     try {
       const params = new URLSearchParams({ subject: change.subject, predicate: change.predicate });
-      const response = await authenticatedFetch(`/api/v1/intelligence/state?${params.toString()}`, { cache: "no-store" });
+      const response = await fetch(`/api/v1/intelligence/state?${params.toString()}`, { cache: "no-store", credentials: "same-origin" });
       if (!response.ok) throw new Error(`State inspection failed (${response.status})`);
       setSelectedState(await response.json() as IntelligenceState);
     } catch (caught) {
@@ -119,7 +120,8 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
       const bundle = buildBundlePayload(bundleKind, bundleFields);
       const response = await authenticatedFetch("/api/v1/osint/watch-bundles", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        headers: authFetchHeaders(),
         body: JSON.stringify({
           purpose: `Continuous ${bundleKind.replaceAll("_", " ")} intelligence watch`,
           reviewOnChange: true,
@@ -142,7 +144,12 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
   async function resolveReview(reviewId: string, status: "in_review" | "resolved" | "dismissed") {
     setBusy(reviewId);
     try {
-      const response = await authenticatedFetch("/api/v1/intelligence/reviews", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ reviewId, status }) });
+      const response = await fetch("/api/v1/intelligence/reviews", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: authFetchHeaders(),
+        body: JSON.stringify({ reviewId, status }),
+      });
       if (!response.ok) throw new Error(`Review update failed (${response.status})`);
       await load();
     } catch (caught) {

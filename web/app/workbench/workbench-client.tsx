@@ -22,9 +22,9 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { authFetchHeaders } from "@/lib/utils";
 import styles from "./workbench.module.css";
 
 type Sensitivity = "public" | "internal" | "controlled" | "classified";
@@ -309,7 +309,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    void authenticatedFetch("/api/dashboard/command", { cache: "no-store", signal: controller.signal })
+    void fetch("/api/dashboard/command", { cache: "no-store", credentials: "same-origin", signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok) throw new Error(readApiError(payload, response.status));
@@ -337,7 +337,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
         : [];
       const response = await authenticatedFetch("/api/v1/agentic/mission", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authFetchHeaders(),
         credentials: "same-origin",
         body: JSON.stringify({
           rawText: missionText,
@@ -380,6 +380,7 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
     try {
       const res = await authenticatedFetch(`/api/v1/osint/search?q=${encodeURIComponent(target)}`, {
         cache: "no-store",
+        credentials: "same-origin",
       });
       const data = await res.json();
       if (!res.ok) {

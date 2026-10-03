@@ -3,11 +3,16 @@ import { safeReturnUrl } from "@/lib/server/return-url";
 import { NextRequest, NextResponse } from "next/server";
 
 import { audit } from "@/lib/server/audit";
-import { login, setSessionCookies } from "@/lib/server/auth";
+import { passwordLogin, setSessionCookies } from "@/lib/server/auth";
 import { setCsrfCookie } from "@/lib/server/csrf";
 import { assertPublicRequestGuards, errorResponse } from "@/lib/server/http";
 import { requestId } from "@/lib/server/security";
 
+function safeReturnUrl(value: FormDataEntryValue | null) {
+  const text = typeof value === "string" ? value : "";
+  if (!text || !text.startsWith("/") || text.startsWith("//")) return "/dashboard";
+  return text;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,8 +20,7 @@ export async function POST(req: NextRequest) {
     const form = await req.formData();
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
-    const body = loginSchema.parse({ email, password });
-    const session = await login(body.email, body.password);
+    const session = await passwordLogin(email, password);
     const response = NextResponse.redirect(new URL(safeReturnUrl(form.get("returnUrl")), req.nextUrl.origin), 303);
     setSessionCookies(response, session.accessToken, session.refreshToken);
     setCsrfCookie(response);

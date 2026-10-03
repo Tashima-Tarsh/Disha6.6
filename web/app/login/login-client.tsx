@@ -69,8 +69,7 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
         throw new Error("Secure sign-in is temporarily unavailable. Please try again.");
       }
 
-      router.replace(returnUrl);
-      router.refresh();
+      window.location.assign(returnUrl);
     } catch (caught) {
       setState("error");
       setError(caught instanceof Error ? caught.message : "Secure sign-in failed.");
@@ -91,9 +90,9 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
       <section className={styles.loginPanel} aria-labelledby="secure-access-title">
         <div className={styles.panelInner}>
           <div className={styles.headingBlock}>
-            <p className={styles.kicker}>PROTECTED IDENTITY GATEWAY</p>
-            <h1 id="secure-access-title">Secure Access</h1>
-            <p>Sign in to your evidence workspace</p>
+            <p className={styles.kicker}>ASTRA 6 · SOVEREIGN IDENTITY GATEWAY</p>
+            <h1 id="secure-access-title">DISHA 6.6 Secure Access</h1>
+            <p>Evidence-grade intelligence. Governed access.</p>
           </div>
 
           {passwordEnabled && <form className={styles.loginForm} onSubmit={signIn} noValidate>
@@ -173,9 +172,9 @@ export function LoginClient({ returnUrl, passwordEnabled, providers }: { returnU
           </div>
 
           <footer className={styles.securityFooter}>
-            <div><ShieldCheck size={20} /><span>Secure<br />session</span></div>
+            <div><ShieldCheck size={20} /><span>Signed<br />session</span></div>
             <div><Fingerprint size={20} /><span>CSRF<br />protected</span></div>
-            <div><CheckCircle2 size={20} /><span>Audited<br />access</span></div>
+            <div><CheckCircle2 size={20} /><span>Audit<br />logged</span></div>
           </footer>
         </div>
       </section>

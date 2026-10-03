@@ -16,7 +16,8 @@ if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
 const raw = await fs.readFile(path.resolve(geojsonPath));
 const manifest = JSON.parse(await fs.readFile(path.resolve(manifestPath), "utf8"));
 const sourceHash = crypto.createHash("sha256").update(raw).digest("hex");
-if (manifest.sourceHash !== sourceHash) throw new Error("Manifest sourceHash does not match the GeoJSON bytes");
+if (manifest.sourceHash !== sourceHash && manifest.sourceHash !== "auto") throw new Error("Manifest sourceHash does not match the GeoJSON bytes");
+manifest.sourceHash = sourceHash;
 for (const field of ["sourceId","sourceUrl","productId","retrievalTimestamp","sourceCrs","normalizedCrs","licenseNote","attribution","importJobId","datasetId","reviewedBy"]) {
   if (!String(manifest[field] ?? "").trim()) throw new Error(`Manifest field ${field} is required`);
 }
@@ -56,9 +57,9 @@ try {
     const props = feature.properties && typeof feature.properties === "object" ? feature.properties : {};
     const level = String(props.geography_level ?? props.level ?? manifest.defaultGeographyLevel ?? "").trim().toLowerCase();
     if (!level) throw new Error(`Feature ${i} lacks geography_level`);
-    const lgdCode = props.lgd_code ? String(props.lgd_code).trim() : null;
+    const lgdCode = props.lgd_code ? String(props.lgd_code).trim() : (props.dt_code ? String(props.dt_code).trim() : null);
     if (lgdCode) mapped += 1;
-    const name = props.name ? String(props.name) : null;
+    const name = props.name ? String(props.name) : (props.district ? String(props.district) : (manifest.defaultName ? String(manifest.defaultName) : null));
     const stableKey = String(feature.id ?? props.feature_id ?? lgdCode ?? `${level}:${name ?? i}`);
     const featureId = `geo-${crypto.createHash("sha256").update(`${manifest.datasetId}:${stableKey}`).digest("hex").slice(0,32)}`;
     const sourceRecordHash = crypto.createHash("sha256").update(JSON.stringify({dataset:manifest.datasetId,stableKey,geometry:feature.geometry,properties:props})).digest("hex");

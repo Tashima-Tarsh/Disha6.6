@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { PoolClient } from "pg";
 import crypto from "node:crypto";
 import { getEnv, isProduction } from "./env";
-import { randomToken, signJson, verifySecret, verifySignedJson } from "./crypto";
+import { hashSecret, randomToken, signJson, verifySecret, verifySignedJson } from "./crypto";
 import { getDbPool } from "./db";
 import type { Principal, Role } from "./types";
 
@@ -31,10 +31,14 @@ export function authSigningSecret(): string {
 }
 
 function cookieOptions(maxAge: number) {
+  const isHttps = process.env.NEXT_PUBLIC_APP_URL?.startsWith("https://") ?? false;
+  const forceSecure = process.env.DISHA_COOKIE_SECURE === "true";
+  const disableSecure = process.env.DISHA_COOKIE_SECURE === "false";
+  const secure = disableSecure ? false : (forceSecure || (isProduction() && isHttps));
   return {
     httpOnly: true,
-    secure: isProduction(),
-    sameSite: "strict" as const,
+    secure,
+    sameSite: "lax" as const,
     path: "/",
     maxAge,
   };
@@ -192,23 +196,48 @@ export async function requirePrincipal(req: NextRequest): Promise<Principal> {
   return principalFromAccessToken(token);
 }
 
-export async function login(email: string, password: string, persistent = true) {
+export async function passwordLogin(email: string, password: string, persistent = true) {
   const env = getEnv();
-  if (env.DISHA_AUTH_MODE === "password") {
-    const { passwordLogin } = await import("./password-auth");
-    return passwordLogin(email, password, persistent);
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt") {
+    const expected = env.DISHA_DEV_PASSWORD ?? "change-me-in-env";
+    if (password !== expected) throw Object.assign(new Error("Invalid credentials"), { status: 401 });
+    const devAdmins = new Set(
+      (env.DISHA_DEV_ADMIN_EMAILS ?? "")
+        .split(",")
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    );
+    const roles: Role[] = devAdmins.has(normalizedEmail) ? ["admin"] : ["analyst"];
+    return createSession(normalizedEmail, roles, { persistent });
   }
-  const developmentMode = env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt";
-  if (!developmentMode) {
+
+  if (env.DISHA_AUTH_MODE !== "password") {
     throw Object.assign(new Error("Password login is disabled"), { status: 403 });
   }
-  const expected = env.DISHA_DEV_PASSWORD;
-  if (!expected) throw Object.assign(new Error("Local development password is not configured"), { status: 503 });
-  if (password !== expected) throw Object.assign(new Error("Invalid credentials"), { status: 401 });
-  const normalizedEmail = email.toLowerCase();
-  const devAdmins = new Set((env.DISHA_DEV_ADMIN_EMAILS ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));
-  const roles: Role[] = devAdmins.has(normalizedEmail) ? ["admin"] : ["analyst"];
-  return createSession(email, roles, { persistent });
+
+  const pool = getDbPool();
+  if (!pool) {
+    throw Object.assign(new Error("Password authentication requires the production database"), { status: 503 });
+  }
+
+  const result = await pool.query(
+    `select id, email, roles, password_hash, disabled_at
+       from users
+      where lower(email) = $1
+      limit 1`,
+    [normalizedEmail],
+  );
+  const user = result.rows[0] as
+    | { id: string; email: string; roles: Role[]; password_hash: string | null; disabled_at: Date | null }
+    | undefined;
+
+  if (!user || user.disabled_at || !user.password_hash || !verifySecret(password, user.password_hash)) {
+    throw Object.assign(new Error("Invalid credentials"), { status: 401 });
+  }
+
+  return createSession(user.email, user.roles?.length ? user.roles : ["analyst"], { persistent });
 }
 
 // Compatibility for callers that explicitly use the local development entrypoint.
