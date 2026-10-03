@@ -67,6 +67,7 @@ module "cloud_run" {
   db_user                 = module.cloud_sql.db_user
   db_password_secret_id   = module.secret_manager.db_password_secret_id
   jwt_secret_id           = module.secret_manager.jwt_secret_id
+  worker_token_secret_id  = module.secret_manager.worker_token_secret_id
   redis_host              = module.redis.host
   redis_port              = module.redis.port
   osint_topic_id          = module.pubsub.osint_jobs_topic_id
