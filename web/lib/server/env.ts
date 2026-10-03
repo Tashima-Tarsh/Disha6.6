@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DISHA_AUTH_MODE: z.enum(["dev-jwt", "password", "oidc"]).default("dev-jwt"),
+  DISHA_AUTH_MODE: z.enum(["dev-jwt", "password", "oidc", "hybrid"]).default("dev-jwt"),
   DISHA_JWT_SECRET: z.string().min(32).optional(),
   DISHA_DEV_PASSWORD: z.string().min(12).optional(),
   DISHA_DEV_ADMIN_EMAILS: z.preprocess(
@@ -11,9 +11,13 @@ const envSchema = z.object({
   DISHA_OIDC_ISSUER: z.string().url().optional(),
   DISHA_OIDC_CLIENT_ID: z.string().optional(),
   DISHA_OIDC_CLIENT_SECRET: z.string().optional(),
-  DISHA_MERI_PEHCHAN_AUTH_URL: z.string().url().optional(),
-  DISHA_INTRA_ID_AUTH_URL: z.string().url().optional(),
   DISHA_OIDC_REDIRECT_URI: z.string().url().optional(),
+  DISHA_MERI_PEHCHAN_AUTH_URL: z.string().url().default("https://digilocker.meripehchaan.gov.in/public/oauth2/1/authorize"),
+  DISHA_MERI_PEHCHAN_TOKEN_URL: z.string().url().default("https://digilocker.meripehchaan.gov.in/public/oauth2/2/token"),
+  DISHA_MERI_PEHCHAN_USER_URL: z.string().url().default("https://digilocker.meripehchaan.gov.in/public/oauth2/1/user"),
+  DISHA_MERI_PEHCHAN_CLIENT_ID: z.string().optional(),
+  DISHA_MERI_PEHCHAN_CLIENT_SECRET: z.string().optional(),
+  DISHA_MERI_PEHCHAN_REDIRECT_URI: z.string().url().optional(),
   DATABASE_URL: z.string().optional(),
   REDIS_URL: z.string().optional(),
   DISHA_WORKSPACE_ROOT: z.string().optional(),
@@ -79,9 +83,13 @@ export function getEnv(): RuntimeEnv {
       DISHA_OIDC_ISSUER: undefined,
       DISHA_OIDC_CLIENT_ID: undefined,
       DISHA_OIDC_CLIENT_SECRET: undefined,
-      DISHA_MERI_PEHCHAN_AUTH_URL: undefined,
-      DISHA_INTRA_ID_AUTH_URL: undefined,
       DISHA_OIDC_REDIRECT_URI: undefined,
+      DISHA_MERI_PEHCHAN_AUTH_URL: "https://digilocker.meripehchaan.gov.in/public/oauth2/1/authorize",
+      DISHA_MERI_PEHCHAN_TOKEN_URL: "https://digilocker.meripehchaan.gov.in/public/oauth2/2/token",
+      DISHA_MERI_PEHCHAN_USER_URL: "https://digilocker.meripehchaan.gov.in/public/oauth2/1/user",
+      DISHA_MERI_PEHCHAN_CLIENT_ID: undefined,
+      DISHA_MERI_PEHCHAN_CLIENT_SECRET: undefined,
+      DISHA_MERI_PEHCHAN_REDIRECT_URI: undefined,
       DATABASE_URL: undefined,
       REDIS_URL: undefined,
       DISHA_WORKSPACE_ROOT: process.cwd(),
@@ -132,9 +140,8 @@ export function getEnv(): RuntimeEnv {
   const env = cachedEnv as RuntimeEnv;
   if (env.DISHA_AUTH_MODE === "oidc") {
     const missing = [
-      ["DISHA_OIDC_ISSUER", env.DISHA_OIDC_ISSUER],
-      ["DISHA_OIDC_CLIENT_ID", env.DISHA_OIDC_CLIENT_ID],
-      ["DISHA_OIDC_CLIENT_SECRET", env.DISHA_OIDC_CLIENT_SECRET],
+      ["DISHA_MERI_PEHCHAN_CLIENT_ID", env.DISHA_MERI_PEHCHAN_CLIENT_ID],
+      ["DISHA_MERI_PEHCHAN_CLIENT_SECRET", env.DISHA_MERI_PEHCHAN_CLIENT_SECRET],
     ].filter(([, value]) => !value);
     if (missing.length > 0) {
       throw new Error(`OIDC mode missing: ${missing.map(([key]) => key).join(", ")}`);
