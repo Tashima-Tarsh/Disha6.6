@@ -13,3 +13,5 @@ variable "redis_host" { type = string }
 variable "redis_port" { type = number }
 variable "osint_topic_id" { type = string }
 variable "evidence_bucket_name" { type = string }
+
+variable "worker_token_secret_id" { type = string }
