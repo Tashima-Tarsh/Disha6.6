@@ -1,6 +1,6 @@
 import type { NextRequest, NextResponse } from "next/server";
 import { getEnv, isProduction } from "./env";
-import { hashSecret, randomToken, signJson, verifySignedJson } from "./crypto";
+import { hashSecret, randomToken, signJson, verifySecret, verifySignedJson } from "./crypto";
 import { getDbPool } from "./db";
 import type { Principal, Role } from "./types";
 
@@ -153,17 +153,46 @@ export function requirePrincipal(req: NextRequest): Principal {
   return principalFromAccessToken(token);
 }
 
-export async function devLogin(email: string, password: string, persistent = true) {
+export async function passwordLogin(email: string, password: string, persistent = true) {
   const env = getEnv();
-  const passwordMode = env.DISHA_AUTH_MODE === "password";
-  const developmentMode = env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt";
-  if (!passwordMode && !developmentMode) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt") {
+    const expected = env.DISHA_DEV_PASSWORD ?? "change-me-in-env";
+    if (password !== expected) throw Object.assign(new Error("Invalid credentials"), { status: 401 });
+    const devAdmins = new Set(
+      (env.DISHA_DEV_ADMIN_EMAILS ?? "")
+        .split(",")
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    );
+    const roles: Role[] = devAdmins.has(normalizedEmail) ? ["admin"] : ["analyst"];
+    return createSession(normalizedEmail, roles, { persistent });
+  }
+
+  if (env.DISHA_AUTH_MODE !== "password") {
     throw Object.assign(new Error("Password login is disabled"), { status: 403 });
   }
-  const expected = env.DISHA_DEV_PASSWORD ?? "change-me-in-env";
-  if (password !== expected) throw Object.assign(new Error("Invalid credentials"), { status: 401 });
-  const normalizedEmail = email.toLowerCase();
-  const devAdmins = new Set((env.DISHA_DEV_ADMIN_EMAILS ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));
-  const roles: Role[] = devAdmins.has(normalizedEmail) ? ["admin"] : ["analyst"];
-  return createSession(email, roles, { persistent });
+
+  const pool = getDbPool();
+  if (!pool) {
+    throw Object.assign(new Error("Password authentication requires the production database"), { status: 503 });
+  }
+
+  const result = await pool.query(
+    `select id, email, roles, password_hash, disabled_at
+       from users
+      where lower(email) = $1
+      limit 1`,
+    [normalizedEmail],
+  );
+  const user = result.rows[0] as
+    | { id: string; email: string; roles: Role[]; password_hash: string | null; disabled_at: Date | null }
+    | undefined;
+
+  if (!user || user.disabled_at || !user.password_hash || !verifySecret(password, user.password_hash)) {
+    throw Object.assign(new Error("Invalid credentials"), { status: 401 });
+  }
+
+  return createSession(user.email, user.roles?.length ? user.roles : ["analyst"], { persistent });
 }
