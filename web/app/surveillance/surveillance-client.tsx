@@ -202,7 +202,7 @@ export function SurveillanceClient({
             id: `eval-${Date.now()}-2`,
             time: evalTime,
             category: "evidence",
-            message: `Cryptographic Evidence Block sealed · Formation: ${selectedFormation.toUpperCase()} · Provenance bound to Merkle root.`,
+            message: `Cryptographic evidence event recorded · Formation: ${selectedFormation.toUpperCase()} · Provenance bound to the SHA-256 evidence chain.`,
           },
           ...prev,
         ]);
@@ -685,7 +685,7 @@ export function SurveillanceClient({
                 Universal Multi-Domain OSINT Search Console
               </h1>
               <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>
-                Simultaneously query Wayback Machine, GDELT, SEC EDGAR, NIST CVEs, ThreatFox, and Satellite registries with Merkle evidence binding.
+                Query the governed public adapters selected for the target type, with source-linked evidence and SHA-256 provenance binding.
               </p>
             </div>
 
