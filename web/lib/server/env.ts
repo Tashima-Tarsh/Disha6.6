@@ -152,8 +152,8 @@ export function getEnv(): RuntimeEnv {
   if (env.NODE_ENV === "production" && env.DISHA_AUTH_MODE === "dev-jwt") {
     throw new Error("DISHA_AUTH_MODE=dev-jwt is not allowed in production");
   }
-  if (env.DISHA_AUTH_MODE === "password" && !env.DISHA_DEV_PASSWORD) {
-    throw new Error("DISHA_DEV_PASSWORD is required when DISHA_AUTH_MODE=password");
+  if (env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt" && !env.DISHA_DEV_PASSWORD) {
+    throw new Error("DISHA_DEV_PASSWORD is required for local dev-jwt password login");
   }
   if (env.NODE_ENV === "production" && !env.DISHA_WORKER_TOKEN) {
     throw new Error("DISHA_WORKER_TOKEN is required in production for internal scheduler/worker calls");
