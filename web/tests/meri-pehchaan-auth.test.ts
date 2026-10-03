@@ -22,6 +22,8 @@ describe("Meri Pehchaan production authentication", () => {
 
     expect(source).toContain("DISHA_MERI_PEHCHAN_TOKEN_URL");
     expect(source).toContain("DISHA_MERI_PEHCHAN_USER_URL");
+    expect(source).toContain("client_secret: clientSecret");
+    expect(source).not.toContain('"Basic "');
     expect(source).toContain('requiredProviderString(profile, "digilockerid")');
     expect(source).toContain("subject: `meri-pehchaan:${digilockerId}`");
     expect(source).not.toContain(".well-known/openid-configuration");
