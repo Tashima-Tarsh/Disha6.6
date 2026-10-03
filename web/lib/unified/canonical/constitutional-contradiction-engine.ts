@@ -60,7 +60,13 @@ export class ConstitutionalContradictionEngine {
           reason = `Judicial directive from '${claimA.sourceAuthority}' conflicts with subsequent implementation statement from '${claimB.sourceAuthority}'.`;
         } else if (
           claimA.sourceAuthority.toLowerCase().includes("gov") ||
-          claimB.sourceAuthority.toLowerCase().includes("gov")
+          claimB.sourceAuthority.toLowerCase().includes("gov") ||
+          claimA.sourceAuthority.toLowerCase().includes("board") ||
+          claimB.sourceAuthority.toLowerCase().includes("board") ||
+          claimA.sourceAuthority.toLowerCase().includes("ministry") ||
+          claimB.sourceAuthority.toLowerCase().includes("ministry") ||
+          claimA.sourceFamilyId.toLowerCase().includes("gov") ||
+          claimB.sourceFamilyId.toLowerCase().includes("gov")
         ) {
           conflictType = "gov_reply_vs_record";
           reason = `Official institutional disclosure from '${claimA.sourceAuthority}' diverges from recorded observation from '${claimB.sourceAuthority}'.`;

@@ -245,7 +245,7 @@ describe("Constitutional Evidence Intelligence OS — Canonical Suite", () => {
   });
 
   describe("Phase 5: Constitutional Contradiction Engine", () => {
-    it("detects statement vs statement contradiction", () => {
+    it("detects government reply vs record contradiction", () => {
       const claimA: DISHAClaim = {
         claimId: "claim_A1",
         claimText: "Facility is operational",
@@ -288,6 +288,49 @@ describe("Constitutional Evidence Intelligence OS — Canonical Suite", () => {
       expect(contra?.reviewRequired).toBe(true);
       expect(contra?.explanation).toContain("[INVESTIGATORY SIGNAL");
       expect(contra?.sourceIndependence).toBe(true);
+    });
+
+    it("detects pure statement vs statement contradiction", () => {
+      const claimA: DISHAClaim = {
+        claimId: "claim_vendor_1",
+        claimText: "Project was delivered on time",
+        claimType: "vendor_statement",
+        subject: "Bridge Alpha",
+        predicate: "delivery_punctuality",
+        value: "delivered_on_schedule",
+        supportingEvidence: ["ev_v1"],
+        contradictingEvidence: [],
+        sourceAuthority: "Contractor Consortium",
+        sourceFamilyId: "consortium_alpha",
+        corroborationCount: 1,
+        confidence: 0.8,
+        createdBy: "agent_tender",
+        createdAt: "2026-10-03T10:00:00.000Z",
+        reviewState: "unreviewed",
+      };
+
+      const claimB: DISHAClaim = {
+        claimId: "claim_vendor_2",
+        claimText: "Project was delayed by 18 months",
+        claimType: "vendor_statement",
+        subject: "Bridge Alpha",
+        predicate: "delivery_punctuality",
+        value: "delayed_18_months",
+        supportingEvidence: ["ev_v2"],
+        contradictingEvidence: [],
+        sourceAuthority: "Independent Engineering Review",
+        sourceFamilyId: "audit_firm_beta",
+        corroborationCount: 1,
+        confidence: 0.85,
+        createdBy: "agent_tender",
+        createdAt: "2026-10-03T10:05:00.000Z",
+        reviewState: "unreviewed",
+      };
+
+      const contra = ConstitutionalContradictionEngine.detectContradiction(claimA, claimB);
+      expect(contra).not.toBeNull();
+      expect(contra?.conflictType).toBe("statement_vs_statement");
+      expect(contra?.reviewRequired).toBe(true);
     });
 
     it("detects amount inconsistency", () => {
