@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "disha6.6 | 3D/4D God's Eye Cyber Space & OSINT Universe",
-  description: "Governed 3D/4D tactical cyber surveillance, complete 100+ OSINT source universe, live telemetry intercept, and Vyuha defense center.",
+  description: "Governed 3D authenticated evidence space with OSINT source registry, admitted geospatial records, live search, and policy-gated defensive evaluation.",
 };
 
 export default async function SurveillanceIntelligencePage() {
