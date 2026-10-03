@@ -1,23 +1,16 @@
 # ASTRA 6 Autonomous OSINT Execution Engine
-# Hardened multi-runtime container: Python 3.11 + Go 1.23 + Node.js 22 LTS
+# Governed passive/public worker: Python 3.11 + Go 1.23 + Node.js 22
 FROM golang:1.23-alpine AS go-builder
 
-# Install ProjectDiscovery Subfinder, OWASP Amass, and PhoneInfoga binaries
 RUN apk add --no-cache git gcc musl-dev
 
-# Install subfinder
-RUN go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+# Reproducible reviewed binary versions matching web/lib/unified/astra6-tool-manifest.ts
+RUN go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@v2.6.6
+RUN go install -v github.com/owasp-amass/amass/v4/...@v4.2.0
+RUN go install -v github.com/sundowndev/phoneinfoga/v2@v2.11.0
 
-# Install amass
-RUN go install -v github.com/owasp-amass/amass/v4/...@master || true
-
-# Install phoneinfoga
-RUN go install -v github.com/sundowndev/phoneinfoga/v2@latest || true
-
-# Final Production Worker Image
 FROM python:3.11-slim
 
-# Install system dependencies, Node.js 22, and git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
@@ -26,38 +19,40 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
     && apt-get update && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy Go binaries from builder
 COPY --from=go-builder /go/bin/subfinder /usr/local/bin/subfinder
 COPY --from=go-builder /go/bin/amass /usr/local/bin/amass
 COPY --from=go-builder /go/bin/phoneinfoga /usr/local/bin/phoneinfoga
 
-# Install Sherlock and theHarvester via pip
 RUN pip install --no-cache-dir \
-    sherlock-project \
-    theHarvester \
+    sherlock-project==0.15.0 \
+    theHarvester==4.6.0 \
     psycopg2-binary
+
+# SpiderFoot is executed in passive mode only. Pin the reviewed release instead of tracking main.
+RUN git clone --depth 1 --branch v4.0 https://github.com/smicallef/spiderfoot.git /opt/spiderfoot \
+    && pip install --no-cache-dir -r /opt/spiderfoot/requirements.txt \
+    && rm -rf /opt/spiderfoot/.git
 
 WORKDIR /opt/disha-worker
 
-# Copy application files needed for worker
 COPY web/package.json ./package.json
 COPY web/scripts/astra6-worker.mjs ./scripts/astra6-worker.mjs
 COPY web/lib ./lib
 
-# Install minimal Node runtime dependencies for worker
-RUN npm install --omit=dev pg redis
+# tsx is a production runtime dependency here because the worker imports the same
+# governed TypeScript manifests/parsers used by the web control plane.
+RUN npm install --omit=dev pg redis tsx
 
-# Security: run as unprivileged worker user
 RUN useradd -u 10002 -m -s /bin/bash disha-worker \
-    && chown -R disha-worker:disha-worker /opt/disha-worker
+    && chown -R disha-worker:disha-worker /opt/disha-worker /opt/spiderfoot
 
 USER disha-worker
 
 ENV NODE_ENV=production
 ENV DISHA_WORKER_RUNTIME=astra6-dedicated
 
-CMD ["node", "scripts/astra6-worker.mjs"]
+CMD ["./node_modules/.bin/tsx", "scripts/astra6-worker.mjs"]
