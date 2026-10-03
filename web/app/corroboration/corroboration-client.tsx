@@ -121,16 +121,16 @@ export function CorroborationClient({ principal }: { principal: PrincipalView })
               <div className={styles.resultsContent}>
                 <div className={styles.scoreRow}>
                   <div className={styles.scoreBox}>
-                    <span className={styles.scoreNum}>{result.independent_source_count}</span>
+                    <span className={styles.scoreNum}>{result.independentSourceCount}</span>
                     <span className={styles.scoreLbl}>Independent Families</span>
                   </div>
                   <div className={styles.scoreBox}>
-                    <span className={styles.scoreNum}>{(result.confidence_score * 100).toFixed(0)}%</span>
+                    <span className={styles.scoreNum}>{(result.corroborationScore * 100).toFixed(0)}%</span>
                     <span className={styles.scoreLbl}>Corroboration Score</span>
                   </div>
                   <div className={styles.scoreBox}>
-                    <span className={result.is_corroborated ? styles.greenStatus : styles.amberStatus}>
-                      {result.is_corroborated ? "CORROBORATED" : "UNDER-CORROBORATED"}
+                    <span className={result.corroborationScore >= 0.7 ? styles.greenStatus : styles.amberStatus}>
+                      {result.corroborationScore >= 0.7 ? "CORROBORATED" : "UNDER-CORROBORATED"}
                     </span>
                     <span className={styles.scoreLbl}>State Gate</span>
                   </div>
@@ -139,7 +139,7 @@ export function CorroborationClient({ principal }: { principal: PrincipalView })
                 <div className={styles.familyCluster}>
                   <h3>Detected Source Families</h3>
                   <div className={styles.familyList}>
-                    {result.source_family_ids.map((fam, idx) => (
+                    {result.sourceFamilyIds.map((fam: string, idx: number) => (
                       <div key={idx} className={styles.familyItem}>
                         <CheckCircle2 size={16} className={styles.checkIcon} />
                         <span>FAMILY ID: {fam}</span>

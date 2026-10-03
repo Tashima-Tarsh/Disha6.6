@@ -54,16 +54,16 @@ export function ContradictionsClient({ principal }: { principal: PrincipalView }
         {contradictions.length > 0 ? (
           <div className={styles.contraList}>
             {contradictions.map((c) => (
-              <article key={c.contradiction_id} className={styles.contraCard}>
+              <article key={c.contradictionId} className={styles.contraCard}>
                 <div className={styles.cardTop}>
                   <div className={styles.typeBadge}>
                     <Flame size={15} />
-                    <span>{c.conflict_type.replace(/_/g, " ")}</span>
+                    <span>{c.conflictType.replace(/_/g, " ")}</span>
                   </div>
                   <div className={styles.metaRow}>
                     <span className={styles.confBadge}>CONFIDENCE: {(c.confidence * 100).toFixed(0)}%</span>
-                    <span className={c.review_required ? styles.reviewReq : styles.reviewDone}>
-                      {c.review_required ? "REVIEW REQUIRED" : "REVIEWED"}
+                    <span className={c.reviewRequired ? styles.reviewReq : styles.reviewDone}>
+                      {c.reviewRequired ? "REVIEW REQUIRED" : "REVIEWED"}
                     </span>
                   </div>
                 </div>
@@ -73,24 +73,24 @@ export function ContradictionsClient({ principal }: { principal: PrincipalView }
                 <div className={styles.evidenceComparison}>
                   <div className={styles.claimSide}>
                     <span className={styles.sideLabel}>CLAIM A (SOURCE 1)</span>
-                    <p className={styles.claimText}>{c.claim_A.claim_text}</p>
-                    <small>Authority: {c.claim_A.source_authority}</small>
+                    <p className={styles.claimText}>{c.claimA}</p>
+                    <small>Evidence Ref: {c.evidenceA}</small>
                   </div>
                   <div className={styles.vsDivider}>VS</div>
                   <div className={styles.claimSide}>
                     <span className={styles.sideLabel}>CLAIM B (SOURCE 2)</span>
-                    <p className={styles.claimText}>{c.claim_B.claim_text}</p>
-                    <small>Authority: {c.claim_B.source_authority}</small>
+                    <p className={styles.claimText}>{c.claimB}</p>
+                    <small>Evidence Ref: {c.evidenceB}</small>
                   </div>
                 </div>
 
                 <div className={styles.cardFooter}>
                   <div className={styles.timeTag}>
                     <Clock size={14} />
-                    <span>DETECTED: {new Date(c.created_at).toLocaleString()}</span>
+                    <span>DETECTED: {new Date(c.createdAt).toLocaleString()}</span>
                   </div>
                   <div className={styles.independence}>
-                    <span>SOURCE INDEPENDENCE: {c.source_independence ? "VERIFIED INDEPENDENT" : "SAME SOURCE FAMILY"}</span>
+                    <span>SOURCE INDEPENDENCE: {c.sourceIndependence ? "VERIFIED INDEPENDENT" : "SAME SOURCE FAMILY"}</span>
                   </div>
                 </div>
               </article>
