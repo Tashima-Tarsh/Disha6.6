@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import styles from "./disha-identity-scene.module.css";
 
+type ThreeRenderer = InstanceType<typeof THREE.WebGLRenderer>;
+type ThreeVector3 = InstanceType<typeof THREE.Vector3>;
+type ThreeLine = InstanceType<typeof THREE.Line>;
+type ThreeLineSegments = InstanceType<typeof THREE.LineSegments>;
+type ThreeMaterial = { dispose: () => void };
+
 export interface DishaIdentityScene3DProps {
   transitionState?: "idle" | "submitting" | "verified" | "error";
 }
@@ -19,7 +25,7 @@ const INDIA_CENTER_LON = 78.5;
 const INDIA_CENTER_LAT = 22.5;
 
 // Convert geographic [lon, lat] (degrees) to 3D Cartesian coordinates on sphere of radius R
-function geoToVector3(lon: number, lat: number, radius: number): THREE.Vector3 {
+function geoToVector3(lon: number, lat: number, radius: number): ThreeVector3 {
   const phi = (lat * Math.PI) / 180;
   const theta = (lon * Math.PI) / 180;
 
@@ -103,7 +109,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
     reducedMotionQuery.addEventListener("change", handleMotionChange);
 
     // 1. Setup Three.js Scene, Camera, Renderer
-    let renderer: THREE.WebGLRenderer;
+    let renderer: ThreeRenderer;
     try {
       renderer = new THREE.WebGLRenderer({
         canvas,
@@ -186,7 +192,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
     // Parallels (every 30 degrees, plus Tropic of Cancer at 23.436 N)
     const latitudes = [-60, -30, 0, 23.436, 30, 60];
     latitudes.forEach((lat) => {
-      const points: THREE.Vector3[] = [];
+      const points: ThreeVector3[] = [];
       const isTropic = Math.abs(lat - 23.436) < 0.1;
       const radius = EARTH_RADIUS * (isTropic ? 1.002 : 1.001);
 
@@ -203,7 +209,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
 
     // Meridians (every 45 degrees)
     for (let lon = -180; lon < 180; lon += 45) {
-      const points: THREE.Vector3[] = [];
+      const points: ThreeVector3[] = [];
       for (let lat = -85; lat <= 85; lat += 3) {
         points.push(geoToVector3(lon, lat, EARTH_RADIUS * 1.001));
       }
@@ -223,7 +229,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
     });
 
     CONTINENT_FALLBACKS.forEach((poly) => {
-      const points: THREE.Vector3[] = [];
+      const points: ThreeVector3[] = [];
       for (let i = 0; i < poly.length; i++) {
         const pt = poly[i];
         if (pt) points.push(geoToVector3(pt[0], pt[1], EARTH_RADIUS * 1.002));
@@ -235,9 +241,9 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
 
     // 6. Asynchronous Real GeoJSON Boundary Streaming
     // Stream World Countries + Authoritative DataMeet India boundary
-    let worldCountriesLine: THREE.LineSegments | null = null;
-    let indiaAuthoritativeLine: THREE.Line | null = null;
-    let indiaGlowLine: THREE.Line | null = null;
+    let worldCountriesLine: ThreeLineSegments | null = null;
+    let indiaAuthoritativeLine: ThreeLine | null = null;
+    let indiaGlowLine: ThreeLine | null = null;
 
     const loadGeographicData = async () => {
       try {
@@ -298,7 +304,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
         const indiaRes = await fetch("/data/datameet-india-land-simplified.geojson", { cache: "force-cache" });
         if (indiaRes.ok && !isDisposed) {
           const indiaGeoJson = await indiaRes.json();
-          const indiaPoints: THREE.Vector3[] = [];
+          const indiaPoints: ThreeVector3[] = [];
 
           for (const feature of indiaGeoJson.features || []) {
             const coords = feature.geometry?.coordinates;
@@ -341,7 +347,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
     void loadGeographicData();
 
     // 7. Restrained Indian Anchor Dots (Non-operational reference locations)
-    const anchorPoints: THREE.Vector3[] = [];
+    const anchorPoints: ThreeVector3[] = [];
     INDIA_METRO_ANCHORS.forEach((anchor) => {
       anchorPoints.push(geoToVector3(anchor.lon, anchor.lat, EARTH_RADIUS * 1.006));
     });
@@ -506,7 +512,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
       if (worldCountriesLine) {
         worldCountriesLine.geometry.dispose();
         if (Array.isArray(worldCountriesLine.material)) {
-          worldCountriesLine.material.forEach((m) => m.dispose());
+          worldCountriesLine.material.forEach((m: ThreeMaterial) => m.dispose());
         } else {
           worldCountriesLine.material.dispose();
         }
@@ -515,7 +521,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
       if (indiaAuthoritativeLine) {
         indiaAuthoritativeLine.geometry.dispose();
         if (Array.isArray(indiaAuthoritativeLine.material)) {
-          indiaAuthoritativeLine.material.forEach((m) => m.dispose());
+          indiaAuthoritativeLine.material.forEach((m: ThreeMaterial) => m.dispose());
         } else {
           indiaAuthoritativeLine.material.dispose();
         }
@@ -524,7 +530,7 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
       if (indiaGlowLine) {
         indiaGlowLine.geometry.dispose();
         if (Array.isArray(indiaGlowLine.material)) {
-          indiaGlowLine.material.forEach((m) => m.dispose());
+          indiaGlowLine.material.forEach((m: ThreeMaterial) => m.dispose());
         } else {
           indiaGlowLine.material.dispose();
         }
