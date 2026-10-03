@@ -49,8 +49,8 @@ export async function leaseWorkflowItems(input: { workerId: string; workflowType
          order by priority desc, available_at asc, created_at asc
          for update skip locked limit $3
        )
-       update durable_work_items w set status='leased',lease_owner=$4,lease_expires_at=$1 + make_interval(secs => $5::int),attempts=w.attempts+1,updated_at=$1
-       from candidates c where w.work_id=c.work_id returning w.*`, [now.toISOString(),input.workflowTypes?.length?input.workflowTypes:null,maxItems,input.workerId,leaseSeconds]);
+        update durable_work_items w set status='leased',lease_owner=$4,lease_expires_at=$1::timestamptz + make_interval(secs => $5::int),attempts=w.attempts+1,updated_at=$1::timestamptz
+        from candidates c where w.work_id=c.work_id returning w.*`, [now.toISOString(),input.workflowTypes?.length?input.workflowTypes:null,maxItems,input.workerId,leaseSeconds]);
     await client.query("commit"); return result.rows.map((row: Record<string, unknown>)=>rowToWork(row));
   }catch(error){await client.query("rollback");throw error;}finally{client.release();}
 }
@@ -67,7 +67,7 @@ export async function renewWorkflowLease(workId: string, workerId: string, lease
     return true;
   }
   const result = await pool.query(
-    `update durable_work_items set lease_expires_at=$3 + make_interval(secs => $4::int),updated_at=$3 where work_id=$1 and status='leased' and lease_owner=$2`,
+    `update durable_work_items set lease_expires_at=$3::timestamptz + make_interval(secs => $4::int),updated_at=$3::timestamptz where work_id=$1 and status='leased' and lease_owner=$2`,
     [workId, workerId, now.toISOString(), seconds],
   );
   return Boolean(result.rowCount);
@@ -85,7 +85,7 @@ export async function failWorkflow(workId:string,workerId:string,error:unknown):
   if(!pool){const item=memory.get(workId);if(!item||item.status!=="leased"||item.leaseOwner!==workerId)return null;const dead=item.attempts>=item.maxAttempts;const updated={...item,status:(dead?"dead":"queued") as WorkStatus,lastError:message,leaseOwner:undefined,leaseExpiresAt:undefined,availableAt:dead?item.availableAt:new Date(now.getTime()+retryDelayMs(item.attempts)).toISOString(),updatedAt:now.toISOString()};memory.set(workId,updated);return updated;}
   const result=await pool.query(
     `update durable_work_items set status=case when attempts>=max_attempts then 'dead' else 'queued' end,last_error=$3,lease_owner=null,lease_expires_at=null,
-       available_at=case when attempts>=max_attempts then available_at else $4 + make_interval(secs => least(3600, power(2,greatest(0,attempts-1))::int * 15)) end,updated_at=$4
+       available_at=case when attempts>=max_attempts then available_at else $4::timestamptz + make_interval(secs => least(3600, power(2,greatest(0,attempts-1))::int * 15)) end,updated_at=$4::timestamptz
      where work_id=$1 and status='leased' and lease_owner=$2 returning *`,[workId,workerId,message,now.toISOString()]);
   if(!result.rowCount)return null;const item=rowToWork(result.rows[0] as Record<string,unknown>);await emitRuntimeEvent(item.status==="dead"?"workflow.dead":"workflow.retry_scheduled",{workId,error:message,attempts:item.attempts},workId);return item;
 }
