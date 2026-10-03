@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { FormEvent, PointerEvent as ReactPointerEvent, useMemo, useRef, useState } from "react";
 
-import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
+import { OsintUniverse3D } from "@/components/visual/OsintUniverse3D";
 import styles from "./login.module.css";
 
 type SubmitState = "idle" | "submitting" | "verified" | "error";
@@ -108,7 +108,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
 
       {/* Immersive 3D Spatial Environment (Tasks 39-42) */}
       <section className={styles.visualLayer} aria-label="disha6.6 sovereign intelligence environment">
-        <SovereignCyberMatrix3D />
+        <OsintUniverse3D mode="gateway" />
       </section>
 
       {/* Cinematic vignette to focus the eye on the gateway */}
@@ -127,7 +127,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
             <p className={styles.kicker}>SECURE IDENTITY</p>
             <h1 id="secure-access-title">DISHA 6.6</h1>
             <p className={styles.subtitle}>Evidence-Grade Intelligence</p>
-            <div className={styles.runtimeTag}>Runtime: Astra 6</div>
+            <div className={styles.runtimeTag}>Runtime: Astra 6 · Governed Public Intelligence</div>
           </div>
 
           <form className={styles.loginForm} onSubmit={signIn} noValidate>
