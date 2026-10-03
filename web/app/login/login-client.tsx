@@ -123,6 +123,11 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
           ref={cardRef}
         >
           <div className={styles.cardSheen} aria-hidden="true" />
+          <div className={styles.capabilityPreviewBadge} role="note" aria-label="Capability preview notice">
+            <span className={styles.previewIndicator} />
+            <span className={styles.previewTitle}>CAPABILITY PREVIEW</span>
+            <span className={styles.previewText}>Non-operational · Live intelligence admitted post-login</span>
+          </div>
           <div className={styles.headingBlock}>
             <p className={styles.kicker}>SECURE IDENTITY</p>
             <h1 id="secure-access-title">DISHA 6.6</h1>

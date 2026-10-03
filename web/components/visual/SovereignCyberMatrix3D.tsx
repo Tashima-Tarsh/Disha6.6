@@ -212,6 +212,7 @@ export function SovereignCyberMatrix3D({
   const raycasterRef = useRef<THREE.Raycaster>(new THREE.Raycaster());
   const mouseRef = useRef<THREE.Vector2>(new THREE.Vector2(-999, -999));
   const nodeMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map());
+  const starFieldRef = useRef<THREE.Points | null>(null);
 
   // Camera presets
   const applyPreset = useCallback((preset: string) => {
@@ -263,6 +264,48 @@ export function SovereignCyberMatrix3D({
     renderer.setClearColor(0x020712, 1);
     container.appendChild(renderer.domElement);
 
+    // Background WebGL Starfield & Spatial Depth Particles
+    const starGeometry = new THREE.BufferGeometry();
+    const starCount = 1000;
+    const starPositions = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
+
+    const starColorPalette = [
+      new THREE.Color(0x38bdf8),
+      new THREE.Color(0x94a3b8),
+      new THREE.Color(0xf8fafc),
+      new THREE.Color(0x0284c7),
+    ];
+
+    for (let i = 0; i < starCount; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      const radius = 16 + Math.random() * 24;
+
+      starPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      starPositions[i * 3 + 2] = radius * Math.cos(phi);
+
+      const color = starColorPalette[Math.floor(Math.random() * starColorPalette.length)]!;
+      starColors[i * 3] = color.r;
+      starColors[i * 3 + 1] = color.g;
+      starColors[i * 3 + 2] = color.b;
+    }
+
+    starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    starGeometry.setAttribute("color", new THREE.BufferAttribute(starColors, 3));
+
+    const starMaterial = new THREE.PointsMaterial({
+      size: 0.08,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.75,
+      sizeAttenuation: true,
+    });
+    const starField = new THREE.Points(starGeometry, starMaterial);
+    starFieldRef.current = starField;
+    scene.add(starField);
+
     // Master Globe Transform Group
     const globeGroup = new THREE.Group();
     globeGroupRef.current = globeGroup;
@@ -306,6 +349,38 @@ export function SovereignCyberMatrix3D({
     });
     const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     globeGroup.add(atmosphereMesh);
+
+    // Outer Atmosphere Scattering Shell (Soft Multi-Layer Twilight Fresnel)
+    const outerAtmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS * 1.055, 48, 48);
+    const outerAtmosphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0x0284c7,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.16,
+    });
+    const outerAtmosphereMesh = new THREE.Mesh(outerAtmosphereGeometry, outerAtmosphereMaterial);
+    globeGroup.add(outerAtmosphereMesh);
+
+    // Concentric Orbital Capability Rings at Semantic Altitudes
+    const ORBITAL_RING_CONFIGS = [
+      { radius: EARTH_RADIUS + 0.18, color: 0x0284c7, opacity: 0.18, tiltX: 0.12, tiltZ: 0.05 },
+      { radius: EARTH_RADIUS + 0.38, color: 0x38bdf8, opacity: 0.22, tiltX: -0.18, tiltZ: 0.14 },
+      { radius: EARTH_RADIUS + 0.62, color: 0x20b2aa, opacity: 0.16, tiltX: 0.28, tiltZ: -0.22 },
+    ];
+
+    ORBITAL_RING_CONFIGS.forEach((cfg) => {
+      const ringGeom = new THREE.RingGeometry(cfg.radius - 0.006, cfg.radius + 0.006, 96);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: cfg.color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: cfg.opacity,
+      });
+      const ringMesh = new THREE.Mesh(ringGeom, ringMat);
+      ringMesh.rotation.x = Math.PI / 2 + cfg.tiltX;
+      ringMesh.rotation.z = cfg.tiltZ;
+      globeGroup.add(ringMesh);
+    });
 
     // 5. Continents & Political Boundary Lines
     const continentMaterial = new THREE.LineBasicMaterial({
@@ -530,15 +605,25 @@ export function SovereignCyberMatrix3D({
       animationFrameId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Smooth camera interpolation towards target
+      // Smooth camera interpolation towards target + subtle pointer parallax
       if (cameraRef.current) {
-        cameraRef.current.position.lerp(targetCamPosRef.current, 0.05);
+        const parallaxX = mouseRef.current.x > -100 ? mouseRef.current.x * 0.35 : 0;
+        const parallaxY = mouseRef.current.y > -100 ? mouseRef.current.y * 0.25 : 0;
+        const currentTarget = targetCamPosRef.current.clone();
+        currentTarget.x += parallaxX;
+        currentTarget.y += parallaxY;
+        cameraRef.current.position.lerp(currentTarget, 0.04);
         cameraRef.current.lookAt(0, 0, 0);
       }
 
       // Restrained idle rotation when user is not dragging
       if (!isDraggingRef.current && globeGroupRef.current && !prefersReducedMotion) {
         globeGroupRef.current.rotation.y += 0.0006;
+      }
+
+      // Subtle celestial rotation of background starfield
+      if (starFieldRef.current && !prefersReducedMotion) {
+        starFieldRef.current.rotation.y -= 0.00015;
       }
 
       // Update arc telemetry pulse packets
@@ -589,6 +674,19 @@ export function SovereignCyberMatrix3D({
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("click", handleClick);
       window.removeEventListener("resize", handleResize);
+
+      if (sceneRef.current) {
+        sceneRef.current.traverse((obj) => {
+          if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
+            obj.geometry?.dispose();
+            if (Array.isArray(obj.material)) {
+              obj.material.forEach((m) => m.dispose());
+            } else if (obj.material) {
+              obj.material.dispose();
+            }
+          }
+        });
+      }
 
       if (rendererRef.current?.domElement) {
         container.removeChild(rendererRef.current.domElement);

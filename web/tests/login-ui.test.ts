@@ -74,4 +74,25 @@ describe("DISHA secure login UI", () => {
     expect(source).toContain("CSRF<br />protected");
     expect(source).toContain("Audit<br />logged");
   });
+
+  it("explicitly displays the pre-auth CAPABILITY PREVIEW boundary and rejects fake operational labels", () => {
+    const source = fs.readFileSync(loginClient, "utf8");
+
+    expect(source).toContain("CAPABILITY PREVIEW");
+    expect(source).toContain("Non-operational · Live intelligence admitted post-login");
+    expect(source).not.toContain("94 Gbps");
+    expect(source).not.toContain("active threat");
+    expect(source).not.toContain("intercepting traffic");
+    expect(source).not.toContain("live satellite");
+    expect(source).not.toContain("command center active");
+  });
+
+  it("configures genuine 3D perspective and depth properties on the spatial gateway card", () => {
+    const css = fs.readFileSync(loginStyles, "utf8");
+
+    expect(css).toContain("perspective: 1500px");
+    expect(css).toContain("transform-style: preserve-3d");
+    expect(css).toContain("translateZ");
+    expect(css).toContain("capabilityPreviewBadge");
+  });
 });
