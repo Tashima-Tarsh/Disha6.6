@@ -44,9 +44,8 @@ export function selectAstra6Tools(
 
   for (const manifest of astra6ToolManifests) {
     if (!manifest.targetTypes.includes(resolvedType)) continue;
-    const isIdentityTool = ["sherlock", "phoneinfoga"].includes(manifest.toolId);
-    if (isIdentityTool && !identityApproved) {
-      blockedTools.push({ toolId: manifest.toolId, reason: "Identity enumeration requires explicit policy approval (DISHA_IDENTITY_ENUMERATION_APPROVED=true)." });
+    if (["email", "phone_number", "username"].includes(resolvedType) && !identityApproved) {
+      blockedTools.push({ toolId: manifest.toolId, reason: "Identity enumeration requires both an approved operator role and DISHA_IDENTITY_ENUMERATION_APPROVED=true." });
       continue;
     }
     selectedTools.push(manifest);
