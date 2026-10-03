@@ -9,3 +9,7 @@ output "jwt_secret_id" {
 output "encryption_key_secret_id" {
   value = google_secret_manager_secret.encryption_key.secret_id
 }
+
+output "worker_token_secret_id" {
+  value = google_secret_manager_secret.worker_token.secret_id
+}
