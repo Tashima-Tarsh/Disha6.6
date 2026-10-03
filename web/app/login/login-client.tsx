@@ -12,7 +12,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, PointerEvent as ReactPointerEvent, useMemo, useRef, useState } from "react";
 
 import { SovereignCyberMatrix3D } from "@/components/visual/SovereignCyberMatrix3D";
 import styles from "./login.module.css";
@@ -28,6 +28,7 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
   const [rememberMe, setRememberMe] = useState(true);
   const [state, setState] = useState<SubmitState>("idle");
   const [error, setError] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const normalizedEmail = email.trim().toLowerCase();
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail), [normalizedEmail]);
@@ -74,16 +75,54 @@ export function LoginClient({ returnUrl }: { returnUrl: string }) {
     window.location.assign(new URL(`/api/auth/oidc/start?${params.toString()}`, window.location.origin).toString());
   }
 
+  // Premium spatial parallax: the gateway card floats and tilts toward the pointer,
+  // with a radial sheen that tracks the cursor position across the glass surface.
+  function trackCardParallax(event: ReactPointerEvent<HTMLDivElement>) {
+    const card = cardRef.current;
+    if (!card || state === "verified") return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const ratioX = (event.clientX - rect.left) / rect.width - 0.5;
+    const ratioY = (event.clientY - rect.top) / rect.height - 0.5;
+
+    card.style.setProperty("--tilt-y", `${(ratioX * 10).toFixed(2)}deg`);
+    card.style.setProperty("--tilt-x", `${(-ratioY * 10).toFixed(2)}deg`);
+    card.style.setProperty("--glow-x", `${(((ratioX + 0.5) * 100)).toFixed(1)}%`);
+    card.style.setProperty("--glow-y", `${(((ratioY + 0.5) * 100)).toFixed(1)}%`);
+  }
+
+  function resetCardParallax() {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+    card.style.setProperty("--glow-x", "50%");
+    card.style.setProperty("--glow-y", "0%");
+  }
+
   return (
     <main className={styles.shell}>
+      {/* Aurora + particle depth atmosphere layered behind the WebGL scene */}
+      <div className={styles.atmosphere} aria-hidden="true" />
+      <div className={styles.starField} aria-hidden="true" />
+
       {/* Immersive 3D Spatial Environment (Tasks 39-42) */}
       <section className={styles.visualLayer} aria-label="disha6.6 sovereign intelligence environment">
         <SovereignCyberMatrix3D />
       </section>
 
+      {/* Cinematic vignette to focus the eye on the gateway */}
+      <div className={styles.vignette} aria-hidden="true" />
+
       {/* Floating Spatial Gateway Overlay (Tasks 43-45) */}
       <section className={styles.spatialGatewayContainer} aria-labelledby="secure-access-title">
-        <div className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}>
+        <div
+          className={`${styles.spatialGatewayCard} ${state === "verified" ? styles.gatewayDissolving : ""}`}
+          onPointerLeave={resetCardParallax}
+          onPointerMove={trackCardParallax}
+          ref={cardRef}
+        >
+          <div className={styles.cardSheen} aria-hidden="true" />
           <div className={styles.headingBlock}>
             <p className={styles.kicker}>SECURE IDENTITY</p>
             <h1 id="secure-access-title">DISHA 6.6</h1>

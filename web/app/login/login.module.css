@@ -16,6 +16,63 @@
   width: 100vw;
 }
 
+/* Slow-drifting aurora nebulae for premium depth behind the globe */
+.atmosphere {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+  background:
+    radial-gradient(closest-side at 22% 28%, rgba(56, 189, 248, 0.28), transparent 70%),
+    radial-gradient(closest-side at 78% 22%, rgba(16, 185, 129, 0.18), transparent 70%),
+    radial-gradient(closest-side at 62% 82%, rgba(2, 132, 199, 0.26), transparent 72%);
+  filter: blur(38px) saturate(1.15);
+  animation: auroraDrift 24s ease-in-out infinite alternate;
+}
+
+@keyframes auroraDrift {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 2%, 0) scale(1.06); }
+  100% { transform: translate3d(-1%, 1.5%, 0) scale(1.02); }
+}
+
+/* Fine starfield for spatial parallax texture */
+.starField {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgba(226, 232, 240, 0.9), transparent),
+    radial-gradient(1px 1px at 68% 12%, rgba(148, 197, 253, 0.8), transparent),
+    radial-gradient(1.5px 1.5px at 82% 62%, rgba(226, 232, 240, 0.65), transparent),
+    radial-gradient(1px 1px at 34% 78%, rgba(165, 243, 252, 0.75), transparent),
+    radial-gradient(1px 1px at 52% 44%, rgba(226, 232, 240, 0.55), transparent),
+    radial-gradient(1.5px 1.5px at 8% 66%, rgba(148, 197, 253, 0.6), transparent);
+  background-repeat: repeat;
+  background-size: 340px 340px;
+  animation: starDrift 60s linear infinite;
+}
+
+@keyframes starDrift {
+  from { background-position: 0 0; }
+  to { background-position: 340px 340px; }
+}
+
+/* Cinematic vignette to pull focus toward the gateway */
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 46%, transparent 40%, rgba(1, 4, 10, 0.55) 100%),
+    linear-gradient(to top, rgba(1, 4, 10, 0.6), transparent 32%);
+}
+
+
 /* 3D WebGL Canvas Layer fills 100% of the screen */
 .visualLayer {
   position: absolute;
@@ -36,6 +93,7 @@
   justify-content: flex-end;
   padding: clamp(20px, 4vh, 60px) clamp(24px, 6vw, 120px);
   pointer-events: none;
+  perspective: 1500px;
 }
 
 @media (max-width: 900px) {
@@ -47,41 +105,104 @@
 
 /* Compact floating dark identity gateway card (width: 380-440px per Task 43) */
 .spatialGatewayCard {
+  position: relative;
   pointer-events: auto;
   width: 100%;
   max-width: 420px;
-  background: rgba(4, 15, 30, 0.82);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(56, 189, 248, 0.24);
-  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(9, 22, 42, 0.9) 0%, rgba(4, 13, 27, 0.86) 100%);
+  backdrop-filter: blur(28px) saturate(1.2);
+  -webkit-backdrop-filter: blur(28px) saturate(1.2);
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  border-radius: 22px;
   box-shadow:
-    0 24px 72px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(56, 189, 248, 0.08) inset,
-    0 0 40px rgba(56, 189, 248, 0.09);
+    0 30px 80px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(56, 189, 248, 0.1) inset,
+    0 0 48px rgba(56, 189, 248, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
   padding: clamp(24px, 3vh, 36px) clamp(24px, 2.5vw, 36px);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
-  animation: gatewayEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease, box-shadow 0.35s ease;
+  animation: gatewayEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
+  will-change: transform;
+}
+
+/* Light-catching top edge */
+.spatialGatewayCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.9), transparent);
+  opacity: 0.75;
+}
+
+/* Cursor-tracking glass sheen */
+.cardSheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(
+    340px circle at var(--glow-x, 50%) var(--glow-y, 0%),
+    rgba(125, 211, 252, 0.16),
+    transparent 60%
+  );
+  transition: background 0.12s linear;
 }
 
 @keyframes gatewayEntrance {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.97);
+    translate: 0 22px;
+    scale: 0.96;
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    translate: 0 0;
+    scale: 1;
   }
 }
 
 /* Login success transition: Gateway contracts and dissolves into command center (Task 45) */
 .gatewayDissolving {
   opacity: 0;
-  transform: scale(0.92) translateY(-12px);
+  scale: 0.92;
+  translate: 0 -12px;
   pointer-events: none;
-  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+    scale 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+    translate 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Give the card's content subtle Z-depth for a layered holographic feel */
+.spatialGatewayCard > .headingBlock,
+.spatialGatewayCard > .loginForm,
+.spatialGatewayCard > .divider,
+.spatialGatewayCard > .identityGrid,
+.spatialGatewayCard > .securityFooter {
+  position: relative;
+  z-index: 2;
+  transform: translateZ(28px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere,
+  .starField {
+    animation: none;
+  }
+
+  .spatialGatewayCard {
+    animation: none;
+    transition: opacity 0.3s ease;
+    transform: none;
+  }
+}
+
 
 .headingBlock {
   margin: 0 0 clamp(18px, 2.5vh, 26px);
@@ -102,6 +223,10 @@
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 0 0 6px;
+  background: linear-gradient(135deg, #ffffff 0%, #bae6fd 55%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: #ffffff;
 }
 
@@ -232,9 +357,9 @@
 
 .loginButton {
   align-items: center;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  border: 1px solid rgba(125, 211, 252, 0.3);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 60%, #0284c7 100%);
+  border: 1px solid rgba(125, 211, 252, 0.4);
+  border-radius: 14px;
   color: #ffffff;
   cursor: pointer;
   display: flex;
@@ -243,11 +368,32 @@
   gap: 10px;
   justify-content: center;
   letter-spacing: 0.08em;
-  padding: 12px 18px;
+  overflow: hidden;
+  padding: 13px 18px;
   position: relative;
   text-transform: uppercase;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(2, 132, 199, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 6px 24px rgba(2, 132, 199, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -8px 18px rgba(2, 6, 23, 0.35) inset;
+}
+
+/* Diagonal light sweep on hover for a premium tactile response */
+.loginButton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.loginButton:hover:not(:disabled)::after {
+  left: 130%;
 }
 
 .loginButton:hover:not(:disabled) {

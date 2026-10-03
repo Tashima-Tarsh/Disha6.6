@@ -37,10 +37,14 @@ jobs:
     name: Web product verification
     needs: governance
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: web
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
     steps:
       - uses: actions/checkout@v5
 
@@ -49,6 +53,18 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: web/package-lock.json
+
+      - name: Restore Next.js incremental build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            web/.next/cache
+            web/tsconfig.tsbuildinfo
+            web/tsconfig.full.tsbuildinfo
+          key: ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}-${{ hashFiles('web/**/*.ts', 'web/**/*.tsx', 'web/**/*.css', 'web/next.config.js') }}
+          restore-keys: |
+            ${{ runner.os }}-next-${{ hashFiles('web/package-lock.json') }}-
+            ${{ runner.os }}-next-
 
       - name: Install dependencies
         run: npm ci
@@ -59,7 +75,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Type-check
+      - name: Type-check (strict, full surface)
         run: npm run type-check:full
 
       - name: Test
@@ -67,3 +83,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Verify standalone runtime artifact
+        run: |
+          if [ -f .next/standalone/server.js ] || [ -f .next/standalone/web/server.js ]; then
+            echo "Standalone server artifact present"
+          else
+            echo "::error::Next standalone server.js was not produced"
+            exit 1
+          fi
