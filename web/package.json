@@ -44,8 +44,12 @@
     "lucide-react": "^1.49.0",
     "maplibre-gl": "6.11.2",
     "nanoid": "^6.0.1",
+dependabot/npm_and_yarn/web/pg-8.23.1
+    "next": "16.3.6",
+    "pg": "^8.23.1",
     "next": "16.3.8",
     "pg": "^8.20.0",
+main
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-map-gl": "8.1.3",
