@@ -1,3 +1,4 @@
+import { safeReturnUrl } from "@/lib/auth-navigation";
 import type { Metadata } from "next";
 
 import { LoginClient } from "./login-client";
@@ -18,10 +19,5 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const requested = Array.isArray(params?.returnUrl) ? params.returnUrl[0] : params?.returnUrl;
   const authError = Array.isArray(params?.authError) ? params.authError[0] : params?.authError;
-  return <LoginClient authError={authError} returnUrl={sanitizeReturnUrl(requested)} />;
-}
-
-function sanitizeReturnUrl(requested?: string) {
-  if (!requested || !requested.startsWith("/") || requested.startsWith("//")) return "/dashboard";
-  return requested;
+  return <LoginClient authError={authError} returnUrl={safeReturnUrl(requested)} />;
 }

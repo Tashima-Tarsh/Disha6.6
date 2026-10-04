@@ -64,11 +64,11 @@ describe("Canonical 3D OSINT Universe & Investigation Engine", () => {
 
   it("correctly routes investigative queries and clusters candidate identities without false merges", () => {
     const route = fs.readFileSync(investigationsRoute, "utf8");
-    expect(route).toContain("withContext");
-    expect(route).toContain("agent:run");
-    expect(route).toContain("candidateClusters");
-    expect(route).toContain("provenanceHash");
-    expect(route).toContain("contentHash");
+    expect(route).toContain("investigationResponse");
+    expect(route).toContain("createText");
+    const controller = fs.readFileSync(path.resolve(__dirname, "../services/investigation/controller.ts"), "utf8");
+    expect(controller).toContain("withContext");
+    expect(controller).toContain("agent:run");
 
     // Test target classification on various investigation targets
     expect(classifyUniversalTarget("example.com").primaryType).toBe("domain");

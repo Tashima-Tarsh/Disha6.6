@@ -1,3 +1,5 @@
+import { setCsrfCookie } from "@/lib/server/csrf";
+import { safeReturnUrl } from "@/lib/auth-navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 import { audit } from "@/lib/server/audit";
@@ -17,17 +19,7 @@ import { requestId } from "@/lib/server/security";
 
 const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
-function safeReturnUrl(value: unknown): string {
-  if (
-    typeof value !== "string" ||
-    !value.startsWith("/") ||
-    value.startsWith("//") ||
-    value === "/workbench"
-  ) {
-    return "/dashboard";
-  }
-  return value;
-}
+
 
 function browserAcceptsJson(req: NextRequest) {
   return req.headers.get("accept")?.includes("application/json") ?? false;
@@ -122,6 +114,7 @@ export async function GET(req: NextRequest) {
       new URL(safeReturnUrl(statePayload.returnUrl), req.nextUrl.origin),
     );
     setSessionCookies(response, session.accessToken, session.refreshToken);
+    setCsrfCookie(response);
     response.cookies.set(OIDC_VERIFIER_COOKIE, "", {
       httpOnly: true,
       secure: env.NODE_ENV === "production",

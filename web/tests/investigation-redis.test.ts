@@ -1,0 +1,18 @@
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { randomUUID } from "node:crypto";
+import { createClient } from "redis";
+import { investigationStore } from "../lib/server/investigation-store";
+import type { TemporaryInvestigation } from "../lib/server/investigation-store";
+const enabled = Boolean(process.env.DISHA_TEST_REDIS_URL);
+const client = createClient({ url: process.env.DISHA_TEST_REDIS_URL ?? "redis://127.0.0.1:6387" });
+vi.mock("../lib/server/redis", () => ({ getRedisClient: async () => client }));
+const ids: string[] = [];
+function value(ttl = 60000): TemporaryInvestigation { const id = randomUUID(); ids.push(id); return { investigationId: id, revision: 0, ownerId: "integration-owner", target: "private temporary query", normalizedTarget: "private temporary query", targetType: "topic", createdAt: new Date().toISOString(), expiresAt: new Date(Date.now() + ttl).toISOString(), status: "QUEUED", plannedAdapters: [], runs: [], evidence: [], candidateClusters: [], edges: [] }; }
+describe.skipIf(!enabled)("Redis temporary investigation integration", () => {
+  beforeAll(async () => { vi.stubEnv("DISHA_INVESTIGATION_KEY", "integration-only-key-at-least-thirty-two-bytes"); await client.connect(); });
+  afterAll(async () => { for (const id of ids) await client.del(["state", "image", "owner", "lease", "stop"].map(part => `disha:ephemeral:{${id}}:${part}`)); await client.quit(); vi.unstubAllEnvs(); });
+  it("stores encrypted data with an absolute TTL", async () => { const item = value(); await investigationStore.create(item, Buffer.from("image bytes")); const raw = await client.get(`disha:ephemeral:{${item.investigationId}}:state`); expect(raw).not.toContain(item.target); expect(await investigationStore.read(item.investigationId)).toEqual(item); expect(await client.pTTL(`disha:ephemeral:{${item.investigationId}}:image`)).toBeGreaterThan(0); });
+  it("enforces one worker lease and fences writes after stop", async () => { const item = value(); await investigationStore.create(item); const lease = await investigationStore.acquire(item.investigationId); expect(lease).toBeTruthy(); expect(await investigationStore.acquire(item.investigationId)).toBeNull(); await investigationStore.stop(item.investigationId); expect(await investigationStore.save(item)).toBe(false); await investigationStore.release(item.investigationId, "wrong-token"); expect(await investigationStore.busy(item.investigationId)).toBe(true); await investigationStore.release(item.investigationId, lease!); expect(await investigationStore.busy(item.investigationId)).toBe(false); });
+  it("deletes uploaded bytes and results without allowing resurrection", async () => { const item = value(); await investigationStore.create(item, Buffer.from("image bytes")); await investigationStore.stop(item.investigationId); await investigationStore.remove(item.investigationId); expect(await investigationStore.read(item.investigationId)).toBeNull(); expect(await investigationStore.image(item.investigationId)).toBeNull(); expect(await investigationStore.save(item)).toBe(false); expect(await investigationStore.authorized(item.investigationId, item.ownerId)).toBe(true); expect(await investigationStore.authorized(item.investigationId, "other")).toBe(false); });
+  it("expires both state and image without another request", async () => { const item = value(80); await investigationStore.create(item, Buffer.from("image bytes")); await new Promise(resolve => setTimeout(resolve, 150)); expect(await investigationStore.read(item.investigationId)).toBeNull(); expect(await investigationStore.image(item.investigationId)).toBeNull(); });
+});

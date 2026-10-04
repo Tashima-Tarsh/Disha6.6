@@ -1,3 +1,4 @@
+import { safeReturnUrl } from "@/lib/auth-navigation";
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,10 +13,7 @@ import { requestId } from "@/lib/server/security";
 
 const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
-function safeReturnUrl(value?: string) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  return value;
-}
+
 
 function browserAcceptsJson(req: NextRequest) {
   return req.headers.get("accept")?.includes("application/json") ?? false;

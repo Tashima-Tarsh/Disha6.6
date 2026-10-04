@@ -194,7 +194,7 @@ export function LoginClient({
             {state === "verified" ? (
               <div className={styles.successNotice} role="status">
                 <CheckCircle2 size={16} />
-                <span>Identity verified · Entering secure workspace...</span>
+                <span>Identity verified · Opening Investigation Universe...</span>
               </div>
             ) : null}
 

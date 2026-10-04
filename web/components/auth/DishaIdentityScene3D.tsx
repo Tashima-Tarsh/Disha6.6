@@ -122,8 +122,9 @@ export function DishaIdentityScene3D({ transitionState = "idle" }: DishaIdentity
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.1;
     } catch {
-      setWebGlSupported(false);
-      return;
+      reducedMotionQuery.removeEventListener("change", handleMotionChange);
+      const fallbackFrame = requestAnimationFrame(() => setWebGlSupported(false));
+      return () => cancelAnimationFrame(fallbackFrame);
     }
 
     const scene = new THREE.Scene();

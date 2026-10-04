@@ -30,7 +30,6 @@ import type {
   CanonicalSourceRuntimeNode,
   OsintSystemSystemDefinition,
 } from "@/lib/unified/canonical-source-registry";
-import type { ActiveInvestigationVisualState } from "@/components/visual/OsintUniverse3D";
 import { LiveOsintPlane } from "@/components/intelligence/LiveOsintPlane";
 import { DishaMotionField } from "@/components/visual/DishaMotionField";
 import { CommandPalette } from "./command-palette";
@@ -63,6 +62,7 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
   const [playing, setPlaying] = useState(false);
   const [playbackIndex, setPlaybackIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [universeError, setUniverseError] = useState("");
   const [universeData, setUniverseData] = useState<{
     sources: CanonicalSourceRuntimeNode[];
     systems: OsintSystemSystemDefinition[];
@@ -75,16 +75,12 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
       persistedEvidenceTotal: number;
     };
   } | null>(null);
-  const [investigationQuery, setInvestigationQuery] = useState("");
-  const [isInvestigating, setIsInvestigating] = useState(false);
-  const [activeInvestigation, setActiveInvestigation] = useState<ActiveInvestigationVisualState | null>(null);
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [selectedSource, setSelectedSource] = useState<CanonicalSourceRuntimeNode | null>(null);
 
   useEffect(() => {
     fetch("/api/v1/osint/universe", { credentials: "same-origin" })
       .then((res) => {
-        if (!res.ok) return null;
+        if (!res.ok) throw new Error("UNIVERSE API UNAVAILABLE");
         return res.json();
       })
       .then((data) => {
@@ -92,44 +88,9 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
           setUniverseData(data);
         }
       })
-      .catch(() => {
-        // gracefully handle fetch failure
-      });
+      .catch(() => setUniverseError("UNIVERSE API UNAVAILABLE"));
   }, []);
 
-  async function handleLaunchInvestigation(e?: React.FormEvent) {
-    if (e) e.preventDefault();
-    const target = investigationQuery.trim();
-    if (!target || isInvestigating) return;
-
-    setIsInvestigating(true);
-    try {
-      const res = await fetch("/api/v1/osint/investigations", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ target }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setActiveInvestigation({
-        investigationId: data.investigationId,
-        query: target,
-        normalizedTarget: data.normalizedTarget,
-        targetType: data.targetType,
-        executedAdapters: (data.runs ?? []).map((r: { adapterId: string }) => r.adapterId),
-        evidence: data.evidence ?? [],
-        candidateClusters: data.candidateClusters ?? [],
-      });
-      if (data.candidateClusters?.[0]) {
-        setSelectedCandidateId(data.candidateClusters[0].candidateId);
-      }
-    } catch (err) {
-      console.info("Investigation dispatch returned:", err);
-    } finally {
-      setIsInvestigating(false);
-    }
-  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -299,7 +260,6 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
               timeline={selectedTimeline}
               latestEvidence={data.evidence[0] ?? null}
               selectedSource={selectedSource}
-              activeInvestigation={activeInvestigation}
             />
           </aside>
 
@@ -320,56 +280,19 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
                 <h2 id="universe-heading">OSINT Investigation Space</h2>
               </div>
               <div className={styles.mapMeta}>
-                <span><ShieldCheck size={14} /> {universeData?.sources.length ?? 125} cataloged sources</span>
-                <span><Activity size={14} /> {universeData?.summary?.healthySources ?? 0} active live</span>
+                <span><ShieldCheck size={14} /> {universeData?.sources.length ?? "—"} cataloged sources</span>
+                <span><Activity size={14} /> {universeData?.summary?.healthySources ?? "—"} runtime healthy</span>
                 <span><Layers3 size={14} /> {universeData?.summary?.persistedEvidenceTotal ?? 0} persisted evidence</span>
               </div>
             </header>
 
-            <form className={styles.investigationBar} onSubmit={handleLaunchInvestigation}>
-              <Search size={16} color="#00f0ff" />
-              <input
-                className={styles.investigationInput}
-                type="text"
-                placeholder="Enter investigative target (domain, person, IP, phone, email, handle)..."
-                value={investigationQuery}
-                onChange={(e) => setInvestigationQuery(e.target.value)}
-              />
-              <span className={styles.typeBadge}>
-                {classifyTargetPreview(investigationQuery)}
-              </span>
-              <button
-                className={styles.investigationButton}
-                type="submit"
-                disabled={isInvestigating || !investigationQuery.trim()}
-              >
-                {isInvestigating ? "Executing…" : "Investigate"}
-              </button>
-            </form>
+            <Link className={styles.investigationBar} href="/investigate"><Search size={16} /> Open Investigation Universe <ArrowUpRight size={16} /></Link>
 
-            {activeInvestigation?.candidateClusters && activeInvestigation.candidateClusters.length > 0 && (
-              <div className={styles.clusterBar}>
-                <span className={styles.clusterLabel}>Identities:</span>
-                {activeInvestigation.candidateClusters.map((cluster) => (
-                  <button
-                    key={cluster.candidateId}
-                    type="button"
-                    className={`${styles.clusterPill} ${selectedCandidateId === cluster.candidateId ? styles.clusterPillActive : ""}`}
-                    onClick={() => setSelectedCandidateId(cluster.candidateId)}
-                  >
-                    <span>{cluster.label}</span>
-                    <small>({cluster.evidenceIds.length} ev)</small>
-                  </button>
-                ))}
-              </div>
-            )}
-
+            {universeError && <p role="alert">{universeError}</p>}
             <OsintUniverse3D
               sources={universeData?.sources}
               systems={universeData?.systems}
-              activeInvestigation={activeInvestigation}
               onSelectSource={(source) => setSelectedSource(source)}
-              onSelectCandidate={(id) => setSelectedCandidateId(id)}
             />
           </section>
 
@@ -435,14 +358,12 @@ function Inspector({
   timeline,
   latestEvidence,
   selectedSource,
-  activeInvestigation,
 }: {
   feature: OperationalGeoFeature | null;
   entity: WorkspaceEntity | null;
   timeline: WorkspaceTimelineItem | null;
   latestEvidence: IntelligenceWorkspace["evidence"][number] | null;
   selectedSource?: CanonicalSourceRuntimeNode | null;
-  activeInvestigation?: ActiveInvestigationVisualState | null;
 }) {
   if (selectedSource) {
     return (
@@ -574,15 +495,4 @@ function formatDateTime(value: string): string {
 }
 function formatCompactDate(value: string): string {
   return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
-}
-
-function classifyTargetPreview(query: string): string {
-  const trimmed = query.trim();
-  if (!trimmed) return "OSINT TARGET";
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return "EMAIL";
-  if (/^\+?[0-9]{7,15}$/.test(trimmed.replace(/[\s\-()]/g, ""))) return "PHONE";
-  if (/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(trimmed)) return "IPV4";
-  if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) return "DOMAIN";
-  if (trimmed.startsWith("@")) return "HANDLE";
-  return "PERSON / ENTITY";
 }
