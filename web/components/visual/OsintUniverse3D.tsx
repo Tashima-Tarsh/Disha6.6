@@ -74,7 +74,8 @@ export function OsintUniverse3D({
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredSource, setHoveredSource] = useState<CanonicalSourceRuntimeNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [currentPreset, setCurrentPreset] = useState<string>(activePreset);
+  const [chosenPreset, setChosenPreset] = useState<{ source: string; value: string } | null>(null);
+  const currentPreset = chosenPreset?.source === activePreset ? chosenPreset.value : activePreset;
 
   const sceneRef = useRef<ThreeScene | null>(null);
   const cameraRef = useRef<ThreeCamera | null>(null);
@@ -88,7 +89,6 @@ export function OsintUniverse3D({
   const sourceMeshesRef = useRef<Map<string, ThreeMesh>>(new Map());
 
   const applyPreset = useCallback((preset: string) => {
-    setCurrentPreset(preset);
     if (!targetCamPosRef.current) return;
 
     switch (preset) {
@@ -117,8 +117,8 @@ export function OsintUniverse3D({
   }, []);
 
   useEffect(() => {
-    applyPreset(activePreset);
-  }, [activePreset, applyPreset]);
+    applyPreset(currentPreset);
+  }, [currentPreset, applyPreset]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -561,42 +561,42 @@ export function OsintUniverse3D({
           <button
             type="button"
             className={`${styles.presetButton} ${currentPreset === "UNIVERSE" ? styles.activePreset : ""}`}
-            onClick={() => applyPreset("UNIVERSE")}
+            onClick={() => setChosenPreset({ source: activePreset, value: "UNIVERSE" })}
           >
             UNIVERSE
           </button>
           <button
             type="button"
             className={`${styles.presetButton} ${currentPreset === "DISHA_CORE" ? styles.activePreset : ""}`}
-            onClick={() => applyPreset("DISHA_CORE")}
+            onClick={() => setChosenPreset({ source: activePreset, value: "DISHA_CORE" })}
           >
             DISHA CORE
           </button>
           <button
             type="button"
             className={`${styles.presetButton} ${currentPreset === "CYBER" ? styles.activePreset : ""}`}
-            onClick={() => applyPreset("CYBER")}
+            onClick={() => setChosenPreset({ source: activePreset, value: "CYBER" })}
           >
             CYBER IOC
           </button>
           <button
             type="button"
             className={`${styles.presetButton} ${currentPreset === "SPACE" ? styles.activePreset : ""}`}
-            onClick={() => applyPreset("SPACE")}
+            onClick={() => setChosenPreset({ source: activePreset, value: "SPACE" })}
           >
             SPACEINT
           </button>
           <button
             type="button"
             className={`${styles.presetButton} ${currentPreset === "INVESTIGATION" ? styles.activePreset : ""}`}
-            onClick={() => applyPreset("INVESTIGATION")}
+            onClick={() => setChosenPreset({ source: activePreset, value: "INVESTIGATION" })}
           >
             INVESTIGATION
           </button>
           <button
             type="button"
             className={`${styles.presetButton} ${currentPreset === "EVIDENCE" ? styles.activePreset : ""}`}
-            onClick={() => applyPreset("EVIDENCE")}
+            onClick={() => setChosenPreset({ source: activePreset, value: "EVIDENCE" })}
           >
             EVIDENCE
           </button>

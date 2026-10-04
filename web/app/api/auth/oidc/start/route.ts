@@ -1,3 +1,4 @@
+import { safeReturnUrl } from "@/lib/auth-navigation";
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,9 +13,27 @@ import { requestId } from "@/lib/server/security";
 
 const OIDC_VERIFIER_COOKIE = "disha_oidc_verifier";
 
-function safeReturnUrl(value?: string) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  return value;
+
+
+function browserAcceptsJson(req: NextRequest) {
+  return req.headers.get("accept")?.includes("application/json") ?? false;
+}
+
+function configurationError(req: NextRequest, returnUrl?: string) {
+  if (browserAcceptsJson(req)) {
+    return NextResponse.json(
+      {
+        error: "Meri Pehchaan sign-in is awaiting application credentials issued through the official partner onboarding process.",
+        code: "meri_pehchaan_not_configured",
+        partnerPortal: "https://dlpartners.meripehchaan.gov.in/welcome/",
+      },
+      { status: 503 },
+    );
+  }
+  const login = new URL("/login", req.nextUrl.origin);
+  login.searchParams.set("authError", "meri-pehchaan-not-configured");
+  login.searchParams.set("returnUrl", safeReturnUrl(returnUrl));
+  return NextResponse.redirect(login);
 }
 
 function browserAcceptsJson(req: NextRequest) {

@@ -1,3 +1,4 @@
+import { safeReturnUrl } from "@/lib/auth-navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 import { audit } from "@/lib/server/audit";
@@ -6,11 +7,7 @@ import { setCsrfCookie } from "@/lib/server/csrf";
 import { assertPublicRequestGuards, errorResponse } from "@/lib/server/http";
 import { requestId } from "@/lib/server/security";
 
-function safeReturnUrl(value: FormDataEntryValue | null) {
-  const text = typeof value === "string" ? value : "";
-  if (!text || !text.startsWith("/") || text.startsWith("//")) return "/dashboard";
-  return text;
-}
+
 
 export async function POST(req: NextRequest) {
   try {

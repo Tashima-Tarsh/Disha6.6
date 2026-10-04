@@ -2,7 +2,8 @@
   "name": "@tashima-tarsh/disha6.6",
   "version": "6.6.0",
   "description": "disha6.6 Constitutional Evidence Operating System: evidence-first governance intelligence with policy gates and provenance.",
-  "license": "UNLICENSED",
+  "license": "MIT",
+  "author": "Nitish Kumar (thenitishkr) <https://thenitishkr.in>",
   "private": true,
   "type": "module",
   "scripts": {

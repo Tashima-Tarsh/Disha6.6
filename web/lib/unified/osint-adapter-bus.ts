@@ -122,8 +122,8 @@ export class OsintAdapterBus {
         return this.result<TOutput>(adapterId, "cancelled", started, attempt - 1, [], [], undefined, "cancelled");
       }
       try {
-        await this.acquireRateLimit(adapter.metadata);
-        const output = await this.withTimeout(adapter.execute(input, context), adapter.metadata.timeoutMs, context.signal);
+        await this.acquireRateLimit(adapter.metadata, context.signal);
+        const output = await this.withTimeout((signal) => adapter.execute(input, { ...context, signal }), adapter.metadata.timeoutMs, context.signal);
         return this.result<TOutput>(adapterId, output.warnings?.length ? "partial" : "completed", started, attempt, output.evidence, output.warnings ?? [], output.data);
       } catch (error) {
         lastError = error instanceof Error ? error.message : String(error);
@@ -141,9 +141,10 @@ export class OsintAdapterBus {
     return this.result<TOutput>(adapterId, "failed", started, maxAttempts, [], [], undefined, lastError);
   }
 
-  private async acquireRateLimit(metadata: AdapterMetadata): Promise<void> {
+  private async acquireRateLimit(metadata: AdapterMetadata, signal?: AbortSignal): Promise<void> {
     const limit = Math.max(1, Math.trunc(metadata.rateLimitPerMinute ?? 60));
     for (;;) {
+      if (signal?.aborted) throw new Error("adapter_cancelled");
       const now = Date.now();
       const cutoff = now - 60_000;
       const current = (adapterRequestWindows.get(metadata.id) ?? []).filter((timestamp) => timestamp > cutoff);
@@ -153,23 +154,27 @@ export class OsintAdapterBus {
         return;
       }
       const waitMs = Math.max(10, current[0]! + 60_000 - now);
-      await this.sleep(waitMs);
+      await this.withTimeout(async () => this.sleep(waitMs), waitMs + 1000, signal);
     }
   }
 
-  private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, signal?: AbortSignal): Promise<T> {
+  private async withTimeout<T>(execute: (signal: AbortSignal) => Promise<T>, timeoutMs: number, signal?: AbortSignal): Promise<T> {
+    if (signal?.aborted) throw new Error("adapter_cancelled");
+    const controller = new AbortController();
+    const combined = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let abortHandler: (() => void) | undefined;
     const timeout = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(new Error("adapter_timeout")), timeoutMs);
+      timer = setTimeout(() => { reject(new Error("adapter_timeout")); controller.abort(); }, timeoutMs);
       if (signal) {
         abortHandler = () => reject(new Error("adapter_cancelled"));
         signal.addEventListener("abort", abortHandler, { once: true });
       }
     });
     try {
-      return await Promise.race([promise, timeout]);
+      return await Promise.race([execute(combined), timeout]);
     } finally {
+      controller.abort();
       if (timer) clearTimeout(timer);
       if (signal && abortHandler) signal.removeEventListener("abort", abortHandler);
     }

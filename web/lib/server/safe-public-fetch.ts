@@ -11,21 +11,31 @@ export async function safePublicFetch(input: string | URL, init: RequestInit = {
 async function fetchPublicChecked(input: string | URL, init: RequestInit, redirectDepth: number): Promise<Response> {
   if (redirectDepth > 5) throw new Error("too_many_redirects");
   const url = input instanceof URL ? new URL(input.toString()) : new URL(input);
+  if (url.username || url.password) throw new Error("url_credentials_blocked");
   if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("unsupported_url_scheme");
   if (BLOCKED_HOSTS.has(url.hostname.toLowerCase())) throw new Error("private_network_target_blocked");
   await assertPublicHost(url.hostname);
 
   const response = await fetch(url, {
     ...init,
+    cache: "no-store",
     redirect: "manual",
     signal: init.signal ?? AbortSignal.timeout(DEFAULT_FETCH_TIMEOUT_MS),
   });
   if (response.status >= 300 && response.status < 400) {
+    if (init.redirect === "error") { await response.body?.cancel(); throw new Error("provider_redirect_blocked"); }
     const location = response.headers.get("location");
     if (!location) return response;
     const next = new URL(location, url);
     await assertPublicHost(next.hostname);
-    return fetchPublicChecked(next, init, redirectDepth + 1);
+    await response.body?.cancel();
+    const nextInit = { ...init };
+    if (next.origin !== url.origin) {
+      const headers = new Headers(init.headers);
+      for (const name of ["authorization", "cookie", "x-goog-api-key", "x-subscription-token", "api-key", "x-api-key"]) headers.delete(name);
+      nextInit.headers = headers;
+    }
+    return fetchPublicChecked(next, nextInit, redirectDepth + 1);
   }
   return response;
 }

@@ -10,6 +10,8 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
     clientPromise = null;
     return null;
   }
-  clientPromise = createClient({ url: REDIS_URL }).connect() as Promise<RedisClientType>;
+  const client = createClient({ url: REDIS_URL, socket: { connectTimeout: 4000, reconnectStrategy: false } });
+  client.on("error", () => console.error(JSON.stringify({ type: "redis_error", message: "Temporary storage connection failed" })));
+  clientPromise = client.connect().then(() => client as RedisClientType).catch((error: unknown) => { clientPromise = undefined; throw error; });
   return clientPromise;
 }
