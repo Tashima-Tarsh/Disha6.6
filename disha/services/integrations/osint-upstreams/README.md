@@ -15,12 +15,13 @@ A submodule being present here means its source is available to the DISHA checko
 | `theHarvester/` | laramies/theHarvester | master | ASTRA infrastructure worker |
 | `amass/` | owasp-amass/amass | main | ASTRA infrastructure worker (passive profile) |
 | `subfinder/` | projectdiscovery/subfinder | dev | ASTRA infrastructure worker |
-| `spiderfoot/` | smicallef/spiderfoot | master | source present; runtime promotion requires isolated compatible worker |
-| `IntelOwl/` | intelowlproject/IntelOwl | master | source present; service connector candidate |
+| `spiderfoot/` | smicallef/spiderfoot | master | ASTRA advanced worker with fixed passive module allowlist |
+| `IntelOwl/` | intelowlproject/IntelOwl | master | executable service adapter when an IntelOwl endpoint/API key/analyzer allowlist are configured |
 | `opensanctions/` | opensanctions/opensanctions | main | source present; DISHA uses configured API/data connector separately |
-| `opencti/` | OpenCTI-Platform/opencti | master | source present; service connector candidate |
-| `recon-ng/` | lanmaster53/recon-ng | master | source present; module-by-module runtime review |
-| `Photon/` | s0md3v/Photon | master | source present; direct crawling stays outside passive default |
+| `opencti/` | OpenCTI-Platform/opencti | master | executable GraphQL service adapter when an OpenCTI endpoint/token are configured |
+| `recon-ng/` | lanmaster53/recon-ng | master | ASTRA advanced worker using approved marketplace modules only |
+| `recon-ng-marketplace/` | lanmaster53/recon-ng-marketplace | master | official module source pinned for the Recon-ng allowlist |
+| `Photon/` | s0md3v/Photon | master | ASTRA advanced worker; bounded same-site crawl with explicit authorization |
 | `awesome-osint/` | jivoi/awesome-osint | master | source/reference index |
 
 ## Initialize

@@ -86,6 +86,14 @@ function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<str
     return Array.isArray(payload.events) ? payload.events.map(record) : [];
   }
 
+  if (plan.adapterId === "astra6-recon-ng") {
+    return Array.isArray(payload.hosts) ? payload.hosts.map(record) : [];
+  }
+
+  if (plan.adapterId === "astra6-photon") {
+    return Array.isArray(payload.records) ? payload.records.map(record) : [];
+  }
+
   return undefined;
 }
 
@@ -143,7 +151,8 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
       ?? text(row.last_update);
 
     const summary =
-      text(row.title)
+      text(row.summary)
+      ?? text(row.title)
       ?? text(row.label)
       ?? text(row.description)
       ?? text(row.objectName)

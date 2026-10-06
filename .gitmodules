@@ -78,3 +78,8 @@
 	url = https://github.com/LonamiWebs/Telethon.git
 	branch = v1
 	shallow = true
+[submodule "osint-upstreams/recon-ng-marketplace"]
+	path = disha/services/integrations/osint-upstreams/recon-ng-marketplace
+	url = https://github.com/lanmaster53/recon-ng-marketplace.git
+	branch = master
+	shallow = true

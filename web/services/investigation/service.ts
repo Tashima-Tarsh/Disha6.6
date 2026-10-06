@@ -68,13 +68,19 @@ export class InvestigationService {
     if (identityAuthorized && !ctx.principal.roles.some((role) => role === "admin" || role === "operator")) {
       throw failure("Identity enumeration authorization requires operator or admin role", 403);
     }
+    const activeAuthorized = !upload
+      && "activeAuthorization" in values
+      && values.activeAuthorization === true;
+    if (activeAuthorized && !ctx.principal.roles.some((role) => role === "admin" || role === "operator")) {
+      throw failure("Active public-site crawl authorization requires operator or admin role", 403);
+    }
     const classification = upload ? { targetType: "image" as const, normalizedTarget: "Uploaded image" } : classifyTarget(values.target, values.targetType);
     const metadata = upload ? await analyzeImage(upload.bytes, upload.type) : undefined;
     const now = Date.now();
     const plannedAdapters = planInvestigation(
       classification.normalizedTarget,
       classification.targetType,
-      { identityAuthorized },
+      { identityAuthorized, activeAuthorized },
     );
     const value: TemporaryInvestigation = {
       investigationId: randomUUID(), revision: 0, ownerId: ctx.principal.userId, target: values.target, ...classification,
@@ -90,7 +96,7 @@ export class InvestigationService {
       value.edges.push({ id: randomUUID(), sourceId: evidenceId, targetId: "image-metadata", type: "DERIVED_FROM", evidenceId });
     }
     await this.store.create(value, upload?.bytes);
-    await this.log({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "investigation.started", resource: value.investigationId, outcome: "success", metadata: { targetClass: value.targetType, startTime: value.createdAt, expiresAt: value.expiresAt, identityAuthorized, adapters: value.runs.map(run => run.adapterId) } });
+    await this.log({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "investigation.started", resource: value.investigationId, outcome: "success", metadata: { targetClass: value.targetType, startTime: value.createdAt, expiresAt: value.expiresAt, identityAuthorized, activeAuthorized, adapters: value.runs.map(run => run.adapterId) } });
     return publicInvestigation(value);
   }
 

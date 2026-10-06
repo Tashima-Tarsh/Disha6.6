@@ -16,6 +16,7 @@ const POLL_INTERVAL_MS = Math.max(250, Number.parseInt(process.env.DISHA_OSINT_P
 const WORKER_CLASS_TOOLS = {
   identity: ["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"],
   infrastructure: ["theharvester", "owasp-amass", "subfinder"],
+  advanced: ["spiderfoot", "recon-ng", "photon"],
   document: [],
   cti: [],
 };
@@ -37,6 +38,9 @@ const TOOL_DEFAULT_TIMEOUT_MS = {
   theharvester: 120_000,
   "owasp-amass": 120_000,
   subfinder: 90_000,
+  spiderfoot: 180_000,
+  "recon-ng": 120_000,
+  photon: 90_000,
 };
 
 const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
@@ -86,8 +90,14 @@ function validateTarget(toolId, target) {
     throw new Error("invalid_phone_number");
   }
 
-  if (["theharvester", "owasp-amass", "subfinder"].includes(toolId) && !/^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}$/.test(value)) {
+  if (["theharvester", "owasp-amass", "subfinder", "recon-ng", "photon"].includes(toolId) && !/^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}$/.test(value)) {
     throw new Error("invalid_domain");
+  }
+
+  if (toolId === "spiderfoot") {
+    const validDomain = /^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}$/.test(value);
+    const validIpv4 = /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/.test(value);
+    if (!validDomain && !validIpv4) throw new Error("invalid_spiderfoot_target");
   }
 
   return value;
@@ -227,6 +237,45 @@ function parseNdjson(raw, kind) {
   return rows.slice(0, 1000);
 }
 
+function parseSpiderFootJson(raw) {
+  const text = String(raw).trim();
+  if (!text) return [];
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed.filter((row) => row && typeof row === "object").slice(0, 1000) : [];
+  } catch {
+    const rows = [];
+    for (const line of text.split(/\r?\n/).filter(Boolean)) {
+      const clean = line.replace(/^\s*[,\[]?/, "").replace(/[,\]]\s*$/, "").trim();
+      if (!clean) continue;
+      try {
+        const row = JSON.parse(clean);
+        if (row && typeof row === "object" && !Array.isArray(row)) rows.push(row);
+      } catch {
+        // Ignore non-JSON log lines from upstream.
+      }
+    }
+    return rows.slice(0, 1000);
+  }
+}
+
+function parsePhotonJson(raw) {
+  let parsed = {};
+  try {
+    parsed = JSON.parse(String(raw));
+  } catch {
+    parsed = {};
+  }
+  const records = [];
+  for (const kind of ["internal", "external", "files", "scripts"]) {
+    const values = Array.isArray(parsed[kind]) ? parsed[kind] : [];
+    for (const value of values.slice(0, 500)) {
+      if (typeof value === "string" && /^https?:\/\//i.test(value)) records.push({ kind, url: value });
+    }
+  }
+  return { records: records.slice(0, 1000) };
+}
+
 function buildToolCommand(toolId, target) {
   switch (toolId) {
     case "phoneinfoga":
@@ -253,6 +302,51 @@ function buildToolCommand(toolId, target) {
       return { binary: "amass", args: ["enum", "-passive", "-d", target, "-json", "/dev/stdout"] };
     case "subfinder":
       return { binary: "subfinder", args: ["-d", target, "-silent", "-json"] };
+    case "spiderfoot":
+      return {
+        binary: "/opt/venvs/spiderfoot/bin/python",
+        args: [
+          "/opt/osint/spiderfoot/sf.py",
+          "-s",
+          target,
+          "-m",
+          "sfp_archiveorg,sfp_bgpview,sfp_certspotter,sfp_crt,sfp_grep_app,sfp_hackertarget,sfp_ipinfo,sfp_opnicwhois,sfp_ripe,sfp_robtex,sfp_threatminer,sfp_urlscan,sfp_viewdns",
+          "-o",
+          "json",
+          "-q",
+          "-max-threads",
+          "2",
+        ],
+      };
+    case "recon-ng":
+      return {
+        binary: "/opt/venvs/recon/bin/python",
+        args: ["/opt/disha-worker/scripts/recon-ng-adapter.py", target],
+      };
+    case "photon": {
+      const outputDir = `/tmp/disha-photon-${process.pid}-${createHash("sha256").update(target).digest("hex").slice(0, 16)}`;
+      return {
+        binary: "/opt/venvs/photon/bin/python",
+        args: [
+          "/opt/osint/photon/photon.py",
+          "-u",
+          `https://${target}`,
+          "-e",
+          "json",
+          "-o",
+          outputDir,
+          "-l",
+          "1",
+          "-t",
+          "2",
+          "--timeout",
+          "5",
+          "--only-urls",
+        ],
+        outputFile: `${outputDir}/exported.json`,
+        cleanupPath: outputDir,
+      };
+    }
     default:
       throw new Error(`unsupported_tool:${toolId}`);
   }
@@ -269,7 +363,7 @@ function parseToolResult(toolId, raw, target) {
             "phoneinfoga",
             "PhoneInfoga",
             `PhoneInfoga parsed ${target}: country=${data.country ?? "unknown"}, carrier=${data.carrier ?? "unknown"}.`,
-            "https://github.com/sunshine-protocol/phoneinfoga",
+            "https://github.com/sundowndev/phoneinfoga",
           ),
         ],
       };
@@ -395,12 +489,56 @@ function parseToolResult(toolId, raw, target) {
         ],
       };
     }
+    case "spiderfoot": {
+      const events = parseSpiderFootJson(raw);
+      const data = { target, events };
+      return {
+        data,
+        evidence: [
+          buildEvidence(
+            "spiderfoot",
+            "SpiderFoot",
+            `Passive SpiderFoot profile returned ${events.length} event(s) for ${target}.`,
+            "https://github.com/smicallef/spiderfoot",
+          ),
+        ],
+      };
+    }
+    case "recon-ng": {
+      const data = lastJsonObject(raw, toolId);
+      const hosts = Array.isArray(data.hosts) ? data.hosts : [];
+      return {
+        data,
+        evidence: [
+          buildEvidence(
+            "recon-ng",
+            "Recon-ng",
+            `Allowlisted Recon-ng modules returned ${hosts.length} host record(s) for ${target}.`,
+            "https://github.com/lanmaster53/recon-ng",
+          ),
+        ],
+      };
+    }
+    case "photon": {
+      const data = parsePhotonJson(raw);
+      return {
+        data,
+        evidence: [
+          buildEvidence(
+            "photon",
+            "Photon",
+            `Bounded authorized Photon crawl returned ${data.records.length} public URL record(s) for ${target}.`,
+            "https://github.com/s0md3v/Photon",
+          ),
+        ],
+      };
+    }
     default:
       throw new Error(`unsupported_parser:${toolId}`);
   }
 }
 
-async function executeBinary(binary, args, timeoutMs, outputFile) {
+async function executeBinary(binary, args, timeoutMs, outputFile, cleanupPath) {
   try {
     const { stdout } = await execFileAsync(binary, args, {
       timeout: timeoutMs,
@@ -433,6 +571,7 @@ async function executeBinary(binary, args, timeoutMs, outputFile) {
         rm(outputFile.replace(/\.json$/, ".xml"), { force: true }),
       ]);
     }
+    if (cleanupPath) await rm(cleanupPath, { recursive: true, force: true });
   }
 }
 
@@ -537,9 +676,12 @@ async function processNextJob() {
 
   try {
     const target = validateTarget(job.tool_id, job.target);
-    const { binary, args, outputFile } = buildToolCommand(job.tool_id, target);
+    if (job.tool_id === "photon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
+      throw new Error("policy_denied_active_recon");
+    }
+    const { binary, args, outputFile, cleanupPath } = buildToolCommand(job.tool_id, target);
     const timeoutMs = Math.max(1_000, Math.min(Number(job.timeout_ms) || TOOL_DEFAULT_TIMEOUT_MS[job.tool_id] || 60_000, 240_000));
-    const raw = await executeBinary(binary, args, timeoutMs, outputFile);
+    const raw = await executeBinary(binary, args, timeoutMs, outputFile, cleanupPath);
     const parsed = parseToolResult(job.tool_id, raw, target);
     const durationMs = Date.now() - started;
     const provenanceHash = hashValue({ runId: job.run_id, toolId: job.tool_id, data: parsed.data, raw });

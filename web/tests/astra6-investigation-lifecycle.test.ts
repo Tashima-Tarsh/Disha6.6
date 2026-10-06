@@ -9,7 +9,7 @@ import { InvestigationService } from "../services/investigation/service";
 
 const ctx: RequestContext = {
   requestId: "astra-investigation-test",
-  principal: { userId: "owner-1", email: "owner@example.com", roles: ["analyst"] },
+  principal: { userId: "owner-1", email: "owner@example.com", roles: ["operator"] },
 };
 
 class MemoryStore implements InvestigationStore {
@@ -145,6 +145,7 @@ describe("ASTRA investigation lifecycle", () => {
     const created = await service.create({
       target: "+919876543210",
       targetType: "phone",
+      identityAuthorization: true,
     }, ctx);
 
     expect(created.runs.find(run => run.adapterId === "astra6-phoneinfoga")?.status).toBe("QUEUED");

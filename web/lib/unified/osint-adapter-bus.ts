@@ -25,6 +25,7 @@ export type AdapterContext = {
   userId: string;
   purpose: string;
   identityAuthorization?: boolean;
+  activeAuthorization?: boolean;
   signal?: AbortSignal;
 };
 
