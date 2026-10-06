@@ -39,7 +39,7 @@ function normalizeVin(value: string): string {
 
 function normalizeIndianRegistration(value: string): string {
   const registration = value.trim().replace(/[\s-]/g, "").toUpperCase();
-  if (!/^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/.test(registration)) {
+  if (!/^[A-Z]{2}[0-9]{2}[A-Z]{0,3}[0-9]{4}$/.test(registration)) {
     throw new Error("invalid_indian_vehicle_registration");
   }
   return registration;
