@@ -143,7 +143,7 @@ export const astra6InvestigationBridge: Astra6InvestigationBridge = {
     if (!pool) throw new Error("astra6_not_configured");
 
     const query = await pool.query(
-      `select status,parsed_output,evidence,warnings,error,attempts,duration_ms
+      `select tool_id,status,parsed_output,evidence,warnings,error,attempts,duration_ms,queued_at,started_at
          from astra6_connector_runs
         where run_id=$1 and user_id=$2
         limit 1`,
@@ -166,9 +166,30 @@ export const astra6InvestigationBridge: Astra6InvestigationBridge = {
       };
     }
 
-    const status = String(row.status ?? "failed");
+    let status = String(row.status ?? "failed");
     if (status === "queued" || status === "running") {
-      return { pending: true, status };
+      const now = Date.now();
+      const queuedAt = row.queued_at instanceof Date ? row.queued_at.getTime() : Date.parse(String(row.queued_at ?? ""));
+      const startedAt = row.started_at instanceof Date ? row.started_at.getTime() : Date.parse(String(row.started_at ?? ""));
+      const queueTimeoutMs = Math.max(5_000, Number(process.env.DISHA_ASTRA6_QUEUE_TIMEOUT_MS ?? 45_000));
+      const manifest = getAstra6ToolManifest(String(row.tool_id ?? ""));
+      const executionTimeoutMs = (manifest?.timeoutMs ?? 180_000) + 30_000;
+      const staleQueued = status === "queued" && Number.isFinite(queuedAt) && now - queuedAt > queueTimeoutMs;
+      const staleRunning = status === "running" && Number.isFinite(startedAt) && now - startedAt > executionTimeoutMs;
+
+      if (staleQueued || staleRunning) {
+        const error = staleQueued ? "astra6_worker_unavailable" : "astra6_worker_timed_out";
+        await pool.query(
+          `update astra6_connector_runs
+              set status='timed_out', error=$3, completed_at=now()
+            where run_id=$1 and user_id=$2 and status=$4`,
+          [runId, userId, error, status],
+        );
+        status = "timed_out";
+        row.error = error;
+      } else {
+        return { pending: true, status };
+      }
     }
 
     const evidence = jsonArray<AdapterEvidence>(row.evidence);
