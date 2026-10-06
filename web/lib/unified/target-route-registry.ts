@@ -34,25 +34,38 @@ function addAstraRoute(
   sourceName: string,
   target: string,
   targetType: string,
+  identityAuthorized = false,
 ) {
   const toolId = adapterId.replace(/^astra6-/, "");
   const envKey = `DISHA_ASTRA6_${toolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
   const enabled = Boolean(process.env.DATABASE_URL)
     && (process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true");
   const identitySensitive = ["email", "phone_number", "username"].includes(targetType);
-  const approved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+  const deploymentApproved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+  const approved = !identitySensitive || (deploymentApproved && identityAuthorized);
   const initialStatus: AdapterPlan["initialStatus"] | undefined = !enabled
     ? "NOT_CONFIGURED"
-    : identitySensitive && !approved
+    : !approved
       ? "RESTRICTED"
       : undefined;
   const reason = !enabled
     ? "ASTRA 6 worker bridge requires DATABASE_URL and the tool enable flag."
-    : identitySensitive && !approved
-      ? "Identity-oriented ASTRA execution requires DISHA_IDENTITY_ENUMERATION_APPROVED=true."
+    : !approved
+      ? "Identity-oriented ASTRA execution requires both deployment approval and an operator/admin authorization for this investigation."
       : "Execute through the isolated ASTRA 6 worker queue and return normalized evidence.";
 
-  add(plan, adapterId, sourceName, { target, targetType }, reason, initialStatus);
+  add(
+    plan,
+    adapterId,
+    sourceName,
+    {
+      target,
+      targetType,
+      ...(identitySensitive ? { identityAuthorization: approved } : {}),
+    },
+    reason,
+    initialStatus,
+  );
 }
 
 function addIdentityBoundaries(plan: AdapterPlan[]) {
@@ -104,8 +117,13 @@ function addOpenCorporates(plan: AdapterPlan[], target: string, kind: "company" 
   );
 }
 
-export function buildTargetRoutePlan(target: string, type: TargetType): AdapterPlan[] {
+export function buildTargetRoutePlan(
+  target: string,
+  type: TargetType,
+  options: { identityAuthorized?: boolean } = {},
+): AdapterPlan[] {
   const plan: AdapterPlan[] = [];
+  const identityAuthorized = options.identityAuthorized === true;
 
   if (["domain", "url", "ip", "asn", "cve", "norad_id", "repository"].includes(type)) {
     const input =
@@ -152,22 +170,28 @@ export function buildTargetRoutePlan(target: string, type: TargetType): AdapterP
   }
 
   if (type === "email") {
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "email");
+    addAstraRoute(plan, "astra6-holehe", "Holehe", target, "email", identityAuthorized);
     addIdentityBoundaries(plan);
   }
 
   if (type === "phone") {
-    addAstraRoute(plan, "astra6-phoneinfoga", "PhoneInfoga", target, "phone_number");
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "phone_number");
+    addAstraRoute(plan, "astra6-phoneinfoga", "PhoneInfoga", target, "phone_number", identityAuthorized);
     addIdentityBoundaries(plan);
   }
 
   if (type === "username") {
-    addAstraRoute(plan, "astra6-sherlock", "Sherlock", target, "username");
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "username");
+    addAstraRoute(plan, "astra6-sherlock", "Sherlock", target, "username", identityAuthorized);
+    addAstraRoute(plan, "astra6-maigret", "Maigret", target, "username", identityAuthorized);
   }
 
   if (type === "vehicle_identifier") {
+    add(
+      plan,
+      "public-india-vehicle-format",
+      "India Vehicle Registration Format",
+      { registration: target },
+      "Validate and normalize the public Indian registration format without querying protected owner data.",
+    );
     add(
       plan,
       "authorized-vahan-registry",
@@ -200,13 +224,8 @@ export function buildTargetRoutePlan(target: string, type: TargetType): AdapterP
   if (type === "domain" || type === "url") {
     const domain = type === "url" ? new URL(target).hostname : target;
     addAstraRoute(plan, "astra6-theharvester", "theHarvester", domain, "domain");
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", domain, "domain");
     addAstraRoute(plan, "astra6-owasp-amass", "OWASP Amass", domain, "domain");
     addAstraRoute(plan, "astra6-subfinder", "ProjectDiscovery Subfinder", domain, "domain");
-  }
-
-  if (type === "ip") {
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "ip");
   }
 
   if (type === "image") {

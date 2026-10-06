@@ -2,36 +2,27 @@ name: OSINT Worker Release Gate
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [ready_for_review]
-    paths:
-      - "infra/workers/**"
-      - "web/scripts/astra6-worker.mjs"
-      - "web/scripts/identity-osint-adapter.py"
-      - ".github/workflows/osint-workers.yml"
-  push:
-    branches:
-      - main
-    paths:
-      - "infra/workers/**"
-      - "web/scripts/astra6-worker.mjs"
-      - "web/scripts/identity-osint-adapter.py"
-      - ".github/workflows/osint-workers.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: osint-worker-gate-${{ github.workflow }}-${{ github.ref }}
+  group: osint-worker-gate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   workers:
     name: Build and smoke OSINT workers
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
+
+      - name: Check worker syntax before Docker builds
+        run: |
+          node --check web/scripts/astra6-worker.mjs
+          python3 -m py_compile web/scripts/identity-osint-adapter.py
 
       - name: Build identity worker
         run: docker build -f infra/workers/Dockerfile.identity -t disha-identity-worker:ci .

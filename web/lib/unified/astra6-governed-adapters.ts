@@ -58,7 +58,7 @@ function isToolAvailable(manifest: DishaToolManifest): boolean {
   return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
 }
 
-function requiresIdentityPolicy(): boolean {
+function identityDeploymentApproved(): boolean {
   return process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
 }
 
@@ -260,7 +260,7 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (manifest.toolId === "instaloader" && (!process.env.INSTAGRAM_LOGIN || !process.env.INSTAGRAM_SESSION_FILE)) {
         return { status: "degraded" as const, detail: "Instaloader will use anonymous public-profile access; Instagram may rate-limit or block some requests." };
       }
-      if (isIdentityTool && !requiresIdentityPolicy()) {
+      if (isIdentityTool && !identityDeploymentApproved()) {
         return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true for authorized identity investigations.` };
       }
       return { status: "healthy" as const, detail: `${manifest.name} database-backed worker dispatch ready.` };
@@ -272,7 +272,9 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       }
       if (!isToolAvailable(manifest)) throw new Error("not_configured");
       if (configurationIssue(manifest)) throw new Error("not_configured");
-      if (isIdentityTool && !requiresIdentityPolicy()) throw new Error("policy_denied");
+      if (isIdentityTool && (!identityDeploymentApproved() || context.identityAuthorization !== true)) {
+        throw new Error("policy_denied");
+      }
 
       const runId = await queueRun(manifest, { ...input, target }, context);
       const row = await waitForRun(runId, manifest, context.signal);
@@ -287,7 +289,7 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
         workerRuntime: manifest.workerRuntime,
         cliCommand: manifest.cliCommand,
         estimatedTimeoutMs: manifest.timeoutMs,
-        policyApprovalRequired: false,
+        policyApprovalRequired: isIdentityTool,
         workerId: row.worker_id ?? undefined,
         durationMs: row.duration_ms,
         result: row.parsed_output,
@@ -327,7 +329,6 @@ export const astra6Adapters = [
   instaloaderAdapter,
   telegramPublicAdapter,
   theHarvesterAdapter,
-  spiderfootAdapter,
   amassAdapter,
   subfinderAdapter,
 ];

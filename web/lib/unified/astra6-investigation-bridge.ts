@@ -100,8 +100,12 @@ export const astra6InvestigationBridge: Astra6InvestigationBridge = {
     const target = String(plan.input.target ?? "").trim();
     const targetType = String(plan.input.targetType ?? "").trim();
     if (!target || !manifest.targetTypes.includes(targetType)) throw new Error("astra6_target_type_mismatch");
-    if (identitySensitive(targetType) && process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
-      throw new Error("policy_denied_identity_enumeration");
+    if (identitySensitive(targetType)) {
+      const deploymentApproved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+      const investigationApproved = plan.input.identityAuthorization === true;
+      if (!deploymentApproved || !investigationApproved) {
+        throw new Error("policy_denied_identity_enumeration");
+      }
     }
 
     await upsertManifest(manifest);

@@ -19,7 +19,7 @@ export class InvestigationSession {
   private disposed = false;
   active: Investigation | null = null;
   constructor(private update: (value: Investigation | null) => void, private error: (message: string) => void, private request: Requester = investigationRequest) {}
-  async start(input: { target: string; targetType: string } | File) {
+  async start(input: { target: string; targetType: string; identityAuthorization?: boolean } | File) {
     if (this.active) throw new Error("Close the current investigation before starting another.");
     const generation = ++this.generation;
     const image = input instanceof File;

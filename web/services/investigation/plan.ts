@@ -3,7 +3,6 @@ import { parsePhoneNumberFromString } from "libphonenumber-js/max";
 import { z } from "zod";
 
 import type { AdapterPlan, TargetType } from "../../lib/investigation/types";
-import { buildUniversalOsintPlan } from "../../lib/unified/universal-osint-search";
 import { classifyUniversalTarget } from "../../lib/unified/universal-target-classifier";
 import {
   INVESTIGATION_TARGET_INPUT_TYPES,
@@ -11,34 +10,10 @@ import {
 } from "../../lib/unified/search-targets";
 import { buildTargetRoutePlan } from "../../lib/unified/target-route-registry";
 
-const TYPES = [
-  "auto",
-  "person_name",
-  "email",
-  "phone",
-  "username",
-  "company",
-  "domain",
-  "ip",
-  "asn",
-  "url",
-  "cve",
-  "norad_id",
-  "topic",
-  "vehicle_identifier",
-  "document",
-  "file_hash",
-  "certificate",
-  "repository",
-  "location",
-  "ioc",
-] as const;
-
-type RequestedTargetType = (typeof TYPES)[number];
-
 export const investigationInput = z.object({
   target: z.string().trim().min(1).max(512).refine((value) => !/[\u0000-\u001f\u007f]/.test(value), "Invalid target"),
   targetType: z.enum(INVESTIGATION_TARGET_INPUT_TYPES).default("auto"),
+  identityAuthorization: z.boolean().optional().default(false),
 }).strict();
 
 function fail(message: string): never {
@@ -106,10 +81,10 @@ export function classifyTarget(
   return { targetType: inferred, normalizedTarget };
 }
 
-function quotedPublicQuery(target: string): string {
-  return `"${target.replace(/["\\]/g, " ")}"`;
-}
-
-export function planInvestigation(target: string, type: TargetType): AdapterPlan[] {
-  return buildTargetRoutePlan(target, type);
+export function planInvestigation(
+  target: string,
+  type: TargetType,
+  options: { identityAuthorized?: boolean } = {},
+): AdapterPlan[] {
+  return buildTargetRoutePlan(target, type, options);
 }

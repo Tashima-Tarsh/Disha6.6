@@ -61,7 +61,7 @@ Upon authenticated handshake, the workspace transitions into a full-scale 3D int
 CLI-heavy and specialized intelligence tools run outside the Next.js process boundary in hardened, non-root worker containers:
 * **Identity OSINT:** `PhoneInfoga` (v2.11.0), `Sherlock` (v0.15.0) — gated behind explicit operator policy approval.
 * **Infrastructure Reconnaissance:** `ProjectDiscovery Subfinder` (v2.6.6), `OWASP Amass` (v4.2.0 passive), `theHarvester` (v4.6.0 passive).
-* **Cross-Domain Correlation:** `SpiderFoot` (v4.0.0) with passive module allowlisting.
+* **Cross-Domain Correlation:** `SpiderFoot` (v4.0.0) is cataloged for a future isolated passive-only runtime; it is not executable in the current worker image.
 * **Command Injection Guards:** All worker arguments are validated against strict regex boundary guards before process dispatch via `execFile`.
 
 ### C. Cyber Defense & Attack Surface Engine

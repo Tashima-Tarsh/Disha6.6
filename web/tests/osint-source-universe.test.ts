@@ -51,7 +51,11 @@ describe("OSINT CTI SPACEINT source universe", () => {
     expect(entries.find((entry) => entry.id === "ripe-stat")?.adapterId).toBe("public-ripestat-whois");
     expect(entries.find((entry) => entry.id === "celestrak")?.adapterId).toBe("public-celestrak-gp");
     expect(entries.find((entry) => entry.id === "noaa-swpc")?.adapterId).toBe("public-noaa-space-weather");
-    expect(entries.find((entry) => entry.id === "reliefweb")?.adapterId).toBe("public-reliefweb");\n    expect(entries.find((entry) => entry.id === "threatfox")?.adapterId).toBe("public-threatfox");\n    expect(entries.find((entry) => entry.id === "malwarebazaar")?.adapterId).toBe("public-malwarebazaar");\n    expect(entries.find((entry) => entry.id === "opensanctions")?.adapterId).toBe("public-opensanctions");\n    expect(entries.find((entry) => entry.id === "opencorporates")?.adapterId).toBe("public-opencorporates");
+    expect(entries.find((entry) => entry.id === "reliefweb")?.adapterId).toBe("public-reliefweb");
+    expect(entries.find((entry) => entry.id === "threatfox")?.adapterId).toBe("public-threatfox");
+    expect(entries.find((entry) => entry.id === "malwarebazaar")?.adapterId).toBe("public-malwarebazaar");
+    expect(entries.find((entry) => entry.id === "opensanctions")?.adapterId).toBe("public-opensanctions");
+    expect(entries.find((entry) => entry.id === "opencorporates")?.adapterId).toBe("public-opencorporates");
   });
 
   it("does not normalize sensitive leak and breach sources into ordinary executable connectors", () => {
@@ -89,6 +93,7 @@ describe("OSINT CTI SPACEINT source universe", () => {
     expect(summary.blockedByDefault).toBeGreaterThan(0);
     expect(summary.byCategory.space_weather).toBeGreaterThan(0);
     expect(summary.byCategory.malware_ioc).toBeGreaterThan(0);
-    expect(summary.byCategory.corporate_financial).toBeGreaterThan(0);\n    expect(summary.byCategory.vehicle_registry).toBeGreaterThan(0);
+    expect(summary.byCategory.corporate_financial).toBeGreaterThan(0);
+    expect(summary.byCategory.vehicle_registry).toBeGreaterThan(0);
   });
 });
