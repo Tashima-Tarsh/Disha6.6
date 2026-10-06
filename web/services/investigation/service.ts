@@ -62,10 +62,20 @@ export class InvestigationService {
     const parsed = upload ? { target: "Uploaded image", targetType: "auto" as const } : investigationInput.safeParse(input);
     if ("success" in parsed && !parsed.success) throw failure("Invalid target or target type", 400);
     const values = "success" in parsed ? parsed.data : parsed;
+    const identityAuthorized = !upload
+      && "identityAuthorization" in values
+      && values.identityAuthorization === true;
+    if (identityAuthorized && !ctx.principal.roles.some((role) => role === "admin" || role === "operator")) {
+      throw failure("Identity enumeration authorization requires operator or admin role", 403);
+    }
     const classification = upload ? { targetType: "image" as const, normalizedTarget: "Uploaded image" } : classifyTarget(values.target, values.targetType);
     const metadata = upload ? await analyzeImage(upload.bytes, upload.type) : undefined;
     const now = Date.now();
-    const plannedAdapters = planInvestigation(classification.normalizedTarget, classification.targetType);
+    const plannedAdapters = planInvestigation(
+      classification.normalizedTarget,
+      classification.targetType,
+      { identityAuthorized },
+    );
     const value: TemporaryInvestigation = {
       investigationId: randomUUID(), revision: 0, ownerId: ctx.principal.userId, target: values.target, ...classification,
       createdAt: new Date(now).toISOString(), expiresAt: new Date(now + 15 * 60_000).toISOString(),
@@ -80,7 +90,7 @@ export class InvestigationService {
       value.edges.push({ id: randomUUID(), sourceId: evidenceId, targetId: "image-metadata", type: "DERIVED_FROM", evidenceId });
     }
     await this.store.create(value, upload?.bytes);
-    await this.log({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "investigation.started", resource: value.investigationId, outcome: "success", metadata: { targetClass: value.targetType, startTime: value.createdAt, expiresAt: value.expiresAt, adapters: value.runs.map(run => run.adapterId) } });
+    await this.log({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "investigation.started", resource: value.investigationId, outcome: "success", metadata: { targetClass: value.targetType, startTime: value.createdAt, expiresAt: value.expiresAt, identityAuthorized, adapters: value.runs.map(run => run.adapterId) } });
     return publicInvestigation(value);
   }
 
