@@ -39,7 +39,12 @@ describe("search-first routing and classification", () => {
     const registered = new Set(createDefaultOsintBus().list().map(item => item.id));
     for (const [target, type] of [["example.com", "domain"], ["8.8.8.8", "ip"], ["AS13335", "asn"], ["CVE-2026-12345", "cve"], ["25544", "norad_id"]] as const) for (const plan of planInvestigation(target, type)) if (!plan.initialStatus) expect(registered.has(plan.adapterId) || plan.adapterId === "passive-shodan").toBe(true);
     expect(planInvestigation("CVE-2026-12345", "cve").find(plan => plan.adapterId === "public-nvd-cve")?.input).toEqual({ cve: "CVE-2026-12345" });
-    expect(planInvestigation("https://example.com/path", "url").find(plan => plan.adapterId === "public-dns-google")?.input.domain).toBe("example.com");\n    const vehiclePlan = planInvestigation("DL01AB1234", "vehicle_identifier");\n    expect(vehiclePlan.find(plan => plan.adapterId === "authorized-vahan-registry")?.initialStatus).toBe("RESTRICTED");\n    expect(vehiclePlan.find(plan => plan.adapterId === "public-gdelt-news")).toBeDefined();\n    expect(planInvestigation("+12025550123", "phone").find(plan => plan.adapterId === "astra6-phoneinfoga")?.initialStatus).toBe("NOT_CONFIGURED");\n    expect(planInvestigation("@example", "username").find(plan => plan.adapterId === "astra6-sherlock")?.initialStatus).toBe("NOT_CONFIGURED");
+    expect(planInvestigation("https://example.com/path", "url").find(plan => plan.adapterId === "public-dns-google")?.input.domain).toBe("example.com");
+    const vehiclePlan = planInvestigation("DL01AB1234", "vehicle_identifier");
+    expect(vehiclePlan.find(plan => plan.adapterId === "authorized-vahan-registry")?.initialStatus).toBe("RESTRICTED");
+    expect(vehiclePlan.find(plan => plan.adapterId === "public-gdelt-news")).toBeDefined();
+    expect(planInvestigation("+12025550123", "phone").find(plan => plan.adapterId === "astra6-phoneinfoga")?.initialStatus).toBe("NOT_CONFIGURED");
+    expect(planInvestigation("@example", "username").find(plan => plan.adapterId === "astra6-sherlock")?.initialStatus).toBe("NOT_CONFIGURED");
   });
 });
 describe("truthful source records and temporary lifecycle", () => {
