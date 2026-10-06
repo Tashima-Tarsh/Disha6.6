@@ -90,3 +90,9 @@ data/
 # IDE files
 .vscode/
 web/public/vendor/maplibre/
+
+# GCP production runtime artifacts
+/docker-compose.gcp.yml
+/Caddyfile
+/DEPLOYED_COMMIT
+/CREDENTIALS.txt
