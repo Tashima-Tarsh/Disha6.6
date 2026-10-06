@@ -374,6 +374,7 @@ async function probeOpenCti(fetcher: ServiceFetch): Promise<OsintServiceProbeRes
     },
     body: JSON.stringify({ query: "query DishaOpenCtiHealth { about { version } }" }),
     redirect: "error",
+    signal: AbortSignal.timeout(5_000),
   });
   return {
     connectorId: "opencti",
@@ -391,6 +392,7 @@ async function probeIntelOwl(fetcher: ServiceFetch): Promise<OsintServiceProbeRe
       accept: "application/json",
     },
     redirect: "error",
+    signal: AbortSignal.timeout(5_000),
   });
   return {
     connectorId: "intelowl",
