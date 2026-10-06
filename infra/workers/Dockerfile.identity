@@ -16,14 +16,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=go-builder /go/bin/phoneinfoga /usr/local/bin/phoneinfoga
 
-# Pinned Python dependencies for identity discovery
-RUN pip install --no-cache-dir \
-    sherlock-project==0.15.0 \
-    maigret==0.6.6 \
-    holehe==1.61 \
-    instaloader==4.15.3 \
-    Telethon==1.45.0 \
-    psycopg2-binary==2.9.9
+# Keep upstream OSINT tools isolated: they evolve independently and may
+# require conflicting transitive dependencies.
+RUN python -m venv /opt/venvs/sherlock \
+    && /opt/venvs/sherlock/bin/pip install --no-cache-dir sherlock-project==0.15.0 \
+    && python -m venv /opt/venvs/maigret \
+    && /opt/venvs/maigret/bin/pip install --no-cache-dir maigret==0.6.6 \
+    && python -m venv /opt/venvs/holehe \
+    && /opt/venvs/holehe/bin/pip install --no-cache-dir holehe==1.61 \
+    && python -m venv /opt/venvs/instaloader \
+    && /opt/venvs/instaloader/bin/pip install --no-cache-dir instaloader==4.15.3 \
+    && python -m venv /opt/venvs/telethon \
+    && /opt/venvs/telethon/bin/pip install --no-cache-dir Telethon==1.45.0
 
 WORKDIR /opt/disha-worker
 COPY web/scripts/astra6-worker.mjs ./scripts/astra6-worker.mjs
