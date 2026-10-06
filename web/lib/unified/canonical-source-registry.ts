@@ -417,7 +417,7 @@ export async function buildCanonicalUniverseRuntime(): Promise<{
       const enabled = Boolean(process.env.DATABASE_URL)
         && Boolean(manifest)
         && (process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true");
-      const identityTool = ["phoneinfoga", "sherlock"].includes(toolId);
+      const identityTool = ["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"].includes(toolId);
       if (!enabled) {
         health = "UNCONFIGURED";
         errorMessage = "ASTRA worker/database or tool enable flag is not configured";
