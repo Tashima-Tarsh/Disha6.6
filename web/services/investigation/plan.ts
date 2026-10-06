@@ -11,7 +11,7 @@ const TYPES = [
 ] as const;
 
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/i;
-const INDIA_VEHICLE_RE = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/i;
+const INDIA_VEHICLE_RE = /^[A-Z]{2}[0-9]{2}[A-Z]{0,3}[0-9]{4}$/i;
 const TELEGRAM_USERNAME_RE = /^[A-Za-z0-9_]{5,32}$/;
 const INSTAGRAM_USERNAME_RE = /^[A-Za-z0-9._]{1,30}$/;
 
