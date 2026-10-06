@@ -150,6 +150,32 @@ services:
     cap_drop:
       - ALL
 
+  astra6-identity-worker:
+    build:
+      context: .
+      dockerfile: infra/workers/Dockerfile.identity
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://disha:${POSTGRES_PASSWORD:?set-postgres-password}@postgres:5432/disha
+      REDIS_URL: redis://redis:6379
+      DISHA_WORKER_ID: ${DISHA_IDENTITY_WORKER_ID:-astra6-identity-worker-1}
+      DISHA_OSINT_POLL_MS: ${DISHA_OSINT_POLL_MS:-1000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web-migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
   dynamic-worker:
     image: ${DISHA_IMAGE_REGISTRY:-ghcr.io/tashima-tarsh}/disha-web:${DISHA_IMAGE_TAG:-latest}
     command: ["node", "scripts/dynamic-worker.mjs"]
