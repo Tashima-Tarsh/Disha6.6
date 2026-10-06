@@ -32,8 +32,13 @@ afterEach(() => vi.unstubAllEnvs());
 describe("search-first routing and classification", () => {
   it.each([undefined, "", "//evil.example", "/\\evil.example", "/%5cevil.example", "/api/auth/logout", "/login", "https://evil.example"])("defaults safely to /investigate for %s", value => expect(safeReturnUrl(value)).toBe("/investigate"));
   it("preserves explicit internal return destinations", () => expect(safeReturnUrl("/operations?view=graph")).toBe("/operations?view=graph"));
+codex/osint-search-routing-v1
+  it.each([["Nitish Kumar", "person_name"], ["person@example.com", "email"], ["+1 (202) 555-0123", "phone"], ["@example", "username"], ["Acme Ltd", "company"], ["example.com", "domain"], ["8.8.8.8", "ip"], ["2001:4860:4860::8888", "ip"], ["AS13335", "asn"], ["https://example.com/path", "url"], ["CVE-2026-12345", "cve"], ["NORAD 25544", "norad_id"], ["DL-01-AB-1234", "vehicle_identifier"], ["d41d8cd98f00b204e9800998ecf8427e", "file_hash"], ["https://github.com/Tashima-Tarsh/Disha6.6", "repository"], ["AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD", "certificate"]])("classifies %s as %s", (query, type) => expect(classifyTarget(query).targetType).toBe(type));
+  it("supports explicit general topics, locations and documents and validates country codes", () => { expect(classifyTarget("climate change", "topic").targetType).toBe("topic"); expect(classifyTarget("Patiala, Punjab", "location").targetType).toBe("location"); expect(classifyTarget("gazette notification 2026", "document").targetType).toBe("document"); expect(() => classifyTarget("9876543210")).toThrow(/country code/); expect(() => classifyTarget("+99912345678")).toThrow(); });
+
   it.each([["Nitish Kumar", "person_name"], ["person@example.com", "email"], ["+1 (202) 555-0123", "phone"], ["@example", "username"], ["Acme Ltd", "company"], ["example.com", "domain"], ["8.8.8.8", "ip"], ["2001:4860:4860::8888", "ip"], ["AS13335", "asn"], ["https://example.com/path", "url"], ["CVE-2026-12345", "cve"], ["NORAD 25544", "norad_id"], ["DL-01-AB-1234", "vehicle_identifier"], ["d41d8cd98f00b204e9800998ecf8427e", "file_hash"], ["https://github.com/Tashima-Tarsh/Disha6.6", "repository"]])("classifies %s as %s", (query, type) => expect(classifyTarget(query).targetType).toBe(type));
   it("supports explicit general topics and validates country codes", () => { expect(classifyTarget("climate change", "topic").targetType).toBe("topic"); expect(() => classifyTarget("9876543210")).toThrow(/country code/); expect(() => classifyTarget("+99912345678")).toThrow(); });
+main
   it("rejects unsupported overrides, oversized values, and control characters", () => { expect(investigationInput.safeParse({ target: "a".repeat(513) }).success).toBe(false); expect(investigationInput.safeParse({ target: "name", targetType: "admin" }).success).toBe(false); expect(() => classifyTarget("some text", "ip")).toThrow(); });
   it("uses registered adapter identifiers and valid target-specific inputs", () => {
     const registered = new Set(createDefaultOsintBus().list().map(item => item.id));
@@ -45,6 +50,12 @@ describe("search-first routing and classification", () => {
     expect(vehiclePlan.find(plan => plan.adapterId === "public-gdelt-news")).toBeDefined();
     expect(planInvestigation("+12025550123", "phone").find(plan => plan.adapterId === "astra6-phoneinfoga")?.initialStatus).toBe("NOT_CONFIGURED");
     expect(planInvestigation("@example", "username").find(plan => plan.adapterId === "astra6-sherlock")?.initialStatus).toBe("NOT_CONFIGURED");
+  });
+  it("routes vehicle searches truthfully without pretending a registry connector is live", () => {
+    const vehiclePlan = planInvestigation("DL01AB1234", "vehicle_identifier");
+    expect(vehiclePlan.find(plan => plan.adapterId === "authorized-vehicle-registry")?.initialStatus).toBe("NOT_CONFIGURED");
+    expect(vehiclePlan.some(plan => plan.adapterId === "public-gdelt-news")).toBe(true);
+    expect(vehiclePlan.some(plan => plan.adapterId === "public-brave-search")).toBe(true);
   });
 });
 describe("truthful source records and temporary lifecycle", () => {

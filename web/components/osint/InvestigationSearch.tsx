@@ -4,12 +4,39 @@ import { ArrowUpRight, Search } from "lucide-react";
 import { SEARCH_TARGET_CHOICES } from "@/lib/unified/search-targets";
 import styles from "@/app/investigate/investigate.module.css";
 
+codex/osint-search-routing-v1
+const choices = [
+  ["auto", "AUTO"],
+  ["person_name", "NAME"],
+  ["vehicle_identifier", "VEHICLE"],
+  ["phone", "MOBILE"],
+  ["email", "EMAIL"],
+  ["username", "USERNAME"],
+  ["company", "COMPANY"],
+  ["domain", "DOMAIN"],
+  ["ip", "IP"],
+  ["asn", "ASN"],
+  ["url", "URL"],
+  ["repository", "REPOSITORY"],
+  ["file_hash", "HASH"],
+  ["ioc", "IOC"],
+  ["certificate", "CERTIFICATE"],
+  ["cve", "CVE"],
+  ["location", "LOCATION"],
+  ["document", "DOCUMENT"],
+  ["norad_id", "NORAD ID"],
+  ["topic", "TOPIC"],
+] as const;
 const quickChoices = SEARCH_TARGET_CHOICES.filter(([value]) => value !== "auto");
+ main
 
 export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearch: (target: string, targetType: string) => void }) {
   const [target, setTarget] = useState("");
   const [type, setType] = useState("auto");
+ codex/osint-search-routing-v1
 
+
+ main
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (target.trim()) onSearch(target.trim(), type);
@@ -24,7 +51,11 @@ export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearc
         value={target}
         onChange={event => setTarget(event.target.value)}
         maxLength={512}
+ codex/osint-search-routing-v1
+        placeholder="Search name, vehicle, mobile, email, username, company, domain, IP, hash…"
+
         placeholder="Search name, vehicle, phone, email, username, company, domain, IP, hash…"
+ main
         autoComplete="off"
         spellCheck={false}
         disabled={busy}
@@ -34,7 +65,15 @@ export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearc
         {busy ? "Starting…" : <ArrowUpRight size={22} />}
       </button>
     </div>
-
+codex/osint-search-routing-v1
+    <div className={styles.searchOptions}>
+      <label>
+        Search type
+        <select value={type} onChange={event => setType(event.target.value)} disabled={busy}>
+          {choices.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        </select>
+      </label>
+      <span>Relevant configured sources are selected automatically</span>
     <div className={styles.targetQuickSection}>
       <span className={styles.targetQuickLabel}>Search by</span>
       <div className={styles.targetQuickGrid} role="group" aria-label="Investigation target type">
@@ -69,6 +108,7 @@ export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearc
         AUTO DETECT
       </button>
       <span>Relevant configured sources run automatically</span>
+ main
     </div>
   </form>;
 }
