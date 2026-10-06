@@ -120,11 +120,22 @@ export function appendEvidence(investigation: Investigation, plan: AdapterPlan, 
   for (const evidence of rows) {
     investigation.evidence.push(evidence);
     investigation.edges.push({ id: randomUUID(), sourceId: evidence.evidenceId, targetId: plan.adapterId, type: "RETURNED_BY", evidenceId: evidence.evidenceId });
-    // Only an explicit provider entity ID can form an identity candidate. News/web mentions are not identities.
-    if (["person_name", "company"].includes(investigation.targetType) && plan.adapterId === "public-wikidata-search" && evidence.providerRecordId) {
+    // Only explicit provider entity/record IDs can form candidates. Records stay separate until corroborated.
+    const candidateAdapters = ["public-wikidata-search", "public-opensanctions", "public-opencorporates"];
+    if (["person_name", "company"].includes(investigation.targetType) && candidateAdapters.includes(plan.adapterId) && evidence.providerRecordId) {
       const candidateId = randomUUID();
       evidence.candidateId = candidateId;
-      investigation.candidateClusters.push({ candidateId, label: evidence.summary, status: "POSSIBLE_MATCH", attributes: { providerRecordId: evidence.providerRecordId, description: text(evidence.fields.description) ?? "", source: evidence.sourceName }, evidenceIds: [evidence.evidenceId] });
+      investigation.candidateClusters.push({
+        candidateId,
+        label: evidence.summary,
+        status: "POSSIBLE_MATCH",
+        attributes: {
+          providerRecordId: evidence.providerRecordId,
+          description: text(evidence.fields.description) ?? text(evidence.fields.schema) ?? text(evidence.fields.position) ?? "",
+          source: evidence.sourceName,
+        },
+        evidenceIds: [evidence.evidenceId],
+      });
       investigation.edges.push({ id: randomUUID(), sourceId: candidateId, targetId: evidence.evidenceId, type: "SOURCED_FROM", evidenceId: evidence.evidenceId });
     }
   }
