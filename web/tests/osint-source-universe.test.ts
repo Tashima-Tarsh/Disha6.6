@@ -49,7 +49,7 @@ describe("OSINT CTI SPACEINT source universe", () => {
     expect(entries.find((entry) => entry.id === "ripe-stat")?.adapterId).toBe("public-ripestat-whois");
     expect(entries.find((entry) => entry.id === "celestrak")?.adapterId).toBe("public-celestrak-gp");
     expect(entries.find((entry) => entry.id === "noaa-swpc")?.adapterId).toBe("public-noaa-space-weather");
-    expect(entries.find((entry) => entry.id === "reliefweb")?.adapterId).toBe("public-reliefweb");
+    expect(entries.find((entry) => entry.id === "reliefweb")?.adapterId).toBe("public-reliefweb");\n    expect(entries.find((entry) => entry.id === "threatfox")?.adapterId).toBe("public-threatfox");\n    expect(entries.find((entry) => entry.id === "malwarebazaar")?.adapterId).toBe("public-malwarebazaar");\n    expect(entries.find((entry) => entry.id === "opensanctions")?.adapterId).toBe("public-opensanctions");\n    expect(entries.find((entry) => entry.id === "opencorporates")?.adapterId).toBe("public-opencorporates");
   });
 
   it("does not normalize sensitive leak and breach sources into ordinary executable connectors", () => {
@@ -63,7 +63,7 @@ describe("OSINT CTI SPACEINT source universe", () => {
 
   it("tracks credentialed providers separately from live adapters", () => {
     const entries = listOsintSourceUniverse();
-    for (const id of ["opensanctions", "shodan", "space-track", "nasa-firms", "opencti", "reliefweb"]) {
+    for (const id of ["opensanctions", "opencorporates", "shodan", "space-track", "nasa-firms", "opencti", "reliefweb", "threatfox", "malwarebazaar", "urlhaus"]) {
       expect(entries.find((entry) => entry.id === id)?.mode).toBe("requires_configuration");
     }
   });
