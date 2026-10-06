@@ -55,3 +55,21 @@ jobs:
           DISHA_ALLOW_STATELESS_AUTH: "true"
         env:
     
+
+  workers:
+    name: Build OSINT workers
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check worker source syntax
+        run: |
+          node --check web/scripts/astra6-worker.mjs
+          python3 -m py_compile web/scripts/identity-osint-adapter.py
+      - name: Build identity worker
+        run: docker build -f infra/workers/Dockerfile.identity -t disha-identity-worker:ci .
+      - name: Build infrastructure worker
+        run: docker build -f infra/workers/Dockerfile.infrastructure -t disha-infrastructure-worker:ci .
