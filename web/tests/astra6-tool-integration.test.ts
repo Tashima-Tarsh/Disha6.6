@@ -244,9 +244,9 @@ describe("ASTRA 6 tool selector", () => {
     const plan = selectAstra6Tools("example.com", "domain");
     const ids = plan.selectedTools.map((t) => t.toolId).sort();
     expect(ids).toContain("theharvester");
-    expect(ids).toContain("spiderfoot");
     expect(ids).toContain("owasp-amass");
     expect(ids).toContain("subfinder");
+    expect(plan.blockedTools.some((tool) => tool.toolId === "spiderfoot")).toBe(true);
   });
 
   it("blocks identity tools without policy approval", () => {
