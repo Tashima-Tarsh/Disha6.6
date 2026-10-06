@@ -60,6 +60,28 @@ function addIdentityBoundaries(plan: AdapterPlan[]) {
   add(plan, "authorized-exposure", "Authorized exposure checks", {}, "Requires a separate explicit authorization workflow.", "RESTRICTED");
 }
 
+function addThreatFox(plan: AdapterPlan[], target: string, kind: "ioc" | "file_hash") {
+  add(
+    plan,
+    "public-threatfox",
+    "ThreatFox",
+    { value: target, kind },
+    "Defensive public threat-intelligence lookup. Requires an abuse.ch Auth-Key.",
+    process.env.THREATFOX_AUTH_KEY ? undefined : "NOT_CONFIGURED",
+  );
+}
+
+function addMalwareBazaar(plan: AdapterPlan[], hash: string) {
+  add(
+    plan,
+    "public-malwarebazaar",
+    "MalwareBazaar",
+    { hash },
+    "Defensive malware metadata lookup only; DISHA never downloads the sample.",
+    process.env.MALWAREBAZAAR_AUTH_KEY ? undefined : "NOT_CONFIGURED",
+  );
+}
+
 export function buildTargetRoutePlan(target: string, type: TargetType): AdapterPlan[] {
   const plan: AdapterPlan[] = [];
 
@@ -82,6 +104,19 @@ export function buildTargetRoutePlan(target: string, type: TargetType): AdapterP
 
   if (["email", "phone", "username", "vehicle_identifier", "file_hash", "certificate", "ioc"].includes(type)) {
     addPublicDiscovery(plan, target);
+  }
+
+  if (type === "file_hash") {
+    addThreatFox(plan, target, "file_hash");
+    addMalwareBazaar(plan, target);
+  }
+
+  if (type === "ioc") {
+    addThreatFox(plan, target, "ioc");
+  }
+
+  if (["domain", "ip", "url"].includes(type)) {
+    addThreatFox(plan, target, "ioc");
   }
 
   if (type === "email") {
