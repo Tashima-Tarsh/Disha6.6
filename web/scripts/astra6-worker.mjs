@@ -199,15 +199,15 @@ function buildToolCommand(toolId, target) {
     case "phoneinfoga":
       return { binary: "phoneinfoga", args: ["scan", "-n", target] };
     case "sherlock":
-      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "sherlock", target] };
+      return { binary: "/opt/venvs/sherlock/bin/python", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "sherlock", target] };
     case "maigret":
-      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "maigret", target] };
+      return { binary: "/opt/venvs/maigret/bin/python", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "maigret", target] };
     case "holehe":
-      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "holehe", target] };
+      return { binary: "/opt/venvs/holehe/bin/python", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "holehe", target] };
     case "instaloader":
-      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "instagram", target] };
+      return { binary: "/opt/venvs/instaloader/bin/python", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "instagram", target] };
     case "telegram-public":
-      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "telegram", target] };
+      return { binary: "/opt/venvs/telethon/bin/python", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "telegram", target] };
     case "theharvester":
       return { binary: "theHarvester", args: ["-d", target, "-b", "anubis,crtsh,dnsdumpster,duckduckgo,hackertarget,otx,rapiddns,urlscan", "-l", "100"] };
     case "owasp-amass":
