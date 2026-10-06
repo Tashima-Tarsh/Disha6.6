@@ -588,9 +588,17 @@ function objectInput(value) {
   return {};
 }
 
+function deploymentToolEnabled(toolId) {
+  const envKey = `DISHA_ASTRA6_${String(toolId).toUpperCase().replace(/-/g, "_")}_ENABLED`;
+  return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
+}
+
 function authorizeQueuedJob(job) {
   if (job.manifest_enabled !== true) {
     return { allowed: false, error: "policy_denied_tool_disabled" };
+  }
+  if (!deploymentToolEnabled(job.tool_id)) {
+    return { allowed: false, error: "policy_denied_tool_disabled_live" };
   }
 
   const identitySensitive = IDENTITY_TOOLS.has(job.tool_id) || IDENTITY_TARGET_TYPES.has(job.target_type);
