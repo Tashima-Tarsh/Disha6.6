@@ -190,6 +190,10 @@ export function OsintRuntimeClient() {
               <span className={styles.metricValue} style={{ color: "#94a3b8" }}>{metrics.pendingFork}</span>
             </div>
             <div className={styles.metricCard}>
+              <span className={styles.metricLabel}>Upstream Verified</span>
+              <span className={styles.metricValue} style={{ color: "#38bdf8" }}>{metrics.upstreamVerified}</span>
+            </div>
+            <div className={styles.metricCard}>
               <span className={styles.metricLabel}>Healthy Tools</span>
               <span className={styles.metricValue} style={{ color: "#4ade80" }}>{metrics.healthy}</span>
             </div>
@@ -327,7 +331,11 @@ export function OsintRuntimeClient() {
                   </td>
                   <td>
                     <code style={{ fontSize: "0.75rem" }}>
-                      {tool.pinnedSha ? tool.pinnedSha.slice(0, 7) : tool.defaultBranch}
+                      {tool.pinnedSha
+                        ? `pin:${tool.pinnedSha.slice(0, 7)}`
+                        : tool.upstreamSha
+                          ? `up:${tool.upstreamSha.slice(0, 7)}`
+                          : tool.defaultBranch}
                     </code>
                   </td>
                   <td>
@@ -396,7 +404,11 @@ export function OsintRuntimeClient() {
               <p><strong>Execution Class:</strong> {detailTool.executionClass}</p>
               <p><strong>License:</strong> {detailTool.license}</p>
               <p><strong>Status:</strong> {getStatusBadge(detailTool.status)}</p>
-              <p><strong>Last Verified:</strong> {detailTool.lastVerified || "N/A"}</p>
+              <p><strong>Upstream Verification:</strong> {detailTool.upstreamStatus || (detailTool.upstreamSha ? "VERIFIED" : "UNVERIFIED")}</p>
+              <p><strong>Upstream SHA:</strong> <code>{detailTool.upstreamSha || "Not verified"}</code></p>
+              <p><strong>Production Pin:</strong> <code>{detailTool.pinnedSha || "Not pinned"}</code></p>
+              <p><strong>Upstream Verified At:</strong> {detailTool.upstreamVerifiedAt || "Not verified"}</p>
+              <p><strong>Registry Updated:</strong> {detailTool.lastVerified || "N/A"}</p>
               <p><strong>Last Smoke Tested:</strong> {detailTool.lastSmokeTested || "Not probed"}</p>
               {detailTool.smokeResult && (
                 <div>
