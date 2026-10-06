@@ -65,10 +65,12 @@ export function classifyTarget(target: string, requested: typeof TYPES[number] =
   if (/^https?:\/\/(?:t\.me|telegram\.me)\//i.test(trimmed) && normalizeTelegram(trimmed)) type = "telegram";
   else if (/^https?:\/\/(?:www\.)?instagram\.com\//i.test(trimmed) && normalizeInstagram(trimmed)) type = "instagram";
   else if (VIN_RE.test(upper)) type = "vin";
-  else if (INDIA_VEHICLE_RE.test(compactVehicle)) type = "vehicle_identifier";
   else if (isIP(trimmed)) type = "ip";
   else if (/^CVE-\d{4}-\d{4,}$/i.test(trimmed)) type = "cve";
+  // Explicit ASN syntax takes precedence over the compact Indian registration
+  // pattern (for example, AS13335 is an ASN, while AS01AB1234 is a vehicle).
   else if (/^AS\d{1,10}$/i.test(trimmed)) type = "asn";
+  else if (INDIA_VEHICLE_RE.test(compactVehicle)) type = "vehicle_identifier";
   else if (/^(?:NORAD|CATNR)\s+\d{1,9}$/i.test(trimmed)) type = "norad_id";
   else if (z.email().safeParse(trimmed).success) type = "email";
   else if (/^https?:\/\//i.test(trimmed)) type = "url";
