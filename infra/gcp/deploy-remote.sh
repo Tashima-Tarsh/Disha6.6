@@ -103,7 +103,7 @@ services:
 
   web-migrate:
     build:
-      context: ./web
+      context: .
       dockerfile: Dockerfile
     command: ["node", "scripts/apply-schema.mjs"]
     environment:
@@ -116,7 +116,7 @@ services:
 
   web:
     build:
-      context: ./web
+      context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
