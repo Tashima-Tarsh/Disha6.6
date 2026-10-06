@@ -18,6 +18,7 @@ const WORKER_CLASS_TOOLS = {
   document: [],
   cti: [],
 };
+
 const ALLOWED_TOOLS = Object.prototype.hasOwnProperty.call(WORKER_CLASS_TOOLS, WORKER_CLASS)
   ? WORKER_CLASS_TOOLS[WORKER_CLASS]
   : null;
@@ -57,26 +58,34 @@ function buildEvidence(sourceId, sourceName, summary, sourceUrl) {
 
 function validateTarget(toolId, target) {
   const value = String(target ?? "").trim();
-  if (!value || value.length > 512 || /[\u0000\r\n]/.test(value)) throw new Error("target_invalid");
+  if (!value || value.length > 512 || /[\u0000\r\n]/.test(value)) {
+    throw new Error("target_invalid");
+  }
 
   if (["sherlock", "maigret"].includes(toolId) && !/^[A-Za-z0-9_.-]{2,64}$/.test(value.replace(/^@/, ""))) {
     throw new Error("invalid_username");
   }
+
   if (toolId === "holehe" && !/^[^@\s]+@[^@\s]+\.[A-Za-z]{2,63}$/.test(value)) {
     throw new Error("invalid_email");
   }
+
   if (toolId === "instaloader" && !/^[A-Za-z0-9._]{1,30}$/.test(value.replace(/^@/, ""))) {
     throw new Error("invalid_instagram_username");
   }
+
   if (toolId === "telegram-public" && !/^[A-Za-z0-9_]{5,32}$/.test(value.replace(/^@/, ""))) {
     throw new Error("invalid_telegram_username");
   }
+
   if (toolId === "phoneinfoga" && !/^\+[1-9][0-9]{7,14}$/.test(value.replace(/[\s().-]/g, ""))) {
     throw new Error("invalid_phone_number");
   }
+
   if (["theharvester", "owasp-amass", "subfinder"].includes(toolId) && !/^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}$/.test(value)) {
     throw new Error("invalid_domain");
   }
+
   return value;
 }
 
@@ -86,11 +95,15 @@ function lastJsonObject(raw, toolId) {
     try {
       const parsed = JSON.parse(line);
       if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        if (typeof parsed.error === "string" && parsed.error) throw new Error(`${toolId}_worker_error:${parsed.error}`);
+        if (typeof parsed.error === "string" && parsed.error) {
+          throw new Error(`${toolId}_worker_error:${parsed.error}`);
+        }
         return parsed;
       }
     } catch (error) {
-      if (error instanceof Error && error.message.startsWith(`${toolId}_worker_error:`)) throw error;
+      if (error instanceof Error && error.message.startsWith(`${toolId}_worker_error:`)) {
+        throw error;
+      }
     }
   }
   throw new Error(`${toolId}_invalid_json_output`);
@@ -110,6 +123,7 @@ function parsePhoneInfoga(raw, target) {
     carrier: undefined,
     lineType: undefined,
   };
+
   let section = "";
   for (const rawLine of String(raw).split(/\r?\n/)) {
     const line = rawLine.trim();
@@ -118,8 +132,10 @@ function parsePhoneInfoga(raw, target) {
       section = sectionMatch[1].trim().toLowerCase();
       continue;
     }
+
     const pair = line.match(/^([^:]{2,40}):\s*(.*)$/);
     if (!pair) continue;
+
     const key = pair[1].trim().toLowerCase();
     const value = pair[2].trim();
     if (!value) continue;
@@ -141,16 +157,19 @@ function parsePhoneInfoga(raw, target) {
       else if (key === "line type") data.lineType = value;
     }
   }
+
   if (!data.e164 && target.startsWith("+")) data.e164 = target;
   if (!data.country && data.countryCode) data.country = data.countryCode;
-  // The local scanner has no validity boolean. Reaching a normalized E.164/local result
-  // is evidence that PhoneInfoga parsed the number; Numverify can additionally set valid.
   if (!data.valid && (data.e164 || data.localFormat || data.country)) data.valid = true;
+
   return data;
 }
 
 function parseSherlockLike(data, target) {
-  const found = Array.isArray(data.found) ? data.found.filter((row) => row && typeof row === "object").slice(0, 500) : [];
+  const found = Array.isArray(data.found)
+    ? data.found.filter((row) => row && typeof row === "object").slice(0, 500)
+    : [];
+
   return {
     username: typeof data.username === "string" ? data.username : target,
     checked: typeof data.checked === "number" ? data.checked : undefined,
@@ -167,10 +186,18 @@ function parseTheHarvester(raw, target) {
   } catch {
     const match = String(raw).match(/\{[\s\S]*\}/);
     if (match) {
-      try { parsed = JSON.parse(match[0]); } catch { parsed = {}; }
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        parsed = {};
+      }
     }
   }
-  const strings = (value) => Array.isArray(value) ? value.filter((entry) => typeof entry === "string") : [];
+
+  const strings = (value) => Array.isArray(value)
+    ? value.filter((entry) => typeof entry === "string")
+    : [];
+
   return {
     domain: target,
     emails: strings(parsed.emails),
@@ -188,7 +215,9 @@ function parseNdjson(raw, kind) {
       const value = JSON.parse(line);
       if (value && typeof value === "object") rows.push(value);
     } catch {
-      if (kind === "subfinder" && line.includes(".")) rows.push({ host: line.trim(), source: "subfinder" });
+      if (kind === "subfinder" && line.includes(".")) {
+        rows.push({ host: line.trim(), source: "subfinder" });
+      }
     }
   }
   return rows.slice(0, 1000);
@@ -225,21 +254,42 @@ function parseToolResult(toolId, raw, target) {
       const data = parsePhoneInfoga(raw, target);
       return {
         data,
-        evidence: [buildEvidence("phoneinfoga", "PhoneInfoga", `PhoneInfoga parsed ${target}: country=${data.country ?? "unknown"}, carrier=${data.carrier ?? "unknown"}.`, "https://github.com/sundowndev/phoneinfoga")],
+        evidence: [
+          buildEvidence(
+            "phoneinfoga",
+            "PhoneInfoga",
+            `PhoneInfoga parsed ${target}: country=${data.country ?? "unknown"}, carrier=${data.carrier ?? "unknown"}.`,
+            "https://github.com/sunshine-protocol/phoneinfoga",
+          ),
+        ],
       };
     }
     case "sherlock": {
       const data = parseSherlockLike(lastJsonObject(raw, toolId), target);
       return {
         data,
-        evidence: [buildEvidence("sherlock", "Sherlock", `Sherlock checked ${data.checked ?? "configured"} public services and found ${data.found.length} candidate profile(s) for '${target}'.`, "https://github.com/sherlock-project/sherlock")],
+        evidence: [
+          buildEvidence(
+            "sherlock",
+            "Sherlock",
+            `Sherlock checked ${data.checked ?? "configured"} public services and found ${data.found.length} candidate profile(s) for '${target}'.`,
+            "https://github.com/sherlock-project/sherlock",
+          ),
+        ],
       };
     }
     case "maigret": {
       const data = parseSherlockLike(lastJsonObject(raw, toolId), target);
       return {
         data,
-        evidence: [buildEvidence("maigret", "Maigret", `Maigret checked ${data.checked ?? "configured"} public services and found ${data.found.length} candidate profile(s) for '${target}'.`, "https://github.com/soxoj/maigret")],
+        evidence: [
+          buildEvidence(
+            "maigret",
+            "Maigret",
+            `Maigret checked ${data.checked ?? "configured"} public services and found ${data.found.length} candidate profile(s) for '${target}'.`,
+            "https://github.com/soxoj/maigret",
+          ),
+        ],
       };
     }
     case "holehe": {
@@ -247,28 +297,56 @@ function parseToolResult(toolId, raw, target) {
       const found = Array.isArray(data.found) ? data.found.length : 0;
       return {
         data,
-        evidence: [buildEvidence("holehe", "Holehe", `Holehe completed bounded account-presence checks for the authorized email target: ${found} positive service signal(s).`, "https://github.com/megadose/holehe")],
+        evidence: [
+          buildEvidence(
+            "holehe",
+            "Holehe",
+            `Holehe completed bounded account-presence checks for the authorized email target: ${found} positive service signal(s).`,
+            "https://github.com/megadose/holehe",
+          ),
+        ],
       };
     }
     case "instaloader": {
       const data = lastJsonObject(raw, toolId);
       return {
         data,
-        evidence: [buildEvidence("instaloader", "Instaloader", `Instaloader resolved the supplied public Instagram profile target.`, "https://github.com/instaloader/instaloader")],
+        evidence: [
+          buildEvidence(
+            "instaloader",
+            "Instaloader",
+            "Instaloader resolved the supplied public Instagram profile target.",
+            "https://github.com/instaloader/instaloader",
+          ),
+        ],
       };
     }
     case "telegram-public": {
       const data = lastJsonObject(raw, toolId);
       return {
         data,
-        evidence: [buildEvidence("telegram-public", "Telegram Public Metadata", `Telegram API resolved the supplied public username/channel using the configured authorized operator session.`, "https://github.com/LonamiWebs/Telethon")],
+        evidence: [
+          buildEvidence(
+            "telegram-public",
+            "Telegram Public Metadata",
+            "Telegram API resolved the supplied public username/channel using the configured authorized operator session.",
+            "https://core.telegram.org/api",
+          ),
+        ],
       };
     }
     case "theharvester": {
       const data = parseTheHarvester(raw, target);
       return {
         data,
-        evidence: [buildEvidence("theharvester", "theHarvester", `Passive domain collection returned ${data.emails.length} email(s), ${data.hosts.length} host(s), and ${data.ips.length} IP(s).`, "https://github.com/laramies/theHarvester")],
+        evidence: [
+          buildEvidence(
+            "theharvester",
+            "theHarvester",
+            `Passive domain collection returned ${data.emails.length} email(s), ${data.hosts.length} host(s), and ${data.ips.length} IP(s).`,
+            "https://github.com/laramies/theHarvester",
+          ),
+        ],
       };
     }
     case "owasp-amass": {
@@ -276,19 +354,35 @@ function parseToolResult(toolId, raw, target) {
       const data = { domain: target, subdomains: rows };
       return {
         data,
-        evidence: [buildEvidence("owasp-amass", "OWASP Amass", `Passive Amass enumeration returned ${rows.length} record(s) for ${target}.`, "https://github.com/owasp-amass/amass")],
+        evidence: [
+          buildEvidence(
+            "owasp-amass",
+            "OWASP Amass",
+            `Passive Amass enumeration returned ${rows.length} record(s) for ${target}.`,
+            "https://github.com/owasp-amass/amass",
+          ),
+        ],
       };
     }
     case "subfinder": {
-      const rows = parseNdjson(raw, "subfinder").map((row) => ({
-        host: typeof row.host === "string" ? row.host : typeof row.subdomain === "string" ? row.subdomain : "",
-        source: typeof row.source === "string" ? row.source : "subfinder",
-        input: typeof row.input === "string" ? row.input : undefined,
-      })).filter((row) => row.host);
+      const rows = parseNdjson(raw, "subfinder")
+        .map((row) => ({
+          host: typeof row.host === "string" ? row.host : typeof row.subdomain === "string" ? row.subdomain : "",
+          source: typeof row.source === "string" ? row.source : "subfinder",
+          input: typeof row.input === "string" ? row.input : undefined,
+        }))
+        .filter((row) => row.host);
       const data = { domain: target, subdomains: rows };
       return {
         data,
-        evidence: [buildEvidence("subfinder", "ProjectDiscovery Subfinder", `Passive Subfinder enumeration returned ${rows.length} subdomain record(s) for ${target}.`, "https://github.com/projectdiscovery/subfinder")],
+        evidence: [
+          buildEvidence(
+            "subfinder",
+            "ProjectDiscovery Subfinder",
+            `Passive Subfinder enumeration returned ${rows.length} subdomain record(s) for ${target}.`,
+            "https://github.com/projectdiscovery/subfinder",
+          ),
+        ],
       };
     }
     default:
@@ -305,7 +399,6 @@ async function executeBinary(binary, args, timeoutMs) {
     });
     return stdout;
   } catch (error) {
-    // Some helpers deliberately return non-zero together with a structured JSON error.
     if (typeof error?.stdout === "string" && error.stdout.trim()) return error.stdout;
     if (error?.killed || error?.code === "ETIMEDOUT") throw new Error("tool_timeout");
     throw error;
@@ -327,29 +420,26 @@ async function claimNextJob(client) {
      FOR UPDATE OF r SKIP LOCKED`,
     [allowed],
   );
+
   if (!result.rows.length) return null;
 
   const job = result.rows[0];
   await client.query(
     `UPDATE astra6_connector_runs
-fix/working-osint-backend-20261006
-     SET status='running', started_at=NOW(), worker_id=$1, attempts=attempts+1
-     WHERE run_id=$2`,
+     SET status = 'running', started_at = NOW(), worker_id = $1, attempts = attempts + 1
+     WHERE run_id = $2`,
     [WORKER_ID, job.run_id],
-     SET status = 'completed', raw_output = $1, parsed_output = $2, evidence = $3,
-         duration_ms = $4, provenance_hash = $5, completed_at = NOW()
-     WHERE run_id = $6 AND status = 'running'`,
-    [rawOutput, JSON.stringify(parsedData), JSON.stringify(evidence), durationMs, provenanceHash, runId]
-main
   );
+
   return job;
 }
 
 async function processNextJob() {
   if (!pool) return;
-fix/working-osint-backend-20261006
+
   const client = await pool.connect();
   let job = null;
+
   try {
     await client.query("BEGIN");
     job = await claimNextJob(client);
@@ -360,9 +450,11 @@ fix/working-osint-backend-20261006
   } finally {
     client.release();
   }
+
   if (!job) return;
 
   const started = Date.now();
+
   try {
     const target = validateTarget(job.tool_id, job.target);
     const { binary, args } = buildToolCommand(job.tool_id, target);
@@ -379,17 +471,20 @@ fix/working-osint-backend-20261006
        WHERE run_id=$6`,
       [raw, JSON.stringify(parsed.data), JSON.stringify(parsed.evidence), durationMs, provenanceHash, job.run_id],
     );
+
     console.info(`[ASTRA 6 Worker] completed run=${job.run_id} tool=${job.tool_id} durationMs=${durationMs}`);
   } catch (error) {
     const durationMs = Date.now() - started;
     const message = error instanceof Error ? error.message : String(error);
     const status = /timeout/i.test(message) ? "timed_out" : "failed";
+
     await pool.query(
       `UPDATE astra6_connector_runs
        SET status=$1, error=$2, duration_ms=$3, completed_at=NOW()
        WHERE run_id=$4`,
       [status, message.slice(0, 1000), durationMs, job.run_id],
     );
+
     console.info(`[ASTRA 6 Worker] failed run=${job.run_id} tool=${job.tool_id}: ${message}`);
   }
 }
@@ -413,13 +508,6 @@ async function main() {
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
-  await pool.query(
-    `UPDATE astra6_connector_runs
-     SET status = 'failed', error = $1, duration_ms = $2, completed_at = NOW()
-     WHERE run_id = $3 AND status = 'running'`,
-    [errorMessage, durationMs, runId]
-  );
- main
 }
 
 main().catch((error) => {
