@@ -13,6 +13,12 @@ export DISHA_BUILD_SHA="$DEPLOYED_SHA"
 echo "Deploying DISHA revision: ${DEPLOYED_SHA}"
 printf "%s\n" "$DEPLOYED_SHA" > "$REPO_ROOT/DEPLOYED_COMMIT"
 
+if [ -f "$REPO_ROOT/.gitmodules" ]; then
+  echo "Initializing pinned OSINT upstream source trees..."
+  git submodule sync
+  git submodule update --init --jobs "${DISHA_SUBMODULE_JOBS:-4}"
+fi
+
 echo "[1/6] Preparing docker-compose.gcp.yml..."
 cat <<'COMPOSE_EOF' > "$REPO_ROOT/docker-compose.gcp.yml"
 services:

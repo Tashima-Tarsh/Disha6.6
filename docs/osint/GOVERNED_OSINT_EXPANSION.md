@@ -95,7 +95,7 @@ GET /api/v1/osint/search?q=example.org
 
 ## GitHub upstream rule
 
-GitHub OSINT projects are **cataloged, not blindly vendored**. Projects such as SpiderFoot, theHarvester, IntelOwl, Recon-ng, OWASP Amass, Photon, Sherlock, Maigret, and Holehe have materially different network behavior, privacy implications, licenses, and dependency chains.
+GitHub OSINT projects are **kept as pinned upstream source trees** under `disha/services/integrations/osint-upstreams/` using Git submodules. This preserves the original repositories and exact reviewed revisions without turning source presence into automatic execution. Projects such as SpiderFoot, theHarvester, IntelOwl, Recon-ng, OWASP Amass, Photon, Sherlock, Maigret, and Holehe still have materially different network behavior, privacy implications, licenses, and dependency chains.
 
 Promotion into DISHA production requires all of the following:
 
