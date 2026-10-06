@@ -20,6 +20,7 @@ export interface InvestigationRun {
   error?: string;
   warnings: string[];
   providerHealth?: ProviderHealth;
+  externalRunId?: string;
 }
 export interface InvestigationEvidence {
   evidenceId: string;
