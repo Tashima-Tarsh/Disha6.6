@@ -69,7 +69,7 @@ describe("OSINT CTI SPACEINT source universe", () => {
 
   it("tracks credentialed providers separately from live adapters", () => {
     const entries = listOsintSourceUniverse();
-    for (const id of ["opensanctions", "opencorporates", "shodan", "space-track", "nasa-firms", "opencti", "reliefweb", "threatfox", "malwarebazaar", "urlhaus"]) {
+    for (const id of ["opensanctions", "opencorporates", "shodan", "space-track", "nasa-firms", "opencti", "intelowl", "reliefweb", "threatfox", "malwarebazaar", "urlhaus"]) {
       expect(entries.find((entry) => entry.id === id)?.mode).toBe("requires_configuration");
     }
   });
