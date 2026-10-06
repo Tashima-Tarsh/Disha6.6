@@ -10,7 +10,7 @@ const arrayKeys: Record<string, string> = {
   "public-dns-google": "answers", "public-certificate-transparency": "certificates", "public-wayback-cdx": "snapshots",
   "public-common-crawl": "captures", "public-gdelt-news": "articles", "public-cisa-kev": "matched", "public-ripestat-whois": "records",
   "public-wikidata-search": "entities", "public-openalex": "works", "public-celestrak-gp": "objects", "public-reliefweb": "reports",
-  "public-brave-search": "records", "passive-shodan": "records", "google-vision-web": "records",\n  "public-threatfox": "records", "public-malwarebazaar": "records",
+  "public-brave-search": "records", "passive-shodan": "records", "google-vision-web": "records",\n  "public-threatfox": "records", "public-malwarebazaar": "records", "public-opensanctions": "records", "public-opencorporates": "records",
   "astra6-sherlock": "found", "astra6-spiderfoot": "events", "astra6-owasp-amass": "subdomains", "astra6-subfinder": "subdomains",
 };
 
@@ -66,7 +66,7 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
       ?? text(row.ioc)
       ?? text(row.sha256_hash)
       ?? text(row.sha1_hash)
-      ?? text(row.md5_hash);
+      ?? text(row.md5_hash)\n      ?? text(row.company_number)\n      ?? text(row.uid);
     const sourceUrl =
       safeSourceUrl(row.sourceUrl)
       ?? safeSourceUrl(row.url)
