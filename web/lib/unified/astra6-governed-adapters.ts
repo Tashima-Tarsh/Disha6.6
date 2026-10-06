@@ -6,6 +6,10 @@ import { buildAdapterEvidence, type AdapterContext, type GovernedOsintAdapter, t
 import {
   phoneInfogaManifest,
   sherlockManifest,
+  maigretManifest,
+  holeheManifest,
+  instaloaderManifest,
+  telegramPublicManifest,
   theHarvesterManifest,
   spiderfootManifest,
   amassManifest,
@@ -60,6 +64,15 @@ function requiresIdentityPolicy(): boolean {
 
 function isIdentityManifest(manifest: DishaToolManifest): boolean {
   return manifest.targetTypes.some((type) => ["username", "phone_number", "email"].includes(type));
+}
+
+function configurationIssue(manifest: DishaToolManifest): string | undefined {
+  if (manifest.toolId === "telegram-public") {
+    if (!process.env.TELEGRAM_API_ID || !process.env.TELEGRAM_API_HASH || !process.env.TELEGRAM_SESSION) {
+      return "Telegram public metadata requires TELEGRAM_API_ID, TELEGRAM_API_HASH, and TELEGRAM_SESSION from an authorized operator session.";
+    }
+  }
+  return undefined;
 }
 
 async function ensureManifestRegistered(manifest: DishaToolManifest): Promise<void> {
@@ -223,7 +236,7 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       name: `ASTRA 6 ${manifest.name}`,
       version: manifest.version,
       capability: manifest.capabilities[0] ?? manifest.toolId,
-      auth: "none",
+      auth: manifest.toolId === "telegram-public" ? "session" : "none",
       legalUse: manifest.legalUse,
       blockedUse: manifest.blockedUse,
       rateLimitPerMinute: manifest.rateLimitPerMinute,
@@ -240,6 +253,10 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (!getDbPool()) {
         return { status: "not_configured" as const, detail: `${manifest.name} requires DATABASE_URL so the web process can dispatch to the worker.` };
       }
+      const configIssue = configurationIssue(manifest);
+      if (configIssue) {
+        return { status: "not_configured" as const, detail: configIssue };
+      }
       if (isIdentityTool && !requiresIdentityPolicy()) {
         return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true for authorized identity investigations.` };
       }
@@ -251,6 +268,7 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
         throw new Error(`target_type_mismatch: ${manifest.name} does not accept ${input.targetType}, expected ${manifest.targetTypes.join("/")}`);
       }
       if (!isToolAvailable(manifest)) throw new Error("not_configured");
+      if (configurationIssue(manifest)) throw new Error("not_configured");
       if (isIdentityTool && !requiresIdentityPolicy()) throw new Error("policy_denied");
 
       const runId = await queueRun(manifest, { ...input, target }, context);
@@ -289,6 +307,10 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
 
 export const phoneInfogaAdapter = createAstra6Adapter(phoneInfogaManifest);
 export const sherlockAdapter = createAstra6Adapter(sherlockManifest);
+export const maigretAdapter = createAstra6Adapter(maigretManifest);
+export const holeheAdapter = createAstra6Adapter(holeheManifest);
+export const instaloaderAdapter = createAstra6Adapter(instaloaderManifest);
+export const telegramPublicAdapter = createAstra6Adapter(telegramPublicManifest);
 export const theHarvesterAdapter = createAstra6Adapter(theHarvesterManifest);
 export const spiderfootAdapter = createAstra6Adapter(spiderfootManifest);
 export const amassAdapter = createAstra6Adapter(amassManifest);
@@ -297,6 +319,10 @@ export const subfinderAdapter = createAstra6Adapter(subfinderManifest);
 export const astra6Adapters = [
   phoneInfogaAdapter,
   sherlockAdapter,
+  maigretAdapter,
+  holeheAdapter,
+  instaloaderAdapter,
+  telegramPublicAdapter,
   theHarvesterAdapter,
   spiderfootAdapter,
   amassAdapter,
