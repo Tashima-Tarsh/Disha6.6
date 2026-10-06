@@ -70,6 +70,28 @@ describe("canonical OSINT search targets", () => {
     expect(plan.find(item => item.adapterId === "astra6-sherlock")?.initialStatus).toBe("RESTRICTED");
   });
 
+  it("adds configured public entity providers to name and company routes", () => {
+    vi.stubEnv("OPENSANCTIONS_API_KEY", "configured");
+    vi.stubEnv("OPENCORPORATES_API_TOKEN", "configured");
+
+    const name = buildTargetRoutePlan("Example Person", "person_name");
+    expect(name.find(item => item.adapterId === "public-opensanctions")?.initialStatus).toBeUndefined();
+    expect(name.find(item => item.adapterId === "public-opencorporates")?.input).toMatchObject({ kind: "officer" });
+
+    const company = buildTargetRoutePlan("Example Ltd", "company");
+    expect(company.find(item => item.adapterId === "public-opensanctions")?.input).toMatchObject({ schema: "Company" });
+    expect(company.find(item => item.adapterId === "public-opencorporates")?.input).toMatchObject({ kind: "company" });
+  });
+
+  it("routes configured hashes into defensive CTI metadata sources", () => {
+    vi.stubEnv("THREATFOX_AUTH_KEY", "configured");
+    vi.stubEnv("MALWAREBAZAAR_AUTH_KEY", "configured");
+
+    const plan = buildTargetRoutePlan("b".repeat(64), "file_hash");
+    expect(plan.find(item => item.adapterId === "public-threatfox")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "public-malwarebazaar")?.initialStatus).toBeUndefined();
+  });
+
   it("keeps domain ASTRA tools pending while live public adapters remain executable if workers are unconfigured", () => {
     vi.stubEnv("DATABASE_URL", "");
     vi.stubEnv("DISHA_ASTRA6_ALL_TOOLS_ENABLED", "");
