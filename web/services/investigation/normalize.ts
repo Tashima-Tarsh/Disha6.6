@@ -3,8 +3,7 @@ import { safeSourceUrl, type AdapterPlan, type Investigation, type Investigation
 import type { AdapterExecutionResult } from "../../lib/unified/osint-adapter-bus";
 
 export const record = (v: unknown): Record<string, unknown> => v !== null && typeof v === "object" && !Array.isArray(v) ? v as Record<string, unknown> : {};
-export const text = (v: unknown): string | undefined => typeof v === "string" && v.trim() ? v.slice(0, 2000) : undefined;
-const hash = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex");
+export const text = (v: unknown): string | undefined => typeof v === "string" && v.trim() ? v.slice(0, 2000) : undefined;\nconst identifier = (v: unknown): string | undefined => text(v) ?? (typeof v === "number" && Number.isFinite(v) ? String(v) : undefined);\nconst hash = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex");
 
 const arrayKeys: Record<string, string> = {
   "public-dns-google": "answers", "public-certificate-transparency": "certificates", "public-wayback-cdx": "snapshots",
@@ -56,8 +55,7 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
   return rows.filter(row => Object.keys(row).length > 0).slice(0, 50).map(row => {
     const evidenceId = randomUUID();
     const providerRecordId =
-      text(row.id)
-      ?? text(row.cveID)
+      identifier(row.id)\n      ?? identifier(row.cveID)
       ?? text(row.noradCatId)
       ?? text(row.handle)
       ?? text(row.serialNumber)
