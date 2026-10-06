@@ -3,6 +3,8 @@ import {
   type GovernedOsintAdapter,
 } from "./osint-adapter-bus";
 
+type ServiceFetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
+
 export type OsintServiceConnectorId = "opencti" | "intelowl" | "spiderfoot" | "sherlock" | "maigret";
 export type OsintServiceConnectorFamily = "cti_platform" | "osint_engine" | "identity_enumeration";
 export type OsintServiceConnectorState = "configured_live" | "needs_configuration" | "blocked_by_policy";
@@ -156,7 +158,7 @@ export function getOsintServiceConnectorSummary() {
 
 export async function probeOsintServiceConnector(
   connectorId: OsintServiceConnectorId,
-  fetcher: typeof fetch = fetch,
+  fetcher: ServiceFetch = fetch,
 ): Promise<OsintServiceProbeResult> {
   const posture = listOsintServiceConnectors().find((connector) => connector.id === connectorId);
   if (!posture) throw new Error("unknown_osint_service_connector:" + connectorId);
@@ -171,14 +173,14 @@ export async function probeOsintServiceConnector(
   return { connectorId, status: "blocked", detail: "Connector is not executable in the current DISHA runtime." };
 }
 
-export async function probeConfiguredOsintServices(fetcher: typeof fetch = fetch): Promise<OsintServiceProbeResult[]> {
+export async function probeConfiguredOsintServices(fetcher: ServiceFetch = fetch): Promise<OsintServiceProbeResult[]> {
   return Promise.all(["opencti", "intelowl", "spiderfoot", "sherlock", "maigret"].map((id) =>
     probeOsintServiceConnector(id as OsintServiceConnectorId, fetcher),
   ));
 }
 
 export function createOpenCtiServiceAdapter(
-  fetcher: typeof fetch = fetch,
+  fetcher: ServiceFetch = fetch,
 ): GovernedOsintAdapter<OpenCtiServiceInput, OpenCtiServiceOutput> {
   return {
     metadata: {
@@ -268,7 +270,7 @@ export function createOpenCtiServiceAdapter(
 }
 
 export function createIntelOwlServiceAdapter(
-  fetcher: typeof fetch = fetch,
+  fetcher: ServiceFetch = fetch,
 ): GovernedOsintAdapter<IntelOwlServiceInput, IntelOwlServiceOutput> {
   return {
     metadata: {
@@ -363,7 +365,7 @@ export function createIntelOwlServiceAdapter(
   };
 }
 
-async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
+async function probeOpenCti(fetcher: ServiceFetch): Promise<OsintServiceProbeResult> {
   const response = await fetcher(serviceUrl("OPENCTI_BASE_URL", "/graphql"), {
     method: "POST",
     headers: {
@@ -381,7 +383,7 @@ async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeRes
   };
 }
 
-async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
+async function probeIntelOwl(fetcher: ServiceFetch): Promise<OsintServiceProbeResult> {
   const response = await fetcher(serviceUrl("INTELOWL_BASE_URL", "/api/healthcheck"), {
     method: "GET",
     headers: {
@@ -401,7 +403,7 @@ async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeRe
 async function pollIntelOwlJob(
   jobId: number,
   headers: Record<string, string>,
-  fetcher: typeof fetch,
+  fetcher: ServiceFetch,
   signal?: AbortSignal,
 ): Promise<Record<string, unknown>> {
   const configuredTimeout = Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 15_000);
