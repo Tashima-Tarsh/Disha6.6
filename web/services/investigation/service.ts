@@ -102,7 +102,8 @@ export class InvestigationService {
         run.status = "RUNNING";
         run.startedAt = new Date().toISOString();
         if (!await this.save(value)) throw failure("Investigation closed", 409);
-        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(Math.max(1, Math.min(24_000, Date.parse(value.expiresAt) - Date.now()))), ...(requestSignal ? [requestSignal] : [])]);
+        const providerTimeoutMs = plan.adapterId.startsWith("astra6-") ? 190_000 : 24_000;
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(Math.max(1, Math.min(providerTimeoutMs, Date.parse(value.expiresAt) - Date.now()))), ...(requestSignal ? [requestSignal] : [])]);
         const image = value.targetType === "image" ? await this.store.image(id) : null;
         try {
           const result = await this.execute(plan, ctx.principal.userId, id, signal, image);
