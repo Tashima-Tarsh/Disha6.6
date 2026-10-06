@@ -75,7 +75,7 @@ describe("Canonical 3D OSINT Universe & Investigation Engine", () => {
     expect(classifyUniversalTarget("198.51.100.1").primaryType).toBe("ip");
     expect(classifyUniversalTarget("analyst@example.com").primaryType).toBe("email");
     expect(classifyUniversalTarget("+919876543210").primaryType).toBe("phone");
-    expect(classifyUniversalTarget("Nitish Kumar").primaryType).toBe("person");
+    expect(classifyUniversalTarget("Nitish Kumar").primaryType).toBe("person_name");
   });
 
   it("delivers full 3D interactive universe component with depth, camera controls, and raycasting", () => {
