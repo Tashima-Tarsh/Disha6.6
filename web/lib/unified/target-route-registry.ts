@@ -28,21 +28,31 @@ function addPublicDiscovery(plan: AdapterPlan[], target: string) {
   );
 }
 
-function addPendingAstra(
+function addAstraRoute(
   plan: AdapterPlan[],
   adapterId: string,
   sourceName: string,
   target: string,
   targetType: string,
 ) {
-  add(
-    plan,
-    adapterId,
-    sourceName,
-    { target, targetType },
-    "ASTRA 6 worker capability is present, but the ephemeral investigation-to-worker result bridge is not connected yet.",
-    "NOT_CONFIGURED",
-  );
+  const toolId = adapterId.replace(/^astra6-/, "");
+  const envKey = `DISHA_ASTRA6_${toolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
+  const enabled = Boolean(process.env.DATABASE_URL)
+    && (process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true");
+  const identitySensitive = ["email", "phone_number", "username"].includes(targetType);
+  const approved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+  const initialStatus: AdapterPlan["initialStatus"] | undefined = !enabled
+    ? "NOT_CONFIGURED"
+    : identitySensitive && !approved
+      ? "RESTRICTED"
+      : undefined;
+  const reason = !enabled
+    ? "ASTRA 6 worker bridge requires DATABASE_URL and the tool enable flag."
+    : identitySensitive && !approved
+      ? "Identity-oriented ASTRA execution requires DISHA_IDENTITY_ENUMERATION_APPROVED=true."
+      : "Execute through the isolated ASTRA 6 worker queue and return normalized evidence.";
+
+  add(plan, adapterId, sourceName, { target, targetType }, reason, initialStatus);
 }
 
 function addIdentityBoundaries(plan: AdapterPlan[]) {
@@ -75,19 +85,19 @@ export function buildTargetRoutePlan(target: string, type: TargetType): AdapterP
   }
 
   if (type === "email") {
-    addPendingAstra(plan, "astra6-spiderfoot", "SpiderFoot", target, "email");
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "email");
     addIdentityBoundaries(plan);
   }
 
   if (type === "phone") {
-    addPendingAstra(plan, "astra6-phoneinfoga", "PhoneInfoga", target, "phone_number");
-    addPendingAstra(plan, "astra6-spiderfoot", "SpiderFoot", target, "phone_number");
+    addAstraRoute(plan, "astra6-phoneinfoga", "PhoneInfoga", target, "phone_number");
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "phone_number");
     addIdentityBoundaries(plan);
   }
 
   if (type === "username") {
-    addPendingAstra(plan, "astra6-sherlock", "Sherlock", target, "username");
-    addPendingAstra(plan, "astra6-spiderfoot", "SpiderFoot", target, "username");
+    addAstraRoute(plan, "astra6-sherlock", "Sherlock", target, "username");
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "username");
   }
 
   if (type === "vehicle_identifier") {
@@ -122,14 +132,14 @@ export function buildTargetRoutePlan(target: string, type: TargetType): AdapterP
 
   if (type === "domain" || type === "url") {
     const domain = type === "url" ? new URL(target).hostname : target;
-    addPendingAstra(plan, "astra6-theharvester", "theHarvester", domain, "domain");
-    addPendingAstra(plan, "astra6-spiderfoot", "SpiderFoot", domain, "domain");
-    addPendingAstra(plan, "astra6-owasp-amass", "OWASP Amass", domain, "domain");
-    addPendingAstra(plan, "astra6-subfinder", "ProjectDiscovery Subfinder", domain, "domain");
+    addAstraRoute(plan, "astra6-theharvester", "theHarvester", domain, "domain");
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", domain, "domain");
+    addAstraRoute(plan, "astra6-owasp-amass", "OWASP Amass", domain, "domain");
+    addAstraRoute(plan, "astra6-subfinder", "ProjectDiscovery Subfinder", domain, "domain");
   }
 
   if (type === "ip") {
-    addPendingAstra(plan, "astra6-spiderfoot", "SpiderFoot", target, "ip");
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "ip");
   }
 
   if (type === "image") {
