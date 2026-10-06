@@ -49,7 +49,7 @@ function records(value: unknown): Record<string, unknown>[] {
     : [];
 }
 
-export function createThreatFoxAdapter(): GovernedOsintAdapter<ThreatFoxInput, CtiRecords> {
+export function createThreatFoxAdapter(fetcher: typeof safePublicFetch = safePublicFetch): GovernedOsintAdapter<ThreatFoxInput, CtiRecords> {
   return {
     metadata: {
       id: "public-threatfox",
@@ -88,7 +88,7 @@ export function createThreatFoxAdapter(): GovernedOsintAdapter<ThreatFoxInput, C
         ? { query: "search_hash", hash: value }
         : { query: "search_ioc", search_term: value, exact_match: true };
 
-      const response = await safePublicFetch("https://threatfox-api.abuse.ch/api/v1/", {
+      const response = await fetcher("https://threatfox-api.abuse.ch/api/v1/", {
         method: "POST",
         headers: {
           accept: "application/json",
@@ -116,7 +116,7 @@ export function createThreatFoxAdapter(): GovernedOsintAdapter<ThreatFoxInput, C
   };
 }
 
-export function createMalwareBazaarAdapter(): GovernedOsintAdapter<MalwareBazaarInput, CtiRecords> {
+export function createMalwareBazaarAdapter(fetcher: typeof safePublicFetch = safePublicFetch): GovernedOsintAdapter<MalwareBazaarInput, CtiRecords> {
   return {
     metadata: {
       id: "public-malwarebazaar",
@@ -144,7 +144,7 @@ export function createMalwareBazaarAdapter(): GovernedOsintAdapter<MalwareBazaar
       if (![32, 40, 64].includes(hash.length) || !/^[a-f0-9]+$/.test(hash)) throw new Error("invalid_hash");
 
       const form = new URLSearchParams({ query: "get_info", hash });
-      const response = await safePublicFetch("https://mb-api.abuse.ch/api/v1/", {
+      const response = await fetcher("https://mb-api.abuse.ch/api/v1/", {
         method: "POST",
         headers: {
           accept: "application/json",
