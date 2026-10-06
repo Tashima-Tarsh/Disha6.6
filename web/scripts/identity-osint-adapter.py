@@ -42,6 +42,50 @@ def normalize_username(value: str, *, telegram: bool = False, instagram: bool = 
     return raw
 
 
+def run_sherlock(username: str) -> dict[str, Any]:
+    from sherlock_project.notify import QueryNotify
+    from sherlock_project.result import QueryStatus
+    from sherlock_project.sherlock import sherlock
+    from sherlock_project.sites import SitesInformation
+
+    username = normalize_username(username)
+    with contextlib.redirect_stdout(sys.stderr):
+        sites = SitesInformation()
+        sites.remove_nsfw_sites()
+        site_data = {site.name: site.information for site in sites}
+        results = sherlock(
+            username,
+            site_data,
+            QueryNotify(),
+            timeout=max(3, min(int(os.getenv("DISHA_SHERLOCK_TIMEOUT_SECONDS", "10")), 20)),
+        )
+
+    found: list[dict[str, Any]] = []
+    not_found = 0
+    errors = 0
+    for site_name, result in results.items():
+        status = result.get("status")
+        state = getattr(status, "status", None)
+        if state == QueryStatus.CLAIMED:
+            found.append({
+                "site": site_name,
+                "url": result.get("url_user"),
+                "httpStatus": result.get("http_status"),
+            })
+        elif state == QueryStatus.AVAILABLE:
+            not_found += 1
+        else:
+            errors += 1
+
+    return {
+        "username": username,
+        "checked": len(results),
+        "found": found[:500],
+        "notFound": not_found,
+        "errors": errors,
+    }
+
+
 async def run_maigret(username: str) -> dict[str, Any]:
     import maigret
 
@@ -253,12 +297,14 @@ async def run_telegram(target: str) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["maigret", "holehe", "instagram", "telegram"])
+    parser.add_argument("mode", choices=["sherlock", "maigret", "holehe", "instagram", "telegram"])
     parser.add_argument("target")
     args = parser.parse_args()
 
     try:
-        if args.mode == "maigret":
+        if args.mode == "sherlock":
+            result = run_sherlock(args.target)
+        elif args.mode == "maigret":
             result = asyncio.run(run_maigret(args.target))
         elif args.mode == "holehe":
             result = run_holehe(args.target)
