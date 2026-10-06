@@ -74,7 +74,7 @@ export function AuthFlow() {
     setTimeout(() => {
       setStep("success");
       setTimeout(() => {
-        router.push("/dashboard" as any);
+        router.push("/investigate" as any);
       }, 2000);
     }, 2000);
   };
@@ -336,7 +336,7 @@ export function AuthFlow() {
             </motion.div>
             <div className="space-y-2">
               <h2 className="text-3xl font-bold text-white">Access Granted</h2>
-              <p className="text-foreground/50">Initializing secure session for DIKSHA v6.0</p>
+              <p className="text-foreground/50">Initializing secure session for DISHA 6.6</p>
             </div>
           </motion.div>
         )}
