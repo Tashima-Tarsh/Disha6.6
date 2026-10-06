@@ -1,4 +1,3 @@
-import { safePublicFetch } from "../server/safe-public-fetch";
 import {
   buildAdapterEvidence,
   type GovernedOsintAdapter,
@@ -150,7 +149,7 @@ export function getOsintServiceConnectorSummary() {
 
 export async function probeOsintServiceConnector(
   connectorId: OsintServiceConnectorId,
-  fetcher: typeof safePublicFetch = safePublicFetch,
+  fetcher: typeof fetch = fetch,
 ): Promise<OsintServiceProbeResult> {
   const posture = listOsintServiceConnectors().find((connector) => connector.id === connectorId);
   if (!posture) throw new Error("unknown_osint_service_connector:" + connectorId);
@@ -165,14 +164,14 @@ export async function probeOsintServiceConnector(
   return { connectorId, status: "blocked", detail: "Connector is not executable in the current DISHA runtime." };
 }
 
-export async function probeConfiguredOsintServices(fetcher: typeof safePublicFetch = safePublicFetch): Promise<OsintServiceProbeResult[]> {
+export async function probeConfiguredOsintServices(fetcher: typeof fetch = fetch): Promise<OsintServiceProbeResult[]> {
   return Promise.all(["opencti", "intelowl", "spiderfoot", "sherlock", "maigret"].map((id) =>
     probeOsintServiceConnector(id as OsintServiceConnectorId, fetcher),
   ));
 }
 
 export function createOpenCtiServiceAdapter(
-  fetcher: typeof safePublicFetch = safePublicFetch,
+  fetcher: typeof fetch = fetch,
 ): GovernedOsintAdapter<OpenCtiServiceInput, OpenCtiServiceOutput> {
   return {
     metadata: {
@@ -262,7 +261,7 @@ export function createOpenCtiServiceAdapter(
 }
 
 export function createIntelOwlServiceAdapter(
-  fetcher: typeof safePublicFetch = safePublicFetch,
+  fetcher: typeof fetch = fetch,
 ): GovernedOsintAdapter<IntelOwlServiceInput, IntelOwlServiceOutput> {
   return {
     metadata: {
@@ -274,7 +273,7 @@ export function createIntelOwlServiceAdapter(
       legalUse: ["Defensive IOC enrichment", "Allowlisted passive analyzer execution", "Threat-intelligence report normalization"],
       blockedUse: ["Arbitrary analyzer execution", "Connector/playbook execution", "Malware detonation", "Private file submission"],
       rateLimitPerMinute: 10,
-      timeoutMs: 55_000,
+      timeoutMs: 22_000,
       maxRetries: 0,
       executionClass: "credentialed_public_api",
       defaultEnabled: true,
@@ -357,7 +356,7 @@ export function createIntelOwlServiceAdapter(
   };
 }
 
-async function probeOpenCti(fetcher: typeof safePublicFetch): Promise<OsintServiceProbeResult> {
+async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
   const response = await fetcher(serviceUrl("OPENCTI_BASE_URL", "/graphql"), {
     method: "POST",
     headers: {
@@ -375,7 +374,7 @@ async function probeOpenCti(fetcher: typeof safePublicFetch): Promise<OsintServi
   };
 }
 
-async function probeIntelOwl(fetcher: typeof safePublicFetch): Promise<OsintServiceProbeResult> {
+async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
   const response = await fetcher(serviceUrl("INTELOWL_BASE_URL", "/api/healthcheck"), {
     method: "GET",
     headers: {
@@ -395,13 +394,13 @@ async function probeIntelOwl(fetcher: typeof safePublicFetch): Promise<OsintServ
 async function pollIntelOwlJob(
   jobId: number,
   headers: Record<string, string>,
-  fetcher: typeof safePublicFetch,
+  fetcher: typeof fetch,
   signal?: AbortSignal,
 ): Promise<Record<string, unknown>> {
-  const configuredTimeout = Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 40_000);
+  const configuredTimeout = Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 15_000);
   const timeoutMs = Number.isFinite(configuredTimeout)
-    ? Math.max(5_000, Math.min(45_000, configuredTimeout))
-    : 40_000;
+    ? Math.max(5_000, Math.min(18_000, configuredTimeout))
+    : 15_000;
   const deadline = Date.now() + timeoutMs;
   const finalStatuses = new Set(["reported_without_fails", "reported_with_fails", "killed", "failed"]);
 
@@ -441,7 +440,7 @@ function normalizeAnalyzerNames(value: unknown): string[] {
 }
 
 function intelOwlAnalyzerAllowlist(): string[] {
-  const raw = process.env.INTELOWL_ANALYZERS_ALLOWLIST ?? "";
+  const raw = process.env.INTELOWL_ANALYZERS_ALLOWLIST ?? process.env.INTELOWL_ANALYZERS ?? "";
   if (!raw.trim()) return [];
   return normalizeAnalyzerNames(raw.split(","));
 }
@@ -496,12 +495,23 @@ function stringArray(value: unknown): string[] {
 }
 
 function serviceUrl(envName: string, path: string): string {
-  return requireEnv(envName).replace(/\/+$/, "") + (path.startsWith("/") ? path : "/" + path);
+  const base = serviceBaseUrl(envName);
+  return new URL(path.startsWith("/") ? path : "/" + path, base).toString();
+}
+
+function serviceBaseUrl(envName: string): URL {
+  const url = new URL(requireEnv(envName));
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
+    throw new Error("invalid_service_url:" + envName);
+  }
+  url.pathname = "/";
+  url.search = "";
+  url.hash = "";
+  return url;
 }
 
 function serviceOrigin(envName: string): string {
-  const url = new URL(requireEnv(envName));
-  return url.origin + "/";
+  return serviceBaseUrl(envName).origin + "/";
 }
 
 async function sleepWithSignal(ms: number, signal?: AbortSignal): Promise<void> {
