@@ -139,36 +139,6 @@ export class InvestigationService {
     try {
       value = await this.owned(id, ctx.principal.userId);
       if (await this.store.stopped(id)) throw failure("Investigation is closing", 409);
-fix/working-osint-backend-20261006
-      // A worker lost mid-run is reported as failed; never silently rerun a charged query.
-      for (const orphan of value.runs.filter(item => item.status === "RUNNING")) Object.assign(orphan, { status: "FAILED", error: "Source worker interrupted", endedAt: new Date().toISOString() });
-      run = value.runs.find(item => item.status === "QUEUED");
-      if (!run) { value.status = "COMPLETED"; await this.save(value); return publicInvestigation(value); }
-      const plan = value.plannedAdapters.find(item => item.adapterId === run?.adapterId)!;
-      const providerLimit = plan.adapterId === "public-nvd-cve" ? 5 : plan.adapterId === "passive-shodan" ? 10 : 25;
-      if (!await this.store.budget(`provider:${plan.adapterId}`, providerLimit)) Object.assign(run, { status: "RATE_LIMITED", error: "Shared provider request limit reached", endedAt: new Date().toISOString() });
-      else {
-        value.status = "RUNNING";
-        run.status = "RUNNING";
-        run.startedAt = new Date().toISOString();
-        if (!await this.save(value)) throw failure("Investigation closed", 409);
-        const providerTimeoutMs = plan.adapterId.startsWith("astra6-") ? 190_000 : 24_000;
-        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(Math.max(1, Math.min(providerTimeoutMs, Date.parse(value.expiresAt) - Date.now()))), ...(requestSignal ? [requestSignal] : [])]);
-        const image = value.targetType === "image" ? await this.store.image(id) : null;
-        try {
-          const result = await this.execute(plan, ctx.principal.userId, id, signal, image);
-          if (signal.aborted || await this.store.stopped(id)) throw failure("Investigation stopped", 409);
-          if (result.status === "completed" || result.status === "partial") {
-            const evidence = normalizeRecords(plan, result);
-            appendEvidence(value, plan, evidence);
-            run.status = evidence.length ? "COMPLETED" : "NO_RESULTS";
-            run.evidenceCount = evidence.length;
-            // Only curated adapter warning messages; error payloads are never exposed.
-            run.warnings = result.warnings.map(w => w.slice(0, 300));
-            if (record(result.data).providerHealth === "REST_HEALTHY") run.providerHealth = "REST_HEALTHY";
-          } else Object.assign(run, runFailure(result.error ?? result.status));
-        } finally { image?.fill(0); }
-
 
       // Only in-request inline runs are considered orphaned. ASTRA runs are durable external jobs.
       for (const orphan of value.runs.filter(item => item.status === "RUNNING" && !item.externalRunId)) {
@@ -190,7 +160,6 @@ fix/working-osint-backend-20261006
         }
 
         applyResult(value, run, plan, polled.result);
- main
         run.endedAt = new Date().toISOString();
       } else {
         run = value.runs.find(item => item.status === "QUEUED");
