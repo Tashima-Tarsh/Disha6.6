@@ -20,7 +20,7 @@ The repository has one production web application: `web/`. Imported and legacy t
 These are architecture controls, not cosmetic backlog:
 
 - Protect `main` and require the Fast CI check before merge. At audit time the branch had no required status checks.
-- Verify the actual hosting account/service. Repository documentation alone is not proof that Render, Cloud Run, or another provider is serving the latest `main` commit.
+- GCP/GCE is the canonical live hosting target. Verify `/opt/disha/DEPLOYED_COMMIT` matches the intended release before declaring a rollout complete.
 - Disable or repair the repository Codespaces prebuild configuration separately if its independent failure notification is unwanted; it is not product CI.
 - Run the full container smoke suite on the exact release commit.
 - Exercise PostgreSQL backup and restore in the production environment.
