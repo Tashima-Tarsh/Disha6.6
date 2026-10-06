@@ -35,7 +35,6 @@ jobs:
       DISHA_AUTH_MODE: password
       DISHA_JWT_SECRET: ci-only-jwt-secret-32-bytes-minimum-value
       DISHA_WORKER_TOKEN: ci-only-worker-token-24-bytes-minimum
-      DISHA_ALLOW_STATELESS_AUTH: "true"
       DISHA_ALLOWED_ORIGINS: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       DISHA_MODEL_PROVIDER: disabled
@@ -52,3 +51,5 @@ jobs:
       - run: npm run test
       - run: npm run type-check
       - run: npm run build
+        env:
+          DISHA_ALLOW_STATELESS_AUTH: "true"
