@@ -32,7 +32,7 @@ async function fetchPublicChecked(input: string | URL, init: RequestInit, redire
     const nextInit = { ...init };
     if (next.origin !== url.origin) {
       const headers = new Headers(init.headers);
-      for (const name of ["authorization", "cookie", "x-goog-api-key", "x-subscription-token", "api-key", "x-api-key"]) headers.delete(name);
+      for (const name of ["authorization", "cookie", "x-goog-api-key", "x-subscription-token", "api-key", "x-api-key", "auth-key"]) headers.delete(name);
       nextInit.headers = headers;
     }
     return fetchPublicChecked(next, nextInit, redirectDepth + 1);
