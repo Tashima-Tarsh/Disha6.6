@@ -21,7 +21,7 @@ jobs:
       - name: Check worker syntax before Docker builds
         run: |
           node --check web/scripts/astra6-worker.mjs
-          python3 -m py_compile web/scripts/identity-osint-adapter.py
+          python3 -m py_compile web/scripts/identity-osint-adapter.py web/scripts/recon-ng-adapter.py
 
       - name: Build identity worker
         run: docker build -f infra/workers/Dockerfile.identity -t disha-identity-worker:ci .
@@ -44,3 +44,23 @@ jobs:
         run: |
           docker run --rm --entrypoint node disha-infrastructure-worker:ci --check /opt/disha-worker/scripts/astra6-worker.mjs
           docker run --rm --entrypoint sh disha-infrastructure-worker:ci -c 'command -v subfinder >/dev/null && command -v amass >/dev/null && command -v theHarvester >/dev/null'
+
+      - name: Initialize advanced OSINT upstreams
+        run: |
+          git submodule sync
+          git submodule update --init --depth 1 \
+            disha/services/integrations/osint-upstreams/spiderfoot \
+            disha/services/integrations/osint-upstreams/recon-ng \
+            disha/services/integrations/osint-upstreams/recon-ng-marketplace \
+            disha/services/integrations/osint-upstreams/Photon
+
+      - name: Build advanced worker
+        run: docker build -f infra/workers/Dockerfile.research-osint -t disha-advanced-worker:ci .
+
+      - name: Smoke advanced worker runtime
+        run: |
+          docker run --rm --entrypoint node disha-advanced-worker:ci --check /opt/disha-worker/scripts/astra6-worker.mjs
+          docker run --rm --entrypoint /opt/venvs/spiderfoot/bin/python disha-advanced-worker:ci /opt/osint/spiderfoot/sf.py --help >/dev/null
+          docker run --rm --entrypoint /opt/venvs/recon/bin/python disha-advanced-worker:ci -m py_compile /opt/disha-worker/scripts/recon-ng-adapter.py
+          docker run --rm --entrypoint /opt/venvs/photon/bin/python disha-advanced-worker:ci /opt/osint/photon/photon.py --help >/dev/null
+
