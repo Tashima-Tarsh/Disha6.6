@@ -1,6 +1,4 @@
 export const DEFAULT_AUTHENTICATED_ROUTE = "/investigate";
-const LEGACY_AUTHENTICATED_ROUTES = new Set(["/dashboard"]);
-
 export function safeReturnUrl(value: unknown): string {
   if (
     typeof value !== "string" ||
@@ -21,7 +19,7 @@ export function safeReturnUrl(value: unknown): string {
     if (
       url.origin !== "https://disha.invalid" ||
       /^\/(?:api|login)(?:\/|$)/.test(url.pathname) ||
-      LEGACY_AUTHENTICATED_ROUTES.has(url.pathname)
+      (url.pathname === "/dashboard" || url.pathname.startsWith("/dashboard/"))
     ) {
       return DEFAULT_AUTHENTICATED_ROUTE;
     }
