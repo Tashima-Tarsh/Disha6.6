@@ -1,0 +1,61 @@
+name: Fast CI
+
+on:
+  pull_request:
+    paths:
+      - "web/**"
+      - "infra/workers/**"
+      - "docker-compose.prod.yml"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/osint-workers.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "web/**"
+      - "infra/workers/**"
+      - "docker-compose.prod.yml"
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/osint-workers.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fast-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Tests, types, build, worker syntax
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
+    env:
+      DISHA_AUTH_MODE: password
+      DISHA_JWT_SECRET: ci-only-jwt-secret-32-bytes-minimum-value
+      DISHA_WORKER_TOKEN: ci-only-worker-token-24-bytes-minimum
+      DISHA_ALLOWED_ORIGINS: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      DISHA_MODEL_PROVIDER: disabled
+      DISHA_ASTRA6_ALL_TOOLS_ENABLED: "false"
+      DISHA_IDENTITY_ENUMERATION_APPROVED: "false"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Worker source syntax
+        run: |
+          node --check scripts/astra6-worker.mjs
+          python3 -m py_compile scripts/identity-osint-adapter.py
+      - run: npm ci
+      - run: npm run test
+      - run: npm run type-check
+      - run: npm run build
+        env:
+          DISHA_ALLOW_STATELESS_AUTH: "true"

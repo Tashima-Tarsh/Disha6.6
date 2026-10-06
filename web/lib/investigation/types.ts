@@ -1,31 +1,10 @@
-codex/osint-search-routing-v1
-export type TargetType =
-  | "person_name"
-  | "email"
-  | "phone"
-  | "username"
-  | "company"
-  | "domain"
-  | "ip"
-  | "asn"
-  | "url"
-  | "cve"
-  | "norad_id"
-  | "topic"
-  | "vehicle_identifier"
-  | "document"
-  | "file_hash"
-  | "certificate"
-  | "repository"
-  | "location"
-  | "ioc"
-  | "image";
 import type { SearchTargetType } from "../unified/search-targets";
 
 export type TargetType = SearchTargetType;
-main
+
 export type RunStatus = "QUEUED" | "RUNNING" | "COMPLETED" | "NO_RESULTS" | "FAILED" | "RATE_LIMITED" | "NOT_CONFIGURED" | "REFERENCE_ONLY" | "BLOCKED" | "RESTRICTED" | "SKIPPED";
 export type ProviderHealth = "NOT_CONFIGURED" | "REST_HEALTHY" | "STREAM_HEALTHY" | "STREAM_NOT_ENTITLED" | "RATE_LIMITED" | "FAILED";
+
 export interface AdapterPlan {
   adapterId: string;
   sourceName: string;
@@ -33,6 +12,7 @@ export interface AdapterPlan {
   reason: string;
   initialStatus?: RunStatus;
 }
+
 export interface InvestigationRun {
   adapterId: string;
   sourceName: string;
@@ -45,6 +25,7 @@ export interface InvestigationRun {
   providerHealth?: ProviderHealth;
   externalRunId?: string;
 }
+
 export interface InvestigationEvidence {
   evidenceId: string;
   sourceId: string;
@@ -62,6 +43,7 @@ export interface InvestigationEvidence {
   contradictionState: "not_assessed" | "contested";
   fields: Record<string, unknown>;
 }
+
 export interface InvestigationCandidate {
   candidateId: string;
   label: string;
@@ -69,6 +51,7 @@ export interface InvestigationCandidate {
   attributes: Record<string, string>;
   evidenceIds: string[];
 }
+
 export interface InvestigationEdge {
   id: string;
   sourceId: string;
@@ -76,6 +59,7 @@ export interface InvestigationEdge {
   type: "RETURNED_BY" | "SOURCED_FROM" | "MENTIONS" | "SAME_IDENTIFIER" | "EMPLOYED_BY" | "DIRECTOR_OF" | "REGISTERED_TO" | "LOCATED_AT" | "CORROBORATES" | "CONTRADICTS" | "OBSERVED_BY" | "DERIVED_FROM";
   evidenceId: string;
 }
+
 export interface Investigation {
   investigationId: string;
   revision: number;
@@ -91,11 +75,15 @@ export interface Investigation {
   candidateClusters: InvestigationCandidate[];
   edges: InvestigationEdge[];
 }
+
 export const SOURCE_CATEGORIES = ["Identity", "Social", "Corporate", "News", "Cyber", "Infrastructure", "Archives", "Geospatial", "Space", "Evidence"] as const;
+
 export function safeSourceUrl(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   try {
     const url = new URL(value);
     return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password ? url.href : undefined;
-  } catch { return undefined; }
+  } catch {
+    return undefined;
+  }
 }

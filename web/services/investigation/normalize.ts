@@ -9,6 +9,35 @@ const arrayKeys: Record<string, string> = {
   "public-dns-google": "answers", "public-certificate-transparency": "certificates", "public-wayback-cdx": "snapshots",
   "public-common-crawl": "captures", "public-gdelt-news": "articles", "public-cisa-kev": "matched", "public-ripestat-whois": "records",
   "public-wikidata-search": "entities", "public-openalex": "works", "public-celestrak-gp": "objects", "public-reliefweb": "reports",
+fix/working-osint-backend-20261006
+  "public-brave-search": "records", "passive-shodan": "records", "google-vision-web": "records",
+  "public-nhtsa-vin": "records", "public-india-vehicle-format": "records",
+};
+
+function astraRows(adapterId: string, data: Record<string, unknown>): Record<string, unknown>[] {
+  const result = record(data.result);
+  if (adapterId === "astra6-sherlock" || adapterId === "astra6-maigret" || adapterId === "astra6-holehe") {
+    return Array.isArray(result.found) ? result.found.map(record) : [];
+  }
+  if (adapterId === "astra6-instaloader" || adapterId === "astra6-telegram-public") {
+    return Array.isArray(result.records) ? result.records.map(record) : [];
+  }
+  if (adapterId === "astra6-phoneinfoga") {
+    return text(result.number) ? [result] : [];
+  }
+  if (adapterId === "astra6-theharvester") {
+    const rows: Record<string, unknown>[] = [];
+    for (const email of Array.isArray(result.emails) ? result.emails : []) if (typeof email === "string") rows.push({ type: "email", value: email });
+    for (const host of Array.isArray(result.hosts) ? result.hosts : []) if (typeof host === "string") rows.push({ type: "host", value: host });
+    for (const ip of Array.isArray(result.ips) ? result.ips : []) if (typeof ip === "string") rows.push({ type: "ip", value: ip });
+    for (const subdomain of Array.isArray(result.subdomains) ? result.subdomains : []) if (typeof subdomain === "string") rows.push({ type: "subdomain", value: subdomain });
+    return rows;
+  }
+  if (adapterId === "astra6-subfinder") return Array.isArray(result.subdomains) ? result.subdomains.map(record) : [];
+  if (adapterId === "astra6-owasp-amass") return Array.isArray(result.subdomains) ? result.subdomains.map(record) : [];
+  if (adapterId === "astra6-spiderfoot") return Array.isArray(result.events) ? result.events.map(record) : [];
+  return [];
+}
   "public-brave-search": "records", "passive-shodan": "records", "google-vision-web": "records",\n  "public-threatfox": "records", "public-malwarebazaar": "records", "public-opensanctions": "records", "public-opencorporates": "records",
   "astra6-sherlock": "found", "astra6-spiderfoot": "events", "astra6-owasp-amass": "subdomains", "astra6-subfinder": "subdomains",
 };
@@ -38,14 +67,19 @@ function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<str
   return undefined;
 }
 
+main
 export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResult<unknown>): InvestigationEvidence[] {
   if (result.status !== "completed" && result.status !== "partial") return [];
   const data = record(result.data);
   let rows: Record<string, unknown>[] = [];
   const customAstraRows = astraRows(plan, data);
   const key = arrayKeys[plan.adapterId];
+ fix/working-osint-backend-20261006
+  if (plan.adapterId.startsWith("astra6-")) rows = astraRows(plan.adapterId, data);
+
 
   if (customAstraRows) rows = customAstraRows;
+main
   else if (key) rows = Array.isArray(data[key]) ? (data[key] as unknown[]).map(record) : [];
   else if (plan.adapterId === "public-rdap") rows = data.handle || data.name || (Array.isArray(data.entities) && data.entities.length) ? [data] : [];
   else if (["public-nvd-cve", "public-epss"].includes(plan.adapterId)) rows = data.found === true ? [data] : [];

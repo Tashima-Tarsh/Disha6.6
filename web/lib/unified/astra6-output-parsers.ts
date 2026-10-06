@@ -220,3 +220,43 @@ export function parseSubfinderOutput(raw: string, inputDomain: string): { data: 
     evidence: [buildAdapterEvidence({ sourceId: "subfinder", sourceName: "ProjectDiscovery Subfinder", summary: `Subfinder passive enumeration of '${inputDomain}': ${subdomains.length} unique subdomain(s).` })],
   };
 }
+
+
+export function parseStructuredIdentityWorkerOutput(
+  raw: string,
+  toolId: string,
+  sourceName: string,
+  target: string,
+): { data: Record<string, unknown>; evidence: AdapterEvidence[] } {
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean).reverse();
+  let data: Record<string, unknown> | undefined;
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        data = parsed as Record<string, unknown>;
+        break;
+      }
+    } catch {
+      // Helper dependencies may emit diagnostics; the final JSON line is authoritative.
+    }
+  }
+  if (!data) throw new Error(`${toolId}_invalid_json_output`);
+  if (typeof data.error === "string" && data.error) throw new Error(`${toolId}_worker_error:${data.error}`);
+
+  const records = Array.isArray(data.records) ? data.records.length : 0;
+  const found = Array.isArray(data.found) ? data.found.length : records;
+  const checked = typeof data.checked === "number" ? data.checked : undefined;
+  const countText = checked === undefined
+    ? `${found} public record(s)`
+    : `${found} found across ${checked} checked source(s)`;
+
+  return {
+    data,
+    evidence: [buildAdapterEvidence({
+      sourceId: toolId,
+      sourceName,
+      summary: `${sourceName} completed for '${target}': ${countText}.`,
+    })],
+  };
+}

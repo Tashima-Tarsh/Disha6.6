@@ -44,7 +44,7 @@ export function selectAstra6Tools(
 
   for (const manifest of astra6ToolManifests) {
     if (!manifest.targetTypes.includes(resolvedType)) continue;
-    const isIdentityTool = ["sherlock", "phoneinfoga"].includes(manifest.toolId);
+    const isIdentityTool = ["sherlock", "maigret", "holehe", "phoneinfoga"].includes(manifest.toolId);
     if (isIdentityTool && !identityApproved) {
       blockedTools.push({ toolId: manifest.toolId, reason: "Identity enumeration requires explicit policy approval (DISHA_IDENTITY_ENUMERATION_APPROVED=true)." });
       continue;

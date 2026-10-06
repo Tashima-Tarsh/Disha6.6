@@ -11,6 +11,7 @@ import {
 import { astra6Adapters } from "./astra6-governed-adapters";
 import { OsintAdapterBus, type AdapterBusOptions } from "./osint-adapter-bus";
 import { createDynamicPublicSourceAdapter } from "./dynamic-public-source";
+import { createIndiaVehicleFormatAdapter, createNhtsaVinAdapter } from "./vehicle-public-adapters";
 import {
   createCertificateTransparencyAdapter,
   createCisaKevAdapter,
@@ -49,10 +50,14 @@ export function createDefaultOsintBus(options: AdapterBusOptions = {}): OsintAda
   bus.register(createCelestrakGpAdapter());
   bus.register(createNoaaSpaceWeatherAdapter());
   bus.register(createReliefWebAdapter());
+fix/working-osint-backend-20261006
+  bus.register(createNhtsaVinAdapter());
+  bus.register(createIndiaVehicleFormatAdapter());
   bus.register(createThreatFoxAdapter());
   bus.register(createMalwareBazaarAdapter());
   bus.register(createOpenSanctionsAdapter());
   bus.register(createOpenCorporatesAdapter());
+main
   for (const adapter of astra6Adapters) {
     bus.register(adapter);
   }

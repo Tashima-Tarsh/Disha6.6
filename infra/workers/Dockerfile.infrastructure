@@ -17,15 +17,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=go-builder /go/bin/subfinder /usr/local/bin/subfinder
 COPY --from=go-builder /go/bin/amass /usr/local/bin/amass
 
+# theHarvester 4.6.0 is released on GitHub but is not published to PyPI
+# under that version. Install directly from the immutable tagged source archive.
 RUN pip install --no-cache-dir \
-    theHarvester==4.6.0 \
+    "https://github.com/laramies/theHarvester/archive/refs/tags/4.6.0.tar.gz" \
     psycopg2-binary==2.9.9
 
 WORKDIR /opt/disha-worker
-COPY web/package.json ./package.json
 COPY web/scripts/astra6-worker.mjs ./scripts/astra6-worker.mjs
-COPY web/lib ./lib
-RUN npm install --omit=dev pg redis @google-cloud/pubsub
+RUN npm init -y >/dev/null 2>&1 && npm install --omit=dev pg@8.20.0 redis@6.0.1
 
 RUN useradd -u 10004 -m -s /bin/bash disha-infra-worker \
     && chown -R disha-infra-worker:disha-infra-worker /opt/disha-worker
