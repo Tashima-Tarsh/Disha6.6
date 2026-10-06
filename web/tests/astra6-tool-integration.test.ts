@@ -24,15 +24,19 @@ import {
 } from "../lib/unified/astra6-tool-selector";
 
 describe("ASTRA 6 tool manifest", () => {
-  it("declares exactly six production tools", () => {
-    expect(astra6ToolManifests).toHaveLength(6);
+  it("declares the governed production tool set", () => {
+    expect(astra6ToolManifests).toHaveLength(10);
     const ids = astra6ToolManifests.map((m) => m.toolId).sort();
     expect(ids).toEqual([
+      "holehe",
+      "instaloader",
+      "maigret",
       "owasp-amass",
       "phoneinfoga",
       "sherlock",
       "spiderfoot",
       "subfinder",
+      "telegram-public",
       "theharvester",
     ]);
   });
@@ -80,7 +84,7 @@ describe("ASTRA 6 tool manifest", () => {
 
   it("produces a correct summary", () => {
     const summary = getAstra6Summary();
-    expect(summary.total).toBe(6);
+    expect(summary.total).toBe(10);
     expect(summary.byRuntime.python).toBeGreaterThan(0);
     expect(summary.byRuntime.go).toBeGreaterThan(0);
     expect(summary.targetTypes).toContain("domain");
@@ -90,6 +94,10 @@ describe("ASTRA 6 tool manifest", () => {
   it("assigns correct worker runtimes", () => {
     expect(getAstra6ToolManifest("phoneinfoga")?.workerRuntime).toBe("go");
     expect(getAstra6ToolManifest("sherlock")?.workerRuntime).toBe("python");
+    expect(getAstra6ToolManifest("maigret")?.workerRuntime).toBe("python");
+    expect(getAstra6ToolManifest("holehe")?.workerRuntime).toBe("python");
+    expect(getAstra6ToolManifest("instaloader")?.workerRuntime).toBe("python");
+    expect(getAstra6ToolManifest("telegram-public")?.workerRuntime).toBe("python");
     expect(getAstra6ToolManifest("theharvester")?.workerRuntime).toBe("python");
     expect(getAstra6ToolManifest("spiderfoot")?.workerRuntime).toBe("python");
     expect(getAstra6ToolManifest("owasp-amass")?.workerRuntime).toBe("go");
@@ -244,13 +252,15 @@ describe("ASTRA 6 tool selector", () => {
   it("blocks identity tools without policy approval", () => {
     const plan = selectAstra6Tools("testuser", "username", { identityApproved: false });
     expect(plan.blockedTools.some((t) => t.toolId === "sherlock")).toBe(true);
-    expect(plan.selectedTools.every((t) => t.toolId !== "sherlock")).toBe(true);
+    expect(plan.blockedTools.some((t) => t.toolId === "maigret")).toBe(true);
+    expect(plan.selectedTools.every((t) => !["sherlock", "maigret"].includes(t.toolId))).toBe(true);
   });
 
   it("allows identity tools with policy approval", () => {
     const plan = selectAstra6Tools("testuser", "username", { identityApproved: true });
     expect(plan.selectedTools.some((t) => t.toolId === "sherlock")).toBe(true);
-    expect(plan.blockedTools.every((t) => t.toolId !== "sherlock")).toBe(true);
+    expect(plan.selectedTools.some((t) => t.toolId === "maigret")).toBe(true);
+    expect(plan.blockedTools.every((t) => !["sherlock", "maigret"].includes(t.toolId))).toBe(true);
   });
 
   it("auto-selects target type when not provided", () => {
