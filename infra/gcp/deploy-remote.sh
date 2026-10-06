@@ -145,6 +145,11 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-5}
       DISHA_MODEL_PROVIDER: ${DISHA_MODEL_PROVIDER:-disabled}
+      OPENCTI_BASE_URL: ${OPENCTI_BASE_URL:-}
+      OPENCTI_TOKEN: ${OPENCTI_TOKEN:-}
+      INTELOWL_BASE_URL: ${INTELOWL_BASE_URL:-}
+      INTELOWL_API_KEY: ${INTELOWL_API_KEY:-}
+      INTELOWL_ANALYZERS: ${INTELOWL_ANALYZERS:-}
       DISHA_ASTRA6_SHERLOCK_ENABLED: ${DISHA_ASTRA6_SHERLOCK_ENABLED:-true}
       DISHA_ASTRA6_MAIGRET_ENABLED: ${DISHA_ASTRA6_MAIGRET_ENABLED:-true}
       DISHA_ASTRA6_HOLEHE_ENABLED: ${DISHA_ASTRA6_HOLEHE_ENABLED:-true}
@@ -154,7 +159,11 @@ services:
       DISHA_ASTRA6_THEHARVESTER_ENABLED: ${DISHA_ASTRA6_THEHARVESTER_ENABLED:-true}
       DISHA_ASTRA6_OWASP_AMASS_ENABLED: ${DISHA_ASTRA6_OWASP_AMASS_ENABLED:-true}
       DISHA_ASTRA6_SUBFINDER_ENABLED: ${DISHA_ASTRA6_SUBFINDER_ENABLED:-true}
+      DISHA_ASTRA6_SPIDERFOOT_ENABLED: ${DISHA_ASTRA6_SPIDERFOOT_ENABLED:-true}
+      DISHA_ASTRA6_RECON_NG_ENABLED: ${DISHA_ASTRA6_RECON_NG_ENABLED:-true}
+      DISHA_ASTRA6_PHOTON_ENABLED: ${DISHA_ASTRA6_PHOTON_ENABLED:-true}
       DISHA_IDENTITY_ENUMERATION_APPROVED: ${DISHA_IDENTITY_ENUMERATION_APPROVED:-false}
+      DISHA_ACTIVE_RECON_APPROVED: ${DISHA_ACTIVE_RECON_APPROVED:-true}
       TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
       TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
       TELEGRAM_SESSION: ${TELEGRAM_SESSION:-}
@@ -237,6 +246,27 @@ services:
       DISHA_WORKER_ID: gcp-astra6-infrastructure-worker-1
       DISHA_OSINT_POLL_MS: ${DISHA_OSINT_POLL_MS:-1000}
       WORKER_CLASS: infrastructure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web-migrate:
+        condition: service_completed_successfully
+
+  osint-advanced-worker:
+    build:
+      context: .
+      dockerfile: infra/workers/Dockerfile.research-osint
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-disha}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-disha}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
+      DISHA_WORKER_ID: gcp-astra6-advanced-worker-1
+      DISHA_OSINT_POLL_MS: ${DISHA_OSINT_POLL_MS:-1000}
+      DISHA_ACTIVE_RECON_APPROVED: ${DISHA_ACTIVE_RECON_APPROVED:-true}
+      WORKER_CLASS: advanced
     depends_on:
       postgres:
         condition: service_healthy

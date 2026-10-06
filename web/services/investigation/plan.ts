@@ -14,6 +14,7 @@ export const investigationInput = z.object({
   target: z.string().trim().min(1).max(512).refine((value) => !/[\u0000-\u001f\u007f]/.test(value), "Invalid target"),
   targetType: z.enum(INVESTIGATION_TARGET_INPUT_TYPES).default("auto"),
   identityAuthorization: z.boolean().optional().default(false),
+  activeAuthorization: z.boolean().optional().default(false),
 }).strict();
 
 function fail(message: string): never {
@@ -84,7 +85,7 @@ export function classifyTarget(
 export function planInvestigation(
   target: string,
   type: TargetType,
-  options: { identityAuthorized?: boolean } = {},
+  options: { identityAuthorized?: boolean; activeAuthorized?: boolean } = {},
 ): AdapterPlan[] {
   return buildTargetRoutePlan(target, type, options);
 }

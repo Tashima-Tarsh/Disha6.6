@@ -6,14 +6,15 @@ import styles from "@/app/investigate/investigate.module.css";
 
 const quickChoices = SEARCH_TARGET_CHOICES.filter(([value]) => value !== "auto");
 
-export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearch: (target: string, targetType: string, identityAuthorization: boolean) => void }) {
+export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearch: (target: string, targetType: string, identityAuthorization: boolean, activeAuthorization: boolean) => void }) {
   const [target, setTarget] = useState("");
   const [type, setType] = useState("auto");
   const [identityAuthorization, setIdentityAuthorization] = useState(false);
+  const [activeAuthorization, setActiveAuthorization] = useState(false);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (target.trim()) onSearch(target.trim(), type, identityAuthorization);
+    if (target.trim()) onSearch(target.trim(), type, identityAuthorization, activeAuthorization);
   };
 
   return (
@@ -68,6 +69,15 @@ export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearc
             disabled={busy}
           />
           Authorized identity lookup
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={activeAuthorization}
+            onChange={(event) => setActiveAuthorization(event.target.checked)}
+            disabled={busy}
+          />
+          Authorized public-site crawl
         </label>
         <span>Relevant configured sources run automatically</span>
       </div>

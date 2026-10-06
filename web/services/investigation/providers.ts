@@ -72,7 +72,14 @@ export async function executeProvider(plan: AdapterPlan, userId: string, investi
     rows.push(...(Array.isArray(web.fullMatchingImages) ? web.fullMatchingImages : []).map(record).map(row => ({ url: row.url, matchType: "full_image_match" })));
     sourceUrl = "https://cloud.google.com/vision/docs/detecting-web";
   } else {
-    return createDefaultOsintBus().run(plan.adapterId, plan.input, { userId, missionId: investigationId, purpose: "Ephemeral public-source investigation", signal });
+    return createDefaultOsintBus().run(plan.adapterId, plan.input, {
+      userId,
+      missionId: investigationId,
+      purpose: "Ephemeral public-source investigation",
+      identityAuthorization: plan.input.identityAuthorization === true,
+      activeAuthorization: plan.input.activeAuthorization === true,
+      signal,
+    });
   }
   return { adapterId: plan.adapterId, status: "completed", data: { records: rows, providerHealth: health }, evidence: [buildAdapterEvidence({ sourceId: plan.adapterId, sourceName: plan.sourceName, sourceUrl, summary: `${rows.length} provider records returned` })], warnings: [], attempts: 1, durationMs: Date.now() - started };
 }

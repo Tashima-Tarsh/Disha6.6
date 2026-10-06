@@ -137,22 +137,38 @@ export function parseTheHarvesterOutput(raw: string, inputDomain: string): { dat
 }
 
 export function parseSpiderfootOutput(raw: string, target: string, targetType: string): { data: SpiderfootResult; evidence: AdapterEvidence[] } {
-  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
+  let entries: Record<string, unknown>[] = [];
+  const trimmed = raw.trim();
+  if (trimmed) {
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (Array.isArray(parsed)) entries = parsed.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object" && !Array.isArray(row));
+    } catch {
+      entries = trimmed.split(/\r?\n/).flatMap((line) => {
+        const clean = line.replace(/^\s*[,\[]?/, "").replace(/[,\]]\s*$/, "").trim();
+        if (!clean) return [];
+        try {
+          const parsed = JSON.parse(clean) as unknown;
+          return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? [parsed as Record<string, unknown>] : [];
+        } catch {
+          return [];
+        }
+      });
+    }
+  }
+
   const events: SpiderfootResult["events"] = [];
   const modules = new Set<string>();
-  for (const line of lines) {
-    try {
-      const entry = JSON.parse(line) as Record<string, unknown>;
-      const mod = typeof entry.module === "string" ? entry.module : typeof entry.type === "string" ? entry.type : "unknown";
-      modules.add(mod);
-      events.push({
-        module: mod,
-        eventType: typeof entry.event_type === "string" ? entry.event_type : typeof entry.type === "string" ? entry.type : "unknown",
-        data: typeof entry.data === "string" ? entry.data : JSON.stringify(entry.data ?? ""),
-        sourceEvent: typeof entry.source_event === "string" ? entry.source_event : undefined,
-        confidence: typeof entry.confidence === "number" ? entry.confidence : undefined,
-      });
-    } catch { /* skip non-JSON lines */ }
+  for (const entry of entries.slice(0, 1000)) {
+    const mod = typeof entry.module === "string" ? entry.module : typeof entry.type === "string" ? entry.type : "unknown";
+    modules.add(mod);
+    events.push({
+      module: mod,
+      eventType: typeof entry.event_type === "string" ? entry.event_type : typeof entry.type === "string" ? entry.type : "unknown",
+      data: typeof entry.data === "string" ? entry.data : JSON.stringify(entry.data ?? ""),
+      sourceEvent: typeof entry.source_event === "string" ? entry.source_event : undefined,
+      confidence: typeof entry.confidence === "number" ? entry.confidence : undefined,
+    });
   }
   const data: SpiderfootResult = { target, targetType, modules: [...modules], events };
   return {
@@ -257,6 +273,39 @@ export function parseStructuredIdentityWorkerOutput(
       sourceId: toolId,
       sourceName,
       summary: `${sourceName} completed for '${target}': ${countText}.`,
+    })],
+  };
+}
+
+export function parseReconNgOutput(raw: string, target: string): { data: Record<string, unknown>; evidence: AdapterEvidence[] } {
+  const parsed = JSON.parse(raw.trim()) as Record<string, unknown>;
+  const hosts = Array.isArray(parsed.hosts) ? parsed.hosts.slice(0, 1000) : [];
+  const data = { ...parsed, domain: target, hosts };
+  return {
+    data,
+    evidence: [buildAdapterEvidence({
+      sourceId: "recon-ng",
+      sourceName: "Recon-ng",
+      summary: `Recon-ng allowlisted passive modules returned ${hosts.length} host record(s) for '${target}'.`,
+    })],
+  };
+}
+
+export function parsePhotonOutput(raw: string, target: string): { data: Record<string, unknown>; evidence: AdapterEvidence[] } {
+  const parsed = JSON.parse(raw.trim()) as Record<string, unknown>;
+  const records: Array<{ kind: string; url: string }> = [];
+  for (const kind of ["internal", "external", "files", "scripts"]) {
+    const values = Array.isArray(parsed[kind]) ? parsed[kind] as unknown[] : [];
+    for (const value of values.slice(0, 500)) {
+      if (typeof value === "string" && /^https?:\/\//i.test(value)) records.push({ kind, url: value });
+    }
+  }
+  return {
+    data: { records: records.slice(0, 1000) },
+    evidence: [buildAdapterEvidence({
+      sourceId: "photon",
+      sourceName: "Photon",
+      summary: `Photon bounded authorized crawl returned ${records.length} public URL record(s) for '${target}'.`,
     })],
   };
 }

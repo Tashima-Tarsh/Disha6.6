@@ -16,6 +16,8 @@ import {
   parseSpiderfootOutput,
   parseAmassOutput,
   parseSubfinderOutput,
+  parseReconNgOutput,
+  parsePhotonOutput,
 } from "../lib/unified/astra6-output-parsers";
 
 import {
@@ -25,7 +27,7 @@ import {
 
 describe("ASTRA 6 tool manifest", () => {
   it("declares the governed production tool set", () => {
-    expect(astra6ToolManifests).toHaveLength(10);
+    expect(astra6ToolManifests).toHaveLength(12);
     const ids = astra6ToolManifests.map((m) => m.toolId).sort();
     expect(ids).toEqual([
       "holehe",
@@ -33,6 +35,8 @@ describe("ASTRA 6 tool manifest", () => {
       "maigret",
       "owasp-amass",
       "phoneinfoga",
+      "photon",
+      "recon-ng",
       "sherlock",
       "spiderfoot",
       "subfinder",
@@ -84,7 +88,7 @@ describe("ASTRA 6 tool manifest", () => {
 
   it("produces a correct summary", () => {
     const summary = getAstra6Summary();
-    expect(summary.total).toBe(10);
+    expect(summary.total).toBe(12);
     expect(summary.byRuntime.python).toBeGreaterThan(0);
     expect(summary.byRuntime.go).toBeGreaterThan(0);
     expect(summary.targetTypes).toContain("domain");
@@ -102,6 +106,8 @@ describe("ASTRA 6 tool manifest", () => {
     expect(getAstra6ToolManifest("spiderfoot")?.workerRuntime).toBe("python");
     expect(getAstra6ToolManifest("owasp-amass")?.workerRuntime).toBe("go");
     expect(getAstra6ToolManifest("subfinder")?.workerRuntime).toBe("go");
+    expect(getAstra6ToolManifest("recon-ng")?.workerRuntime).toBe("python");
+    expect(getAstra6ToolManifest("photon")?.workerRuntime).toBe("python");
   });
 
   it("declares theHarvester passive module allowlist", () => {
@@ -172,6 +178,32 @@ describe("ASTRA 6 output parsers", () => {
     expect(data.modules).toContain("sfp_crt");
     expect(data.modules).toContain("sfp_hackertarget");
     expect(evidence).toHaveLength(1);
+  });
+
+  it("parses SpiderFoot JSON-array output from upstream sf.py", () => {
+    const raw = JSON.stringify([
+      { module: "sfp_crt", event_type: "INTERNET_NAME", data: "api.example.com" },
+      { module: "sfp_ripe", event_type: "IP_ADDRESS", data: "1.2.3.4" },
+    ]);
+    const { data } = parseSpiderfootOutput(raw, "example.com", "domain");
+    expect(data.events).toHaveLength(2);
+    expect(data.modules).toContain("sfp_crt");
+  });
+
+  it("parses Recon-ng worker output", () => {
+    const { data } = parseReconNgOutput(JSON.stringify({ hosts: [{ host: "api.example.com" }] }), "example.com");
+    expect(data.hosts).toHaveLength(1);
+  });
+
+  it("normalizes Photon exported URL data without key/intel fields", () => {
+    const { data } = parsePhotonOutput(JSON.stringify({
+      internal: ["https://example.com/a"],
+      external: ["https://cdn.example.net/x.js"],
+      keys: ["SECRET"],
+      intel: ["email@example.com"],
+    }), "example.com");
+    expect(data.records).toHaveLength(2);
+    expect(JSON.stringify(data)).not.toContain("SECRET");
   });
 
   it("parses Amass JSON output with deduplication", () => {
@@ -246,7 +278,9 @@ describe("ASTRA 6 tool selector", () => {
     expect(ids).toContain("theharvester");
     expect(ids).toContain("owasp-amass");
     expect(ids).toContain("subfinder");
-    expect(plan.blockedTools.some((tool) => tool.toolId === "spiderfoot")).toBe(true);
+    expect(ids).toContain("spiderfoot");
+    expect(ids).toContain("recon-ng");
+    expect(plan.blockedTools.some((tool) => tool.toolId === "photon")).toBe(true);
   });
 
   it("blocks identity tools without policy approval", () => {

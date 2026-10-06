@@ -100,9 +100,9 @@ describe("universal OSINT search planner", () => {
     });
   });
 
-  it("catalogs OpenSanctions and OpenCTI without pretending they are live adapters", () => {
+  it("keeps OpenSanctions catalog-only while marking the wired OpenCTI service adapter built in", () => {
     const catalog = listOsintToolCatalog();
     expect(catalog.find((entry) => entry.id === "opensanctions")?.mode).toBe("catalog_only");
-    expect(catalog.find((entry) => entry.id === "opencti")?.mode).toBe("catalog_only");
+    expect(catalog.find((entry) => entry.id === "opencti")?.mode).toBe("builtin");
   });
 });
