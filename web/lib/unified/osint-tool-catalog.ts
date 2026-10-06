@@ -55,11 +55,7 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     capabilities: ["threat-intelligence aggregation", "IOC enrichment", "analyzers/connectors"],
     risk: "mixed_recon",
     mode: "builtin",
-codex/osint-service-runtime-hardening
     reason: "Integrated through a configured IntelOwl service adapter that accepts observables only and restricts execution to the server-side analyzer allowlist.",
-
-    reason: "Executable through the configured IntelOwl service adapter with an explicit analyzer allowlist; DISHA does not run every installed analyzer.",
- main
   },
   {
     id: "opensanctions",
@@ -79,11 +75,7 @@ codex/osint-service-runtime-hardening
     capabilities: ["STIX2 knowledge graph", "threat-intelligence management", "connectors", "GraphQL API"],
     risk: "mixed_recon",
     mode: "builtin",
-codex/osint-service-runtime-hardening
     reason: "Integrated through a configured read-only OpenCTI GraphQL adapter for bounded STIX core-object search; mutations and connector execution remain outside the adapter.",
-
-    reason: "Executable through the configured OpenCTI GraphQL service adapter; tenant connectors and data-feed permissions remain controlled by the OpenCTI deployment.",
- main
   },
   {
     id: "recon-ng",
@@ -92,8 +84,8 @@ codex/osint-service-runtime-hardening
     license: "GPL-3.0",
     capabilities: ["modular OSINT", "workspace correlation", "reporting"],
     risk: "mixed_recon",
-    mode: "builtin",
-    reason: "Production-integrated through the ASTRA advanced worker using only pinned, approved official marketplace modules.",
+    mode: "catalog_only",
+    reason: "Module-by-module review is required before production execution.",
   },
   {
     id: "photon",
@@ -102,8 +94,8 @@ codex/osint-service-runtime-hardening
     license: "See upstream LICENSE before promotion",
     capabilities: ["public web crawling", "URL extraction", "technology discovery"],
     risk: "active_recon",
-    mode: "builtin",
-    reason: "Production-integrated as a bounded depth-1 public-site crawler; execution requires the active-recon deployment gate plus per-investigation operator/admin authorization.",
+    mode: "blocked_by_default",
+    reason: "Direct crawling sends requests to targets; keep outside the default passive-public runtime.",
   },
   {
     id: "sherlock",
