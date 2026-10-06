@@ -37,6 +37,8 @@ const arrayKeys: Record<string, string> = {
   "public-malwarebazaar": "records",
   "public-opensanctions": "records",
   "public-opencorporates": "records",
+  "service-opencti": "records",
+  "service-intelowl": "records",
 };
 
 function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<string, unknown>[] | undefined {
