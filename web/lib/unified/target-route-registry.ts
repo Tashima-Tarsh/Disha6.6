@@ -170,19 +170,18 @@ export function buildTargetRoutePlan(
   }
 
   if (type === "email") {
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "email", identityAuthorized);
+    addAstraRoute(plan, "astra6-holehe", "Holehe", target, "email", identityAuthorized);
     addIdentityBoundaries(plan);
   }
 
   if (type === "phone") {
     addAstraRoute(plan, "astra6-phoneinfoga", "PhoneInfoga", target, "phone_number", identityAuthorized);
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "phone_number", identityAuthorized);
     addIdentityBoundaries(plan);
   }
 
   if (type === "username") {
     addAstraRoute(plan, "astra6-sherlock", "Sherlock", target, "username", identityAuthorized);
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "username", identityAuthorized);
+    addAstraRoute(plan, "astra6-maigret", "Maigret", target, "username", identityAuthorized);
   }
 
   if (type === "vehicle_identifier") {
@@ -225,13 +224,8 @@ export function buildTargetRoutePlan(
   if (type === "domain" || type === "url") {
     const domain = type === "url" ? new URL(target).hostname : target;
     addAstraRoute(plan, "astra6-theharvester", "theHarvester", domain, "domain");
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", domain, "domain");
     addAstraRoute(plan, "astra6-owasp-amass", "OWASP Amass", domain, "domain");
     addAstraRoute(plan, "astra6-subfinder", "ProjectDiscovery Subfinder", domain, "domain");
-  }
-
-  if (type === "ip") {
-    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "ip");
   }
 
   if (type === "image") {
