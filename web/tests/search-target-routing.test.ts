@@ -4,7 +4,9 @@ import { SEARCH_TARGET_CHOICES, TEXT_SEARCH_TARGET_TYPES } from "../lib/unified/
 import { buildTargetRoutePlan } from "../lib/unified/target-route-registry";
 import { classifyUniversalTarget } from "../lib/unified/universal-target-classifier";
 
-afterEach(() => vi.unstubAllEnvs());\n\ndescribe("canonical OSINT search targets", () => {
+afterEach(() => vi.unstubAllEnvs());
+
+describe("canonical OSINT search targets", () => {
   it("keeps name and vehicle as the first explicit analyst choices", () => {
     expect(SEARCH_TARGET_CHOICES.slice(0, 3)).toEqual([
       ["auto", "AUTO"],
@@ -39,7 +41,10 @@ afterEach(() => vi.unstubAllEnvs());\n\ndescribe("canonical OSINT search targets
     expect(plan.find(item => item.adapterId === "authorized-echallan")?.initialStatus).toBe("RESTRICTED");
   });
 
-  it("surfaces worker-backed identity sources without falsely executing the missing bridge", () => {
+  it("keeps worker-backed identity sources unconfigured when prerequisites are absent", () => {
+    vi.stubEnv("DATABASE_URL", "");
+    vi.stubEnv("DISHA_ASTRA6_ALL_TOOLS_ENABLED", "");
+
     const phone = buildTargetRoutePlan("+919876543210", "phone");
     expect(phone.find(item => item.adapterId === "astra6-phoneinfoga")?.initialStatus).toBe("NOT_CONFIGURED");
 
@@ -47,7 +52,28 @@ afterEach(() => vi.unstubAllEnvs());\n\ndescribe("canonical OSINT search targets
     expect(username.find(item => item.adapterId === "astra6-sherlock")?.initialStatus).toBe("NOT_CONFIGURED");
   });
 
-  it("keeps domain ASTRA tools visible as pending while live public adapters remain executable", () => {
+  it("queues ASTRA identity sources only when database, tool and approval are configured", () => {
+    vi.stubEnv("DATABASE_URL", "postgres://configured");
+    vi.stubEnv("DISHA_ASTRA6_PHONEINFOGA_ENABLED", "true");
+    vi.stubEnv("DISHA_IDENTITY_ENUMERATION_APPROVED", "true");
+
+    const plan = buildTargetRoutePlan("+919876543210", "phone");
+    expect(plan.find(item => item.adapterId === "astra6-phoneinfoga")?.initialStatus).toBeUndefined();
+  });
+
+  it("marks configured identity tools restricted until identity policy approval is present", () => {
+    vi.stubEnv("DATABASE_URL", "postgres://configured");
+    vi.stubEnv("DISHA_ASTRA6_SHERLOCK_ENABLED", "true");
+    vi.stubEnv("DISHA_IDENTITY_ENUMERATION_APPROVED", "");
+
+    const plan = buildTargetRoutePlan("example_user", "username");
+    expect(plan.find(item => item.adapterId === "astra6-sherlock")?.initialStatus).toBe("RESTRICTED");
+  });
+
+  it("keeps domain ASTRA tools pending while live public adapters remain executable if workers are unconfigured", () => {
+    vi.stubEnv("DATABASE_URL", "");
+    vi.stubEnv("DISHA_ASTRA6_ALL_TOOLS_ENABLED", "");
+
     const plan = buildTargetRoutePlan("example.com", "domain");
     expect(plan.find(item => item.adapterId === "public-dns-google")?.initialStatus).toBeUndefined();
     expect(plan.find(item => item.adapterId === "astra6-subfinder")?.initialStatus).toBe("NOT_CONFIGURED");
