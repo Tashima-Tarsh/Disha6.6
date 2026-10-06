@@ -40,6 +40,10 @@ if [ ! -d "/opt/disha" ]; then
 fi
 cd /opt/disha
 
+DEPLOYED_SHA=$(git rev-parse HEAD)
+echo "Checked-out DISHA revision: ${DEPLOYED_SHA}"
+printf "%s\n" "$DEPLOYED_SHA" > /opt/disha/DEPLOYED_COMMIT
+
 # 4. Generate Production Secrets
 POSTGRES_PWD=$(openssl rand -hex 16)
 REDIS_PWD=$(openssl rand -hex 16)
@@ -90,6 +94,7 @@ cat <<EOF > /opt/disha/CREDENTIALS.txt
 =====================================================
 DISHA 6.6 Production Credentials
 Generated: $(date -u)
+Revision: ${DEPLOYED_SHA}
 Access URL: http://${EXTERNAL_IP}
 Admin Username/Email: admin@thenitishkr.in
 Admin Password: ${ADMIN_PWD}
@@ -102,47 +107,11 @@ Brain Token: ${BRAIN_TOKEN}
 EOF
 chmod 600 /opt/disha/CREDENTIALS.txt
 
-# 5. Build and deploy services
-cd /opt/disha
-docker compose -f infra/aws/docker-compose.aws.yml build
-
-# Start database and cache
-docker compose -f infra/aws/docker-compose.aws.yml up -d postgres redis
-
-# Wait for database readiness
-until docker compose -f infra/aws/docker-compose.aws.yml exec -T postgres pg_isready -U disha -d disha; do
-  echo "Waiting for PostgreSQL pgvector/postgis..."
-  sleep 3
-done
-
-# Run database migrations
-docker compose -f infra/aws/docker-compose.aws.yml up web-migrate
-
-# Start full production stack
-docker compose -f infra/aws/docker-compose.aws.yml up -d
-
-# 6. Setup Systemd Service for Persistence
-cat <<EOF > /etc/systemd/system/disha.service
-[Unit]
-Description=DISHA 6.6 Production Stack
-Requires=docker.service
-After=docker.service
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-WorkingDirectory=/opt/disha
-ExecStart=/usr/bin/docker compose -f infra/aws/docker-compose.aws.yml up -d
-ExecStop=/usr/bin/docker compose -f infra/aws/docker-compose.aws.yml down
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl daemon-reload
-systemctl enable disha.service
+# 5. Build and deploy the canonical GCP stack
+bash /opt/disha/infra/gcp/deploy-remote.sh
 
 echo "=========================================================="
 echo "DISHA 6.6 initialization complete!"
+echo "Revision: ${DEPLOYED_SHA}"
 echo "Server is live at http://${EXTERNAL_IP}"
 echo "=========================================================="
