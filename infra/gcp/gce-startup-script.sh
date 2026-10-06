@@ -10,7 +10,7 @@ echo "=========================================================="
 # 1. System packages & Docker installation
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y ca-certificates curl gnupg lsb-release git
+apt-get install -y ca-certificates curl gnupg lsb-release git openssl
 
 install -m 0755 -d /etc/apt/keyrings
 if [ ! -f /etc/apt/keyrings/docker.gpg ]; then
@@ -32,23 +32,27 @@ systemctl start docker
 EXTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip || echo "localhost")
 echo "Instance External IP: ${EXTERNAL_IP}"
 
-# 3. Clone Repository
-mkdir -p /opt
-cd /opt
-if [ ! -d "/opt/disha" ]; then
-  git clone https://github.com/Tashima-Tarsh/Disha6.6.git /opt/disha
+# 3. Require the authenticated production checkout
+if [ ! -d "/opt/disha/.git" ]; then
+  echo "ERROR: /opt/disha is missing. Provision the private repository checkout with an authenticated deployment mechanism before starting DISHA." >&2
+  exit 1
 fi
 cd /opt/disha
 
-# 4. Generate Production Secrets
-POSTGRES_PWD=$(openssl rand -hex 16)
-REDIS_PWD=$(openssl rand -hex 16)
-JWT_SECRET=$(openssl rand -hex 24)
-WORKER_TOKEN=$(openssl rand -hex 16)
-BRAIN_TOKEN=$(openssl rand -hex 16)
-ADMIN_PWD=$(openssl rand -hex 10)
+DEPLOYED_SHA=$(git rev-parse HEAD)
+echo "Checked-out DISHA revision: ${DEPLOYED_SHA}"
+printf "%s\n" "$DEPLOYED_SHA" > /opt/disha/DEPLOYED_COMMIT
 
-cat <<EOF > /opt/disha/.env
+# 4. Preserve existing production secrets across reboots
+if [ ! -f /opt/disha/.env ]; then
+  POSTGRES_PWD=$(openssl rand -hex 16)
+  REDIS_PWD=$(openssl rand -hex 16)
+  JWT_SECRET=$(openssl rand -hex 24)
+  WORKER_TOKEN=$(openssl rand -hex 16)
+  BRAIN_TOKEN=$(openssl rand -hex 16)
+  ADMIN_PWD=$(openssl rand -hex 10)
+
+  cat <<EOF > /opt/disha/.env
 # DISHA 6.6 Production Environment
 NODE_ENV=production
 DOMAIN=${EXTERNAL_IP}
@@ -85,11 +89,11 @@ DISHA_WORKFLOW_MAX_JOBS=10
 DISHA_WORKFLOW_LEASE_SECONDS=120
 EOF
 
-# Save generated credentials safely for the admin
-cat <<EOF > /opt/disha/CREDENTIALS.txt
+  cat <<EOF > /opt/disha/CREDENTIALS.txt
 =====================================================
 DISHA 6.6 Production Credentials
 Generated: $(date -u)
+Revision: ${DEPLOYED_SHA}
 Access URL: http://${EXTERNAL_IP}
 Admin Username/Email: admin@thenitishkr.in
 Admin Password: ${ADMIN_PWD}
@@ -100,49 +104,14 @@ Worker Token: ${WORKER_TOKEN}
 Brain Token: ${BRAIN_TOKEN}
 =====================================================
 EOF
-chmod 600 /opt/disha/CREDENTIALS.txt
+  chmod 600 /opt/disha/CREDENTIALS.txt
+fi
 
-# 5. Build and deploy services
-cd /opt/disha
-docker compose -f infra/aws/docker-compose.aws.yml build
-
-# Start database and cache
-docker compose -f infra/aws/docker-compose.aws.yml up -d postgres redis
-
-# Wait for database readiness
-until docker compose -f infra/aws/docker-compose.aws.yml exec -T postgres pg_isready -U disha -d disha; do
-  echo "Waiting for PostgreSQL pgvector/postgis..."
-  sleep 3
-done
-
-# Run database migrations
-docker compose -f infra/aws/docker-compose.aws.yml up web-migrate
-
-# Start full production stack
-docker compose -f infra/aws/docker-compose.aws.yml up -d
-
-# 6. Setup Systemd Service for Persistence
-cat <<EOF > /etc/systemd/system/disha.service
-[Unit]
-Description=DISHA 6.6 Production Stack
-Requires=docker.service
-After=docker.service
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-WorkingDirectory=/opt/disha
-ExecStart=/usr/bin/docker compose -f infra/aws/docker-compose.aws.yml up -d
-ExecStop=/usr/bin/docker compose -f infra/aws/docker-compose.aws.yml down
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl daemon-reload
-systemctl enable disha.service
+# 5. Build and deploy the canonical GCP stack
+bash /opt/disha/infra/gcp/deploy-remote.sh
 
 echo "=========================================================="
 echo "DISHA 6.6 initialization complete!"
+echo "Revision: ${DEPLOYED_SHA}"
 echo "Server is live at http://${EXTERNAL_IP}"
 echo "=========================================================="

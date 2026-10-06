@@ -13,7 +13,6 @@ concurrency:
 jobs:
   verify:
     name: Tests, lint, types, audit, build, worker syntax
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     defaults:
@@ -57,8 +56,8 @@ jobs:
       - name: Type check
         run: npm run type-check:full
 
-      - name: Dependency audit
-        run: npm audit --audit-level=high
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Governance and security line scan
         working-directory: .

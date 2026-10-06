@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$REPO_ROOT"
+
 echo "=========================================="
-echo "DISHA 6.6 — Google Cloud (GCE) Bootstrap"
+echo "DISHA 6.6 — GCP host bootstrap"
 echo "=========================================="
 
-# 1. Update OS and install Docker & Docker Compose
-echo "[1/5] Installing Docker engine..."
+echo "[1/4] Installing Docker engine..."
 sudo apt-get update -y
 sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
@@ -22,43 +24,16 @@ echo \
 
 sudo apt-get update -y
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-sudo systemctl enable docker
-sudo systemctl start docker
-
-# Add current user to docker group
+sudo systemctl enable --now docker
 sudo usermod -aG docker "$USER" || true
 
-# 2. Check environment file
-echo "[2/5] Verifying environment configuration..."
-if [ ! -f .env ]; then
-  echo "Error: .env file not found in current directory!"
-  echo "Please copy .env.gcp.template to .env and set your production secrets."
+echo "[2/4] Verifying production environment..."
+if [ ! -f "$REPO_ROOT/.env" ]; then
+  echo "Error: $REPO_ROOT/.env is required."
   exit 1
 fi
 
-# 3. Build containers
-echo "[3/5] Building DISHA production containers..."
-docker compose -f ../aws/docker-compose.aws.yml build
+echo "[3/4] Deploying the canonical GCP stack..."
+sudo -E bash "$REPO_ROOT/infra/gcp/deploy-remote.sh"
 
-# 4. Launch database migration and services
-echo "[4/5] Launching database and services..."
-docker compose -f ../aws/docker-compose.aws.yml up -d postgres redis
-echo "Waiting for PostgreSQL to be healthy..."
-docker compose -f ../aws/docker-compose.aws.yml exec postgres pg_isready -U disha -d disha -t 30
-
-echo "Running database schema migrations (apply-schema.mjs)..."
-docker compose -f ../aws/docker-compose.aws.yml up web-migrate
-
-echo "Starting full application stack..."
-docker compose -f ../aws/docker-compose.aws.yml up -d
-
-# 5. Health check
-echo "[5/5] Performing health checks..."
-sleep 10
-docker compose -f ../aws/docker-compose.aws.yml ps
-curl -fsSL http://127.0.0.1:3000/api/v1/health || echo "Service starting up, will be available shortly..."
-
-echo "=========================================="
-echo "DISHA 6.6 is successfully deployed on GCP!"
-echo "=========================================="
+echo "[4/4] Deployment complete."
