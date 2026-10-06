@@ -24,6 +24,9 @@ const ALLOWED_TOOLS = Object.prototype.hasOwnProperty.call(WORKER_CLASS_TOOLS, W
   ? WORKER_CLASS_TOOLS[WORKER_CLASS]
   : null;
 
+const IDENTITY_TOOLS = new Set(WORKER_CLASS_TOOLS.identity);
+const IDENTITY_TARGET_TYPES = new Set(["email", "phone_number", "username", "instagram_username", "telegram_username"]);
+
 const TOOL_DEFAULT_TIMEOUT_MS = {
   phoneinfoga: 30_000,
   sherlock: 120_000,
@@ -433,13 +436,49 @@ async function executeBinary(binary, args, timeoutMs, outputFile) {
   }
 }
 
+function objectInput(value) {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+  return {};
+}
+
+function authorizeQueuedJob(job) {
+  if (job.manifest_enabled !== true) {
+    return { allowed: false, error: "policy_denied_tool_disabled" };
+  }
+
+  const identitySensitive = IDENTITY_TOOLS.has(job.tool_id) || IDENTITY_TARGET_TYPES.has(job.target_type);
+  if (!identitySensitive) return { allowed: true };
+
+  if (process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
+    return { allowed: false, error: "policy_denied_identity_deployment" };
+  }
+
+  const input = objectInput(job.dispatch_input);
+  const requestApproved = input.identityAuthorization === true
+    || (input.authorization && typeof input.authorization === "object" && input.authorization.identityEnumeration === true);
+  if (!requestApproved) {
+    return { allowed: false, error: "policy_denied_identity_request" };
+  }
+
+  return { allowed: true };
+}
+
 async function claimNextJob(client) {
   const allowed = Array.isArray(ALLOWED_TOOLS) ? ALLOWED_TOOLS : Object.values(WORKER_CLASS_TOOLS).flat();
   if (!allowed.length) return null;
 
   const result = await client.query(
     `SELECT r.run_id, r.tool_id, r.mission_id, r.user_id, r.target, r.target_type, r.dispatch_input,
-            COALESCE(m.timeout_ms, 60000) AS timeout_ms
+            COALESCE(m.timeout_ms, 60000) AS timeout_ms,
+            COALESCE(m.enabled, false) AS manifest_enabled
      FROM astra6_connector_runs r
      LEFT JOIN astra6_tool_manifests m ON m.tool_id = r.tool_id
      WHERE r.status = 'queued' AND r.tool_id = ANY($1::text[])
@@ -452,6 +491,19 @@ async function claimNextJob(client) {
   if (!result.rows.length) return null;
 
   const job = result.rows[0];
+  const authorization = authorizeQueuedJob(job);
+  if (!authorization.allowed) {
+    await client.query(
+      `UPDATE astra6_connector_runs
+       SET status = 'blocked_by_policy', error = $1, completed_at = NOW(),
+           worker_id = $2, attempts = attempts + 1
+       WHERE run_id = $3 AND status = 'queued'`,
+      [authorization.error, WORKER_ID, job.run_id],
+    );
+    console.info(`[ASTRA 6 Worker] blocked run=${job.run_id} tool=${job.tool_id}: ${authorization.error}`);
+    return null;
+  }
+
   await client.query(
     `UPDATE astra6_connector_runs
      SET status = 'running', started_at = NOW(), worker_id = $1, attempts = attempts + 1
