@@ -250,8 +250,14 @@ COMPOSE_EOF
 
 echo "[2/6] Preparing Caddyfile..."
 cat <<'CADDY_EOF' > "$REPO_ROOT/Caddyfile"
-:80 {
-    reverse_proxy web:3000
+disha6.6.thenitishkr.in, :80, :443 {
+    reverse_proxy web:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_down Location 0.0.0.0:3000 {host}
+    }
 }
 CADDY_EOF
 
