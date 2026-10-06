@@ -398,7 +398,11 @@ async function pollIntelOwlJob(
   fetcher: typeof safePublicFetch,
   signal?: AbortSignal,
 ): Promise<Record<string, unknown>> {
-  const deadline = Date.now() + Math.max(5_000, Math.min(45_000, Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 40_000)));
+  const configuredTimeout = Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 40_000);
+  const timeoutMs = Number.isFinite(configuredTimeout)
+    ? Math.max(5_000, Math.min(45_000, configuredTimeout))
+    : 40_000;
+  const deadline = Date.now() + timeoutMs;
   const finalStatuses = new Set(["reported_without_fails", "reported_with_fails", "killed", "failed"]);
 
   for (;;) {
