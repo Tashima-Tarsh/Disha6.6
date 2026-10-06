@@ -127,6 +127,19 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-5}
       DISHA_MODEL_PROVIDER: ${DISHA_MODEL_PROVIDER:-disabled}
+      DISHA_ASTRA6_SHERLOCK_ENABLED: ${DISHA_ASTRA6_SHERLOCK_ENABLED:-true}
+      DISHA_ASTRA6_MAIGRET_ENABLED: ${DISHA_ASTRA6_MAIGRET_ENABLED:-true}
+      DISHA_ASTRA6_HOLEHE_ENABLED: ${DISHA_ASTRA6_HOLEHE_ENABLED:-true}
+      DISHA_ASTRA6_PHONEINFOGA_ENABLED: ${DISHA_ASTRA6_PHONEINFOGA_ENABLED:-true}
+      DISHA_ASTRA6_INSTALOADER_ENABLED: ${DISHA_ASTRA6_INSTALOADER_ENABLED:-true}
+      DISHA_ASTRA6_TELEGRAM_PUBLIC_ENABLED: ${DISHA_ASTRA6_TELEGRAM_PUBLIC_ENABLED:-true}
+      DISHA_ASTRA6_THEHARVESTER_ENABLED: ${DISHA_ASTRA6_THEHARVESTER_ENABLED:-true}
+      DISHA_ASTRA6_OWASP_AMASS_ENABLED: ${DISHA_ASTRA6_OWASP_AMASS_ENABLED:-true}
+      DISHA_ASTRA6_SUBFINDER_ENABLED: ${DISHA_ASTRA6_SUBFINDER_ENABLED:-true}
+      DISHA_IDENTITY_ENUMERATION_APPROVED: ${DISHA_IDENTITY_ENUMERATION_APPROVED:-false}
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
+      TELEGRAM_SESSION: ${TELEGRAM_SESSION:-}
     depends_on:
       web-migrate:
         condition: service_completed_successfully
@@ -166,22 +179,53 @@ services:
       web:
         condition: service_healthy
 
-  osint-worker:
+  osint-identity-worker:
     build:
       context: .
-      dockerfile: infra/workers/Dockerfile.osint-worker
+      dockerfile: infra/workers/Dockerfile.identity
     restart: unless-stopped
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-disha}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-disha}
       REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
-      DISHA_WORKER_ID: gcp-astra6-worker-1
-      DISHA_OSINT_POLL_MS: 3000
+      DISHA_WORKER_ID: gcp-astra6-identity-worker-1
+      DISHA_OSINT_POLL_MS: ${DISHA_OSINT_POLL_MS:-1000}
+      WORKER_CLASS: identity
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
+      TELEGRAM_SESSION: ${TELEGRAM_SESSION:-}
+      INSTAGRAM_LOGIN: ${INSTAGRAM_LOGIN:-}
+      INSTAGRAM_SESSION_FILE: ${INSTAGRAM_SESSION_FILE:-}
+      DISHA_MAIGRET_TOP_SITES: ${DISHA_MAIGRET_TOP_SITES:-300}
+      DISHA_HOLEHE_TIMEOUT_SECONDS: ${DISHA_HOLEHE_TIMEOUT_SECONDS:-8}
+      DISHA_SHERLOCK_TIMEOUT_SECONDS: ${DISHA_SHERLOCK_TIMEOUT_SECONDS:-10}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      web-migrate:
+        condition: service_completed_successfully
+
+  osint-infrastructure-worker:
+    build:
+      context: .
+      dockerfile: infra/workers/Dockerfile.infrastructure
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-disha}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-disha}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
+      DISHA_WORKER_ID: gcp-astra6-infrastructure-worker-1
+      DISHA_OSINT_POLL_MS: ${DISHA_OSINT_POLL_MS:-1000}
+      WORKER_CLASS: infrastructure
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web-migrate:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
