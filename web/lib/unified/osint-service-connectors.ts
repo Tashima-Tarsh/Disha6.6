@@ -119,9 +119,16 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
   },
 ];
 
+function envConfigured(name: string): boolean {
+  if (name === "INTELOWL_ANALYZERS_ALLOWLIST") {
+    return Boolean(process.env.INTELOWL_ANALYZERS_ALLOWLIST?.trim() || process.env.INTELOWL_ANALYZERS?.trim());
+  }
+  return Boolean(process.env[name]?.trim());
+}
+
 export function listOsintServiceConnectors(): OsintServiceConnectorPosture[] {
   return connectorDefinitions.map((definition) => {
-    const missingEnv = definition.env.filter((name) => !process.env[name]?.trim());
+    const missingEnv = definition.env.filter((name) => !envConfigured(name));
     const configured = missingEnv.length === 0;
     return {
       ...definition,
