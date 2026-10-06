@@ -62,7 +62,11 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
       ?? text(row.handle)
       ?? text(row.serialNumber)
       ?? text(row.url)
-      ?? text(row.host);
+      ?? text(row.host)
+      ?? text(row.ioc)
+      ?? text(row.sha256_hash)
+      ?? text(row.sha1_hash)
+      ?? text(row.md5_hash);
     const sourceUrl =
       safeSourceUrl(row.sourceUrl)
       ?? safeSourceUrl(row.url)
@@ -81,6 +85,10 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
       ?? text(row.site)
       ?? text(row.host)
       ?? text(row.eventType)
+      ?? text(row.ioc)
+      ?? text(row.threat_type_desc)
+      ?? text(row.malware_printable)
+      ?? text(row.signature)
       ?? text(row.value)
       ?? text(row.data)
       ?? text(row.original)
