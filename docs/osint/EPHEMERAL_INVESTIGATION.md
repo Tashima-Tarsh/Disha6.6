@@ -1,5 +1,15 @@
 # DISHA Investigation Universe
 
+## Canonical search targets
+
+The authenticated investigation flow now shares one canonical target model across classification, planning, source routing and the search UI. The explicit search choices start with **Name** and **Vehicle**, followed by phone, email, username, company, domain/network, vulnerability and evidence identifiers.
+
+Vehicle identifiers are normalized before planning. Standard Indian state/UT registration formats (for example `DL01AB1234`) and Bharat Series identifiers (for example `22BH1234AA`) are recognized as `vehicle_identifier`.
+
+Recognition is not the same as registry entitlement. Vehicle searches may run approved public discovery sources immediately, while VAHAN/National Transport Registry and eChallan enrichment remain `RESTRICTED` until a reviewed, authorized connector and the required access entitlement are configured. The product must not fabricate vehicle-owner or registration fields when that connector is unavailable.
+
+Worker-backed ASTRA 6 tools are also represented truthfully in the route plan. PhoneInfoga, Sherlock, SpiderFoot, theHarvester, Amass and Subfinder remain `NOT_CONFIGURED` in ephemeral investigations until the investigation-to-worker result bridge is connected; catalog presence or an installed worker binary does not count as executed evidence.
+
 The default authenticated route is `/investigate`. Password, form and OIDC login share a validated local return URL; an explicit valid return URL takes priority. Operations remains at `/operations`; `/dashboard` remains a compatible secondary route.
 
 ## Runtime configuration
