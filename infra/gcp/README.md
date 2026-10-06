@@ -55,7 +55,7 @@ The SHA printed before deployment and the value in `DEPLOYED_COMMIT` must match.
 ## Acceptance checks
 
 ```bash
-curl -fsS http://127.0.0.1:3000/api/v1/health
+curl -fsS http://127.0.0.1:3000/api/v1/health  # JSON includes the deployed revision
 docker compose -f docker-compose.gcp.yml ps
 cat DEPLOYED_COMMIT
 ```
