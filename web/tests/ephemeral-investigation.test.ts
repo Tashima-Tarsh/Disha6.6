@@ -32,14 +32,16 @@ afterEach(() => vi.unstubAllEnvs());
 describe("search-first routing and classification", () => {
   it.each([undefined, "", "//evil.example", "/\\evil.example", "/%5cevil.example", "/api/auth/logout", "/login", "https://evil.example"])("defaults safely to /investigate for %s", value => expect(safeReturnUrl(value)).toBe("/investigate"));
   it("preserves explicit internal return destinations", () => expect(safeReturnUrl("/operations?view=graph")).toBe("/operations?view=graph"));
-  it.each([["Nitish Kumar", "person_name"], ["person@example.com", "email"], ["+1 (202) 555-0123", "phone"], ["@example", "username"], ["Acme Ltd", "company"], ["example.com", "domain"], ["8.8.8.8", "ip"], ["2001:4860:4860::8888", "ip"], ["AS13335", "asn"], ["https://example.com/path", "url"], ["CVE-2026-12345", "cve"], ["NORAD 25544", "norad_id"]])("classifies %s as %s", (query, type) => expect(classifyTarget(query).targetType).toBe(type));
+  it.each([["Nitish Kumar", "person_name"], ["person@example.com", "email"], ["+1 (202) 555-0123", "phone"], ["@example", "username"], ["Acme Ltd", "company"], ["example.com", "domain"], ["8.8.8.8", "ip"], ["2001:4860:4860::8888", "ip"], ["AS13335", "asn"], ["https://example.com/path", "url"], ["CVE-2026-12345", "cve"], ["NORAD 25544", "norad_id"], ["https://t.me/example_public", "telegram"], ["https://www.instagram.com/example.user/", "instagram"], ["1HGCM82633A004352", "vin"], ["DL01AB1234", "vehicle_identifier"]])("classifies %s as %s", (query, type) => expect(classifyTarget(query).targetType).toBe(type));
   it("supports explicit general topics and validates country codes", () => { expect(classifyTarget("climate change", "topic").targetType).toBe("topic"); expect(() => classifyTarget("9876543210")).toThrow(/country code/); expect(() => classifyTarget("+99912345678")).toThrow(); });
   it("rejects unsupported overrides, oversized values, and control characters", () => { expect(investigationInput.safeParse({ target: "a".repeat(513) }).success).toBe(false); expect(investigationInput.safeParse({ target: "name", targetType: "admin" }).success).toBe(false); expect(() => classifyTarget("some text", "ip")).toThrow(); });
   it("uses registered adapter identifiers and valid target-specific inputs", () => {
     const registered = new Set(createDefaultOsintBus().list().map(item => item.id));
-    for (const [target, type] of [["example.com", "domain"], ["8.8.8.8", "ip"], ["AS13335", "asn"], ["CVE-2026-12345", "cve"], ["25544", "norad_id"]] as const) for (const plan of planInvestigation(target, type)) expect(registered.has(plan.adapterId) || plan.adapterId === "passive-shodan").toBe(true);
+    for (const [target, type] of [["example.com", "domain"], ["8.8.8.8", "ip"], ["AS13335", "asn"], ["CVE-2026-12345", "cve"], ["25544", "norad_id"], ["1HGCM82633A004352", "vin"], ["DL01AB1234", "vehicle_identifier"]] as const) for (const plan of planInvestigation(target, type)) expect(registered.has(plan.adapterId) || plan.adapterId === "passive-shodan").toBe(true);
     expect(planInvestigation("CVE-2026-12345", "cve").find(plan => plan.adapterId === "public-nvd-cve")?.input).toEqual({ cve: "CVE-2026-12345" });
     expect(planInvestigation("https://example.com/path", "url").find(plan => plan.adapterId === "public-dns-google")?.input.domain).toBe("example.com");
+    expect(planInvestigation("1HGCM82633A004352", "vin")[0]).toMatchObject({ adapterId: "public-nhtsa-vin", input: { vin: "1HGCM82633A004352" } });
+    expect(planInvestigation("DL01AB1234", "vehicle_identifier")[0]).toMatchObject({ adapterId: "public-india-vehicle-format", input: { registration: "DL01AB1234" } });
   });
 });
 describe("truthful source records and temporary lifecycle", () => {
