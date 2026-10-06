@@ -28,13 +28,13 @@ bash infra/gcp/deploy-remote.sh
 
 The deployment script requires the production `.env`, records the exact Git SHA in `DEPLOYED_COMMIT`, builds the GCP compose stack, applies migrations, starts the services, installs the systemd restart contract, and fails if the web health endpoint never becomes ready.
 
-For first-host bootstrap:
+For host bootstrap after an authenticated checkout has already been provisioned at `/opt/disha`:
 
 ```bash
 bash infra/gcp/setup-gce.sh
 ```
 
-The VM startup path restores the checked-out revision after reboot. It deliberately does not pull a newer Git revision automatically.
+The VM startup path requires the private repository to already exist at `/opt/disha`, preserves the existing `.env` across reboots, and restores the checked-out revision. It deliberately does not pull a newer Git revision automatically.
 
 ## Update production code
 
