@@ -188,6 +188,13 @@ export function buildTargetRoutePlan(
   if (type === "vehicle_identifier") {
     add(
       plan,
+      "public-india-vehicle-format",
+      "India Vehicle Registration Format",
+      { registration: target },
+      "Validate and normalize the public Indian registration format without querying protected owner data.",
+    );
+    add(
+      plan,
       "authorized-vahan-registry",
       "VAHAN / National Transport Registry",
       { registrationNumber: target },
