@@ -1,18 +1,24 @@
-# disha6.6 GitHub + Render Production
+# disha6.6 production deployment
 
-The active source repository is being branded as `Tashima-Tarsh/disha6.6`. Render auto-deploys the `main` branch from the connected GitHub repository.
+## Canonical application
 
-## Runtime
+The production application is the Next.js service under `web/`. The canonical authenticated landing route is `/investigate`. The historical `/dashboard` URL is compatibility-only and redirects to `/investigate`.
 
-- Next.js web application: `https://disha-v6-web.onrender.com`
-- Public custom domain: `https://disha6.6.thenitishkr.in`
-- Durable scheduler/workflow worker started with the web service
-- Render PostgreSQL with `pgvector` where configured
-- Render Key Value / Redis where configured
-- Governed disha6.6 Brain service: `https://disha-v6-brain.onrender.com`
-- Hybrid retrieval defaults to the deterministic local-hash embedding provider; the standalone embedding service remains available for larger deployments.
+The repository root `Dockerfile` and `web/Dockerfile` both build the same `web/` application so a platform cannot silently deploy an unrelated legacy application merely because it builds from the repository root.
 
-## Web build/start
+## CI and release policy
+
+- Pull requests touching production code run Fast CI.
+- OSINT worker container builds run only when worker packaging changes.
+- These workflows do not run again on every merge to `main`, avoiding duplicate post-merge failure notifications.
+- Release image publishing remains tag/manual driven through `.github/workflows/release.yml`.
+- GitHub Codespaces prebuilds are separate from product CI. Disable or repair the repository Codespaces prebuild configuration separately if its notifications are not wanted.
+
+## Render
+
+Do not assume a Render service exists merely because this repository contains Render documentation. A Render deployment is production only when the target Render workspace contains a DISHA service wired to this repository and `main`, with the build/start commands and environment below verified in that workspace.
+
+Recommended native Render commands:
 
 Build:
 
@@ -26,13 +32,13 @@ Start:
 ./scripts/render-start-web.sh
 ```
 
-The start wrapper applies database migrations before serving traffic.
+The start wrapper applies database migrations before serving traffic and launches the durable worker used by the single-service Render topology.
 
 ## Required web environment variables
 
-- `DISHA_AUTH_MODE=password` or `oidc`
-- `DISHA_DEV_PASSWORD` when password mode is selected
-- `DISHA_DEV_ADMIN_EMAILS`
+At minimum, verify these in the actual production platform:
+
+- `DISHA_AUTH_MODE`
 - `DISHA_JWT_SECRET`
 - `DISHA_WORKER_TOKEN`
 - `DATABASE_URL`
@@ -44,8 +50,19 @@ The start wrapper applies database migrations before serving traffic.
 - `DISHA_ALLOWED_ORIGINS`
 - `NEXT_PUBLIC_APP_URL`
 
-Secrets belong in Render environment variables, not in git.
+Password-mode deployments also require the approved password/account variables. OIDC deployments require the Meri Pehchaan client and redirect configuration.
 
-## Repository rename note
+Secrets belong in the deployment platform, never in git.
 
-The repository contents now refer to the public product as `disha6.6`. The actual GitHub repository settings must still be renamed in GitHub repository settings if the canonical browser URL should become `Tashima-Tarsh/disha6.6`.
+## Production acceptance
+
+A deploy is not accepted merely because the home page responds. Verify all of the following against the deployed revision:
+
+1. The deployed Git SHA equals the intended release commit.
+2. `/` sends a valid authenticated session to `/investigate`.
+3. `/dashboard` redirects to `/investigate`.
+4. `/api/v1/health` is healthy.
+5. Database migrations completed.
+6. Redis-backed temporary investigation state is available.
+7. Required worker classes are running.
+8. The browser is not serving a previous static build from another service, branch, or CDN.
