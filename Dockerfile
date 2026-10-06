@@ -8,6 +8,7 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY web/ ./
+COPY data/osint ./data/osint
 RUN npm run build
 
 FROM node:22-alpine AS runner
@@ -25,6 +26,7 @@ COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nextjs /app/database ./database
 COPY --from=builder --chown=nextjs:nextjs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nextjs /app/data ./data
 
 USER nextjs
 EXPOSE 3000
