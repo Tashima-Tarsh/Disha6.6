@@ -276,7 +276,7 @@ echo "[6/6] Launching full DISHA 6.6 production stack..."
 docker compose -f docker-compose.gcp.yml up -d
 
 echo "Configuring systemd service for persistence across reboots..."
-cat <<'SYSTEMD_EOF' > /etc/systemd/system/disha.service
+cat <<SYSTEMD_EOF > /etc/systemd/system/disha.service
 [Unit]
 Description=DISHA 6.6 Production Stack
 Requires=docker.service
