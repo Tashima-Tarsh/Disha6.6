@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd /opt/disha
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$REPO_ROOT"
+
+if [ ! -f "$REPO_ROOT/.env" ]; then
+  echo "ERROR: $REPO_ROOT/.env is required for production deployment." >&2
+  exit 1
+fi
+
+DEPLOYED_SHA=$(git rev-parse HEAD)
+echo "Deploying DISHA revision: ${DEPLOYED_SHA}"
+printf "%s\n" "$DEPLOYED_SHA" > "$REPO_ROOT/DEPLOYED_COMMIT"
 
 echo "[1/6] Preparing docker-compose.gcp.yml..."
-cat <<'COMPOSE_EOF' > /opt/disha/docker-compose.gcp.yml
+cat <<'COMPOSE_EOF' > "$REPO_ROOT/docker-compose.gcp.yml"
 services:
   caddy:
     image: caddy:2-alpine
@@ -237,7 +247,7 @@ volumes:
 COMPOSE_EOF
 
 echo "[2/6] Preparing Caddyfile..."
-cat <<'CADDY_EOF' > /opt/disha/Caddyfile
+cat <<'CADDY_EOF' > "$REPO_ROOT/Caddyfile"
 :80 {
     reverse_proxy web:3000 {
         header_up Host {upstream_hostport}
@@ -275,7 +285,7 @@ After=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/disha
+WorkingDirectory=${REPO_ROOT}
 ExecStart=/usr/bin/docker compose -f docker-compose.gcp.yml up -d
 ExecStop=/usr/bin/docker compose -f docker-compose.gcp.yml down
 
@@ -287,7 +297,21 @@ systemctl daemon-reload
 systemctl enable disha.service
 
 echo "Verifying service health..."
-sleep 15
-curl -fsSL http://127.0.0.1:3000/api/v1/health || true
+healthy=0
+for attempt in $(seq 1 30); do
+  if curl -fsSL http://127.0.0.1:3000/api/v1/health >/dev/null; then
+    healthy=1
+    break
+  fi
+  sleep 2
+done
+
 docker compose -f docker-compose.gcp.yml ps
-echo "SUCCESS: DISHA 6.6 is live!"
+
+if [ "$healthy" -ne 1 ]; then
+  echo "ERROR: DISHA web health check did not become ready." >&2
+  docker compose -f docker-compose.gcp.yml logs --tail=200 web >&2 || true
+  exit 1
+fi
+
+echo "SUCCESS: DISHA 6.6 is live at revision ${DEPLOYED_SHA}."
