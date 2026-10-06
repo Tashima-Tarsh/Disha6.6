@@ -53,3 +53,5 @@ jobs:
       - run: npm run build
         env:
           DISHA_ALLOW_STATELESS_AUTH: "true"
+        env:
+    
