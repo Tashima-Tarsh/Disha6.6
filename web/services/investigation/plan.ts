@@ -5,6 +5,16 @@ import type { AdapterPlan, TargetType } from "../../lib/investigation/types";
 import { buildUniversalOsintPlan } from "../../lib/unified/universal-osint-search";
 
 const TYPES = ["auto", "person_name", "email", "phone", "username", "company", "domain", "ip", "asn", "url", "cve", "norad_id", "topic"] as const;
+
+function astraEnabled(toolId: string): boolean {
+  const key = `DISHA_ASTRA6_${toolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
+  return process.env[key] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
+}
+
+function identityToolStatus(toolId: string): AdapterPlan["initialStatus"] | undefined {
+  if (process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") return "RESTRICTED";
+  return astraEnabled(toolId) ? undefined : "NOT_CONFIGURED";
+}
 export const investigationInput = z.object({
   target: z.string().trim().min(1).max(512).refine(value => !/[\u0000-\u001f\u007f]/.test(value), "Invalid target"),
   targetType: z.enum(TYPES).default("auto"),
@@ -62,6 +72,30 @@ export function planInvestigation(target: string, type: TargetType): AdapterPlan
     if (type === "person_name" || type === "company" || type === "topic") add("public-wikidata-search", "Wikidata", { query: target, limit: 12 }, "Distinct public entity records; identity remains unverified.");
     add("public-gdelt-news", "GDELT", { query: `"${target.replace(/["\\]/g, " ")}"`, maxRecords: 15 }, "Public reporting mentioning the query.");
     add("public-brave-search", "Brave Search", { query: `"${target.replace(/["\\]/g, " ")}"` }, "Indexed public web references.", process.env.BRAVE_SEARCH_API_KEY ? undefined : "NOT_CONFIGURED");
+    if (type === "username") {
+      const status = identityToolStatus("sherlock");
+      add(
+        "astra6-sherlock",
+        "Sherlock",
+        { target, targetType: "username" },
+        status === "RESTRICTED"
+          ? "Username enumeration requires explicit authorized identity-investigation approval."
+          : "Search public username presence through the isolated ASTRA 6 identity worker.",
+        status,
+      );
+    }
+    if (type === "phone") {
+      const status = identityToolStatus("phoneinfoga");
+      add(
+        "astra6-phoneinfoga",
+        "PhoneInfoga",
+        { target, targetType: "phone_number" },
+        status === "RESTRICTED"
+          ? "Phone intelligence requires explicit authorized identity-investigation approval."
+          : "Run bounded public phone-number intelligence through the isolated ASTRA 6 identity worker.",
+        status,
+      );
+    }
     if (type === "email" || type === "phone") {
       add("restricted-private-data", "Private / stolen credential datasets", {}, "Private and stolen datasets are blocked.", "BLOCKED");
       add("authorized-exposure", "Authorized exposure checks", {}, "Requires a separate explicit authorization workflow.", "RESTRICTED");
