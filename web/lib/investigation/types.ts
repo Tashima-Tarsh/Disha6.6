@@ -1,4 +1,4 @@
-export type TargetType = "person_name" | "email" | "phone" | "username" | "company" | "domain" | "ip" | "asn" | "url" | "cve" | "norad_id" | "topic" | "image";
+export type TargetType = "person_name" | "email" | "phone" | "username" | "telegram" | "instagram" | "vehicle_identifier" | "vin" | "company" | "domain" | "ip" | "asn" | "url" | "cve" | "norad_id" | "topic" | "image";
 export type RunStatus = "QUEUED" | "RUNNING" | "COMPLETED" | "NO_RESULTS" | "FAILED" | "RATE_LIMITED" | "NOT_CONFIGURED" | "REFERENCE_ONLY" | "BLOCKED" | "RESTRICTED" | "SKIPPED";
 export type ProviderHealth = "NOT_CONFIGURED" | "REST_HEALTHY" | "STREAM_HEALTHY" | "STREAM_NOT_ENTITLED" | "RATE_LIMITED" | "FAILED";
 export interface AdapterPlan {
