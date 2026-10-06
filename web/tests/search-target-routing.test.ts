@@ -57,7 +57,7 @@ describe("canonical OSINT search targets", () => {
     vi.stubEnv("DISHA_ASTRA6_PHONEINFOGA_ENABLED", "true");
     vi.stubEnv("DISHA_IDENTITY_ENUMERATION_APPROVED", "true");
 
-    const plan = buildTargetRoutePlan("+919876543210", "phone");
+    const plan = buildTargetRoutePlan("+919876543210", "phone", { identityAuthorized: true });
     expect(plan.find(item => item.adapterId === "astra6-phoneinfoga")?.initialStatus).toBeUndefined();
   });
 
@@ -90,6 +90,19 @@ describe("canonical OSINT search targets", () => {
     const plan = buildTargetRoutePlan("b".repeat(64), "file_hash");
     expect(plan.find(item => item.adapterId === "public-threatfox")?.initialStatus).toBeUndefined();
     expect(plan.find(item => item.adapterId === "public-malwarebazaar")?.initialStatus).toBeUndefined();
+  });
+
+  it("routes CTI targets through configured OpenCTI and allowlisted IntelOwl services", () => {
+    vi.stubEnv("OPENCTI_BASE_URL", "https://opencti.example");
+    vi.stubEnv("OPENCTI_TOKEN", "configured");
+    vi.stubEnv("INTELOWL_BASE_URL", "https://intelowl.example");
+    vi.stubEnv("INTELOWL_API_KEY", "configured");
+    vi.stubEnv("INTELOWL_ANALYZERS_ALLOWLIST", "PassiveDns");
+
+    const plan = buildTargetRoutePlan("example.com", "domain");
+    expect(plan.find(item => item.adapterId === "service-opencti")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "service-intelowl")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "service-intelowl")?.input).toEqual({ observable: "example.com" });
   });
 
   it("keeps domain ASTRA tools pending while live public adapters remain executable if workers are unconfigured", () => {
