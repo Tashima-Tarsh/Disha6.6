@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SEARCH_TARGET_CHOICES, TEXT_SEARCH_TARGET_TYPES } from "../lib/unified/search-targets";
 import { buildTargetRoutePlan } from "../lib/unified/target-route-registry";
 import { classifyUniversalTarget } from "../lib/unified/universal-target-classifier";
 
-describe("canonical OSINT search targets", () => {
+afterEach(() => vi.unstubAllEnvs());\n\ndescribe("canonical OSINT search targets", () => {
   it("keeps name and vehicle as the first explicit analyst choices", () => {
     expect(SEARCH_TARGET_CHOICES.slice(0, 3)).toEqual([
       ["auto", "AUTO"],
