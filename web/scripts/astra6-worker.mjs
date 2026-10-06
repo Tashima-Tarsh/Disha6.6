@@ -14,6 +14,7 @@ import {
   parseSpiderfootOutput,
   parseAmassOutput,
   parseSubfinderOutput,
+  parseStructuredIdentityWorkerOutput,
 } from "../lib/unified/astra6-output-parsers.js";
 
 const execFileAsync = promisify(execFile);
@@ -131,6 +132,14 @@ function buildToolArgs(manifest, target, inputOptions) {
       return { binary: "phoneinfoga", args: ["scan", "-n", target, "-o", "json"] };
     case "sherlock":
       return { binary: "sherlock", args: ["--timeout", "15", "--print-found", "--json", target] };
+    case "maigret":
+      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "maigret", target] };
+    case "holehe":
+      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "holehe", target] };
+    case "instaloader":
+      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "instagram", target] };
+    case "telegram-public":
+      return { binary: "python3", args: ["/opt/disha-worker/scripts/identity-osint-adapter.py", "telegram", target] };
     case "theharvester": {
       const sources = manifest.passiveModuleAllowlist ? manifest.passiveModuleAllowlist.slice(0, 8).join(",") : "crtsh,dnsdumpster";
       return { binary: "theHarvester", args: ["-d", target, "-b", sources, "-l", "100"] };
@@ -167,6 +176,22 @@ function parseToolResult(toolId, raw, target, targetType) {
     }
     case "sherlock": {
       const res = parseSherlockOutput(raw, target);
+      return { parsedData: res.data, evidence: res.evidence };
+    }
+    case "maigret": {
+      const res = parseStructuredIdentityWorkerOutput(raw, toolId, "Maigret", target);
+      return { parsedData: res.data, evidence: res.evidence };
+    }
+    case "holehe": {
+      const res = parseStructuredIdentityWorkerOutput(raw, toolId, "Holehe", target);
+      return { parsedData: res.data, evidence: res.evidence };
+    }
+    case "instaloader": {
+      const res = parseStructuredIdentityWorkerOutput(raw, toolId, "Instaloader", target);
+      return { parsedData: res.data, evidence: res.evidence };
+    }
+    case "telegram-public": {
+      const res = parseStructuredIdentityWorkerOutput(raw, toolId, "Telegram Public Metadata", target);
       return { parsedData: res.data, evidence: res.evidence };
     }
     case "theharvester": {
