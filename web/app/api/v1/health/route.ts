@@ -13,6 +13,7 @@ export async function GET() {
   return NextResponse.json({
     status: "ok",
     product: "disha6.6 Unified Policy-Gated Cognitive Intelligence OS",
+    revision: env.DISHA_BUILD_SHA ?? "unknown",
     lenses: Object.keys(lensRegistry),
     agenticSkills: listAgentSkills().length,
     openDataSources: openDataSources.length,
