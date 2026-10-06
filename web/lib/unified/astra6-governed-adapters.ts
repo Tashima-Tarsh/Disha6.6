@@ -63,7 +63,7 @@ function identityDeploymentApproved(): boolean {
 }
 
 function isIdentityManifest(manifest: DishaToolManifest): boolean {
-  return manifest.targetTypes.some((type) => ["username", "phone_number", "email"].includes(type));
+  return manifest.targetTypes.some((type) => ["username", "phone_number", "email", "instagram_username", "telegram_username"].includes(type));
 }
 
 function configurationIssue(manifest: DishaToolManifest): string | undefined {
