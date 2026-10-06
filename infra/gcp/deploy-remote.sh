@@ -9,6 +9,7 @@ if [ ! -f "$REPO_ROOT/.env" ]; then
 fi
 
 DEPLOYED_SHA=$(git rev-parse HEAD)
+export DISHA_BUILD_SHA="$DEPLOYED_SHA"
 echo "Deploying DISHA revision: ${DEPLOYED_SHA}"
 printf "%s\n" "$DEPLOYED_SHA" > "$REPO_ROOT/DEPLOYED_COMMIT"
 
@@ -114,6 +115,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      DISHA_BUILD_SHA: ${DISHA_BUILD_SHA:-unknown}
       DISHA_AUTH_MODE: ${DISHA_AUTH_MODE:-password}
       DISHA_DEV_PASSWORD: ${DISHA_DEV_PASSWORD:-}
       DISHA_DEV_ADMIN_EMAILS: ${DISHA_DEV_ADMIN_EMAILS:-}
@@ -249,12 +251,7 @@ COMPOSE_EOF
 echo "[2/6] Preparing Caddyfile..."
 cat <<'CADDY_EOF' > "$REPO_ROOT/Caddyfile"
 :80 {
-    reverse_proxy web:3000 {
-        header_up Host {upstream_hostport}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Forwarded-Proto {scheme}
-    }
+    reverse_proxy web:3000
 }
 CADDY_EOF
 
@@ -265,9 +262,19 @@ echo "[4/6] Launching PostgreSQL and Redis..."
 docker compose -f docker-compose.gcp.yml up -d postgres redis
 
 echo "Waiting for PostgreSQL pgvector/postgis to be healthy..."
-until docker compose -f docker-compose.gcp.yml exec -T postgres pg_isready -U disha -d disha; do
+db_ready=0
+for attempt in $(seq 1 40); do
+  if docker compose -f docker-compose.gcp.yml exec -T postgres pg_isready -U disha -d disha >/dev/null 2>&1; then
+    db_ready=1
+    break
+  fi
   sleep 3
 done
+if [ "$db_ready" -ne 1 ]; then
+  echo "ERROR: PostgreSQL did not become ready." >&2
+  docker compose -f docker-compose.gcp.yml logs --tail=200 postgres >&2 || true
+  exit 1
+fi
 
 echo "[5/6] Applying database schema migrations..."
 docker compose -f docker-compose.gcp.yml up web-migrate
