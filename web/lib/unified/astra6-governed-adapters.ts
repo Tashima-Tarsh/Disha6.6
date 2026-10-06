@@ -257,6 +257,9 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (configIssue) {
         return { status: "not_configured" as const, detail: configIssue };
       }
+      if (manifest.toolId === "instaloader" && (!process.env.INSTAGRAM_LOGIN || !process.env.INSTAGRAM_SESSION_FILE)) {
+        return { status: "degraded" as const, detail: "Instaloader will use anonymous public-profile access; Instagram may rate-limit or block some requests." };
+      }
       if (isIdentityTool && !requiresIdentityPolicy()) {
         return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true for authorized identity investigations.` };
       }
