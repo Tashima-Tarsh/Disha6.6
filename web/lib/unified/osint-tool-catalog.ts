@@ -54,8 +54,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "AGPL-3.0",
     capabilities: ["threat-intelligence aggregation", "IOC enrichment", "analyzers/connectors"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "High-value enrichment platform, but analyzers vary in network behavior and licensing; integrate through an isolated service contract.",
+    mode: "builtin",
+    reason: "Integrated through a configured IntelOwl service adapter that accepts observables only and restricts execution to the server-side analyzer allowlist.",
   },
   {
     id: "opensanctions",
@@ -74,8 +74,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "Apache-2.0 Community Edition; Enterprise components separately licensed",
     capabilities: ["STIX2 knowledge graph", "threat-intelligence management", "connectors", "GraphQL API"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "The platform is suitable as a configured CTI service, while individual connectors and data feeds require separate policy, licensing, and network-behavior review.",
+    mode: "builtin",
+    reason: "Integrated through a configured read-only OpenCTI GraphQL adapter for bounded STIX core-object search; mutations and connector execution remain outside the adapter.",
   },
   {
     id: "recon-ng",
