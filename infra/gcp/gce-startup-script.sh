@@ -51,60 +51,59 @@ if [ ! -f /opt/disha/.env ]; then
   WORKER_TOKEN=$(openssl rand -hex 16)
   BRAIN_TOKEN=$(openssl rand -hex 16)
   ADMIN_PWD=$(openssl rand -hex 10)
-  
+
   cat <<EOF > /opt/disha/.env
-  # DISHA 6.6 Production Environment
-  NODE_ENV=production
-  DOMAIN=${EXTERNAL_IP}
-  NEXT_PUBLIC_APP_URL=http://${EXTERNAL_IP}
-  DISHA_ALLOWED_ORIGINS=http://${EXTERNAL_IP},http://localhost:3000
-  
-  # Database
-  POSTGRES_DB=disha
-  POSTGRES_USER=disha
-  POSTGRES_PASSWORD=${POSTGRES_PWD}
-  
-  # Redis
-  REDIS_PASSWORD=${REDIS_PWD}
-  
-  # Authentication
-  DISHA_AUTH_MODE=password
-  DISHA_DEV_PASSWORD=${ADMIN_PWD}
-  DISHA_DEV_ADMIN_EMAILS=admin@thenitishkr.in
-  DISHA_JWT_SECRET=${JWT_SECRET}
-  
-  # Internal Service Tokens
-  DISHA_WORKER_TOKEN=${WORKER_TOKEN}
-  DISHA_BRAIN_API_TOKEN=${BRAIN_TOKEN}
-  DISHA_RESEARCH_RUNTIME_TOKEN=${BRAIN_TOKEN}
-  
-  # Embeddings Engine
-  DISHA_EMBEDDING_PROVIDER=openai-compatible
-  DISHA_EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
-  
-  # Scheduler & Workers
-  DISHA_SCHEDULER_POLL_SECONDS=30
-  DISHA_SCHEDULER_MAX_JOBS=10
-  DISHA_WORKFLOW_MAX_JOBS=10
-  DISHA_WORKFLOW_LEASE_SECONDS=120
-  EOF
-  
-  # Save generated credentials safely for the admin
+# DISHA 6.6 Production Environment
+NODE_ENV=production
+DOMAIN=${EXTERNAL_IP}
+NEXT_PUBLIC_APP_URL=http://${EXTERNAL_IP}
+DISHA_ALLOWED_ORIGINS=http://${EXTERNAL_IP},http://localhost:3000
+
+# Database
+POSTGRES_DB=disha
+POSTGRES_USER=disha
+POSTGRES_PASSWORD=${POSTGRES_PWD}
+
+# Redis
+REDIS_PASSWORD=${REDIS_PWD}
+
+# Authentication
+DISHA_AUTH_MODE=password
+DISHA_DEV_PASSWORD=${ADMIN_PWD}
+DISHA_DEV_ADMIN_EMAILS=admin@thenitishkr.in
+DISHA_JWT_SECRET=${JWT_SECRET}
+
+# Internal Service Tokens
+DISHA_WORKER_TOKEN=${WORKER_TOKEN}
+DISHA_BRAIN_API_TOKEN=${BRAIN_TOKEN}
+DISHA_RESEARCH_RUNTIME_TOKEN=${BRAIN_TOKEN}
+
+# Embeddings Engine
+DISHA_EMBEDDING_PROVIDER=openai-compatible
+DISHA_EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+
+# Scheduler & Workers
+DISHA_SCHEDULER_POLL_SECONDS=30
+DISHA_SCHEDULER_MAX_JOBS=10
+DISHA_WORKFLOW_MAX_JOBS=10
+DISHA_WORKFLOW_LEASE_SECONDS=120
+EOF
+
   cat <<EOF > /opt/disha/CREDENTIALS.txt
-  =====================================================
-  DISHA 6.6 Production Credentials
-  Generated: $(date -u)
-  Revision: ${DEPLOYED_SHA}
-  Access URL: http://${EXTERNAL_IP}
-  Admin Username/Email: admin@thenitishkr.in
-  Admin Password: ${ADMIN_PWD}
-  JWT Secret: ${JWT_SECRET}
-  Database: postgresql://disha:${POSTGRES_PWD}@localhost:5432/disha
-  Redis: localhost:6379 (Password: ${REDIS_PWD})
-  Worker Token: ${WORKER_TOKEN}
-  Brain Token: ${BRAIN_TOKEN}
-  =====================================================
-  EOF
+=====================================================
+DISHA 6.6 Production Credentials
+Generated: $(date -u)
+Revision: ${DEPLOYED_SHA}
+Access URL: http://${EXTERNAL_IP}
+Admin Username/Email: admin@thenitishkr.in
+Admin Password: ${ADMIN_PWD}
+JWT Secret: ${JWT_SECRET}
+Database: postgresql://disha:${POSTGRES_PWD}@localhost:5432/disha
+Redis: localhost:6379 (Password: ${REDIS_PWD})
+Worker Token: ${WORKER_TOKEN}
+Brain Token: ${BRAIN_TOKEN}
+=====================================================
+EOF
   chmod 600 /opt/disha/CREDENTIALS.txt
 fi
 
