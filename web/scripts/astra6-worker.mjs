@@ -22,7 +22,17 @@ const execFileAsync = promisify(execFile);
 const DATABASE_URL = process.env.DATABASE_URL;
 const REDIS_URL = process.env.REDIS_URL || "redis://redis:6379";
 const WORKER_ID = process.env.DISHA_WORKER_ID || `astra6-worker-${process.pid}`;
+const WORKER_CLASS = process.env.WORKER_CLASS || "generic";
 const POLL_INTERVAL_MS = parseInt(process.env.DISHA_OSINT_POLL_MS || "3000", 10);
+const WORKER_CLASS_TOOLS = {
+  identity: ["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"],
+  infrastructure: ["theharvester", "spiderfoot", "owasp-amass", "subfinder"],
+  document: [],
+  cti: [],
+};
+const ALLOWED_TOOLS = Object.prototype.hasOwnProperty.call(WORKER_CLASS_TOOLS, WORKER_CLASS)
+  ? WORKER_CLASS_TOOLS[WORKER_CLASS]
+  : null;
 
 const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
 const redis = createClient({ url: REDIS_URL });
@@ -32,7 +42,10 @@ redis.on("error", (err) => {
 });
 
 async function main() {
-  console.info(`[ASTRA 6 Worker] Initializing autonomous OSINT engine (ID: ${WORKER_ID})...`);
+  console.info(`[ASTRA 6 Worker] Initializing autonomous OSINT engine (ID: ${WORKER_ID}, class: ${WORKER_CLASS})...`);
+  if (Array.isArray(ALLOWED_TOOLS)) {
+    console.info(`[ASTRA 6 Worker] Tool allowlist: ${ALLOWED_TOOLS.length ? ALLOWED_TOOLS.join(", ") : "none"}`);
+  }
 
   try {
     await redis.connect();
@@ -65,14 +78,26 @@ async function processNextJob() {
   let job = null;
   try {
     await client.query("BEGIN");
-    const result = await client.query(
-      `SELECT run_id, tool_id, mission_id, user_id, target, target_type, dispatch_input
-       FROM astra6_connector_runs
-       WHERE status = 'queued'
-       ORDER BY queued_at ASC
-       LIMIT 1
-       FOR UPDATE SKIP LOCKED`
-    );
+    const result = Array.isArray(ALLOWED_TOOLS)
+      ? (ALLOWED_TOOLS.length
+        ? await client.query(
+          `SELECT run_id, tool_id, mission_id, user_id, target, target_type, dispatch_input
+           FROM astra6_connector_runs
+           WHERE status = 'queued' AND tool_id = ANY($1::text[])
+           ORDER BY queued_at ASC
+           LIMIT 1
+           FOR UPDATE SKIP LOCKED`,
+          [ALLOWED_TOOLS],
+        )
+        : { rows: [] })
+      : await client.query(
+        `SELECT run_id, tool_id, mission_id, user_id, target, target_type, dispatch_input
+         FROM astra6_connector_runs
+         WHERE status = 'queued'
+         ORDER BY queued_at ASC
+         LIMIT 1
+         FOR UPDATE SKIP LOCKED`,
+      );
 
     if (result.rows.length > 0) {
       job = result.rows[0];
