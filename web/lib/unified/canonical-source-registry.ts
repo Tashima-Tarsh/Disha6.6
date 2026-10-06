@@ -195,6 +195,8 @@ export function mapCategoryToSystem(cat: OsintSourceCategory): OsintSystemId {
     case "launch_activity":
     case "space_weather":
       return "space";
+    case "vehicle_registry":
+      return "evidence";
     case "master_directory":
     default:
       return "evidence";
@@ -239,6 +241,10 @@ export function targetClassesForSource(entry: OsintSourceUniverseEntry): string[
   if (cats.some((c) => c.includes("hash") || c.includes("malware") || c.includes("ioc"))) {
     classes.add("file_hash");
     classes.add("ioc");
+  }
+
+  if (entry.category === "vehicle_registry" || cats.some((c) => c.includes("vehicle registration") || c.includes("challan"))) {
+    classes.add("vehicle_identifier");
   }
 
   if (classes.size === 0) {
