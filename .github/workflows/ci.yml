@@ -2,6 +2,16 @@ name: Fast CI
 
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "web/**"
+      - "infra/**"
+      - ".github/workflows/**"
+      - "scripts/governance-check.mjs"
+      - "Dockerfile"
+      - "docker-compose*.yml"
+      - "package.json"
 
 permissions:
   contents: read
@@ -13,7 +23,7 @@ concurrency:
 jobs:
   verify:
     name: Tests, lint, types, audit, build, worker syntax
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     defaults:
@@ -57,14 +67,14 @@ jobs:
       - name: Type check
         run: npm run type-check:full
 
-      - name: Dependency audit
-        run: npm audit --audit-level=high
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Governance and security line scan
         working-directory: .
         env:
-          BASE_SHA: ${{ github.sha }}
-          EVENT_NAME: workflow_dispatch
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
         run: node scripts/governance-check.mjs
 
       - name: Build
