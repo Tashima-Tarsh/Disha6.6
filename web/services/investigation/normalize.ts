@@ -9,12 +9,16 @@ const arrayKeys: Record<string, string> = {
   "public-common-crawl": "captures", "public-gdelt-news": "articles", "public-cisa-kev": "matched", "public-ripestat-whois": "records",
   "public-wikidata-search": "entities", "public-openalex": "works", "public-celestrak-gp": "objects", "public-reliefweb": "reports",
   "public-brave-search": "records", "passive-shodan": "records", "google-vision-web": "records",
+  "public-nhtsa-vin": "records", "public-india-vehicle-format": "records",
 };
 
 function astraRows(adapterId: string, data: Record<string, unknown>): Record<string, unknown>[] {
   const result = record(data.result);
-  if (adapterId === "astra6-sherlock") {
+  if (adapterId === "astra6-sherlock" || adapterId === "astra6-maigret" || adapterId === "astra6-holehe") {
     return Array.isArray(result.found) ? result.found.map(record) : [];
+  }
+  if (adapterId === "astra6-instaloader" || adapterId === "astra6-telegram-public") {
+    return Array.isArray(result.records) ? result.records.map(record) : [];
   }
   if (adapterId === "astra6-phoneinfoga") {
     return text(result.number) ? [result] : [];
