@@ -12,6 +12,8 @@ const REDIS_URL = process.env.REDIS_URL || "redis://redis:6379";
 const WORKER_ID = process.env.DISHA_WORKER_ID || `astra6-worker-${process.pid}`;
 const WORKER_CLASS = process.env.WORKER_CLASS || "generic";
 const POLL_INTERVAL_MS = Math.max(250, Number.parseInt(process.env.DISHA_OSINT_POLL_MS || "3000", 10));
+const HEARTBEAT_INTERVAL_MS = Math.max(5_000, Number.parseInt(process.env.DISHA_OSINT_HEARTBEAT_MS || "15000", 10));
+let lastHeartbeatAt = 0;
 
 const WORKER_CLASS_TOOLS = {
   identity: ["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"],
@@ -661,6 +663,24 @@ async function claimNextJob(client) {
   return job;
 }
 
+async function publishWorkerHeartbeat(force = false) {
+  if (!pool) return;
+  const now = Date.now();
+  if (!force && now - lastHeartbeatAt < HEARTBEAT_INTERVAL_MS) return;
+  await pool.query(
+    `insert into disha_worker_heartbeats (
+       worker_id, worker_class, hostname, active_jobs, cpu_percent, memory_mb, last_heartbeat, status
+     ) values ($1,$2,$3,0,0,0,now(),'HEALTHY')
+     on conflict (worker_id) do update set
+       worker_class=excluded.worker_class,
+       hostname=excluded.hostname,
+       last_heartbeat=now(),
+       status='HEALTHY'`,
+    [WORKER_ID, WORKER_CLASS, process.env.HOSTNAME || WORKER_ID],
+  );
+  lastHeartbeatAt = now;
+}
+
 async function processNextJob() {
   if (!pool) return;
 
@@ -726,6 +746,7 @@ async function processNextJob() {
 async function main() {
   if (!pool) throw new Error("DATABASE_URL is required");
   console.info(`[ASTRA 6 Worker] start id=${WORKER_ID} class=${WORKER_CLASS} tools=${Array.isArray(ALLOWED_TOOLS) ? ALLOWED_TOOLS.join(",") : "all"}`);
+  await publishWorkerHeartbeat(true);
 
   try {
     await redis.connect();
@@ -739,6 +760,11 @@ async function main() {
       await processNextJob();
     } catch (error) {
       console.info(`[ASTRA 6 Worker] loop error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    try {
+      await publishWorkerHeartbeat();
+    } catch (error) {
+      console.info(`[ASTRA 6 Worker] heartbeat error: ${error instanceof Error ? error.message : String(error)}`);
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
