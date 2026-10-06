@@ -138,7 +138,10 @@ async function queueRun(
 
   await ensureManifestRegistered(manifest);
   const runId = randomUUID();
-  const dispatchInput = { options: input.options ?? {} };
+  const dispatchInput = {
+    options: input.options ?? {},
+    ...(context.identityAuthorization === true ? { identityAuthorization: true } : {}),
+  };
   const provenanceHash = hashValue({
     runId,
     missionId: context.missionId,
