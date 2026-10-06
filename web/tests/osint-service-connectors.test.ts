@@ -200,6 +200,62 @@ describe("OSINT service connectors", () => {
     }
   });
 
+  it("supports operator-controlled private OpenCTI service origins", async () => {
+    const previousUrl = process.env.OPENCTI_BASE_URL;
+    const previousToken = process.env.OPENCTI_TOKEN;
+    process.env.OPENCTI_BASE_URL = "http://opencti:8080";
+    process.env.OPENCTI_TOKEN = "token";
+    let requested = "";
+    const fetcher = async (input: string | URL) => {
+      requested = String(input);
+      return new Response(JSON.stringify({
+        data: {
+          stixCoreObjects: {
+            edges: [],
+            pageInfo: { globalCount: 0 },
+          },
+        },
+      }), { status: 200 });
+    };
+    try {
+      const adapter = createOpenCtiServiceAdapter(fetcher);
+      await adapter.execute({ query: "example" }, {
+        missionId: "m-private", userId: "u-private", purpose: "defensive CTI lookup",
+      });
+      expect(requested).toBe("http://opencti:8080/graphql");
+    } finally {
+      if (previousUrl === undefined) delete process.env.OPENCTI_BASE_URL;
+      else process.env.OPENCTI_BASE_URL = previousUrl;
+      if (previousToken === undefined) delete process.env.OPENCTI_TOKEN;
+      else process.env.OPENCTI_TOKEN = previousToken;
+    }
+  });
+
+  it("accepts the legacy IntelOwl analyzer variable as a compatibility alias", () => {
+    const previousUrl = process.env.INTELOWL_BASE_URL;
+    const previousKey = process.env.INTELOWL_API_KEY;
+    const previousAllowlist = process.env.INTELOWL_ANALYZERS_ALLOWLIST;
+    const previousLegacy = process.env.INTELOWL_ANALYZERS;
+    process.env.INTELOWL_BASE_URL = "http://intelowl:8001";
+    process.env.INTELOWL_API_KEY = "key";
+    delete process.env.INTELOWL_ANALYZERS_ALLOWLIST;
+    process.env.INTELOWL_ANALYZERS = "PassiveDns";
+    try {
+      const intelowl = listOsintServiceConnectors().find((connector) => connector.id === "intelowl");
+      expect(intelowl?.configured).toBe(true);
+      expect(intelowl?.missingEnv).toEqual([]);
+    } finally {
+      if (previousUrl === undefined) delete process.env.INTELOWL_BASE_URL;
+      else process.env.INTELOWL_BASE_URL = previousUrl;
+      if (previousKey === undefined) delete process.env.INTELOWL_API_KEY;
+      else process.env.INTELOWL_API_KEY = previousKey;
+      if (previousAllowlist === undefined) delete process.env.INTELOWL_ANALYZERS_ALLOWLIST;
+      else process.env.INTELOWL_ANALYZERS_ALLOWLIST = previousAllowlist;
+      if (previousLegacy === undefined) delete process.env.INTELOWL_ANALYZERS;
+      else process.env.INTELOWL_ANALYZERS = previousLegacy;
+    }
+  });
+
   it("registers configured CTI service adapters on the default bus", () => {
     const ids = createDefaultOsintBus().list().map((adapter) => adapter.id);
     expect(ids).toContain("service-opencti");
