@@ -10,12 +10,35 @@ const arrayKeys: Record<string, string> = {
   "public-wikidata-search": "entities", "public-openalex": "works", "public-celestrak-gp": "objects", "public-reliefweb": "reports",
   "public-brave-search": "records", "passive-shodan": "records", "google-vision-web": "records",
 };
+
+function astraRows(adapterId: string, data: Record<string, unknown>): Record<string, unknown>[] {
+  const result = record(data.result);
+  if (adapterId === "astra6-sherlock") {
+    return Array.isArray(result.found) ? result.found.map(record) : [];
+  }
+  if (adapterId === "astra6-phoneinfoga") {
+    return text(result.number) ? [result] : [];
+  }
+  if (adapterId === "astra6-theharvester") {
+    const rows: Record<string, unknown>[] = [];
+    for (const email of Array.isArray(result.emails) ? result.emails : []) if (typeof email === "string") rows.push({ type: "email", value: email });
+    for (const host of Array.isArray(result.hosts) ? result.hosts : []) if (typeof host === "string") rows.push({ type: "host", value: host });
+    for (const ip of Array.isArray(result.ips) ? result.ips : []) if (typeof ip === "string") rows.push({ type: "ip", value: ip });
+    for (const subdomain of Array.isArray(result.subdomains) ? result.subdomains : []) if (typeof subdomain === "string") rows.push({ type: "subdomain", value: subdomain });
+    return rows;
+  }
+  if (adapterId === "astra6-subfinder") return Array.isArray(result.subdomains) ? result.subdomains.map(record) : [];
+  if (adapterId === "astra6-owasp-amass") return Array.isArray(result.subdomains) ? result.subdomains.map(record) : [];
+  if (adapterId === "astra6-spiderfoot") return Array.isArray(result.events) ? result.events.map(record) : [];
+  return [];
+}
 export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResult<unknown>): InvestigationEvidence[] {
   if (result.status !== "completed" && result.status !== "partial") return [];
   const data = record(result.data);
   let rows: Record<string, unknown>[] = [];
   const key = arrayKeys[plan.adapterId];
-  if (key) rows = Array.isArray(data[key]) ? (data[key] as unknown[]).map(record) : [];
+  if (plan.adapterId.startsWith("astra6-")) rows = astraRows(plan.adapterId, data);
+  else if (key) rows = Array.isArray(data[key]) ? (data[key] as unknown[]).map(record) : [];
   else if (plan.adapterId === "public-rdap") rows = data.handle || data.name || (Array.isArray(data.entities) && data.entities.length) ? [data] : [];
   else if (["public-nvd-cve", "public-epss"].includes(plan.adapterId)) rows = data.found === true ? [data] : [];
   // Lookup summaries are not results. Unknown data shapes are never promoted.
