@@ -7,6 +7,7 @@ export type OsintSourceCategory =
   | "corporate_financial"
   | "transparency_leaks"
   | "movement_tracking"
+  | "vehicle_registry"
   | "social_media"
   | "internet_scanner"
   | "malware_ioc"
@@ -89,6 +90,9 @@ export const osintSourceUniverse: OsintSourceUniverseEntry[] = [
 
   { id:"ddosecrets", name:"Distributed Denial of Secrets", category:"transparency_leaks", homeUrl:"https://ddosecrets.com/", mode:"blocked_by_default", auth:"varies", risk:"restricted", capabilities:["leak/archive discovery"], notes:"No automated ingestion of leaked/private data. Legal review and explicit authorization required." },
   { id:"wikileaks", name:"WikiLeaks archive", category:"transparency_leaks", homeUrl:"https://wikileaks.org/", mode:"blocked_by_default", auth:"none", risk:"restricted", capabilities:["published leak archive"], notes:"No automated ingestion of leaked/private data. Legal review and source-by-source assessment required." },
+
+  { id:"vahan-national-transport", name:"VAHAN / National Transport Repository", category:"vehicle_registry", homeUrl:"https://parivahan.gov.in/", mode:"requires_configuration", auth:"varies", risk:"moderate", capabilities:["vehicle registration lookup","vehicle class/status","registration validity","permit/insurance fields subject to entitlement"], notes:"DISHA recognizes Indian registration identifiers, but registry data remains non-executable until a reviewed authorized data/API entitlement is configured." },
+  { id:"parivahan-echallan", name:"Parivahan eChallan", category:"vehicle_registry", homeUrl:"https://echallan.parivahan.gov.in/", mode:"requires_configuration", auth:"varies", risk:"moderate", capabilities:["vehicle challan/enforcement status subject to authorized access"], notes:"No scraping or CAPTCHA bypass. Automated enrichment requires an approved public or authorized connector." },
 
   { id:"adsb-exchange", name:"ADS-B Exchange", category:"movement_tracking", homeUrl:"https://www.adsbexchange.com/", mode:"requires_configuration", auth:"api_key", risk:"moderate", capabilities:["aircraft tracking","ADS-B data"], notes:"Use for public aviation analysis, not covert tracking of private individuals." },
   { id:"flightradar24", name:"Flightradar24", category:"movement_tracking", homeUrl:"https://www.flightradar24.com/", mode:"requires_configuration", auth:"paid", risk:"moderate", capabilities:["flight tracking","aviation history"], notes:"Provider terms and plan limits apply." },
