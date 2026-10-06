@@ -22,7 +22,7 @@ export function OsintRuntimeClient() {
     try {
       setLoading(true);
       const [toolsRes, healthRes] = await Promise.all([
-        fetch("/api/v1/osint/tools?limit=500"),
+        fetch("/api/v1/osint/tools?limit=600"),
         fetch("/api/v1/osint/tools/health"),
       ]);
 
