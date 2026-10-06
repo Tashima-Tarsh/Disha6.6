@@ -32,6 +32,8 @@ describe("OSINT CTI SPACEINT source universe", () => {
       "planet",
       "unoosa-register",
       "noaa-swpc",
+      "vahan-national-transport",
+      "parivahan-echallan",
     ]) {
       expect(entries.some((entry) => entry.id === id), id).toBe(true);
     }
@@ -87,6 +89,6 @@ describe("OSINT CTI SPACEINT source universe", () => {
     expect(summary.blockedByDefault).toBeGreaterThan(0);
     expect(summary.byCategory.space_weather).toBeGreaterThan(0);
     expect(summary.byCategory.malware_ioc).toBeGreaterThan(0);
-    expect(summary.byCategory.corporate_financial).toBeGreaterThan(0);
+    expect(summary.byCategory.corporate_financial).toBeGreaterThan(0);\n    expect(summary.byCategory.vehicle_registry).toBeGreaterThan(0);
   });
 });
