@@ -503,15 +503,15 @@ function serviceOrigin(envName: string): string {
 async function sleepWithSignal(ms: number, signal?: AbortSignal): Promise<void> {
   if (signal?.aborted) throw new Error("adapter_cancelled");
   await new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(resolve, ms);
     const onAbort = () => {
       clearTimeout(timer);
       reject(new Error("adapter_cancelled"));
     };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
     signal?.addEventListener("abort", onAbort, { once: true });
-    if (signal) {
-      setTimeout(() => signal.removeEventListener("abort", onAbort), ms + 10).unref?.();
-    }
   });
 }
 
