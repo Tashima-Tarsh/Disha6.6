@@ -329,7 +329,6 @@ export const astra6Adapters = [
   instaloaderAdapter,
   telegramPublicAdapter,
   theHarvesterAdapter,
-  spiderfootAdapter,
   amassAdapter,
   subfinderAdapter,
 ];
