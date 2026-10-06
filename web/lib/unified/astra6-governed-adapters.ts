@@ -1,3 +1,7 @@
+import { randomUUID } from "node:crypto";
+
+import { getDbPool } from "../server/db";
+import { hashValue } from "./hash";
 import { buildAdapterEvidence, type AdapterContext, type GovernedOsintAdapter, type AdapterEvidence } from "./osint-adapter-bus";
 import {
   phoneInfogaManifest,
@@ -17,16 +21,33 @@ export type Astra6DispatchInput = {
 };
 
 export type Astra6DispatchOutput = {
+  runId?: string;
   toolId: string;
   target: string;
   targetType: string;
-  dispatchStatus: "queued" | "blocked_by_policy" | "tool_not_available";
+  dispatchStatus: "completed" | "blocked_by_policy" | "tool_not_available";
   workerRuntime: string;
   cliCommand: string;
   estimatedTimeoutMs: number;
   policyApprovalRequired: boolean;
+  workerId?: string;
+  durationMs?: number;
+  result?: unknown;
   options?: Record<string, string>;
 };
+
+type Astra6RunRow = {
+  run_id: string;
+  status: "queued" | "running" | "completed" | "partial" | "failed" | "cancelled" | "timed_out" | "blocked_by_policy";
+  parsed_output: unknown;
+  evidence: unknown;
+  warnings: unknown;
+  error: string | null;
+  worker_id: string | null;
+  duration_ms: number;
+};
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 function isToolAvailable(manifest: DishaToolManifest): boolean {
   const envKey = `DISHA_ASTRA6_${manifest.toolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
@@ -37,8 +58,164 @@ function requiresIdentityPolicy(): boolean {
   return process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
 }
 
+function isIdentityManifest(manifest: DishaToolManifest): boolean {
+  return manifest.targetTypes.some((type) => ["username", "phone_number", "email"].includes(type));
+}
+
+async function ensureManifestRegistered(manifest: DishaToolManifest): Promise<void> {
+  const pool = getDbPool();
+  if (!pool) throw new Error("not_configured: DATABASE_URL is required for ASTRA 6 workers");
+
+  await pool.query(
+    `insert into astra6_tool_manifests (
+       tool_id, name, version, repository, license, execution_class, target_types, capabilities,
+       passive_module_allowlist, blocked_modules, worker_runtime, cli_command, output_format,
+       timeout_ms, max_retries, rate_limit_per_minute, manifest_hash, enabled, registered_at, updated_at
+     ) values (
+       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,true,now(),now()
+     )
+     on conflict (tool_id) do update set
+       name = excluded.name,
+       version = excluded.version,
+       repository = excluded.repository,
+       license = excluded.license,
+       execution_class = excluded.execution_class,
+       target_types = excluded.target_types,
+       capabilities = excluded.capabilities,
+       passive_module_allowlist = excluded.passive_module_allowlist,
+       blocked_modules = excluded.blocked_modules,
+       worker_runtime = excluded.worker_runtime,
+       cli_command = excluded.cli_command,
+       output_format = excluded.output_format,
+       timeout_ms = excluded.timeout_ms,
+       max_retries = excluded.max_retries,
+       rate_limit_per_minute = excluded.rate_limit_per_minute,
+       manifest_hash = excluded.manifest_hash,
+       enabled = true,
+       updated_at = now()`,
+    [
+      manifest.toolId,
+      manifest.name,
+      manifest.version,
+      manifest.repository,
+      manifest.license,
+      manifest.executionClass,
+      manifest.targetTypes,
+      manifest.capabilities,
+      manifest.passiveModuleAllowlist ?? [],
+      manifest.blockedModules ?? [],
+      manifest.workerRuntime,
+      manifest.cliCommand,
+      manifest.outputFormat,
+      manifest.timeoutMs,
+      manifest.maxRetries,
+      manifest.rateLimitPerMinute,
+      manifest.manifestHash,
+    ],
+  );
+}
+
+async function queueRun(
+  manifest: DishaToolManifest,
+  input: Astra6DispatchInput,
+  context: AdapterContext,
+): Promise<string> {
+  const pool = getDbPool();
+  if (!pool) throw new Error("not_configured: DATABASE_URL is required for ASTRA 6 workers");
+
+  await ensureManifestRegistered(manifest);
+  const runId = randomUUID();
+  const dispatchInput = { options: input.options ?? {} };
+  const provenanceHash = hashValue({
+    runId,
+    missionId: context.missionId,
+    userId: context.userId,
+    toolId: manifest.toolId,
+    target: input.target,
+    targetType: input.targetType,
+    dispatchInput,
+  });
+
+  await pool.query(
+    `insert into astra6_connector_runs (
+       run_id, tool_id, mission_id, user_id, target, target_type, status,
+       dispatch_input, provenance_hash, queued_at
+     ) values ($1,$2,$3,$4,$5,$6,'queued',$7::jsonb,$8,now())`,
+    [
+      runId,
+      manifest.toolId,
+      context.missionId,
+      context.userId,
+      input.target,
+      input.targetType,
+      JSON.stringify(dispatchInput),
+      provenanceHash,
+    ],
+  );
+  return runId;
+}
+
+function evidenceArray(value: unknown): AdapterEvidence[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is AdapterEvidence => {
+    if (!item || typeof item !== "object") return false;
+    const row = item as Partial<AdapterEvidence>;
+    return typeof row.id === "string"
+      && typeof row.sourceId === "string"
+      && typeof row.sourceName === "string"
+      && typeof row.summary === "string"
+      && typeof row.retrievedAt === "string"
+      && typeof row.provenanceHash === "string";
+  });
+}
+
+function warningArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 30) : [];
+}
+
+async function waitForRun(runId: string, manifest: DishaToolManifest, signal?: AbortSignal): Promise<Astra6RunRow> {
+  const pool = getDbPool();
+  if (!pool) throw new Error("not_configured: DATABASE_URL is required for ASTRA 6 workers");
+  const deadline = Date.now() + Math.max(1_000, manifest.timeoutMs - 2_000);
+
+  for (;;) {
+    if (signal?.aborted) {
+      await pool.query(
+        `update astra6_connector_runs set status='cancelled', completed_at=now()
+         where run_id=$1 and status in ('queued','running')`,
+        [runId],
+      );
+      throw new Error("adapter_cancelled");
+    }
+
+    const response = await pool.query<Astra6RunRow>(
+      `select run_id, status, parsed_output, evidence, warnings, error, worker_id, duration_ms
+       from astra6_connector_runs where run_id=$1`,
+      [runId],
+    );
+    const row = response.rows[0];
+    if (!row) throw new Error("astra6_run_missing");
+
+    if (row.status === "completed" || row.status === "partial") return row;
+    if (row.status === "failed") throw new Error(row.error || `${manifest.toolId}_worker_failed`);
+    if (row.status === "cancelled") throw new Error("adapter_cancelled");
+    if (row.status === "blocked_by_policy") throw new Error("policy_denied");
+    if (row.status === "timed_out") throw new Error("adapter_timeout");
+
+    if (Date.now() >= deadline) {
+      await pool.query(
+        `update astra6_connector_runs set status='timed_out', error='worker_result_timeout', completed_at=now()
+         where run_id=$1 and status in ('queued','running')`,
+        [runId],
+      );
+      throw new Error("adapter_timeout");
+    }
+    await sleep(400);
+  }
+}
+
 function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<Astra6DispatchInput, Astra6DispatchOutput> {
-  const isIdentityTool = manifest.targetTypes.includes("username") || manifest.targetTypes.includes("phone_number");
+  const isIdentityTool = isIdentityManifest(manifest);
 
   return {
     metadata: {
@@ -60,53 +237,51 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (!isToolAvailable(manifest)) {
         return { status: "not_configured" as const, detail: `${manifest.name} is not enabled. Set DISHA_ASTRA6_${manifest.toolId.toUpperCase().replace(/-/g, "_")}_ENABLED=true or DISHA_ASTRA6_ALL_TOOLS_ENABLED=true.` };
       }
-      if (isIdentityTool && !requiresIdentityPolicy()) {
-        return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true for identity investigation tools.` };
+      if (!getDbPool()) {
+        return { status: "not_configured" as const, detail: `${manifest.name} requires DATABASE_URL so the web process can dispatch to the worker.` };
       }
-      return { status: "healthy" as const, detail: `${manifest.name} worker dispatch ready.` };
+      if (isIdentityTool && !requiresIdentityPolicy()) {
+        return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true for authorized identity investigations.` };
+      }
+      return { status: "healthy" as const, detail: `${manifest.name} database-backed worker dispatch ready.` };
     },
     async execute(input: Astra6DispatchInput, context: AdapterContext) {
       const target = validateCommandTarget(input.target, manifest.commandInjectionGuard);
       if (!manifest.targetTypes.includes(input.targetType)) {
         throw new Error(`target_type_mismatch: ${manifest.name} does not accept ${input.targetType}, expected ${manifest.targetTypes.join("/")}`);
       }
-      if (isIdentityTool && !requiresIdentityPolicy()) {
-        const data: Astra6DispatchOutput = {
-          toolId: manifest.toolId,
-          target,
-          targetType: input.targetType,
-          dispatchStatus: "blocked_by_policy",
-          workerRuntime: manifest.workerRuntime,
-          cliCommand: manifest.cliCommand,
-          estimatedTimeoutMs: manifest.timeoutMs,
-          policyApprovalRequired: true,
-          options: input.options,
-        };
-        return {
-          data,
-          evidence: [buildAdapterEvidence({ sourceId: manifest.toolId, sourceName: manifest.name, summary: `${manifest.name} dispatch blocked: identity enumeration policy approval required.` })],
-          warnings: [`${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true`],
-        };
-      }
+      if (!isToolAvailable(manifest)) throw new Error("not_configured");
+      if (isIdentityTool && !requiresIdentityPolicy()) throw new Error("policy_denied");
+
+      const runId = await queueRun(manifest, { ...input, target }, context);
+      const row = await waitForRun(runId, manifest, context.signal);
+      const evidence = evidenceArray(row.evidence);
+      const warnings = warningArray(row.warnings);
       const data: Astra6DispatchOutput = {
+        runId,
         toolId: manifest.toolId,
         target,
         targetType: input.targetType,
-        dispatchStatus: "queued",
+        dispatchStatus: "completed",
         workerRuntime: manifest.workerRuntime,
         cliCommand: manifest.cliCommand,
         estimatedTimeoutMs: manifest.timeoutMs,
         policyApprovalRequired: false,
+        workerId: row.worker_id ?? undefined,
+        durationMs: row.duration_ms,
+        result: row.parsed_output,
         options: input.options,
       };
+
       return {
         data,
-        evidence: [buildAdapterEvidence({
+        evidence: evidence.length ? evidence : [buildAdapterEvidence({
           sourceId: manifest.toolId,
           sourceName: manifest.name,
           sourceUrl: manifest.repository,
-          summary: `${manifest.name} dispatch queued for ${input.targetType} target '${target}' via ${manifest.workerRuntime} worker.`,
+          summary: `${manifest.name} worker completed for ${input.targetType} target '${target}'.`,
         })],
+        warnings,
       };
     },
   };
