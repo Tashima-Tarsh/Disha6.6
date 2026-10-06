@@ -23,7 +23,7 @@ export function publicInvestigation(value: TemporaryInvestigation): Investigatio
 }
 
 export function runFailure(error: string): { status: RunStatus; error: string } {
-  if (/not_configured/.test(error)) return { status: "NOT_CONFIGURED", error: "Provider is not configured" };
+  if (/not_configured|worker_unavailable/.test(error)) return { status: "NOT_CONFIGURED", error: "Provider or worker is not configured" };
   if (/429|rate_limit|credits_exhausted/.test(error)) return { status: "RATE_LIMITED", error: "Provider rate limit or query credits reached" };
   if (/execution_class_denied|policy_denied|adapter_disabled/.test(error)) return { status: "BLOCKED", error: "Source execution is blocked by policy" };
   if (/401|403/.test(error)) return { status: "RESTRICTED", error: "Provider denied this credential or entitlement" };
