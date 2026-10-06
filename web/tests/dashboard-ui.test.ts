@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const dashboardClient = path.resolve(__dirname, "../app/dashboard/dashboard-client.tsx");
 const dashboardPage = path.resolve(__dirname, "../app/dashboard/page.tsx");
+const operationsPage = path.resolve(__dirname, "../app/operations/page.tsx");
 const mapComponent = path.resolve(__dirname, "../components/geospatial/GeospatialCommandMap.tsx");
 const graphComponent = path.resolve(__dirname, "../components/intelligence/IntelligenceGraph.tsx");
 const workspaceRoute = path.resolve(__dirname, "../app/api/v1/intelligence/workspace/route.ts");
@@ -13,15 +14,19 @@ const legacyRoute = path.resolve(__dirname, "../app/dashboard/route.ts");
 const legacyHtml = path.resolve(__dirname, "../app/dashboard/disha66-command-centre-v3.html");
 
 describe("DISHA analyst workspace", () => {
-  it("keeps the dashboard authenticated and removes legacy static dashboard delivery", () => {
+  it("retires the dashboard route into the investigation universe and removes legacy static delivery", () => {
     const page = fs.readFileSync(dashboardPage, "utf8");
-    expect(page).toContain("principalFromAccessToken");
-    expect(page).toContain("returnUrl=%2Fdashboard");
+    expect(page).toContain('redirect("/investigate")');
+    expect(page).not.toContain("DashboardClient");
     expect(fs.existsSync(legacyRoute)).toBe(false);
     expect(fs.existsSync(legacyHtml)).toBe(false);
   });
 
-  it("makes the authenticated dashboard map-first instead of backend-readiness-first", () => {
+  it("keeps the map-first command workspace under the explicit operations route", () => {
+    const operations = fs.readFileSync(operationsPage, "utf8");
+    expect(operations).toContain("principalFromAccessToken");
+    expect(operations).toContain("returnUrl=%2Foperations");
+    expect(operations).toContain("DashboardClient");
     const source = fs.readFileSync(dashboardClient, "utf8");
     expect(source).toContain("/api/v1/intelligence/workspace");
     expect(source).toContain("India operational map");
