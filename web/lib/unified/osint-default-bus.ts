@@ -1,4 +1,5 @@
 import { createMalwareBazaarAdapter, createThreatFoxAdapter } from "./abusech-public-adapters";
+import { createOpenCorporatesAdapter, createOpenSanctionsAdapter } from "./entity-public-adapters";
 import {
   createCelestrakGpAdapter,
   createEpssAdapter,
@@ -50,6 +51,8 @@ export function createDefaultOsintBus(options: AdapterBusOptions = {}): OsintAda
   bus.register(createReliefWebAdapter());
   bus.register(createThreatFoxAdapter());
   bus.register(createMalwareBazaarAdapter());
+  bus.register(createOpenSanctionsAdapter());
+  bus.register(createOpenCorporatesAdapter());
   for (const adapter of astra6Adapters) {
     bus.register(adapter);
   }
