@@ -73,3 +73,32 @@ jobs:
         run: docker build -f infra/workers/Dockerfile.identity -t disha-identity-worker:ci .
       - name: Build infrastructure worker
         run: docker build -f infra/workers/Dockerfile.infrastructure -t disha-infrastructure-worker:ci .
+
+  workers:
+    name: Build and smoke OSINT workers
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build identity worker
+        run: docker build -f infra/workers/Dockerfile.identity -t disha-identity-worker:ci .
+
+      - name: Smoke identity worker runtime
+        run: |
+          docker run --rm --entrypoint node disha-identity-worker:ci --check /opt/disha-worker/scripts/astra6-worker.mjs
+          docker run --rm --entrypoint python3 disha-identity-worker:ci -m py_compile /opt/disha-worker/scripts/identity-osint-adapter.py
+          docker run --rm --entrypoint /opt/venvs/sherlock/bin/python disha-identity-worker:ci -c 'from sherlock_project.notify import QueryNotify; from sherlock_project.result import QueryStatus; from sherlock_project.sherlock import sherlock; from sherlock_project.sites import SitesInformation'
+          docker run --rm --entrypoint /opt/venvs/maigret/bin/python disha-identity-worker:ci -c 'import maigret; assert hasattr(maigret, "search"); assert hasattr(maigret, "MaigretDatabase")'
+          docker run --rm --entrypoint /opt/venvs/holehe/bin/python disha-identity-worker:ci -c 'from holehe.core import get_functions, import_submodules, launch_module'
+          docker run --rm --entrypoint /opt/venvs/instaloader/bin/python disha-identity-worker:ci -c 'import instaloader; assert hasattr(instaloader, "Profile")'
+          docker run --rm --entrypoint /opt/venvs/telethon/bin/python disha-identity-worker:ci -c 'from telethon import TelegramClient; from telethon.sessions import StringSession'
+          docker run --rm --entrypoint sh disha-identity-worker:ci -c 'command -v phoneinfoga >/dev/null'
+
+      - name: Build infrastructure worker
+        run: docker build -f infra/workers/Dockerfile.infrastructure -t disha-infrastructure-worker:ci .
+
+      - name: Smoke infrastructure worker runtime
+        run: |
+          docker run --rm --entrypoint node disha-infrastructure-worker:ci --check /opt/disha-worker/scripts/astra6-worker.mjs
+          docker run --rm --entrypoint sh disha-infrastructure-worker:ci -c 'command -v subfinder >/dev/null && command -v amass >/dev/null && command -v theHarvester >/dev/null'
