@@ -15,7 +15,7 @@ const POLL_INTERVAL_MS = Math.max(250, Number.parseInt(process.env.DISHA_OSINT_P
 
 const WORKER_CLASS_TOOLS = {
   identity: ["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"],
-  infrastructure: ["theharvester", "owasp-amass", "subfinder"],
+  infrastructure: ["theharvester", "spiderfoot", "owasp-amass", "subfinder"],
   document: [],
   cti: [],
 };
@@ -32,6 +32,7 @@ const TOOL_DEFAULT_TIMEOUT_MS = {
   instaloader: 45_000,
   "telegram-public": 45_000,
   theharvester: 120_000,
+  spiderfoot: 180_000,
   "owasp-amass": 120_000,
   subfinder: 90_000,
 };
@@ -224,6 +225,38 @@ function parseNdjson(raw, kind) {
   return rows.slice(0, 1000);
 }
 
+function parseSpiderFoot(raw, target, targetType) {
+  let values = [];
+  try {
+    const parsed = JSON.parse(String(raw));
+    values = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    values = parseNdjson(raw, "spiderfoot");
+  }
+
+  const events = values
+    .filter((entry) => entry && typeof entry === "object")
+    .slice(0, 1000)
+    .map((entry) => ({
+      module: typeof entry.module === "string" ? entry.module : "unknown",
+      eventType: typeof entry.type === "string"
+        ? entry.type
+        : typeof entry.event_type === "string"
+          ? entry.event_type
+          : "unknown",
+      data: typeof entry.data === "string" ? entry.data : JSON.stringify(entry.data ?? ""),
+      sourceEvent: typeof entry.source_event === "string" ? entry.source_event : undefined,
+      confidence: typeof entry.confidence === "number" ? entry.confidence : undefined,
+    }));
+
+  return {
+    target,
+    targetType,
+    modules: [...new Set(events.map((event) => event.module))],
+    events,
+  };
+}
+
 function buildToolCommand(toolId, target) {
   switch (toolId) {
     case "phoneinfoga":
@@ -246,6 +279,19 @@ function buildToolCommand(toolId, target) {
         outputFile: `${outputBase}.json`,
       };
     }
+    case "spiderfoot":
+      return {
+        binary: "python3",
+        args: [
+          "/opt/spiderfoot/sf.py",
+          "-s",
+          target,
+          "-m",
+          "sfp_archiveorg,sfp_bgpview,sfp_certspotter,sfp_crt,sfp_dnsresolve,sfp_emailformat,sfp_hackertarget,sfp_ipinfo,sfp_ripe,sfp_robtex,sfp_threatminer,sfp_urlscan,sfp_viewdns",
+          "-o",
+          "json",
+        ],
+      };
     case "owasp-amass":
       return { binary: "amass", args: ["enum", "-passive", "-d", target, "-json", "/dev/stdout"] };
     case "subfinder":
@@ -255,7 +301,7 @@ function buildToolCommand(toolId, target) {
   }
 }
 
-function parseToolResult(toolId, raw, target) {
+function parseToolResult(toolId, raw, target, targetType) {
   switch (toolId) {
     case "phoneinfoga": {
       const data = parsePhoneInfoga(raw, target);
@@ -352,6 +398,20 @@ function parseToolResult(toolId, raw, target) {
             "theHarvester",
             `Passive domain collection returned ${data.emails.length} email(s), ${data.hosts.length} host(s), and ${data.ips.length} IP(s).`,
             "https://github.com/laramies/theHarvester",
+          ),
+        ],
+      };
+    }
+    case "spiderfoot": {
+      const data = parseSpiderFoot(raw, target, targetType);
+      return {
+        data,
+        evidence: [
+          buildEvidence(
+            "spiderfoot",
+            "SpiderFoot",
+            `SpiderFoot passive profile returned ${data.events.length} event(s) from ${data.modules.length} module(s) for '${target}'.`,
+            "https://github.com/smicallef/spiderfoot",
           ),
         ],
       };
@@ -488,7 +548,7 @@ async function processNextJob() {
     const { binary, args, outputFile } = buildToolCommand(job.tool_id, target);
     const timeoutMs = Math.max(1_000, Math.min(Number(job.timeout_ms) || TOOL_DEFAULT_TIMEOUT_MS[job.tool_id] || 60_000, 240_000));
     const raw = await executeBinary(binary, args, timeoutMs, outputFile);
-    const parsed = parseToolResult(job.tool_id, raw, target);
+    const parsed = parseToolResult(job.tool_id, raw, target, String(job.target_type ?? ""));
     const durationMs = Date.now() - started;
     const provenanceHash = hashValue({ runId: job.run_id, toolId: job.tool_id, data: parsed.data, raw });
 
