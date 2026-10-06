@@ -12,9 +12,10 @@ export type OsintToolCatalogEntry = {
   reason: string;
 };
 
-// This catalog records upstream projects without vendoring or automatically executing them.
-// External tools remain behind DISHA's governed-extension boundary and must preserve source
-// provenance, licensing, operator authorization, and the passive/public-source default.
+// Upstream project source is pinned under disha/services/integrations/osint-upstreams as Git
+// submodules. Presence of source does not automatically authorize execution: tools remain behind
+// DISHA's governed-extension boundary and preserve provenance, licensing, operator authorization,
+// and the passive/public-source default.
 export const osintToolCatalog: OsintToolCatalogEntry[] = [
   {
     id: "spiderfoot",
@@ -169,6 +170,6 @@ export function getOsintToolCatalogSummary() {
     builtin: entries.filter((entry) => entry.mode === "builtin").length,
     catalogOnly: entries.filter((entry) => entry.mode === "catalog_only").length,
     blockedByDefault: entries.filter((entry) => entry.mode === "blocked_by_default").length,
-    rule: "GitHub OSINT projects are cataloged, not blindly vendored. Execution is promoted only through reviewed adapters with passive/public-source defaults, provenance, policy checks, and licensing review.",
+    rule: "GitHub OSINT source is pinned as upstream submodules. Execution is promoted only through reviewed adapters with passive/public-source defaults, provenance, policy checks, and licensing review.",
   };
 }

@@ -1,0 +1,80 @@
+[submodule "osint-upstreams/spiderfoot"]
+	path = disha/services/integrations/osint-upstreams/spiderfoot
+	url = https://github.com/smicallef/spiderfoot.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/theHarvester"]
+	path = disha/services/integrations/osint-upstreams/theHarvester
+	url = https://github.com/laramies/theHarvester.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/amass"]
+	path = disha/services/integrations/osint-upstreams/amass
+	url = https://github.com/owasp-amass/amass.git
+	branch = main
+	shallow = true
+[submodule "osint-upstreams/IntelOwl"]
+	path = disha/services/integrations/osint-upstreams/IntelOwl
+	url = https://github.com/intelowlproject/IntelOwl.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/opensanctions"]
+	path = disha/services/integrations/osint-upstreams/opensanctions
+	url = https://github.com/opensanctions/opensanctions.git
+	branch = main
+	shallow = true
+[submodule "osint-upstreams/opencti"]
+	path = disha/services/integrations/osint-upstreams/opencti
+	url = https://github.com/OpenCTI-Platform/opencti.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/recon-ng"]
+	path = disha/services/integrations/osint-upstreams/recon-ng
+	url = https://github.com/lanmaster53/recon-ng.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/Photon"]
+	path = disha/services/integrations/osint-upstreams/Photon
+	url = https://github.com/s0md3v/Photon.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/sherlock"]
+	path = disha/services/integrations/osint-upstreams/sherlock
+	url = https://github.com/sherlock-project/sherlock.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/maigret"]
+	path = disha/services/integrations/osint-upstreams/maigret
+	url = https://github.com/soxoj/maigret.git
+	branch = main
+	shallow = true
+[submodule "osint-upstreams/holehe"]
+	path = disha/services/integrations/osint-upstreams/holehe
+	url = https://github.com/megadose/holehe.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/awesome-osint"]
+	path = disha/services/integrations/osint-upstreams/awesome-osint
+	url = https://github.com/jivoi/awesome-osint.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/phoneinfoga"]
+	path = disha/services/integrations/osint-upstreams/phoneinfoga
+	url = https://github.com/sundowndev/phoneinfoga.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/subfinder"]
+	path = disha/services/integrations/osint-upstreams/subfinder
+	url = https://github.com/projectdiscovery/subfinder.git
+	branch = dev
+	shallow = true
+[submodule "osint-upstreams/instaloader"]
+	path = disha/services/integrations/osint-upstreams/instaloader
+	url = https://github.com/instaloader/instaloader.git
+	branch = master
+	shallow = true
+[submodule "osint-upstreams/Telethon"]
+	path = disha/services/integrations/osint-upstreams/Telethon
+	url = https://github.com/LonamiWebs/Telethon.git
+	branch = v1
+	shallow = true
