@@ -58,9 +58,11 @@ The post-login investigation flow exposes Name first and Vehicle second, followe
 
 - Name: Wikidata, public reporting/web discovery, OpenSanctions and OpenCorporates officer search when configured.
 - Company: Wikidata, public reporting/web discovery, OpenSanctions and OpenCorporates company search when configured.
-- Phone: public discovery plus PhoneInfoga/SpiderFoot only when the ASTRA worker, tool flag and identity-enumeration approval are configured.
-- Username: public discovery plus Sherlock/SpiderFoot under the same explicit identity policy.
-- Domain/IP/URL: public core adapters plus configured passive ASTRA profiles; ThreatFox IOC lookup is added when configured.
+- Phone: public discovery plus PhoneInfoga only when the ASTRA worker, tool flag, deployment approval and per-investigation operator/admin authorization are configured.
+- Email: public discovery plus Holehe under the same explicit identity policy; password-recovery modules remain disabled.
+- Username: public discovery plus Sherlock and Maigret under the same explicit identity policy.
+- Domain/URL: public core adapters plus theHarvester, passive Amass and Subfinder when their worker flags are configured; ThreatFox IOC lookup is added when configured.
+- IP: public RDAP/RIPEstat, Shodan when configured, public reporting and ThreatFox when configured. SpiderFoot remains non-executable until a compatible isolated passive runtime is packaged and smoke-tested.
 - Hash/IOC: public discovery plus configured ThreatFox; file hashes also use configured MalwareBazaar metadata lookup. Malware samples are not downloaded.
 - Vehicle: Indian registration identifiers are normalized and public discovery can run immediately. VAHAN/National Transport Repository and eChallan remain restricted placeholders until an approved data/API entitlement is connected.
 
