@@ -232,6 +232,10 @@ export function targetClassesForSource(entry: OsintSourceUniverseEntry): string[
   if (cats.some((c) => c.includes("corporate") || c.includes("sec") || c.includes("company") || c.includes("sanction"))) {
     classes.add("company");
   }
+
+  if (cats.some((c) => c.includes("officer") || c.includes("pep") || c.includes("entity search"))) {
+    classes.add("person_name");
+  }
   if (cats.some((c) => c.includes("satellite") || c.includes("norad") || c.includes("orbit"))) {
     classes.add("norad_id");
   }
