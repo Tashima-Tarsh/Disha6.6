@@ -1,4 +1,4 @@
-name: Web CI
+name: Fast CI
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - "infra/workers/**"
       - "docker-compose.prod.yml"
       - ".github/workflows/ci.yml"
+      - ".github/workflows/osint-workers.yml"
   push:
     branches:
       - main
@@ -15,17 +16,18 @@ on:
       - "infra/workers/**"
       - "docker-compose.prod.yml"
       - ".github/workflows/ci.yml"
+      - ".github/workflows/osint-workers.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: web-ci-${{ github.workflow }}-${{ github.ref }}
+  group: fast-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   web:
-    name: Test, type-check, build
+    name: Tests, types, build, worker syntax
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -47,43 +49,13 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: web/package-lock.json
+      - name: Worker source syntax
+        run: |
+          node --check scripts/astra6-worker.mjs
+          python3 -m py_compile scripts/identity-osint-adapter.py
       - run: npm ci
       - run: npm run test
       - run: npm run type-check
       - run: npm run build
         env:
           DISHA_ALLOW_STATELESS_AUTH: "true"
-
-  workers:
-    name: Build and smoke OSINT workers
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Check worker source syntax
-        run: |
-          node --check web/scripts/astra6-worker.mjs
-          python3 -m py_compile web/scripts/identity-osint-adapter.py
-
-      - name: Build identity worker
-        run: docker build -f infra/workers/Dockerfile.identity -t disha-identity-worker:ci .
-
-      - name: Smoke identity worker runtime
-        run: |
-          docker run --rm --entrypoint node disha-identity-worker:ci --check /opt/disha-worker/scripts/astra6-worker.mjs
-          docker run --rm --entrypoint python3 disha-identity-worker:ci -m py_compile /opt/disha-worker/scripts/identity-osint-adapter.py
-          docker run --rm --entrypoint /opt/venvs/sherlock/bin/python disha-identity-worker:ci -c 'from sherlock_project.notify import QueryNotify; from sherlock_project.result import QueryStatus; from sherlock_project.sherlock import sherlock; from sherlock_project.sites import SitesInformation'
-          docker run --rm --entrypoint /opt/venvs/maigret/bin/python disha-identity-worker:ci -c 'import maigret; assert hasattr(maigret, "search"); assert hasattr(maigret, "MaigretDatabase")'
-          docker run --rm --entrypoint /opt/venvs/holehe/bin/python disha-identity-worker:ci -c 'from holehe.core import get_functions, import_submodules, launch_module'
-          docker run --rm --entrypoint /opt/venvs/instaloader/bin/python disha-identity-worker:ci -c 'import instaloader; assert hasattr(instaloader, "Profile")'
-          docker run --rm --entrypoint /opt/venvs/telethon/bin/python disha-identity-worker:ci -c 'from telethon import TelegramClient; from telethon.sessions import StringSession'
-          docker run --rm --entrypoint sh disha-identity-worker:ci -c 'command -v phoneinfoga >/dev/null'
-
-      - name: Build infrastructure worker
-        run: docker build -f infra/workers/Dockerfile.infrastructure -t disha-infrastructure-worker:ci .
-
-      - name: Smoke infrastructure worker runtime
-        run: |
-          docker run --rm --entrypoint node disha-infrastructure-worker:ci --check /opt/disha-worker/scripts/astra6-worker.mjs
-          docker run --rm --entrypoint sh disha-infrastructure-worker:ci -c 'command -v subfinder >/dev/null && command -v amass >/dev/null && command -v theHarvester >/dev/null'
