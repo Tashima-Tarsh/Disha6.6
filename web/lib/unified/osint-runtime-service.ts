@@ -23,6 +23,8 @@ export type OsintToolRecord = {
   defaultBranch: string;
   pinnedSha: string | null;
   upstreamSha: string | null;
+  upstreamStatus?: "VERIFIED" | "UNVERIFIED" | "UNAVAILABLE" | "UNKNOWN";
+  upstreamVerifiedAt?: string | null;
   forkUrl: string | null;
   forkStatus: string;
   license: string;
@@ -56,6 +58,9 @@ export type OsintRuntimeMetrics = {
   libraryOnly: number;
   forked: number;
   pendingFork: number;
+  upstreamVerified: number;
+  upstreamUnverified: number;
+  upstreamUnavailable: number;
   byCategory: Record<string, number>;
   byRuntime: Record<string, number>;
 };
@@ -101,6 +106,8 @@ export async function loadOsintRegistry(): Promise<OsintToolRecord[]> {
     defaultBranch: "main",
     pinnedSha: m.pinnedSha,
     upstreamSha: m.upstreamSha,
+    upstreamStatus: m.upstreamSha ? "VERIFIED" : "UNVERIFIED",
+    upstreamVerifiedAt: null,
     forkUrl: m.forkUrl,
     forkStatus: m.forkStatus,
     license: m.license,
@@ -145,6 +152,9 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     libraryOnly: 0,
     forked: 0,
     pendingFork: 0,
+    upstreamVerified: 0,
+    upstreamUnverified: 0,
+    upstreamUnavailable: 0,
     byCategory: {},
     byRuntime: {},
   };
@@ -160,6 +170,14 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
 
     if (tool.forkStatus === "FORKED") metrics.forked++;
     else metrics.pendingFork++;
+
+    if (tool.upstreamStatus === "VERIFIED" || (!!tool.upstreamSha && tool.upstreamStatus !== "UNAVAILABLE")) {
+      metrics.upstreamVerified++;
+    } else if (tool.upstreamStatus === "UNAVAILABLE") {
+      metrics.upstreamUnavailable++;
+    } else {
+      metrics.upstreamUnverified++;
+    }
 
     const cat = tool.category || "general";
     metrics.byCategory[cat] = (metrics.byCategory[cat] || 0) + 1;
