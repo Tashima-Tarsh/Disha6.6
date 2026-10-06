@@ -23,8 +23,8 @@ jobs:
       matrix:
         include:
           - name: web
-            context: ./web
-            dockerfile: ./web/Dockerfile
+            context: .
+            dockerfile: ./Dockerfile
           - name: brain
             context: .
             dockerfile: ./disha/brain/Dockerfile
