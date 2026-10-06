@@ -17,8 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=go-builder /go/bin/subfinder /usr/local/bin/subfinder
 COPY --from=go-builder /go/bin/amass /usr/local/bin/amass
 
+# theHarvester 4.6.0 is released on GitHub but is not published to PyPI
+# under that version. Install directly from the immutable tagged source archive.
 RUN pip install --no-cache-dir \
-    theHarvester==4.6.0 \
+    "https://github.com/laramies/theHarvester/archive/refs/tags/4.6.0.tar.gz" \
     psycopg2-binary==2.9.9
 
 WORKDIR /opt/disha-worker
