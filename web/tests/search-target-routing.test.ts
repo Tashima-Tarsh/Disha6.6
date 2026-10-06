@@ -92,6 +92,19 @@ describe("canonical OSINT search targets", () => {
     expect(plan.find(item => item.adapterId === "public-malwarebazaar")?.initialStatus).toBeUndefined();
   });
 
+  it("routes CTI targets through configured OpenCTI and allowlisted IntelOwl services", () => {
+    vi.stubEnv("OPENCTI_BASE_URL", "https://opencti.example");
+    vi.stubEnv("OPENCTI_TOKEN", "configured");
+    vi.stubEnv("INTELOWL_BASE_URL", "https://intelowl.example");
+    vi.stubEnv("INTELOWL_API_KEY", "configured");
+    vi.stubEnv("INTELOWL_ANALYZERS_ALLOWLIST", "PassiveDns");
+
+    const plan = buildTargetRoutePlan("example.com", "domain");
+    expect(plan.find(item => item.adapterId === "service-opencti")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "service-intelowl")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "service-intelowl")?.input).toEqual({ observable: "example.com" });
+  });
+
   it("keeps domain ASTRA tools pending while live public adapters remain executable if workers are unconfigured", () => {
     vi.stubEnv("DATABASE_URL", "");
     vi.stubEnv("DISHA_ASTRA6_ALL_TOOLS_ENABLED", "");

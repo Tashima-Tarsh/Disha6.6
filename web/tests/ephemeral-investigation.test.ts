@@ -65,6 +65,12 @@ describe("truthful source records and temporary lifecycle", () => {
     expect(normalizeRecords(plan, result(plan.adapterId, undefined))).toEqual([]);
     expect(normalizeRecords({ ...plan, adapterId: "public-nvd-cve" }, result("public-nvd-cve", { found: false }))).toEqual([]);
   });
+  it("normalizes configured CTI service records into investigation evidence", () => {
+    const opencti: AdapterPlan = { adapterId: "service-opencti", sourceName: "OpenCTI", input: { query: "example.com" }, reason: "test" };
+    const intelowl: AdapterPlan = { adapterId: "service-intelowl", sourceName: "IntelOwl", input: { observable: "example.com" }, reason: "test" };
+    expect(normalizeRecords(opencti, result(opencti.adapterId, { records: [{ id: "indicator--1", name: "Example indicator" }] }))).toHaveLength(1);
+    expect(normalizeRecords(intelowl, result(intelowl.adapterId, { records: [{ id: 42, name: "PassiveDns" }] }))).toHaveLength(1);
+  });
   it("separates distinct same-name entity records without invented matches", async () => {
     const store = new MemoryStore(); const execute = vi.fn(async (plan: AdapterPlan) => result(plan.adapterId, { entities: [{ id: "Q1", label: "Shared name", description: "First record", conceptUri: "https://www.wikidata.org/wiki/Q1" }, { id: "Q2", label: "Shared name", description: "Second record", conceptUri: "https://www.wikidata.org/wiki/Q2" }] }));
     const log = vi.fn(async () => {}); const service = new InvestigationService(store, execute, log);

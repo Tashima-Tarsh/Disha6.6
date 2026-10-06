@@ -69,7 +69,7 @@ function activeReconDeploymentApproved(): boolean {
 }
 
 function isIdentityManifest(manifest: DishaToolManifest): boolean {
-  return manifest.targetTypes.some((type) => ["username", "phone_number", "email"].includes(type));
+  return manifest.targetTypes.some((type) => ["username", "phone_number", "email", "instagram_username", "telegram_username"].includes(type));
 }
 
 function configurationIssue(manifest: DishaToolManifest): string | undefined {
@@ -144,7 +144,10 @@ async function queueRun(
 
   await ensureManifestRegistered(manifest);
   const runId = randomUUID();
-  const dispatchInput = { options: input.options ?? {} };
+  const dispatchInput = {
+    options: input.options ?? {},
+    ...(context.identityAuthorization === true ? { identityAuthorization: true } : {}),
+  };
   const provenanceHash = hashValue({
     runId,
     missionId: context.missionId,

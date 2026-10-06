@@ -125,6 +125,32 @@ function addMalwareBazaar(plan: AdapterPlan[], hash: string) {
   );
 }
 
+function serviceConfigured(...names: string[]): boolean {
+  return names.every((name) => Boolean(process.env[name]?.trim()));
+}
+
+function addOpenCti(plan: AdapterPlan[], target: string) {
+  add(
+    plan,
+    "service-opencti",
+    "OpenCTI",
+    { query: target },
+    "Bounded read-only search of the configured OpenCTI STIX graph.",
+    serviceConfigured("OPENCTI_BASE_URL", "OPENCTI_TOKEN") ? undefined : "NOT_CONFIGURED",
+  );
+}
+
+function addIntelOwl(plan: AdapterPlan[], target: string) {
+  add(
+    plan,
+    "service-intelowl",
+    "IntelOwl",
+    { observable: target },
+    "Observable enrichment through the configured IntelOwl service using only the server-side analyzer allowlist.",
+    serviceConfigured("INTELOWL_BASE_URL", "INTELOWL_API_KEY", "INTELOWL_ANALYZERS_ALLOWLIST") ? undefined : "NOT_CONFIGURED",
+  );
+}
+
 function addOpenSanctions(plan: AdapterPlan[], target: string, schema: "Person" | "Company") {
   add(
     plan,
@@ -194,6 +220,14 @@ export function buildTargetRoutePlan(
 
   if (type === "ioc") {
     addThreatFox(plan, target, "ioc");
+  }
+
+  if (["domain", "url", "ip", "file_hash", "ioc", "cve", "certificate"].includes(type)) {
+    addOpenCti(plan, target);
+  }
+
+  if (["domain", "url", "ip", "file_hash", "ioc"].includes(type)) {
+    addIntelOwl(plan, target);
   }
 
   if (["domain", "ip", "url"].includes(type)) {
