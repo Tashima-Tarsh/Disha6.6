@@ -35,7 +35,7 @@ function toolEnabled(manifest: DishaToolManifest): boolean {
 }
 
 function identitySensitive(targetType: string): boolean {
-  return ["email", "phone_number", "username"].includes(targetType);
+  return ["email", "phone_number", "username", "instagram_username", "telegram_username"].includes(targetType);
 }
 
 async function upsertManifest(manifest: DishaToolManifest) {
