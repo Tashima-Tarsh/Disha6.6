@@ -110,18 +110,33 @@ export const spiderfootManifest = buildManifest({
   repository: "https://github.com/smicallef/spiderfoot",
   license: "MIT",
   executionClass: "passive_public",
-  targetTypes: ["domain", "ip", "email", "phone_number", "username"],
-  capabilities: ["multi-source OSINT", "correlation", "passive intelligence gathering"],
+  targetTypes: ["domain", "ip"],
+  capabilities: ["multi-source passive OSINT", "correlation", "public infrastructure intelligence"],
   passiveModuleAllowlist: [
-    "sfp_abusech", "sfp_alienvaultoxt", "sfp_archiveorg", "sfp_bgpview", "sfp_blockchain",
-    "sfp_certspotter", "sfp_crt", "sfp_cybercrimetracker", "sfp_dnsbrute", "sfp_dnsresolve",
-    "sfp_dnszonexfer", "sfp_emailformat", "sfp_grep_app", "sfp_hackertarget", "sfp_ipinfo",
-    "sfp_maltiverse", "sfp_nameapi", "sfp_onyphe", "sfp_opensource", "sfp_opnicwhois",
-    "sfp_projectdiscovery", "sfp_ripe", "sfp_robtex", "sfp_securitytrails", "sfp_shodan",
-    "sfp_similar", "sfp_threatcrowd", "sfp_threatminer", "sfp_urlscan", "sfp_viewdns",
-    "sfp_virustotal", "sfp_whoisology", "sfp_whoxy"
+    "sfp_archiveorg",
+    "sfp_bgpview",
+    "sfp_certspotter",
+    "sfp_crt",
+    "sfp_grep_app",
+    "sfp_hackertarget",
+    "sfp_ipinfo",
+    "sfp_opnicwhois",
+    "sfp_ripe",
+    "sfp_robtex",
+    "sfp_threatminer",
+    "sfp_urlscan",
+    "sfp_viewdns"
   ],
-  blockedModules: ["sfp_portscan_tcp", "sfp_portscan_udp", "sfp_spider", "sfp_crawlnow", "sfp_sslcert"],
+  blockedModules: [
+    "sfp_dnsbrute",
+    "sfp_dnszonexfer",
+    "sfp_portscan_tcp",
+    "sfp_portscan_udp",
+    "sfp_spider",
+    "sfp_crawlnow",
+    "sfp_sslcert",
+    "sfp_projectdiscovery"
+  ],
   workerRuntime: "python",
   cliCommand: "sfcli.py",
   outputFormat: "json",
@@ -253,6 +268,52 @@ export const telegramPublicManifest = buildManifest({
   commandInjectionGuard: SHELL_INJECTION_GUARD,
 });
 
+export const reconNgManifest = buildManifest({
+  toolId: "recon-ng",
+  name: "Recon-ng",
+  version: "5.1.2",
+  repository: "https://github.com/lanmaster53/recon-ng",
+  license: "GPL-3.0",
+  executionClass: "passive_public",
+  targetTypes: ["domain"],
+  capabilities: ["allowlisted public domain-to-host discovery", "certificate transparency enrichment"],
+  passiveModuleAllowlist: [
+    "recon/domains-hosts/certificate_transparency",
+    "recon/domains-hosts/hackertarget",
+    "recon/domains-hosts/threatminer"
+  ],
+  blockedModules: ["marketplace auto-install", "brute-force modules", "credential modules", "active scanning modules"],
+  workerRuntime: "python",
+  cliCommand: "recon-ng-adapter.py",
+  outputFormat: "json",
+  timeoutMs: 120_000,
+  maxRetries: 0,
+  rateLimitPerMinute: 4,
+  legalUse: ["Public domain intelligence", "Certificate transparency lookup", "Defensive asset inventory"],
+  blockedUse: ["Credential discovery", "Brute-force enumeration", "Active scanning", "Arbitrary marketplace module execution"],
+  commandInjectionGuard: SHELL_INJECTION_GUARD,
+});
+
+export const photonManifest = buildManifest({
+  toolId: "photon",
+  name: "Photon",
+  version: "1.3.2",
+  repository: "https://github.com/s0md3v/Photon",
+  license: "GPL-3.0",
+  executionClass: "active_recon",
+  targetTypes: ["domain"],
+  capabilities: ["bounded same-site public URL discovery"],
+  workerRuntime: "python",
+  cliCommand: "photon.py",
+  outputFormat: "json",
+  timeoutMs: 90_000,
+  maxRetries: 0,
+  rateLimitPerMinute: 2,
+  legalUse: ["Explicitly authorized public website crawling", "Defensive web inventory"],
+  blockedUse: ["Secret-key extraction", "Site cloning", "DNS enumeration", "Private content access", "Unbounded crawling"],
+  commandInjectionGuard: SHELL_INJECTION_GUARD,
+});
+
 export const astra6ToolManifests: DishaToolManifest[] = [
   phoneInfogaManifest,
   maigretManifest,
@@ -264,6 +325,8 @@ export const astra6ToolManifests: DishaToolManifest[] = [
   spiderfootManifest,
   amassManifest,
   subfinderManifest,
+  reconNgManifest,
+  photonManifest,
 ];
 
 export function getAstra6ToolManifest(toolId: string): DishaToolManifest | undefined {

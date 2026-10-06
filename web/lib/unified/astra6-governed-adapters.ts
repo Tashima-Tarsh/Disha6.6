@@ -14,6 +14,8 @@ import {
   spiderfootManifest,
   amassManifest,
   subfinderManifest,
+  reconNgManifest,
+  photonManifest,
   validateCommandTarget,
   type DishaToolManifest,
 } from "./astra6-tool-manifest";
@@ -60,6 +62,10 @@ function isToolAvailable(manifest: DishaToolManifest): boolean {
 
 function identityDeploymentApproved(): boolean {
   return process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+}
+
+function activeReconDeploymentApproved(): boolean {
+  return process.env.DISHA_ACTIVE_RECON_APPROVED === "true";
 }
 
 function isIdentityManifest(manifest: DishaToolManifest): boolean {
@@ -263,6 +269,9 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (isIdentityTool && !identityDeploymentApproved()) {
         return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_IDENTITY_ENUMERATION_APPROVED=true for authorized identity investigations.` };
       }
+      if (manifest.executionClass === "active_recon" && !activeReconDeploymentApproved()) {
+        return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_ACTIVE_RECON_APPROVED=true before active crawling can run.` };
+      }
       return { status: "healthy" as const, detail: `${manifest.name} database-backed worker dispatch ready.` };
     },
     async execute(input: Astra6DispatchInput, context: AdapterContext) {
@@ -273,6 +282,9 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (!isToolAvailable(manifest)) throw new Error("not_configured");
       if (configurationIssue(manifest)) throw new Error("not_configured");
       if (isIdentityTool && (!identityDeploymentApproved() || context.identityAuthorization !== true)) {
+        throw new Error("policy_denied");
+      }
+      if (manifest.executionClass === "active_recon" && (!activeReconDeploymentApproved() || context.activeAuthorization !== true)) {
         throw new Error("policy_denied");
       }
 
@@ -320,6 +332,8 @@ export const theHarvesterAdapter = createAstra6Adapter(theHarvesterManifest);
 export const spiderfootAdapter = createAstra6Adapter(spiderfootManifest);
 export const amassAdapter = createAstra6Adapter(amassManifest);
 export const subfinderAdapter = createAstra6Adapter(subfinderManifest);
+export const reconNgAdapter = createAstra6Adapter(reconNgManifest);
+export const photonAdapter = createAstra6Adapter(photonManifest);
 
 export const astra6Adapters = [
   phoneInfogaAdapter,
@@ -329,6 +343,9 @@ export const astra6Adapters = [
   instaloaderAdapter,
   telegramPublicAdapter,
   theHarvesterAdapter,
+  spiderfootAdapter,
   amassAdapter,
   subfinderAdapter,
+  reconNgAdapter,
+  photonAdapter,
 ];

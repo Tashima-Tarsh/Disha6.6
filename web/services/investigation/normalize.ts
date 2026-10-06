@@ -37,6 +37,8 @@ const arrayKeys: Record<string, string> = {
   "public-malwarebazaar": "records",
   "public-opensanctions": "records",
   "public-opencorporates": "records",
+  "service-opencti": "records",
+  "service-intelowl": "records",
 };
 
 function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<string, unknown>[] | undefined {
@@ -82,6 +84,14 @@ function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<str
 
   if (plan.adapterId === "astra6-spiderfoot") {
     return Array.isArray(payload.events) ? payload.events.map(record) : [];
+  }
+
+  if (plan.adapterId === "astra6-recon-ng") {
+    return Array.isArray(payload.hosts) ? payload.hosts.map(record) : [];
+  }
+
+  if (plan.adapterId === "astra6-photon") {
+    return Array.isArray(payload.records) ? payload.records.map(record) : [];
   }
 
   return undefined;
@@ -141,7 +151,8 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
       ?? text(row.last_update);
 
     const summary =
-      text(row.title)
+      text(row.summary)
+      ?? text(row.title)
       ?? text(row.label)
       ?? text(row.description)
       ?? text(row.objectName)

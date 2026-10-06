@@ -61,7 +61,8 @@ Upon authenticated handshake, the workspace transitions into a full-scale 3D int
 CLI-heavy and specialized intelligence tools run outside the Next.js process boundary in hardened, non-root worker containers:
 * **Identity OSINT:** `PhoneInfoga` (v2.11.0), `Sherlock` (v0.15.0) — gated behind explicit operator policy approval.
 * **Infrastructure Reconnaissance:** `ProjectDiscovery Subfinder` (v2.6.6), `OWASP Amass` (v4.2.0 passive), `theHarvester` (v4.6.0 passive).
-* **Cross-Domain Correlation:** `SpiderFoot` (v4.0.0) is cataloged for a future isolated passive-only runtime; it is not executable in the current worker image.
+* **Cross-Domain Correlation:** `SpiderFoot` (v4.0.0) runs in an isolated passive-only ASTRA profile; `Recon-ng` (v5.1.2) runs only approved pinned marketplace modules; `Photon` runs as a bounded depth-1 public-site crawler with explicit active-crawl authorization.
+* **Service CTI Enrichment:** Configured OpenCTI GraphQL and IntelOwl REST deployments can contribute normalized source-linked records; IntelOwl executes only an explicit analyzer allowlist.
 * **Command Injection Guards:** All worker arguments are validated against strict regex boundary guards before process dispatch via `execFile`.
 
 ### C. Cyber Defense & Attack Surface Engine
@@ -102,7 +103,8 @@ flowchart TB
         DynamicWorker["Dynamic Worker Queue Manager"]
         IdWorker["Identity Worker (PhoneInfoga, Sherlock)"]
         InfraWorker["Infrastructure Worker (Subfinder, Amass, theHarvester)"]
-        CtiWorker["CTI Worker (NVD, CISA KEV, EPSS Scoring)"]
+        AdvancedWorker["Advanced OSINT Worker (SpiderFoot, Recon-ng, Photon)"]
+        CtiWorker["CTI / Service Enrichment (OpenCTI, IntelOwl, NVD, CISA KEV, EPSS)"]
     end
 
     subgraph Persistence ["Managed GCP Storage & State"]
@@ -119,9 +121,11 @@ flowchart TB
     Web --> DynamicWorker
     DynamicWorker --> IdWorker
     DynamicWorker --> InfraWorker
+    DynamicWorker --> AdvancedWorker
     DynamicWorker --> CtiWorker
     IdWorker --> CloudSQL
     InfraWorker --> CloudSQL
+    AdvancedWorker --> CloudSQL
     CtiWorker --> CloudSQL
     Web --> CloudSQL
     Web --> Redis

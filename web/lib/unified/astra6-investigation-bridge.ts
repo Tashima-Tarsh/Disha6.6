@@ -107,6 +107,13 @@ export const astra6InvestigationBridge: Astra6InvestigationBridge = {
         throw new Error("policy_denied_identity_enumeration");
       }
     }
+    if (manifest.executionClass === "active_recon") {
+      const deploymentApproved = process.env.DISHA_ACTIVE_RECON_APPROVED === "true";
+      const investigationApproved = plan.input.activeAuthorization === true;
+      if (!deploymentApproved || !investigationApproved) {
+        throw new Error("policy_denied_active_recon");
+      }
+    }
 
     await upsertManifest(manifest);
 

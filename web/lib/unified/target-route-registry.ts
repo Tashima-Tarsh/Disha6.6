@@ -35,14 +35,19 @@ function addAstraRoute(
   target: string,
   targetType: string,
   identityAuthorized = false,
+  activeAuthorized = false,
 ) {
   const toolId = adapterId.replace(/^astra6-/, "");
   const envKey = `DISHA_ASTRA6_${toolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
   const enabled = Boolean(process.env.DATABASE_URL)
     && (process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true");
   const identitySensitive = ["email", "phone_number", "username"].includes(targetType);
-  const deploymentApproved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
-  const approved = !identitySensitive || (deploymentApproved && identityAuthorized);
+  const activeSensitive = toolId === "photon";
+  const identityDeploymentApproved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+  const activeDeploymentApproved = process.env.DISHA_ACTIVE_RECON_APPROVED === "true";
+  const identityApproved = !identitySensitive || (identityDeploymentApproved && identityAuthorized);
+  const activeApproved = !activeSensitive || (activeDeploymentApproved && activeAuthorized);
+  const approved = identityApproved && activeApproved;
   const initialStatus: AdapterPlan["initialStatus"] | undefined = !enabled
     ? "NOT_CONFIGURED"
     : !approved
@@ -50,9 +55,11 @@ function addAstraRoute(
       : undefined;
   const reason = !enabled
     ? "ASTRA 6 worker bridge requires DATABASE_URL and the tool enable flag."
-    : !approved
-      ? "Identity-oriented ASTRA execution requires both deployment approval and an operator/admin authorization for this investigation."
-      : "Execute through the isolated ASTRA 6 worker queue and return normalized evidence.";
+    : !identityApproved
+      ? "Identity-oriented ASTRA execution requires deployment approval plus operator/admin authorization for this investigation."
+      : !activeApproved
+        ? "Photon crawling requires deployment approval plus operator/admin authorization for this investigation."
+        : "Execute through the isolated ASTRA 6 worker queue and return normalized evidence.";
 
   add(
     plan,
@@ -61,10 +68,33 @@ function addAstraRoute(
     {
       target,
       targetType,
-      ...(identitySensitive ? { identityAuthorization: approved } : {}),
+      ...(identitySensitive ? { identityAuthorization: identityApproved } : {}),
+      ...(activeSensitive ? { activeAuthorization: activeApproved } : {}),
     },
     reason,
     initialStatus,
+  );
+}
+
+function addServiceRoute(
+  plan: AdapterPlan[],
+  adapterId: "service-opencti" | "service-intelowl",
+  sourceName: string,
+  target: string,
+  targetType: string,
+) {
+  const configured = adapterId === "service-opencti"
+    ? Boolean(process.env.OPENCTI_BASE_URL && process.env.OPENCTI_TOKEN)
+    : Boolean(process.env.INTELOWL_BASE_URL && process.env.INTELOWL_API_KEY && process.env.INTELOWL_ANALYZERS);
+  add(
+    plan,
+    adapterId,
+    sourceName,
+    { target, targetType },
+    configured
+      ? `Execute ${sourceName} target enrichment and normalize returned records.`
+      : `${sourceName} requires its configured service endpoint and credentials.`,
+    configured ? undefined : "NOT_CONFIGURED",
   );
 }
 
@@ -120,10 +150,11 @@ function addOpenCorporates(plan: AdapterPlan[], target: string, kind: "company" 
 export function buildTargetRoutePlan(
   target: string,
   type: TargetType,
-  options: { identityAuthorized?: boolean } = {},
+  options: { identityAuthorized?: boolean; activeAuthorized?: boolean } = {},
 ): AdapterPlan[] {
   const plan: AdapterPlan[] = [];
   const identityAuthorized = options.identityAuthorized === true;
+  const activeAuthorized = options.activeAuthorized === true;
 
   if (["domain", "url", "ip", "asn", "cve", "norad_id", "repository"].includes(type)) {
     const input =
@@ -167,6 +198,14 @@ export function buildTargetRoutePlan(
 
   if (["domain", "ip", "url"].includes(type)) {
     addThreatFox(plan, target, "ioc");
+  }
+
+  if (["domain", "url", "ip", "asn", "cve", "file_hash", "ioc", "certificate"].includes(type)) {
+    addServiceRoute(plan, "service-opencti", "OpenCTI", target, type);
+  }
+
+  if (["domain", "url", "ip", "file_hash", "ioc"].includes(type)) {
+    addServiceRoute(plan, "service-intelowl", "IntelOwl", target, type);
   }
 
   if (type === "email") {
@@ -226,6 +265,13 @@ export function buildTargetRoutePlan(
     addAstraRoute(plan, "astra6-theharvester", "theHarvester", domain, "domain");
     addAstraRoute(plan, "astra6-owasp-amass", "OWASP Amass", domain, "domain");
     addAstraRoute(plan, "astra6-subfinder", "ProjectDiscovery Subfinder", domain, "domain");
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", domain, "domain");
+    addAstraRoute(plan, "astra6-recon-ng", "Recon-ng", domain, "domain");
+    addAstraRoute(plan, "astra6-photon", "Photon", domain, "domain", false, activeAuthorized);
+  }
+
+  if (type === "ip") {
+    addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "ip");
   }
 
   if (type === "image") {

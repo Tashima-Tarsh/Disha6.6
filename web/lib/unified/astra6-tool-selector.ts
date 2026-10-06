@@ -44,13 +44,13 @@ export function selectAstra6Tools(
 
   for (const manifest of astra6ToolManifests) {
     if (!manifest.targetTypes.includes(resolvedType)) continue;
-    if (manifest.toolId === "spiderfoot") {
-      blockedTools.push({ toolId: manifest.toolId, reason: "SpiderFoot is cataloged but not packaged in the current isolated worker runtime." });
-      continue;
-    }
     const isIdentityTool = ["sherlock", "maigret", "holehe", "phoneinfoga"].includes(manifest.toolId);
     if (isIdentityTool && !identityApproved) {
       blockedTools.push({ toolId: manifest.toolId, reason: "Identity enumeration requires explicit policy approval (DISHA_IDENTITY_ENUMERATION_APPROVED=true)." });
+      continue;
+    }
+    if (manifest.executionClass === "active_recon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
+      blockedTools.push({ toolId: manifest.toolId, reason: "Active reconnaissance requires explicit deployment approval (DISHA_ACTIVE_RECON_APPROVED=true)." });
       continue;
     }
     selectedTools.push(manifest);

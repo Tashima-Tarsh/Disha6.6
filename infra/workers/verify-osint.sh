@@ -9,7 +9,7 @@ echo "[DISHA] OSINT verification mode: $MODE"
 
 echo "[1/4] Worker source syntax"
 node --check web/scripts/astra6-worker.mjs
-python3 -m py_compile web/scripts/identity-osint-adapter.py
+python3 -m py_compile web/scripts/identity-osint-adapter.py web/scripts/recon-ng-adapter.py
 
 echo "[2/4] Focused OSINT tests"
 cd web
@@ -59,5 +59,11 @@ docker run --rm --entrypoint sh disha-identity-worker:verify -c 'command -v phon
 docker build -f infra/workers/Dockerfile.infrastructure -t disha-infrastructure-worker:verify .
 docker run --rm --entrypoint node disha-infrastructure-worker:verify --check /opt/disha-worker/scripts/astra6-worker.mjs
 docker run --rm --entrypoint sh disha-infrastructure-worker:verify -c 'command -v subfinder >/dev/null && command -v amass >/dev/null && command -v theHarvester >/dev/null'
+
+docker build -f infra/workers/Dockerfile.research-osint -t disha-research-osint-worker:verify .
+docker run --rm --entrypoint node disha-research-osint-worker:verify --check /opt/disha-worker/scripts/astra6-worker.mjs
+docker run --rm --entrypoint /opt/venvs/recon/bin/python disha-research-osint-worker:verify -m py_compile /opt/disha-worker/scripts/recon-ng-adapter.py
+docker run --rm --entrypoint /opt/venvs/spiderfoot/bin/python disha-research-osint-worker:verify /opt/osint/spiderfoot/sf.py -h >/dev/null
+docker run --rm --entrypoint /opt/venvs/photon/bin/python disha-research-osint-worker:verify /opt/osint/photon/photon.py -h >/dev/null
 
 echo "[PASS] Full OSINT verification completed."

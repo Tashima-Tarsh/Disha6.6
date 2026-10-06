@@ -54,8 +54,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "AGPL-3.0",
     capabilities: ["threat-intelligence aggregation", "IOC enrichment", "analyzers/connectors"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "High-value enrichment platform, but analyzers vary in network behavior and licensing; integrate through an isolated service contract.",
+    mode: "builtin",
+    reason: "Executable through the configured IntelOwl service adapter with an explicit analyzer allowlist; DISHA does not run every installed analyzer.",
   },
   {
     id: "opensanctions",
@@ -74,8 +74,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "Apache-2.0 Community Edition; Enterprise components separately licensed",
     capabilities: ["STIX2 knowledge graph", "threat-intelligence management", "connectors", "GraphQL API"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "The platform is suitable as a configured CTI service, while individual connectors and data feeds require separate policy, licensing, and network-behavior review.",
+    mode: "builtin",
+    reason: "Executable through the configured OpenCTI GraphQL service adapter; tenant connectors and data-feed permissions remain controlled by the OpenCTI deployment.",
   },
   {
     id: "recon-ng",
@@ -84,8 +84,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "GPL-3.0",
     capabilities: ["modular OSINT", "workspace correlation", "reporting"],
     risk: "mixed_recon",
-    mode: "catalog_only",
-    reason: "Module-by-module review is required before production execution.",
+    mode: "builtin",
+    reason: "Production-integrated through the ASTRA advanced worker using only pinned, approved official marketplace modules.",
   },
   {
     id: "photon",
@@ -94,8 +94,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "See upstream LICENSE before promotion",
     capabilities: ["public web crawling", "URL extraction", "technology discovery"],
     risk: "active_recon",
-    mode: "blocked_by_default",
-    reason: "Direct crawling sends requests to targets; keep outside the default passive-public runtime.",
+    mode: "builtin",
+    reason: "Production-integrated as a bounded depth-1 public-site crawler; execution requires the active-recon deployment gate plus per-investigation operator/admin authorization.",
   },
   {
     id: "sherlock",

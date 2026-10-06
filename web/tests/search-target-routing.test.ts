@@ -57,7 +57,7 @@ describe("canonical OSINT search targets", () => {
     vi.stubEnv("DISHA_ASTRA6_PHONEINFOGA_ENABLED", "true");
     vi.stubEnv("DISHA_IDENTITY_ENUMERATION_APPROVED", "true");
 
-    const plan = buildTargetRoutePlan("+919876543210", "phone");
+    const plan = buildTargetRoutePlan("+919876543210", "phone", { identityAuthorized: true });
     expect(plan.find(item => item.adapterId === "astra6-phoneinfoga")?.initialStatus).toBeUndefined();
   });
 
@@ -100,5 +100,27 @@ describe("canonical OSINT search targets", () => {
     expect(plan.find(item => item.adapterId === "public-dns-google")?.initialStatus).toBeUndefined();
     expect(plan.find(item => item.adapterId === "astra6-subfinder")?.initialStatus).toBe("NOT_CONFIGURED");
     expect(plan.find(item => item.adapterId === "astra6-owasp-amass")?.initialStatus).toBe("NOT_CONFIGURED");
+    expect(plan.find(item => item.adapterId === "astra6-spiderfoot")?.initialStatus).toBe("NOT_CONFIGURED");
+    expect(plan.find(item => item.adapterId === "astra6-recon-ng")?.initialStatus).toBe("NOT_CONFIGURED");
+  });
+
+  it("routes configured advanced source workers and service connectors", () => {
+    vi.stubEnv("DATABASE_URL", "postgres://configured");
+    vi.stubEnv("DISHA_ASTRA6_SPIDERFOOT_ENABLED", "true");
+    vi.stubEnv("DISHA_ASTRA6_RECON_NG_ENABLED", "true");
+    vi.stubEnv("DISHA_ASTRA6_PHOTON_ENABLED", "true");
+    vi.stubEnv("DISHA_ACTIVE_RECON_APPROVED", "true");
+    vi.stubEnv("OPENCTI_BASE_URL", "https://opencti.example");
+    vi.stubEnv("OPENCTI_TOKEN", "token");
+    vi.stubEnv("INTELOWL_BASE_URL", "https://intelowl.example");
+    vi.stubEnv("INTELOWL_API_KEY", "key");
+    vi.stubEnv("INTELOWL_ANALYZERS", "Classic_DNS");
+
+    const plan = buildTargetRoutePlan("example.com", "domain", { activeAuthorized: true });
+    expect(plan.find(item => item.adapterId === "astra6-spiderfoot")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "astra6-recon-ng")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "astra6-photon")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "service-opencti")?.initialStatus).toBeUndefined();
+    expect(plan.find(item => item.adapterId === "service-intelowl")?.initialStatus).toBeUndefined();
   });
 });

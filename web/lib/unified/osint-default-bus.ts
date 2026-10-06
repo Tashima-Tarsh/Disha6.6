@@ -9,6 +9,7 @@ import {
   createReliefWebAdapter,
 } from "./cross-domain-public-adapters";
 import { astra6Adapters } from "./astra6-governed-adapters";
+import { intelOwlServiceAdapter, openCtiServiceAdapter } from "./osint-service-adapters";
 import { OsintAdapterBus, type AdapterBusOptions } from "./osint-adapter-bus";
 import { createDynamicPublicSourceAdapter } from "./dynamic-public-source";
 import { createIndiaVehicleFormatAdapter, createNhtsaVinAdapter } from "./vehicle-public-adapters";
@@ -56,6 +57,8 @@ export function createDefaultOsintBus(options: AdapterBusOptions = {}): OsintAda
   bus.register(createMalwareBazaarAdapter());
   bus.register(createOpenSanctionsAdapter());
   bus.register(createOpenCorporatesAdapter());
+  bus.register(openCtiServiceAdapter);
+  bus.register(intelOwlServiceAdapter);
   for (const adapter of astra6Adapters) bus.register(adapter);
   return bus;
 }
