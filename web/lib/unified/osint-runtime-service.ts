@@ -2,9 +2,111 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { getDbPool } from "../server/db";
 import { generatedOsintManifests, type GeneratedOsintToolManifest } from "./generated/osint-tool-manifests.generated";
+import { probeOsintServiceConnector } from "./osint-service-connectors";
 
 const execFileAsync = promisify(execFile);
+
+const ASTRA_TOOL_WORKER_CLASS: Record<string, "identity" | "infrastructure" | "advanced"> = {
+  phoneinfoga: "identity",
+  sherlock: "identity",
+  maigret: "identity",
+  holehe: "identity",
+  instaloader: "identity",
+  "telegram-public": "identity",
+  telethon: "identity",
+  theharvester: "infrastructure",
+  amass: "infrastructure",
+  "owasp-amass": "infrastructure",
+  subfinder: "infrastructure",
+  spiderfoot: "advanced",
+  "recon-ng": "advanced",
+  photon: "advanced",
+};
+
+function astraToolEnabled(toolId: string): boolean {
+  const canonicalToolId = toolId === "amass" ? "owasp-amass" : toolId === "telethon" ? "telegram-public" : toolId;
+  const envKey = `DISHA_ASTRA6_${canonicalToolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
+  return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
+}
+
+async function smokeAstraRuntime(entry: OsintToolRecord): Promise<OsintToolRecord["smokeResult"]> {
+  const workerClass = ASTRA_TOOL_WORKER_CLASS[entry.toolId];
+  if (!workerClass) return null;
+  const started = Date.now();
+
+  if (!astraToolEnabled(entry.toolId)) {
+    entry.status = "UNCONFIGURED";
+    entry.healthStatus = "UNCONFIGURED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return {
+      success: false,
+      latencyMs: Date.now() - started,
+      error: `ASTRA tool '${entry.toolId}' is not enabled in this deployment`,
+    };
+  }
+
+  const pool = getDbPool();
+  if (!pool) {
+    entry.status = "UNCONFIGURED";
+    entry.healthStatus = "UNCONFIGURED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return { success: false, latencyMs: Date.now() - started, error: "DATABASE_URL is required for ASTRA worker health" };
+  }
+
+  const result = await pool.query(
+    `select worker_id, status, last_heartbeat
+       from disha_worker_heartbeats
+      where worker_class=$1 and last_heartbeat > now() - interval '45 seconds'
+      order by last_heartbeat desc
+      limit 1`,
+    [workerClass],
+  );
+  const row = result.rows[0] as { worker_id?: string; status?: string; last_heartbeat?: Date } | undefined;
+  if (!row || row.status !== "HEALTHY") {
+    entry.status = "DEGRADED";
+    entry.healthStatus = "DEGRADED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return {
+      success: false,
+      latencyMs: Date.now() - started,
+      error: `ASTRA ${workerClass} worker has no healthy heartbeat in the last 45 seconds`,
+    };
+  }
+
+  entry.status = "HEALTHY";
+  entry.healthStatus = "HEALTHY";
+  entry.lastSmokeTested = new Date().toISOString();
+  return {
+    success: true,
+    latencyMs: Date.now() - started,
+    message: `ASTRA ${workerClass} worker healthy`,
+    outputSnippet: String(row.worker_id ?? workerClass),
+  };
+}
+
+async function smokeServiceRuntime(entry: OsintToolRecord): Promise<OsintToolRecord["smokeResult"]> {
+  if (entry.toolId !== "opencti" && entry.toolId !== "intelowl") return null;
+  const started = Date.now();
+  const probe = await probeOsintServiceConnector(entry.toolId);
+  entry.lastSmokeTested = new Date().toISOString();
+
+  if (probe.status === "ok") {
+    entry.status = "HEALTHY";
+    entry.healthStatus = "HEALTHY";
+    return { success: true, latencyMs: Date.now() - started, message: probe.detail };
+  }
+  if (probe.status === "skipped") {
+    entry.status = "AUTH_REQUIRED";
+    entry.healthStatus = "UNCONFIGURED";
+    return { success: false, latencyMs: Date.now() - started, error: probe.detail };
+  }
+
+  entry.status = "DEGRADED";
+  entry.healthStatus = "DEGRADED";
+  return { success: false, latencyMs: Date.now() - started, error: probe.detail };
+}
 
 export type OsintToolRecord = {
   toolId: string;
@@ -207,6 +309,20 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
   }
 
   const startTime = Date.now();
+
+  const astraResult = await smokeAstraRuntime(entry);
+  if (astraResult) {
+    entry.smokeResult = astraResult;
+    await saveOsintRegistry(registry);
+    return entry.smokeResult;
+  }
+
+  const serviceResult = await smokeServiceRuntime(entry);
+  if (serviceResult) {
+    entry.smokeResult = serviceResult;
+    await saveOsintRegistry(registry);
+    return entry.smokeResult;
+  }
 
   if (entry.runtimeType === "gui-only" || entry.status === "GUI_ONLY") {
     entry.smokeResult = { success: true, message: "GUI-only web tool verified reference", outputSnippet: entry.upstreamUrl };
