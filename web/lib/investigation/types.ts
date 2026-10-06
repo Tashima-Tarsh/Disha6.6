@@ -1,4 +1,33 @@
+fix/working-osint-backend-20261006
 export type TargetType = "person_name" | "email" | "phone" | "username" | "telegram" | "instagram" | "vehicle_identifier" | "vin" | "company" | "domain" | "ip" | "asn" | "url" | "cve" | "norad_id" | "topic" | "image";
+=======
+codex/osint-search-routing-v1
+export type TargetType =
+  | "person_name"
+  | "email"
+  | "phone"
+  | "username"
+  | "company"
+  | "domain"
+  | "ip"
+  | "asn"
+  | "url"
+  | "cve"
+  | "norad_id"
+  | "topic"
+  | "vehicle_identifier"
+  | "document"
+  | "file_hash"
+  | "certificate"
+  | "repository"
+  | "location"
+  | "ioc"
+  | "image";
+import type { SearchTargetType } from "../unified/search-targets";
+
+export type TargetType = SearchTargetType;
+main
+ main
 export type RunStatus = "QUEUED" | "RUNNING" | "COMPLETED" | "NO_RESULTS" | "FAILED" | "RATE_LIMITED" | "NOT_CONFIGURED" | "REFERENCE_ONLY" | "BLOCKED" | "RESTRICTED" | "SKIPPED";
 export type ProviderHealth = "NOT_CONFIGURED" | "REST_HEALTHY" | "STREAM_HEALTHY" | "STREAM_NOT_ENTITLED" | "RATE_LIMITED" | "FAILED";
 export interface AdapterPlan {
@@ -18,6 +47,7 @@ export interface InvestigationRun {
   error?: string;
   warnings: string[];
   providerHealth?: ProviderHealth;
+  externalRunId?: string;
 }
 export interface InvestigationEvidence {
   evidenceId: string;

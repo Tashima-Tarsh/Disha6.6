@@ -332,15 +332,22 @@ async function claimNextJob(client) {
   const job = result.rows[0];
   await client.query(
     `UPDATE astra6_connector_runs
+fix/working-osint-backend-20261006
      SET status='running', started_at=NOW(), worker_id=$1, attempts=attempts+1
      WHERE run_id=$2`,
     [WORKER_ID, job.run_id],
+     SET status = 'completed', raw_output = $1, parsed_output = $2, evidence = $3,
+         duration_ms = $4, provenance_hash = $5, completed_at = NOW()
+     WHERE run_id = $6 AND status = 'running'`,
+    [rawOutput, JSON.stringify(parsedData), JSON.stringify(evidence), durationMs, provenanceHash, runId]
+main
   );
   return job;
 }
 
 async function processNextJob() {
   if (!pool) return;
+fix/working-osint-backend-20261006
   const client = await pool.connect();
   let job = null;
   try {
@@ -406,6 +413,13 @@ async function main() {
     }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
+  await pool.query(
+    `UPDATE astra6_connector_runs
+     SET status = 'failed', error = $1, duration_ms = $2, completed_at = NOW()
+     WHERE run_id = $3 AND status = 'running'`,
+    [errorMessage, durationMs, runId]
+  );
+ main
 }
 
 main().catch((error) => {
