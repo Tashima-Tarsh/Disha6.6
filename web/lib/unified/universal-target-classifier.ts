@@ -1,22 +1,6 @@
-export type UniversalTargetType =
-  | "domain"
-  | "url"
-  | "ip"
-  | "asn"
-  | "cve"
-  | "email"
-  | "phone"
-  | "username"
-  | "person"
-  | "organization"
-  | "vehicle_identifier"
-  | "document"
-  | "file_hash"
-  | "certificate"
-  | "repository"
-  | "location"
-  | "ioc"
-  | "unknown";
+import type { SearchTargetType } from "./search-targets";
+
+export type UniversalTargetType = SearchTargetType | "unknown";
 
 export type TargetClassification = {
   rawInput: string;
@@ -30,6 +14,7 @@ export type TargetClassification = {
 
 // Strict, high-precision detection patterns
 const CVE_RE = /^CVE-\d{4}-\d{4,8}$/i;
+const NORAD_RE = /^(?:NORAD|CATNR|CATALOG)\s*[:#-]?\s*(\d{1,9})$/i;
 const IPV4_RE = /^(?:25[0-5]|2[0-4]\d|1?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}$/;
 const IPV6_RE = /^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$/;
 const ASN_RE = /^AS\d{1,10}$/i;
@@ -40,14 +25,13 @@ const SHA1_RE = /^[a-fA-F0-9]{40}$/;
 const SHA256_RE = /^[a-fA-F0-9]{64}$/;
 const DOMAIN_RE = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))*\.[a-zA-Z]{2,63}$/;
 const REPOSITORY_RE = /^(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)\/?$/i;
-const VEHICLE_IN_RE = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/i; // Indian VAHAN format e.g. DL01AB1234
+const VEHICLE_IN_RE = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/i; // State/UT format e.g. DL01AB1234\nconst VEHICLE_BH_RE = /^\\d{2}BH\\d{4}[A-Z]{1,2}$/i; // Bharat Series e.g. 22BH1234AA
 const CERT_SHA1_FINGERPRINT = /^([0-9a-fA-F]{2}:){19}[0-9a-fA-F]{2}$/;
 
 export function classifyUniversalTarget(input: string): TargetClassification {
   const trimmed = input.trim();
   const lower = trimmed.toLowerCase();
 
-  // 1. CVE Identifier
   if (CVE_RE.test(trimmed)) {
     return {
       rawInput: trimmed,
@@ -59,7 +43,18 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 2. ASN (Autonomous System Number)
+  const norad = trimmed.match(NORAD_RE);
+  if (norad) {
+    return {
+      rawInput: trimmed,
+      normalizedValue: norad[1],
+      primaryType: "norad_id",
+      confidence: 1.0,
+      candidateTypes: ["norad_id"],
+      metadata: { registrySystem: "NORAD", catalogNumber: Number(norad[1]) },
+    };
+  }
+
   if (ASN_RE.test(trimmed)) {
     return {
       rawInput: trimmed,
@@ -71,7 +66,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 3. IP Address (IPv4 / IPv6)
   if (IPV4_RE.test(trimmed)) {
     return {
       rawInput: trimmed,
@@ -93,7 +87,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 4. File Hashes (MD5, SHA1, SHA256)
   if (SHA256_RE.test(trimmed)) {
     return {
       rawInput: trimmed,
@@ -125,7 +118,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 5. Certificate Fingerprint
   if (CERT_SHA1_FINGERPRINT.test(trimmed)) {
     return {
       rawInput: trimmed,
@@ -137,7 +129,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 6. Public Repository URL
   if (REPOSITORY_RE.test(trimmed)) {
     return {
       rawInput: trimmed,
@@ -149,7 +140,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 7. General URL
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const parsed = new URL(trimmed);
@@ -166,7 +156,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     }
   }
 
-  // 8. Email Address
   if (EMAIL_RE.test(trimmed)) {
     const domainPart = trimmed.split("@")[1]?.toLowerCase() ?? "";
     return {
@@ -179,7 +168,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 9. Phone Number (E.164 or international standard)
   const digitsOnly = trimmed.replace(/[\s\-().]/g, "");
   if (PHONE_RE.test(digitsOnly) && digitsOnly.length >= 8 && digitsOnly.length <= 15) {
     return {
@@ -192,20 +180,18 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 10. Vehicle Registration Identifier (e.g. Indian VAHAN format)
   const vehicleNormalized = trimmed.replace(/[\s-]/g, "").toUpperCase();
-  if (VEHICLE_IN_RE.test(vehicleNormalized)) {
+  if (VEHICLE_IN_RE.test(vehicleNormalized) || VEHICLE_BH_RE.test(vehicleNormalized)) {
     return {
       rawInput: trimmed,
       normalizedValue: vehicleNormalized,
       primaryType: "vehicle_identifier",
       confidence: 0.9,
       candidateTypes: ["vehicle_identifier"],
-      metadata: { statePrefix: vehicleNormalized.slice(0, 2), registrySystem: "VAHAN" },
+      metadata: { statePrefix: VEHICLE_BH_RE.test(vehicleNormalized) ? "BH" : vehicleNormalized.slice(0, 2), registrySystem: "VAHAN" },
     };
   }
 
-  // 11. Domain Name
   if (DOMAIN_RE.test(trimmed) && !trimmed.includes(" ")) {
     return {
       rawInput: trimmed,
@@ -217,7 +203,6 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  // 12. Username Handle (@handle or alphanumeric identifier without spaces)
   if (trimmed.startsWith("@") || (/^[a-zA-Z0-9_.]{3,32}$/.test(trimmed) && !trimmed.includes("."))) {
     const handle = trimmed.replace(/^@/, "");
     return {
@@ -225,27 +210,25 @@ export function classifyUniversalTarget(input: string): TargetClassification {
       normalizedValue: handle.toLowerCase(),
       primaryType: "username",
       confidence: 0.85,
-      candidateTypes: ["username", "person"],
+      candidateTypes: ["username", "person_name"],
       ambiguityWarning: "Single word token could represent a username, person alias, or organization.",
       metadata: { handle },
     };
   }
 
-  // 13. Multi-word Name / Organization / Document
   if (trimmed.includes(" ")) {
     const isOrg = /(inc|corp|ltd|llc|gmbh|pvt|foundation|ministry|department|bureau|council)\b/i.test(trimmed);
     return {
       rawInput: trimmed,
       normalizedValue: trimmed,
-      primaryType: isOrg ? "organization" : "person",
+      primaryType: isOrg ? "company" : "person_name",
       confidence: 0.75,
-      candidateTypes: [isOrg ? "organization" : "person", "unknown"],
+      candidateTypes: [isOrg ? "company" : "person_name", "unknown"],
       ambiguityWarning: "Multi-word text requires corroborating identity or corporate registry verification.",
       metadata: { wordCount: trimmed.split(/\s+/).length, organizationKeywordFound: isOrg },
     };
   }
 
-  // Fallback: Unknown
   return {
     rawInput: trimmed,
     normalizedValue: trimmed,

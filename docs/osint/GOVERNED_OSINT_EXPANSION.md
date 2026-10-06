@@ -25,8 +25,7 @@ The default production bus currently registers:
 - RIPEstat Whois (public IP/ASN registry and routing-registry context)
 - CelesTrak GP (bounded public orbital-element lookup by catalog number)
 - NOAA SWPC alerts (official machine-readable space-weather alerts)
-- ReliefWeb API v2 (humanitarian reports when `RELIEFWEB_APPNAME` is configured)
-
+- ReliefWeb API v2 (humanitarian reports when `RELIEFWEB_APPNAME` is configured)\n- OpenSanctions Search API (public entity/sanctions/PEP discovery when `OPENSANCTIONS_API_KEY` is configured)\n- OpenCorporates API (public company and officer discovery when `OPENCORPORATES_API_TOKEN` is configured)\n- ThreatFox Community API (defensive IOC/hash-to-IOC enrichment when `THREATFOX_AUTH_KEY` is configured)\n- MalwareBazaar Community API (metadata-only malware hash lookup when `MALWAREBAZAAR_AUTH_KEY` is configured; no sample downloads)
 Every adapter declares purpose, authentication type, legal/blocked uses, timeouts, retry limits, and an execution class. The default bus fails closed for active reconnaissance, identity enumeration, and prohibited execution classes.
 
 ## Universal Search
@@ -51,7 +50,19 @@ The planner classifies the target and chooses only relevant passive/public adapt
 
 The response exposes the detected target type, normalized target, adapters executed, per-adapter status and duration, source-linked evidence, provenance hashes, evidence class, warnings, and explicit execution boundaries.
 
-The authenticated Intelligence workspace uses the same planner, so the visual query surface and the standalone API cannot drift into different collection behavior.
+The authenticated `/investigate` surface uses the canonical DISHA target model and a richer Target -> Connector routing registry. That route can add configured entity providers, defensive CTI providers and governed ASTRA worker jobs while still reporting unavailable/restricted sources explicitly. The standalone `GET /api/v1/osint/search` endpoint remains the synchronous passive/public core-bus search and must not imply that investigation-only workers or restricted vehicle sources were executed.
+
+### Authenticated investigation routing
+
+The post-login investigation flow exposes Name first and Vehicle second, followed by phone, email, username, company, network, evidence and space identifiers. Notable enrichment paths include:
+
+- Name: Wikidata, public reporting/web discovery, OpenSanctions and OpenCorporates officer search when configured.
+- Company: Wikidata, public reporting/web discovery, OpenSanctions and OpenCorporates company search when configured.
+- Phone: public discovery plus PhoneInfoga/SpiderFoot only when the ASTRA worker, tool flag and identity-enumeration approval are configured.
+- Username: public discovery plus Sherlock/SpiderFoot under the same explicit identity policy.
+- Domain/IP/URL: public core adapters plus configured passive ASTRA profiles; ThreatFox IOC lookup is added when configured.
+- Hash/IOC: public discovery plus configured ThreatFox; file hashes also use configured MalwareBazaar metadata lookup. Malware samples are not downloaded.
+- Vehicle: Indian registration identifiers are normalized and public discovery can run immediately. VAHAN/National Transport Repository and eChallan remain restricted placeholders until an approved data/API entitlement is connected.
 
 ## API
 
@@ -99,7 +110,7 @@ Active-recon and identity-enumeration projects remain blocked by default. They a
 
 ## Next production promotions
 
-The next useful promotions are service-backed or dataset-backed connectors that preserve this same contract rather than bypassing it. Candidates include OpenSanctions entity screening and configured OpenCTI/IntelOwl services, followed by carefully selected passive modules from mature upstream projects.
+The next useful promotions are service-backed or dataset-backed connectors that preserve this same contract rather than bypassing it. Candidates include configured OpenCTI/IntelOwl target-search adapters, additional official/public corporate and sanctions sources, media/geolocation providers, and approved transport/movement data connectors.
 
 SpiderFoot, Maigret, Sherlock, Amass and similar projects must not be exposed as arbitrary command execution. A production connector should select a reviewed passive profile, enforce target/purpose policy, bound runtime and result volume, and convert every accepted observation into DISHA evidence/provenance records.
 

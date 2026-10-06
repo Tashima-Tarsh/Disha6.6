@@ -196,7 +196,7 @@ async function recordJobSuccess(runId, toolId, rawOutput, parsedData, evidence, 
     `UPDATE astra6_connector_runs
      SET status = 'completed', raw_output = $1, parsed_output = $2, evidence = $3,
          duration_ms = $4, provenance_hash = $5, completed_at = NOW()
-     WHERE run_id = $6`,
+     WHERE run_id = $6 AND status = 'running'`,
     [rawOutput, JSON.stringify(parsedData), JSON.stringify(evidence), durationMs, provenanceHash, runId]
   );
 }
@@ -206,7 +206,7 @@ async function recordJobFailure(runId, errorMessage, durationMs) {
   await pool.query(
     `UPDATE astra6_connector_runs
      SET status = 'failed', error = $1, duration_ms = $2, completed_at = NOW()
-     WHERE run_id = $3`,
+     WHERE run_id = $3 AND status = 'running'`,
     [errorMessage, durationMs, runId]
   );
 }
