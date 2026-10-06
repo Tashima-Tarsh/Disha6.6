@@ -13,6 +13,7 @@ import {
   type OsintServiceProbeResult,
 } from "./osint-service-connectors";
 import { astra6ToolManifests } from "./astra6-tool-manifest";
+import { createDefaultOsintBus } from "./osint-default-bus";
 
 export type OsintSystemId =
   | "identity"
@@ -195,6 +196,8 @@ export function mapCategoryToSystem(cat: OsintSourceCategory): OsintSystemId {
     case "launch_activity":
     case "space_weather":
       return "space";
+    case "vehicle_registry":
+      return "evidence";
     case "master_directory":
     default:
       return "evidence";
@@ -219,7 +222,7 @@ export function targetClassesForSource(entry: OsintSourceUniverseEntry): string[
   }
   if (cats.some((c) => c.includes("username") || c.includes("social") || c.includes("account"))) {
     classes.add("username");
-    classes.add("person");
+    classes.add("person_name");
   }
   if (cats.some((c) => c.includes("phone") || c.includes("carrier"))) {
     classes.add("phone");
@@ -228,7 +231,11 @@ export function targetClassesForSource(entry: OsintSourceUniverseEntry): string[
     classes.add("email");
   }
   if (cats.some((c) => c.includes("corporate") || c.includes("sec") || c.includes("company") || c.includes("sanction"))) {
-    classes.add("organization");
+    classes.add("company");
+  }
+
+  if (cats.some((c) => c.includes("officer") || c.includes("pep") || c.includes("entity search"))) {
+    classes.add("person_name");
   }
   if (cats.some((c) => c.includes("satellite") || c.includes("norad") || c.includes("orbit"))) {
     classes.add("norad_id");
@@ -239,6 +246,10 @@ export function targetClassesForSource(entry: OsintSourceUniverseEntry): string[
   if (cats.some((c) => c.includes("hash") || c.includes("malware") || c.includes("ioc"))) {
     classes.add("file_hash");
     classes.add("ioc");
+  }
+
+  if (entry.category === "vehicle_registry" || cats.some((c) => c.includes("vehicle registration") || c.includes("challan"))) {
+    classes.add("vehicle_identifier");
   }
 
   if (classes.size === 0) {
@@ -314,6 +325,8 @@ export async function buildCanonicalUniverseRuntime(): Promise<{
 }> {
   const now = new Date().toISOString();
   const connectorProbes = await probeConfiguredOsintServices();
+  const adapterHealth = await createDefaultOsintBus().health();
+  const adapterHealthMap = new Map(adapterHealth.map((item) => [item.id, item]));
   const probeMap = new Map<string, OsintServiceProbeResult>(connectorProbes.map((p) => [p.connectorId, p]));
   const evidenceCounts = await getPersistedEvidenceCountsBySource();
 
@@ -374,7 +387,20 @@ export async function buildCanonicalUniverseRuntime(): Promise<{
     } else if (entry.mode === "requires_configuration") {
       const connector = connectorMap.get(entry.id);
       const probe = probeMap.get(entry.id);
-      if (connector?.configured && probe?.status === "ok") {
+      const adapter = entry.adapterId ? adapterHealthMap.get(entry.adapterId) : undefined;
+      if (adapter?.status === "healthy") {
+        health = "HEALTHY";
+        latencyMs = 35;
+      } else if (adapter?.status === "degraded") {
+        health = "DEGRADED";
+        errorMessage = adapter.detail;
+      } else if (adapter?.status === "unavailable") {
+        health = "UNAVAILABLE";
+        errorMessage = adapter.detail;
+      } else if (adapter?.status === "not_configured") {
+        health = "UNCONFIGURED";
+        errorMessage = adapter.detail ?? "Requires credentials or environment configuration";
+      } else if (connector?.configured && probe?.status === "ok") {
         health = "HEALTHY";
         latencyMs = 35;
       } else {
@@ -383,10 +409,26 @@ export async function buildCanonicalUniverseRuntime(): Promise<{
       }
     }
 
-    // ASTRA 6 policy check for identity enumeration tools
-    if (["sherlock", "phoneinfoga"].includes(entry.id) && process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
-      health = "RESTRICTED";
-      errorMessage = "Identity enumeration requires explicit policy approval";
+    // ASTRA 6 runtime truth: catalog presence is not worker readiness.
+    if (entry.adapterId?.startsWith("astra6-")) {
+      const toolId = entry.adapterId.replace(/^astra6-/, "");
+      const manifest = astraMap.get(toolId);
+      const envKey = manifest ? `DISHA_ASTRA6_${manifest.toolId.toUpperCase().replace(/-/g, "_")}_ENABLED` : "";
+      const enabled = Boolean(process.env.DATABASE_URL)
+        && Boolean(manifest)
+        && (process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true");
+      const identityTool = ["phoneinfoga", "sherlock"].includes(toolId);
+      if (!enabled) {
+        health = "UNCONFIGURED";
+        errorMessage = "ASTRA worker/database or tool enable flag is not configured";
+      } else if (identityTool && process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
+        health = "RESTRICTED";
+        errorMessage = "Identity enumeration requires explicit policy approval";
+      } else {
+        health = "HEALTHY";
+        latencyMs = 35;
+        errorMessage = undefined;
+      }
     }
 
     const stat = systemStats.get(system);
