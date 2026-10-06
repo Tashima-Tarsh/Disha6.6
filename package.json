@@ -22,6 +22,16 @@
     "docker:dev": "docker compose up --build web",
     "docker:full": "docker compose --profile full up --build",
     "docker:prod": "docker compose -f docker-compose.prod.yml up",
+    "osint:discover": "node scripts/osint/discover-upstreams.mjs",
+    "osint:verify": "node scripts/osint/verify-upstreams.mjs",
+    "osint:fork": "node scripts/osint/fork-upstreams.mjs",
+    "osint:classify": "node scripts/osint/classify-upstreams.mjs",
+    "osint:build": "node scripts/osint/build-tools.mjs",
+    "osint:smoke": "node scripts/osint/smoke-tool.mjs",
+    "osint:smoke-all": "node scripts/osint/smoke-all.mjs",
+    "osint:health": "node scripts/osint/smoke-all.mjs",
+    "osint:report": "node scripts/osint/report.mjs",
+    "osint:bootstrap": "node scripts/osint/bootstrap.mjs",
     "verify": "npm --prefix web run type-check:full && npm --prefix web run test && npm --prefix web run build"
   },
   "engines": {

@@ -5,6 +5,7 @@ const runGit = (args) =>
     cwd: process.cwd(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 50 * 1024 * 1024,
   });
 
 const baseSha = process.env.BASE_SHA?.trim();

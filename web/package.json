@@ -20,7 +20,17 @@
     "predev": "node scripts/copy-maplibre-assets.mjs",
     "geo:import": "node scripts/geospatial/import-authoritative-geojson.mjs",
     "db:seed": "node scripts/seed-production-data.mjs",
-    "auth:set-password": "node scripts/set-user-password.mjs"
+    "auth:set-password": "node scripts/set-user-password.mjs",
+    "osint:discover": "node ../scripts/osint/discover-upstreams.mjs",
+    "osint:verify": "node ../scripts/osint/verify-upstreams.mjs",
+    "osint:fork": "node ../scripts/osint/fork-upstreams.mjs",
+    "osint:classify": "node ../scripts/osint/classify-upstreams.mjs",
+    "osint:build": "node ../scripts/osint/build-tools.mjs",
+    "osint:smoke": "node ../scripts/osint/smoke-tool.mjs",
+    "osint:smoke-all": "node ../scripts/osint/smoke-all.mjs",
+    "osint:health": "node ../scripts/osint/smoke-all.mjs",
+    "osint:report": "node ../scripts/osint/report.mjs",
+    "osint:bootstrap": "node ../scripts/osint/bootstrap.mjs"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "9.4.0",

@@ -84,7 +84,9 @@ venv/
 .virtualenv/
 
 # DISHA Brain local runtime data
-data/
+data/*
+!data/osint/
+!data/osint/**
 *.db
 
 # IDE files
