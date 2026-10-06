@@ -25,7 +25,7 @@ const SHA1_RE = /^[a-fA-F0-9]{40}$/;
 const SHA256_RE = /^[a-fA-F0-9]{64}$/;
 const DOMAIN_RE = /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))*\.[a-zA-Z]{2,63}$/;
 const REPOSITORY_RE = /^(?:https?:\/\/)?(?:www\.)?(?:github\.com|gitlab\.com|bitbucket\.org)\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)\/?$/i;
-const VEHICLE_IN_RE = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/i; // Indian VAHAN format e.g. DL01AB1234
+const VEHICLE_IN_RE = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,3}[0-9]{4}$/i; // State/UT format e.g. DL01AB1234\nconst VEHICLE_BH_RE = /^\\d{2}BH\\d{4}[A-Z]{1,2}$/i; // Bharat Series e.g. 22BH1234AA
 const CERT_SHA1_FINGERPRINT = /^([0-9a-fA-F]{2}:){19}[0-9a-fA-F]{2}$/;
 
 export function classifyUniversalTarget(input: string): TargetClassification {
@@ -181,14 +181,14 @@ export function classifyUniversalTarget(input: string): TargetClassification {
   }
 
   const vehicleNormalized = trimmed.replace(/[\s-]/g, "").toUpperCase();
-  if (VEHICLE_IN_RE.test(vehicleNormalized)) {
+  if (VEHICLE_IN_RE.test(vehicleNormalized) || VEHICLE_BH_RE.test(vehicleNormalized)) {
     return {
       rawInput: trimmed,
       normalizedValue: vehicleNormalized,
       primaryType: "vehicle_identifier",
       confidence: 0.9,
       candidateTypes: ["vehicle_identifier"],
-      metadata: { statePrefix: vehicleNormalized.slice(0, 2), registrySystem: "VAHAN" },
+      metadata: { statePrefix: VEHICLE_BH_RE.test(vehicleNormalized) ? "BH" : vehicleNormalized.slice(0, 2), registrySystem: "VAHAN" },
     };
   }
 
