@@ -82,6 +82,28 @@ function addMalwareBazaar(plan: AdapterPlan[], hash: string) {
   );
 }
 
+function addOpenSanctions(plan: AdapterPlan[], target: string, schema: "Person" | "Company") {
+  add(
+    plan,
+    "public-opensanctions",
+    "OpenSanctions",
+    { query: target, schema },
+    "Public sanctions/PEP/entity discovery; returned search results remain unverified identity candidates.",
+    process.env.OPENSANCTIONS_API_KEY ? undefined : "NOT_CONFIGURED",
+  );
+}
+
+function addOpenCorporates(plan: AdapterPlan[], target: string, kind: "company" | "officer") {
+  add(
+    plan,
+    "public-opencorporates",
+    "OpenCorporates",
+    { query: target, kind },
+    "Public corporate/officer record discovery. Name matches require corroboration.",
+    process.env.OPENCORPORATES_API_TOKEN ? undefined : "NOT_CONFIGURED",
+  );
+}
+
 export function buildTargetRoutePlan(target: string, type: TargetType): AdapterPlan[] {
   const plan: AdapterPlan[] = [];
 
@@ -100,6 +122,16 @@ export function buildTargetRoutePlan(target: string, type: TargetType): AdapterP
   if (["person_name", "company", "topic", "location"].includes(type)) {
     add(plan, "public-wikidata-search", "Wikidata", { query: target, limit: 12 }, "Distinct public entity records; identity remains unverified.");
     addPublicDiscovery(plan, target);
+  }
+
+  if (type === "person_name") {
+    addOpenSanctions(plan, target, "Person");
+    addOpenCorporates(plan, target, "officer");
+  }
+
+  if (type === "company") {
+    addOpenSanctions(plan, target, "Company");
+    addOpenCorporates(plan, target, "company");
   }
 
   if (["email", "phone", "username", "vehicle_identifier", "file_hash", "certificate", "ioc"].includes(type)) {
