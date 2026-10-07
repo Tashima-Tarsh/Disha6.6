@@ -1,97 +1,264 @@
-# DISHA 6.6 — Canonical Production Runtime Architecture
+# DISHA6.6 — Canonical Production Runtime Contract
 
-## 1. System Identity and Infrastructure Baseline
+This document defines the production ownership and runtime boundaries of DISHA6.6. It intentionally avoids hard-coded instance IPs, deployment commit SHAs, and source-catalog counts because those are deployment or release observations, not architecture.
 
-DISHA 6.6 is an enterprise intelligence operating system deployed exclusively on Google Cloud Platform (GCP).
+## 1. Canonical product boundary
 
-- **Cloud Platform**: Google Cloud Platform (GCP) Compute Engine
-- **Instance**: `disha-os-core`
-- **Zone**: `asia-south1-a`
-- **Production IP**: `35.244.9.142`
-- **Public Domain**: `https://disha6.6.thenitishkr.in`
-- **Reverse Proxy**: Caddy (automatic TLS termination via Let's Encrypt / ZeroSSL)
-- **Deployment Strategy**: Containerized systemd-managed Docker Compose (`/etc/systemd/system/disha-os.service`)
-- **Prohibited Platforms**: Render, Netlify, Vercel, or unmanaged shared platforms.
+DISHA6.6 is a governed evidence and intelligence operating system. The canonical production spine is:
 
----
+- `web/` — authenticated application, API gateway, investigation orchestration, policy, evidence and runtime control.
+- `web/services/` — application services for investigations and related workflows.
+- `web/lib/server/` — authentication, persistence, audit, rate limiting and server-only controls.
+- `web/lib/unified/` — source adapters, target routing, evidence contracts, ASTRA integration and runtime policy.
+- `web/scripts/` — production workers and operational processes.
+- `disha/brain/` — isolated governed analysis/research service.
+- `infra/` — production database and worker images plus infrastructure definitions.
+- `data/osint/upstream-registry.json` — upstream catalog and provenance metadata.
+- `scripts/osint/` — catalog verification, deployment-manifest generation and environment-local runtime probes.
 
-## 2. Canonical Core Components
+Historical, demo and imported trees are not production merely because they remain in the monorepo.
 
-### 2.1 Web Application (Core Gateway & Interface)
-- **Directory**: `web/`
-- **Framework**: Next.js 14 (App Router, Node 20 LTS runtime)
-- **Deployment Mode**: Standalone output container (`disha-web`)
-- **Primary Routes**:
-  - `/investigate`: Default authenticated investigation universe (search-first UX, 3D source galaxy, ephemeral query clearance)
-  - `/dashboard`: Operational picture, mission tracking, and situation room
-  - `/api/v1/health`: System health status, database ping, worker heartbeats, and canonical git build SHA
-  - `/api/v1/unified-search`: Real multi-source OSINT target routing and orchestrator
-- **Zero Mock Enforcement**: All mock, synthetic, and placeholder intelligence providers are strictly forbidden from entering investigation result pipelines.
+## 2. Reference production topology
 
-### 2.2 Intelligence Brain (`disha-brain`)
-- **Directory**: `brain/`
-- **Framework**: Python 3.11 FastAPI service
-- **Responsibilities**: Vector embedding generation, semantic similarity scoring, entity extraction, and target classification.
-- **Port**: `8000` (internal network only)
+The reference topology in `docker-compose.prod.yml` contains:
 
-### 2.3 Database and Vector Storage (`disha-postgres`)
-- **Engine**: PostgreSQL 16 with `pgvector` extension
-- **Responsibilities**: Relational persistence for cases, intelligence records, evidence provenance, and worker heartbeats (`disha_worker_heartbeats`).
-- **Port**: `5432` (internal network only)
+| Service | Responsibility |
+| --- | --- |
+| `postgres` | PostgreSQL 16 persistence, PostGIS/pgvector-capable image, investigation and worker state |
+| `redis` | cache/runtime coordination where used by product services |
+| `embeddings` | isolated embedding runtime |
+| `disha-brain` | governed Python analysis/research service |
+| `web-migrate` | schema migration before application startup |
+| `web` | Next.js 16 standalone application and API |
+| `astra6-identity-worker` | governed identity OSINT worker |
+| `astra6-infrastructure-worker` | passive infrastructure OSINT worker |
+| `astra6-advanced-worker` | passive/authorized advanced OSINT worker |
+| `dynamic-worker` | internal scheduler/workflow background execution |
 
-### 2.4 High-Speed Message Queue (`disha-redis`)
-- **Engine**: Redis 7 Alpine
-- **Responsibilities**: Job dispatch queue, ephemeral result caching, rate-limit state coordination.
-- **Port**: `6379` (internal network only)
+The actual cloud placement, hostname, external IP, TLS edge and release SHA belong to deployment inventory and release metadata, not this architecture contract.
 
----
+## 3. Web application
 
-## 3. Canonical Worker Architecture
+- **Directory:** `web/`
+- **Framework:** Next.js 16
+- **Node runtime:** Node.js 22
+- **Production mode:** standalone container
+- **Authenticated investigation surface:** `/investigate`
+- **Health:** `/api/v1/health`
+- **Runtime status:** `/api/v1/runtime/status`
+- **Production readiness:** `/api/v1/production/readiness`
+- **OSINT tool registry/runtime view:** `/api/v1/osint/tools`, `/api/v1/osint/tools/health`
 
-DISHA 6.6 decouples execution into bounded worker families running inside specialized container images to avoid dependency pollution:
+The web process does not run heavy ASTRA command-line tools inside request handlers.
 
-### 3.1 Identity Worker (`osint-identity-worker`)
-- **Dockerfile**: `infra/workers/Dockerfile.identity-worker`
-- **Responsibilities**: Passive username enumeration, phone carrier and reputation intelligence, authorized profile queries.
-- **Pinned Engines**:
-  - Sherlock (Python 3.10 venv)
-  - Maigret (Python 3.10 venv)
-  - PhoneInfoga (Compiled Go binary)
-  - Holehe (Python 3.10 venv)
-- **Safety Gate**: Requires explicit policy clearance (`DISHA_IDENTITY_ENUMERATION_APPROVED=true`).
+## 4. DISHA Brain
 
-### 3.2 Infrastructure Worker (`osint-infrastructure-worker`)
-- **Dockerfile**: `infra/workers/Dockerfile.infrastructure-worker`
-- **Responsibilities**: Passive DNS enumeration, certificate transparency discovery, domain asset mapping.
-- **Pinned Engines**:
-  - OWASP Amass (Compiled Go binary with `-passive` flag enforced)
-  - ProjectDiscovery Subfinder (Compiled Go binary)
-  - theHarvester (Python 3.11 venv with passive search engine allowlist)
+- **Directory:** `disha/brain/`
+- **Runtime:** Python service
+- **Reference internal port:** `8080`
+- **Role:** bounded analysis/research behind a governed adapter boundary.
 
-### 3.3 Advanced Reconnaissance Worker (`osint-advanced-worker`)
-- **Dockerfile**: `infra/workers/Dockerfile.advanced-worker`
-- **Responsibilities**: Multi-source correlation, passive module aggregation, authorized crawler modules.
-- **Pinned Engines**:
-  - SpiderFoot (Python 3.10 venv with passive module allowlist)
-  - Recon-ng (Python 3.10 venv)
-  - Photon (Python 3.10 venv with strict target domain boundary and active authorization gate)
-- **Safety Gate**: Active crawling requires `activeAuthorization: true` persisted in dispatch run inputs; otherwise blocked by policy.
+Brain output is analysis. It does not automatically become verified evidence.
 
----
+## 5. Persistence
 
-## 4. OSINT Upstream Registry and Lockfile Provenance
+### PostgreSQL
 
-- **Master Registry**: `data/osint/upstream-registry.json` (512 distinct upstream projects)
-- **Runtime Lockfile**: `data/osint/runtime-lock.json` (Immutable pinned SHAs, package versions, SPDX licenses, container assignments, and functional smoke targets)
-- **Manifest Definitions**: `web/lib/unified/astra6-tool-manifest.ts` and `data/osint/manifests/*.json`
-- **Output Parsers**: `web/lib/unified/astra6-output-parsers.ts` (Zero-mock typed standard schemas normalizing raw CLI stdout into structured evidence)
-- **Service Connectors**: `web/lib/unified/osint-service-connectors.ts` (Authenticating OpenCTI, IntelOwl, and enterprise threat intelligence APIs)
+PostgreSQL is the durable source of truth for product state that requires persistence. Production schema includes evidence, investigation/workflow state and ASTRA worker/run state.
 
----
+### Redis
 
-## 5. Prohibited and Deprecated Code
+Redis is an auxiliary runtime dependency for cache/coordination patterns. It is not a substitute for durable evidence persistence.
 
-1. **Synthetic / Mock Intelligence**: Any test mock in `web/tests/fixtures` or mocks in testing files are restricted strictly to Vitest unit test harnesses. Under no circumstances may mock providers be imported into `web/lib/unified` or runtime API routes.
-2. **Duplicate Service Adapters**: `web/lib/unified/osint-service-adapters.ts` has been permanently removed in favor of `osint-service-connectors.ts`.
-3. **Third-Party Hosting Manifests**: `render.yaml` or alternate PaaS deployment files are deprecated and ignored.
-4. **Shell Injection Surface**: Targets passed to workers must strictly satisfy regex sanitization (`validateCommandTarget`) blocking shell metacharacters (`;&|\`$(){}[]<>!`).
+### Evidence rule
+
+If durable persistence is unavailable, the product must expose that condition. It must not label an unpersisted observation as durably admitted evidence.
+
+## 6. ASTRA6 execution plane
+
+Heavy OSINT execution is separated into worker classes.
+
+### Identity worker
+
+- **Dockerfile:** `infra/workers/Dockerfile.identity`
+- **Owned tools:** PhoneInfoga, Sherlock, Maigret, Holehe, Instaloader, Telegram Public Metadata/Telethon.
+- **Controls:** non-root user, read-only runtime posture, bounded arguments, worker heartbeat, deployment enable flags.
+- **Policy:** identity-sensitive investigation execution requires deployment approval and per-investigation operator/admin authorization.
+
+### Infrastructure worker
+
+- **Dockerfile:** `infra/workers/Dockerfile.infrastructure`
+- **Owned tools:** ProjectDiscovery Subfinder, OWASP Amass and theHarvester.
+- **Posture:** passive infrastructure discovery only.
+
+### Advanced worker
+
+- **Dockerfile:** `infra/workers/Dockerfile.research-osint`
+- **Owned tools:** SpiderFoot, Recon-ng and Photon.
+- **Posture:** passive module allowlists for SpiderFoot and Recon-ng; Photon is policy-gated active crawling.
+- **Source dependency:** this image currently copies selected upstream Git submodules. Production checkout/build must initialize them until they are replaced with immutable release artifacts or signed internal images.
+
+### Queue and heartbeat
+
+ASTRA jobs are persisted in PostgreSQL. Workers claim eligible queued jobs, re-check policy, update run status and publish heartbeats. A catalog entry or source manifest is not a heartbeat.
+
+## 7. Native governed source plane
+
+The default adapter bus owns public/source connectors including:
+
+- public DNS
+- certificate transparency
+- RDAP
+- RIPEstat
+- Wayback CDX
+- Common Crawl
+- GDELT
+- CISA KEV
+- NVD
+- FIRST EPSS
+- SEC EDGAR
+- Wikidata
+- OpenAlex
+- World Bank
+- CelesTrak
+- NOAA SWPC
+- ReliefWeb
+- NHTSA VIN
+- India vehicle-registration format validation
+- ThreatFox
+- MalwareBazaar
+- OpenSanctions
+- OpenCorporates
+- OpenCTI
+- IntelOwl
+- governed dynamic public sources
+- official public-source probes
+
+Each source can independently be healthy, unavailable, unconfigured, credential-gated, rate-limited or failed.
+
+## 8. OSINT catalog vs deployment manifest vs live runtime
+
+These are deliberately separate.
+
+### Upstream catalog
+
+`data/osint/upstream-registry.json`
+
+Purpose: upstream discovery, ownership, license, source revision, capabilities and provenance metadata.
+
+An upstream project being verified means its upstream can be verified at that point in time. It does **not** mean the tool exists in a deployed container.
+
+### Deployment lock
+
+Generated with:
+
+```bash
+node scripts/osint/build-lockfile.mjs
+```
+
+Output:
+
+```
+.disha/osint/runtime-lock.json
+```
+
+Purpose: environment/release-local deployment classification. It is ignored by Git so it cannot become a stale source-of-truth artifact.
+
+The lock never stores a fabricated investigation target and does not claim live health. It records whether a catalog entry is owned by ASTRA, a service connector, reference-only, or catalog-only.
+
+### Runtime probe
+
+Generated with:
+
+```bash
+npm run osint:health
+```
+
+Output:
+
+```
+.disha/osint/runtime-status.json
+```
+
+Purpose: report the environment in which the probe actually ran.
+
+### Runtime report
+
+Generated with:
+
+```bash
+npm run osint:report
+```
+
+Output:
+
+```
+.disha/osint/reports/
+```
+
+The report explicitly separates catalog metadata from the optional environment-local runtime snapshot.
+
+## 9. Truthful status model
+
+| State | Meaning |
+| --- | --- |
+| `CATALOGED` | known upstream/reference; no live executor implied |
+| `RUNTIME_MANIFESTED` | DISHA owns an execution contract, but live health still requires a probe |
+| `CREDENTIAL_REQUIRED` | the owned connector needs credentials/entitlement |
+| `POLICY_RESTRICTED` | execution requires explicit policy approval |
+| `UNCONFIGURED` | required deployment capability is not configured |
+| `DEGRADED` | runtime exists but current health is impaired |
+| `REFERENCE_ONLY` | catalog/dataset/library/GUI reference, not an executable worker |
+| `HEALTHY` | live deployment probe or heartbeat established runtime health |
+| `NO_RESULTS` | execution succeeded without source-backed records |
+
+No script may convert catalog presence into `HEALTHY` without a live runtime basis.
+
+## 10. Security and policy boundaries
+
+Production execution must preserve:
+
+1. validated targets;
+2. shell-metacharacter rejection for ASTRA commands;
+3. `execFile`/argument-based execution instead of shell interpolation;
+4. explicit source/tool allowlists;
+5. bounded timeouts and output sizes;
+6. non-root worker containers;
+7. read-only filesystems where practical;
+8. explicit credential configuration;
+9. identity and active-recon authorization gates;
+10. SSRF-aware outbound retrieval;
+11. audit/provenance for governed actions;
+12. fail-closed behavior when configuration or policy is absent.
+
+## 11. Repository archive boundary
+
+The following are retained history/research, not canonical product runtime:
+
+- `legacy/`
+- `disha/legacy-root-src/`
+- `demos/`
+- archive/internal design documents
+- generated local reports
+
+`disha/legacy-root-src/` currently has an optional MCP-service dependency and therefore requires a deliberate migration before physical deletion. Production Docker contexts exclude these trees so they do not inflate application/worker builds.
+
+## 12. Release readiness
+
+A source commit is not production-ready merely because it builds.
+
+A release should establish, on the exact deployable commit:
+
+- lint, tests, type checks and production build;
+- dependency/security audit;
+- database migration success;
+- database health;
+- required worker heartbeats;
+- provider/credential configuration;
+- policy state;
+- evidence-write behavior;
+- cleanup/expiry behavior;
+- backup/restore readiness;
+- external monitoring and alert routing.
+
+The running environment is authoritative for operational readiness.
