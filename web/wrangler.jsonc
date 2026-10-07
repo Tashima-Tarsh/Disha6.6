@@ -5,6 +5,9 @@
   "compatibility_date": "2026-09-12",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
+  "vars": {
+    "DISHA_ORIGIN": "http://35.244.9.142"
+  },
   "routes": [
     {
       "pattern": "disha6.6.thenitishkr.in/*",
