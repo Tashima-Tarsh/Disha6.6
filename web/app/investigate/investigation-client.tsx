@@ -11,6 +11,7 @@ import {
   Globe2,
   Landmark,
   MapPinned,
+  ImagePlus,
   Network,
   Phone,
   Search,
@@ -104,7 +105,7 @@ const MANAGED_TOOL_IDS = new Set([
   "intelowl",
 ]);
 
-export function InvestigationClient({ email: _email }: { email: string }) {
+export function InvestigationClient({ email: _email, roles }: { email: string; roles: string[] }) {
   const [active, setActive] = useState<Investigation | null>(null);
   const [busy, setBusy] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -115,7 +116,12 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   const [activeTab, setActiveTab] = useState<(typeof RESULT_TABS)[number]>("Overview");
   const [tools, setTools] = useState<ToolRecord[]>([]);
   const [toolsError, setToolsError] = useState("");
+  const [identityAuthorization, setIdentityAuthorization] = useState(false);
+  const [activeAuthorization, setActiveAuthorization] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const session = useRef<InvestigationSession | null>(null);
+  const uploadInput = useRef<HTMLInputElement | null>(null);
+  const canAuthorizeSensitive = roles.includes("admin") || roles.includes("operator");
 
   const selectedSearch = useMemo(
     () => SEARCH_MODES.find((item) => item.label === selectedSearchMode) ?? SEARCH_MODES[0],
@@ -175,15 +181,34 @@ export function InvestigationClient({ email: _email }: { email: string }) {
       await session.current?.start({
         target,
         targetType: selectedSearch.targetType,
-        identityAuthorization: false,
-        activeAuthorization: false,
+        identityAuthorization,
+        activeAuthorization,
       });
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "INVESTIGATION SERVICE FAILED");
     } finally {
       setBusy(false);
     }
-  }, [active, busy, closing, query, selectedSearch.targetType]);
+  }, [active, activeAuthorization, busy, closing, identityAuthorization, query, selectedSearch.targetType]);
+
+  const startImage = useCallback(async (file: File) => {
+    if (busy || closing || active) return;
+    if (!["image/jpeg", "image/png"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setUploadError("Choose a JPG or PNG up to 5 MB.");
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    setUploadError("");
+    try {
+      await session.current?.start(file);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "IMAGE INVESTIGATION FAILED");
+    } finally {
+      setBusy(false);
+    }
+  }, [active, busy, closing]);
 
   const close = useCallback(async () => {
     setClosing(true);
@@ -191,6 +216,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
     try {
       await session.current?.close();
       setQuery("");
+      setUploadError("");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Cleanup could not be confirmed.");
     } finally {
@@ -332,6 +358,31 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 spellCheck={false}
               />
               <kbd>Ctrl + Enter</kbd>
+              <input
+                ref={uploadInput}
+                type="file"
+                accept="image/jpeg,image/png"
+                hidden
+                disabled={busy || Boolean(active)}
+                aria-label="Upload investigation image"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (file) void startImage(file);
+                }}
+              />
+              {!active ? (
+                <button
+                  type="button"
+                  className={styles.imageSearchButton}
+                  aria-label="Investigate an image"
+                  title="Investigate JPG or PNG up to 5 MB"
+                  disabled={busy}
+                  onClick={() => uploadInput.current?.click()}
+                >
+                  <ImagePlus size={17} />
+                </button>
+              ) : null}
 
               {active ? (
                 <button
@@ -405,6 +456,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
             )}
           </section>
 
+          {uploadError ? <div className={styles.errorBanner} role="alert">{uploadError}</div> : null}
           {error ? <div className={styles.errorBanner} role="alert">{error}</div> : null}
         </section>
 
@@ -451,6 +503,35 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 </p>
               )}
             </div>
+          </ControlGroup>
+
+          <ControlGroup title="Authorization">
+            <button
+              className={identityAuthorization ? styles.controlActive : styles.controlRow}
+              type="button"
+              disabled={!canAuthorizeSensitive || Boolean(active)}
+              aria-pressed={identityAuthorization}
+              onClick={() => setIdentityAuthorization((current) => !current)}
+            >
+              <span>
+                <strong>Authorized identity lookup</strong>
+                <small>{canAuthorizeSensitive ? "Explicitly authorize governed identity tools for this investigation" : "Operator or admin role required"}</small>
+              </span>
+              <i />
+            </button>
+            <button
+              className={activeAuthorization ? styles.controlActive : styles.controlRow}
+              type="button"
+              disabled={!canAuthorizeSensitive || Boolean(active)}
+              aria-pressed={activeAuthorization}
+              onClick={() => setActiveAuthorization((current) => !current)}
+            >
+              <span>
+                <strong>Authorized public-site crawl</strong>
+                <small>{canAuthorizeSensitive ? "Explicitly authorize policy-gated bounded active retrieval" : "Operator or admin role required"}</small>
+              </span>
+              <i />
+            </button>
           </ControlGroup>
 
           <ControlGroup title="Source Policy">
@@ -518,6 +599,10 @@ export function InvestigationClient({ email: _email }: { email: string }) {
           </div>
         </aside>
       </div>
+
+      {active?.targetType === "image" ? (
+        <div className={styles.temporaryNotice}>Image investigation · temporary upload · source/provider retention follows configured provider terms</div>
+      ) : null}
 
       {evidence ? (
         <InvestigationEvidencePanel
