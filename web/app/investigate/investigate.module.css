@@ -1329,3 +1329,17 @@
   line-height: 1.5;
   backdrop-filter: blur(12px);
 }
+
+
+.utilityCluster > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.sourceFailure {
+  color: #e29198 !important;
+}
+
+.sourceWarning {
+  color: #c6a56a !important;
+}
