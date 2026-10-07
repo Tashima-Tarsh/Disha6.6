@@ -39,7 +39,7 @@ describe("Photon / Active Recon End-to-End Worker Authorization", () => {
     };
     const result = authorizeQueuedJob(job);
     expect(result.allowed).toBe(false);
-    expect(result.error).toBe("policy_denied_tool_disabled");
+    expect(result.error).toBe("policy_denied_tool_disabled_live");
   });
 
   it("blocks execution when DISHA_ACTIVE_RECON_APPROVED is false/missing", () => {

@@ -1745,7 +1745,7 @@
       "url"
     ],
     "runtimeType": "python",
-    "status": "UNCONFIGURED",
+    "status": "AUTH_REQUIRED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": null,
@@ -1761,11 +1761,11 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-06T20:03:32.389Z",
-    "lastSmokeTested": "2026-10-06T20:11:45.237Z",
+    "lastSmokeTested": "2026-10-07T04:35:26.173Z",
     "smokeResult": {
       "success": false,
-      "latencyMs": 3,
-      "error": "Executable 'photon' not found in current environment PATH"
+      "latencyMs": 0,
+      "error": "Active reconnaissance deployment approval is not enabled"
     },
     "healthStatus": "UNCONFIGURED",
     "executionClass": "passive_public"
@@ -3707,7 +3707,7 @@
       "username"
     ],
     "runtimeType": "python",
-    "status": "UNCONFIGURED",
+    "status": "AUTH_REQUIRED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": null,
@@ -3723,11 +3723,11 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-06T20:03:32.389Z",
-    "lastSmokeTested": "2026-10-06T20:11:45.588Z",
+    "lastSmokeTested": "2026-10-07T04:35:26.071Z",
     "smokeResult": {
       "success": false,
-      "latencyMs": 2,
-      "error": "Executable 'sherlock' not found in current environment PATH"
+      "latencyMs": 0,
+      "error": "Identity enumeration deployment approval is not enabled"
     },
     "healthStatus": "UNCONFIGURED",
     "executionClass": "passive_public"

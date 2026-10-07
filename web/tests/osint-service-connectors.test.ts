@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-codex/rewire-osint-production-447dcddf
- main
 import {
   createIntelOwlServiceAdapter,
   createOpenCtiServiceAdapter,
@@ -10,8 +8,6 @@ import {
 } from "../lib/unified/osint-service-connectors";
 import { createDefaultOsintBus } from "../lib/unified/osint-default-bus";
 
-codex/rewire-osint-production-447dcddf
-main
 describe("OSINT service connectors", () => {
   it("registers the requested upstream tools with explicit execution posture", () => {
     const connectors = listOsintServiceConnectors();
@@ -68,15 +64,11 @@ describe("OSINT service connectors", () => {
     const previousIntelOwlUrl = process.env.INTELOWL_BASE_URL;
     const previousIntelOwlKey = process.env.INTELOWL_API_KEY;
     const previousIntelOwlAllowlist = process.env.INTELOWL_ANALYZERS_ALLOWLIST;
- codex/rewire-osint-production-447dcddf
- main
     process.env.OPENCTI_BASE_URL = "https://opencti.example";
     process.env.OPENCTI_TOKEN = "token";
     process.env.INTELOWL_BASE_URL = "https://intelowl.example";
     process.env.INTELOWL_API_KEY = "key";
     process.env.INTELOWL_ANALYZERS_ALLOWLIST = "PassiveDns";
-codex/rewire-osint-production-447dcddf
- main
     const fetcher = async () => new Response(JSON.stringify({ ok: true }), { status: 200 });
     try {
       await expect(probeOsintServiceConnector("opencti", fetcher)).resolves.toMatchObject({ status: "ok", httpStatus: 200 });
@@ -269,10 +261,7 @@ codex/rewire-osint-production-447dcddf
     expect(ids).toContain("service-intelowl");
   });
 
-codex/rewire-osint-production-447dcddf
   it("summarizes live-configurable versus policy-blocked tools", () => {
-  it("summarizes live services and ASTRA workers", () => {
-main
     const summary = getOsintServiceConnectorSummary();
     expect(summary.total).toBe(5);
     expect(summary.blockedByPolicy).toBe(3);
