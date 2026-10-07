@@ -102,9 +102,7 @@ services:
       retries: 10
 
   web-migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: disha-web:local
     command: ["node", "scripts/apply-schema.mjs"]
     environment:
       NODE_ENV: production
@@ -115,6 +113,7 @@ services:
     restart: "no"
 
   web:
+    image: disha-web:local
     build:
       context: .
       dockerfile: Dockerfile
@@ -189,9 +188,7 @@ services:
       start_period: 30s
 
   dynamic-worker:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
+    image: disha-web:local
     command: ["node", "scripts/dynamic-worker.mjs"]
     healthcheck:
       disable: true
@@ -317,6 +314,8 @@ disha6.6.thenitishkr.in, :80, :443 {
 CADDY_EOF
 
 echo "[3/6] Building production Docker images..."
+docker builder prune -f >/dev/null 2>&1 || true
+docker image prune -f >/dev/null 2>&1 || true
 docker compose -f docker-compose.gcp.yml build
 
 echo "[4/6] Launching PostgreSQL and Redis..."

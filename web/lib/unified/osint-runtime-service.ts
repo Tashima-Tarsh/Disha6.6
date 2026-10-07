@@ -210,6 +210,16 @@ export type OsintRuntimeMetrics = {
   upstreamVerified: number;
   upstreamUnverified: number;
   upstreamUnavailable: number;
+  executableVerified: number;
+  serviceVerified: number;
+  datasetIntegrated: number;
+  libraryIntegrated: number;
+  guiIntegrated: number;
+  credentialRequired: number;
+  policyRestricted: number;
+  upstreamDead: number;
+  licenseBlocked: number;
+  technicallyImpossible: number;
   byCategory: Record<string, number>;
   byRuntime: Record<string, number>;
 };
@@ -430,18 +440,49 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     upstreamVerified: 0,
     upstreamUnverified: 0,
     upstreamUnavailable: 0,
+    executableVerified: 0,
+    serviceVerified: 0,
+    datasetIntegrated: 0,
+    libraryIntegrated: 0,
+    guiIntegrated: 0,
+    credentialRequired: 0,
+    policyRestricted: 0,
+    upstreamDead: 0,
+    licenseBlocked: 0,
+    technicallyImpossible: 0,
     byCategory: {},
     byRuntime: {},
   };
 
   for (const tool of registry) {
-    if (tool.status === "HEALTHY") metrics.healthy++;
-    else if (tool.status === "DEGRADED") metrics.degraded++;
-    else if (tool.status === "AUTH_REQUIRED") metrics.authRequired++;
-    else if (tool.status === "GUI_ONLY") metrics.guiOnly++;
-    else if (tool.status === "DATASET_ONLY") metrics.datasetOnly++;
-    else if (tool.status === "LIBRARY_ONLY") metrics.libraryOnly++;
-    else metrics.unconfigured++;
+    if (tool.status === "EXECUTABLE_VERIFIED" || tool.status === "HEALTHY") {
+      metrics.healthy++;
+      metrics.executableVerified++;
+    } else if (tool.status === "SERVICE_VERIFIED") {
+      metrics.healthy++;
+      metrics.serviceVerified++;
+    } else if (tool.status === "DATASET_INTEGRATED" || tool.status === "DATASET_ONLY") {
+      metrics.datasetOnly++;
+      metrics.datasetIntegrated++;
+    } else if (tool.status === "LIBRARY_INTEGRATED" || tool.status === "LIBRARY_ONLY") {
+      metrics.libraryOnly++;
+      metrics.libraryIntegrated++;
+    } else if (tool.status === "GUI_INTEGRATED" || tool.status === "GUI_ONLY") {
+      metrics.guiOnly++;
+      metrics.guiIntegrated++;
+    } else if (tool.status === "CREDENTIAL_REQUIRED" || tool.status === "AUTH_REQUIRED") {
+      metrics.authRequired++;
+      metrics.credentialRequired++;
+    } else if (tool.status === "POLICY_RESTRICTED") {
+      metrics.degraded++;
+      metrics.policyRestricted++;
+    } else if (tool.status === "UPSTREAM_DEAD") {
+      metrics.upstreamDead++;
+    } else if (tool.status === "DEGRADED") {
+      metrics.degraded++;
+    } else {
+      metrics.unconfigured++;
+    }
 
     if (tool.forkStatus === "FORKED") metrics.forked++;
     else metrics.pendingFork++;
