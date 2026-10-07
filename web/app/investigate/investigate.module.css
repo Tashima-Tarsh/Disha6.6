@@ -1288,3 +1288,44 @@
 .toolRow {
   cursor: default;
 }
+
+
+.imageSearchButton {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #0e1a2a;
+  color: #8da4c2;
+  cursor: pointer;
+}
+
+.imageSearchButton:hover {
+  color: #e3ecf8;
+  border-color: var(--line-strong);
+  background: #13233a;
+}
+
+.imageSearchButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.temporaryNotice {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 35;
+  max-width: 420px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: rgba(8, 18, 31, 0.94);
+  color: #788da8;
+  font-size: 9px;
+  line-height: 1.5;
+  backdrop-filter: blur(12px);
+}
