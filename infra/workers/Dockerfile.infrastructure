@@ -2,12 +2,13 @@
 # Capabilities: Subfinder, OWASP Amass (passive), theHarvester (passive), DNS intelligence
 FROM golang:1.23-alpine AS go-builder
 RUN apk add --no-cache git gcc musl-dev
-RUN go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@v2.6.6
-RUN go install -v github.com/owasp-amass/amass/v4/...@v4.2.0
+RUN CGO_ENABLED=0 go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@v2.6.6
+RUN CGO_ENABLED=0 go install -v github.com/owasp-amass/amass/v4/...@v4.2.0
 
 FROM python:3.11-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates gnupg procps musl \
+    && ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1 || true \
     && mkdir -p /etc/apt/keyrings \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
