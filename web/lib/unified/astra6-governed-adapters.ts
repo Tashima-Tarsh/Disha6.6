@@ -72,6 +72,53 @@ function isIdentityManifest(manifest: DishaToolManifest): boolean {
   return manifest.targetTypes.some((type) => ["username", "phone_number", "email", "instagram_username", "telegram_username"].includes(type));
 }
 
+function workerClassForManifest(manifest: DishaToolManifest): "identity" | "infrastructure" | "advanced" | null {
+  if (["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"].includes(manifest.toolId)) {
+    return "identity";
+  }
+  if (["theharvester", "owasp-amass", "subfinder"].includes(manifest.toolId)) {
+    return "infrastructure";
+  }
+  if (["spiderfoot", "recon-ng", "photon"].includes(manifest.toolId)) {
+    return "advanced";
+  }
+  return null;
+}
+
+async function recentWorkerHeartbeat(manifest: DishaToolManifest): Promise<{ ready: boolean; detail: string }> {
+  const pool = getDbPool();
+  if (!pool) return { ready: false, detail: "DATABASE_URL is required for ASTRA worker dispatch." };
+
+  const workerClass = workerClassForManifest(manifest);
+  if (!workerClass) return { ready: false, detail: `No worker class is registered for ${manifest.name}.` };
+
+  try {
+    const result = await pool.query(
+      `select worker_id, status, active_jobs, last_heartbeat
+         from disha_worker_heartbeats
+        where worker_class=$1
+          and status='HEALTHY'
+          and last_heartbeat > now() - interval '45 seconds'
+        order by last_heartbeat desc
+        limit 1`,
+      [workerClass],
+    );
+    const row = result.rows[0] as { worker_id?: string; active_jobs?: number } | undefined;
+    if (!row) {
+      return { ready: false, detail: `No healthy ${workerClass} worker heartbeat has been observed in the last 45 seconds.` };
+    }
+    return {
+      ready: true,
+      detail: `${manifest.name} dispatch ready via ${workerClass} worker ${row.worker_id ?? "registered"}${Number(row.active_jobs ?? 0) > 0 ? " (busy)" : ""}.`,
+    };
+  } catch (error) {
+    return {
+      ready: false,
+      detail: `Worker heartbeat probe failed: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
+}
+
 function configurationIssue(manifest: DishaToolManifest): string | undefined {
   if (manifest.toolId === "telegram-public") {
     if (!process.env.TELEGRAM_API_ID || !process.env.TELEGRAM_API_HASH || !process.env.TELEGRAM_SESSION) {
@@ -276,7 +323,10 @@ function createAstra6Adapter(manifest: DishaToolManifest): GovernedOsintAdapter<
       if (manifest.executionClass === "active_recon" && !activeReconDeploymentApproved()) {
         return { status: "degraded" as const, detail: `${manifest.name} requires DISHA_ACTIVE_RECON_APPROVED=true before active crawling can run.` };
       }
-      return { status: "healthy" as const, detail: `${manifest.name} database-backed worker dispatch ready.` };
+      const heartbeat = await recentWorkerHeartbeat(manifest);
+      return heartbeat.ready
+        ? { status: "healthy" as const, detail: heartbeat.detail }
+        : { status: "degraded" as const, detail: heartbeat.detail };
     },
     async execute(input: Astra6DispatchInput, context: AdapterContext) {
       const target = validateCommandTarget(input.target, manifest.commandInjectionGuard);
