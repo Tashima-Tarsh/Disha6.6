@@ -240,7 +240,7 @@ export async function saveOsintRegistry(registry: OsintToolRecord[]): Promise<vo
   }
 }
 
-async function loadLiveRuntimeRegistry(): Promise<OsintToolRecord[]> {
+export async function loadOsintRuntimeRegistry(): Promise<OsintToolRecord[]> {
   const registry = await loadOsintRegistry();
   const checkedAt = new Date().toISOString();
   const workerClasses = [...new Set(
@@ -358,7 +358,7 @@ async function loadLiveRuntimeRegistry(): Promise<OsintToolRecord[]> {
 }
 
 export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
-  const registry = await loadLiveRuntimeRegistry();
+  const registry = await loadOsintRuntimeRegistry();
 
   const metrics: OsintRuntimeMetrics = {
     total: registry.length,
