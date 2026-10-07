@@ -16,6 +16,9 @@ const WORKER_CLASS = process.env.WORKER_CLASS || "generic";
 const POLL_INTERVAL_MS = Math.max(250, Number.parseInt(process.env.DISHA_OSINT_POLL_MS || "3000", 10));
 const HEARTBEAT_INTERVAL_MS = Math.max(5_000, Number.parseInt(process.env.DISHA_OSINT_HEARTBEAT_MS || "15000", 10));
 let lastHeartbeatAt = 0;
+let activeJobs = 0;
+let previousCpuUsage = process.cpuUsage();
+let previousCpuSampleAt = Date.now();
 
 const WORKER_CLASS_TOOLS = {
   identity: ["phoneinfoga", "sherlock", "maigret", "holehe", "instaloader", "telegram-public"],
@@ -680,20 +683,44 @@ async function claimNextJob(client) {
   return job;
 }
 
+function sampleWorkerMetrics(now = Date.now()) {
+  const elapsedMicros = Math.max(1, (now - previousCpuSampleAt) * 1000);
+  const delta = process.cpuUsage(previousCpuUsage);
+  const cpuPercent = Math.max(0, Math.min(100, ((delta.user + delta.system) / elapsedMicros) * 100));
+  const memoryMb = process.memoryUsage().rss / (1024 * 1024);
+  previousCpuUsage = process.cpuUsage();
+  previousCpuSampleAt = now;
+  return {
+    cpuPercent: Number(cpuPercent.toFixed(2)),
+    memoryMb: Number(memoryMb.toFixed(2)),
+  };
+}
+
 async function publishWorkerHeartbeat(force = false) {
   if (!pool) return;
   const now = Date.now();
   if (!force && now - lastHeartbeatAt < HEARTBEAT_INTERVAL_MS) return;
+  const metrics = sampleWorkerMetrics(now);
   await pool.query(
     `insert into disha_worker_heartbeats (
        worker_id, worker_class, hostname, active_jobs, cpu_percent, memory_mb, last_heartbeat, status
-     ) values ($1,$2,$3,0,0,0,now(),'HEALTHY')
+     ) values ($1,$2,$3,$4,$5,$6,now(),'HEALTHY')
      on conflict (worker_id) do update set
        worker_class=excluded.worker_class,
        hostname=excluded.hostname,
+       active_jobs=excluded.active_jobs,
+       cpu_percent=excluded.cpu_percent,
+       memory_mb=excluded.memory_mb,
        last_heartbeat=now(),
        status='HEALTHY'`,
-    [WORKER_ID, WORKER_CLASS, process.env.HOSTNAME || WORKER_ID],
+    [
+      WORKER_ID,
+      WORKER_CLASS,
+      process.env.HOSTNAME || WORKER_ID,
+      activeJobs,
+      metrics.cpuPercent,
+      metrics.memoryMb,
+    ],
   );
   lastHeartbeatAt = now;
 }
@@ -717,6 +744,7 @@ async function processNextJob() {
 
   if (!job) return;
 
+  activeJobs = 1;
   const started = Date.now();
 
   try {
@@ -760,6 +788,8 @@ async function processNextJob() {
     );
 
     console.info(`[ASTRA 6 Worker] ${status} run=${job.run_id} tool=${job.tool_id}: ${message}`);
+  } finally {
+    activeJobs = 0;
   }
 }
 
@@ -767,6 +797,12 @@ async function main() {
   if (!pool) throw new Error("DATABASE_URL is required");
   console.info(`[ASTRA 6 Worker] start id=${WORKER_ID} class=${WORKER_CLASS} tools=${Array.isArray(ALLOWED_TOOLS) ? ALLOWED_TOOLS.join(",") : "all"}`);
   await publishWorkerHeartbeat(true);
+  const heartbeatTimer = setInterval(() => {
+    void publishWorkerHeartbeat(true).catch((error) => {
+      console.info(`[ASTRA 6 Worker] heartbeat error: ${error instanceof Error ? error.message : String(error)}`);
+    });
+  }, HEARTBEAT_INTERVAL_MS);
+  heartbeatTimer.unref?.();
 
   try {
     await redis.connect();
