@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       timestamp: new Date().toISOString(),
       ...metrics,
-      status: metrics.healthy > 0 ? "OPERATIONAL" : "DEGRADED",
+      status: metrics.degraded > 0 ? "DEGRADED" : metrics.healthy > 0 ? "OPERATIONAL" : "UNCONFIGURED",
       truthfulInvariant: "Real Data or No Data. Metrics reflect verified runtime execution states without simulation.",
     }, {
       headers: {
