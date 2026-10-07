@@ -55,21 +55,32 @@ async function executeOsintSearch(rawQuery: string, signal?: AbortSignal) {
 }
 
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q") ?? req.nextUrl.searchParams.get("query") ?? "India government";
+  const q = req.nextUrl.searchParams.get("q") ?? req.nextUrl.searchParams.get("query");
+  if (!q?.trim()) {
+    return NextResponse.json({ error: "Query is required." }, { status: 400 });
+  }
   return executeOsintSearch(q, req.signal);
 }
 
 export async function POST(req: NextRequest) {
-  let q = "India government";
+  let body: unknown;
   try {
-    const body = await req.json();
-    if (typeof body?.query === "string" && body.query.trim()) {
-      q = body.query.trim();
-    } else if (typeof body?.q === "string" && body.q.trim()) {
-      q = body.q.trim();
-    }
+    body = await req.json();
   } catch {
-    // fallback
+    return NextResponse.json({ error: "Valid JSON body is required." }, { status: 400 });
   }
+
+  const record = body && typeof body === "object" ? body as Record<string, unknown> : {};
+  const q =
+    typeof record.query === "string" && record.query.trim()
+      ? record.query.trim()
+      : typeof record.q === "string" && record.q.trim()
+        ? record.q.trim()
+        : "";
+
+  if (!q) {
+    return NextResponse.json({ error: "Query is required." }, { status: 400 });
+  }
+
   return executeOsintSearch(q, req.signal);
 }
