@@ -32,11 +32,11 @@ jobs:
       - name: Reject unresolved merge artifacts
         working-directory: .
         run: |
-          if git grep -n -E '^(<<<<<<<|=======|>>>>>>>)( .*)?$' -- web infra .github; then
+          if git grep -n -E '^(<<<<<<<|=======|>>>>>>>)( .*)?$' -- web infra .github docs scripts Dockerfile .env.example; then
             echo "Unresolved merge marker found."
             exit 1
           fi
-          if git grep -n -E '^(main|codex/[^[:space:]]+|fix/[^[:space:]]+)$' -- web infra .github; then
+          if git grep -n -E '^(main|codex/[^[:space:]]+|fix/[^[:space:]]+)$' -- web infra .github docs scripts Dockerfile .env.example; then
             echo "Bare branch label found in production source."
             exit 1
           fi

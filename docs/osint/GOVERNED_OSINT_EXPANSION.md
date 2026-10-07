@@ -61,9 +61,9 @@ The post-login investigation flow exposes Name first and Vehicle second, followe
 - Phone: public discovery plus PhoneInfoga only when the ASTRA worker, tool flag, deployment approval and per-investigation operator/admin authorization are configured.
 - Email: public discovery plus Holehe under the same explicit identity policy; password-recovery modules remain disabled.
 - Username: public discovery plus Sherlock and Maigret under the same explicit identity policy.
-- Domain/URL: public core adapters plus theHarvester, passive Amass, Subfinder, SpiderFoot and allowlisted Recon-ng modules when their worker flags are configured. OpenCTI and IntelOwl add configured CTI/enrichment service results. Photon can add a bounded depth-1 public-site crawl only when the deployment gate and per-investigation operator/admin authorization are both present.
-- IP: public RDAP/RIPEstat, Shodan when configured, public reporting, ThreatFox, configured OpenCTI/IntelOwl enrichment, and passive SpiderFoot.
-- Hash/IOC: public discovery plus configured ThreatFox, OpenCTI and IntelOwl; file hashes also use configured MalwareBazaar metadata lookup. Malware samples are not downloaded by these DISHA investigation adapters.
+- Domain/URL: public core adapters plus theHarvester, passive Amass and Subfinder when their worker flags are configured; ThreatFox IOC lookup is added when configured.
+- IP: public RDAP/RIPEstat, Shodan when configured, public reporting and ThreatFox when configured. SpiderFoot remains non-executable until a compatible isolated passive runtime is packaged and smoke-tested.
+- Hash/IOC: public discovery plus configured ThreatFox; file hashes also use configured MalwareBazaar metadata lookup. Malware samples are not downloaded.
 - Vehicle: Indian registration identifiers are normalized and public discovery can run immediately. VAHAN/National Transport Repository and eChallan remain restricted placeholders until an approved data/API entitlement is connected.
 
 ## API
@@ -108,7 +108,7 @@ Promotion into DISHA production requires all of the following:
 7. Evidence/provenance output for every successful collection.
 8. No credential harvesting, secret discovery, exploit delivery, authentication bypass, or private-account access.
 
-Active-recon and identity-enumeration capabilities remain gated. Source availability never authorizes execution: Photon requires explicit active-crawl authorization, and identity tools retain their deployment plus per-investigation authorization gates.
+Active-recon and identity-enumeration projects remain blocked by default. They are not executable merely because they are open source.
 
 ## Next production promotions
 

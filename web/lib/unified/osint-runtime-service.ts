@@ -2,9 +2,158 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { getDbPool } from "../server/db";
 import { generatedOsintManifests, type GeneratedOsintToolManifest } from "./generated/osint-tool-manifests.generated";
+import { probeOsintServiceConnector } from "./osint-service-connectors";
 
 const execFileAsync = promisify(execFile);
+
+const ASTRA_TOOL_WORKER_CLASS: Record<string, "identity" | "infrastructure" | "advanced"> = {
+  phoneinfoga: "identity",
+  sherlock: "identity",
+  maigret: "identity",
+  holehe: "identity",
+  instaloader: "identity",
+  "telegram-public": "identity",
+  telethon: "identity",
+  theharvester: "infrastructure",
+  amass: "infrastructure",
+  "owasp-amass": "infrastructure",
+  subfinder: "infrastructure",
+  spiderfoot: "advanced",
+  "recon-ng": "advanced",
+  photon: "advanced",
+};
+
+function astraToolEnabled(toolId: string): boolean {
+  const canonicalToolId = toolId === "amass" ? "owasp-amass" : toolId === "telethon" ? "telegram-public" : toolId;
+  const envKey = `DISHA_ASTRA6_${canonicalToolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
+  return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
+}
+
+function astraRuntimeReadinessBlock(toolId: string): { status: "AUTH_REQUIRED"; error: string } | null {
+  const canonicalToolId = toolId === "amass" ? "owasp-amass" : toolId === "telethon" ? "telegram-public" : toolId;
+  const workerClass = ASTRA_TOOL_WORKER_CLASS[toolId];
+
+  if (workerClass === "identity" && process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
+    return {
+      status: "AUTH_REQUIRED",
+      error: "Identity enumeration deployment approval is not enabled",
+    };
+  }
+
+  if (canonicalToolId === "telegram-public") {
+    const telegramConfigured = Boolean(
+      process.env.TELEGRAM_API_ID?.trim()
+      && process.env.TELEGRAM_API_HASH?.trim()
+      && process.env.TELEGRAM_SESSION?.trim(),
+    );
+    if (!telegramConfigured) {
+      return {
+        status: "AUTH_REQUIRED",
+        error: "Telegram API credentials and an authorized session are required",
+      };
+    }
+  }
+
+  if (canonicalToolId === "photon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
+    return {
+      status: "AUTH_REQUIRED",
+      error: "Active reconnaissance deployment approval is not enabled",
+    };
+  }
+
+  return null;
+}
+
+async function smokeAstraRuntime(entry: OsintToolRecord): Promise<OsintToolRecord["smokeResult"]> {
+  const workerClass = ASTRA_TOOL_WORKER_CLASS[entry.toolId];
+  if (!workerClass) return null;
+  const started = Date.now();
+
+  if (!astraToolEnabled(entry.toolId)) {
+    entry.status = "UNCONFIGURED";
+    entry.healthStatus = "UNCONFIGURED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return {
+      success: false,
+      latencyMs: Date.now() - started,
+      error: `ASTRA tool '${entry.toolId}' is not enabled in this deployment`,
+    };
+  }
+
+  const readinessBlock = astraRuntimeReadinessBlock(entry.toolId);
+  if (readinessBlock) {
+    entry.status = readinessBlock.status;
+    entry.healthStatus = "UNCONFIGURED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return {
+      success: false,
+      latencyMs: Date.now() - started,
+      error: readinessBlock.error,
+    };
+  }
+
+  const pool = getDbPool();
+  if (!pool) {
+    entry.status = "UNCONFIGURED";
+    entry.healthStatus = "UNCONFIGURED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return { success: false, latencyMs: Date.now() - started, error: "DATABASE_URL is required for ASTRA worker health" };
+  }
+
+  const result = await pool.query(
+    `select worker_id, status, last_heartbeat
+       from disha_worker_heartbeats
+      where worker_class=$1 and last_heartbeat > now() - interval '45 seconds'
+      order by last_heartbeat desc
+      limit 1`,
+    [workerClass],
+  );
+  const row = result.rows[0] as { worker_id?: string; status?: string; last_heartbeat?: Date } | undefined;
+  if (!row || row.status !== "HEALTHY") {
+    entry.status = "DEGRADED";
+    entry.healthStatus = "DEGRADED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return {
+      success: false,
+      latencyMs: Date.now() - started,
+      error: `ASTRA ${workerClass} worker has no healthy heartbeat in the last 45 seconds`,
+    };
+  }
+
+  entry.status = "HEALTHY";
+  entry.healthStatus = "HEALTHY";
+  entry.lastSmokeTested = new Date().toISOString();
+  return {
+    success: true,
+    latencyMs: Date.now() - started,
+    message: `ASTRA ${workerClass} worker healthy`,
+    outputSnippet: String(row.worker_id ?? workerClass),
+  };
+}
+
+async function smokeServiceRuntime(entry: OsintToolRecord): Promise<OsintToolRecord["smokeResult"]> {
+  if (entry.toolId !== "opencti" && entry.toolId !== "intelowl") return null;
+  const started = Date.now();
+  const probe = await probeOsintServiceConnector(entry.toolId);
+  entry.lastSmokeTested = new Date().toISOString();
+
+  if (probe.status === "ok") {
+    entry.status = "HEALTHY";
+    entry.healthStatus = "HEALTHY";
+    return { success: true, latencyMs: Date.now() - started, message: probe.detail };
+  }
+  if (probe.status === "skipped") {
+    entry.status = "AUTH_REQUIRED";
+    entry.healthStatus = "UNCONFIGURED";
+    return { success: false, latencyMs: Date.now() - started, error: probe.detail };
+  }
+
+  entry.status = "DEGRADED";
+  entry.healthStatus = "DEGRADED";
+  return { success: false, latencyMs: Date.now() - started, error: probe.detail };
+}
 
 export type OsintToolRecord = {
   toolId: string;
@@ -23,6 +172,8 @@ export type OsintToolRecord = {
   defaultBranch: string;
   pinnedSha: string | null;
   upstreamSha: string | null;
+  upstreamStatus?: "VERIFIED" | "UNVERIFIED" | "UNAVAILABLE" | "UNKNOWN";
+  upstreamVerifiedAt?: string | null;
   forkUrl: string | null;
   forkStatus: string;
   license: string;
@@ -56,6 +207,9 @@ export type OsintRuntimeMetrics = {
   libraryOnly: number;
   forked: number;
   pendingFork: number;
+  upstreamVerified: number;
+  upstreamUnverified: number;
+  upstreamUnavailable: number;
   byCategory: Record<string, number>;
   byRuntime: Record<string, number>;
 };
@@ -101,6 +255,8 @@ export async function loadOsintRegistry(): Promise<OsintToolRecord[]> {
     defaultBranch: "main",
     pinnedSha: m.pinnedSha,
     upstreamSha: m.upstreamSha,
+    upstreamStatus: m.upstreamSha ? "VERIFIED" : "UNVERIFIED",
+    upstreamVerifiedAt: null,
     forkUrl: m.forkUrl,
     forkStatus: m.forkStatus,
     license: m.license,
@@ -131,8 +287,134 @@ export async function saveOsintRegistry(registry: OsintToolRecord[]): Promise<vo
   }
 }
 
-export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
+export async function loadOsintRuntimeRegistry(): Promise<OsintToolRecord[]> {
   const registry = await loadOsintRegistry();
+  const checkedAt = new Date().toISOString();
+  const workerClasses = [...new Set(
+    registry
+      .filter((tool) => ASTRA_TOOL_WORKER_CLASS[tool.toolId] && astraToolEnabled(tool.toolId) && !astraRuntimeReadinessBlock(tool.toolId))
+      .map((tool) => ASTRA_TOOL_WORKER_CLASS[tool.toolId])
+      .filter((value): value is "identity" | "infrastructure" | "advanced" => Boolean(value)),
+  )];
+
+  const pool = getDbPool();
+  const workerHealth = new Map<string, { workerId?: string; status?: string }>();
+  let workerProbeError: string | null = null;
+
+  if (pool && workerClasses.length > 0) {
+    try {
+      const result = await pool.query(
+        `select distinct on (worker_class) worker_class, worker_id, status, last_heartbeat
+           from disha_worker_heartbeats
+          where worker_class = ANY($1::text[])
+            and last_heartbeat > now() - interval '45 seconds'
+          order by worker_class, last_heartbeat desc`,
+        [workerClasses],
+      );
+      for (const row of result.rows as Array<{ worker_class?: string; worker_id?: string; status?: string }>) {
+        if (row.worker_class) workerHealth.set(row.worker_class, { workerId: row.worker_id, status: row.status });
+      }
+    } catch (error) {
+      workerProbeError = error instanceof Error ? error.message : String(error);
+    }
+  }
+
+  for (const tool of registry) {
+    const workerClass = ASTRA_TOOL_WORKER_CLASS[tool.toolId];
+    if (!workerClass) continue;
+
+    tool.lastSmokeTested = checkedAt;
+
+    if (!astraToolEnabled(tool.toolId)) {
+      tool.status = "UNCONFIGURED";
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = {
+        success: false,
+        error: `ASTRA tool '${tool.toolId}' is not enabled in this deployment`,
+      };
+      continue;
+    }
+
+    const readinessBlock = astraRuntimeReadinessBlock(tool.toolId);
+    if (readinessBlock) {
+      tool.status = readinessBlock.status;
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = { success: false, error: readinessBlock.error };
+      continue;
+    }
+
+    if (!pool) {
+      tool.status = "UNCONFIGURED";
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = { success: false, error: "DATABASE_URL is required for ASTRA worker health" };
+      continue;
+    }
+
+    if (workerProbeError) {
+      tool.status = "DEGRADED";
+      tool.healthStatus = "DEGRADED";
+      tool.smokeResult = { success: false, error: `ASTRA worker heartbeat probe failed: ${workerProbeError.slice(0, 200)}` };
+      continue;
+    }
+
+    const heartbeat = workerHealth.get(workerClass);
+    if (!heartbeat || heartbeat.status !== "HEALTHY") {
+      tool.status = "DEGRADED";
+      tool.healthStatus = "DEGRADED";
+      tool.smokeResult = {
+        success: false,
+        error: `ASTRA ${workerClass} worker has no healthy heartbeat in the last 45 seconds`,
+      };
+      continue;
+    }
+
+    tool.status = "HEALTHY";
+    tool.healthStatus = "HEALTHY";
+    tool.smokeResult = {
+      success: true,
+      message: `ASTRA ${workerClass} worker healthy`,
+      outputSnippet: heartbeat.workerId ?? workerClass,
+    };
+  }
+
+  const serviceIds = ["opencti", "intelowl"] as const;
+  const serviceProbes = await Promise.all(serviceIds.map(async (connectorId) => {
+    try {
+      return await probeOsintServiceConnector(connectorId);
+    } catch (error) {
+      return {
+        connectorId,
+        status: "failed" as const,
+        detail: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }));
+
+  for (const probe of serviceProbes) {
+    const tool = registry.find((entry) => entry.toolId === probe.connectorId);
+    if (!tool) continue;
+    tool.lastSmokeTested = checkedAt;
+
+    if (probe.status === "ok") {
+      tool.status = "HEALTHY";
+      tool.healthStatus = "HEALTHY";
+      tool.smokeResult = { success: true, message: probe.detail };
+    } else if (probe.status === "skipped") {
+      tool.status = "AUTH_REQUIRED";
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = { success: false, error: probe.detail };
+    } else {
+      tool.status = "DEGRADED";
+      tool.healthStatus = "DEGRADED";
+      tool.smokeResult = { success: false, error: probe.detail };
+    }
+  }
+
+  return registry;
+}
+
+export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
+  const registry = await loadOsintRuntimeRegistry();
 
   const metrics: OsintRuntimeMetrics = {
     total: registry.length,
@@ -145,6 +427,9 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     libraryOnly: 0,
     forked: 0,
     pendingFork: 0,
+    upstreamVerified: 0,
+    upstreamUnverified: 0,
+    upstreamUnavailable: 0,
     byCategory: {},
     byRuntime: {},
   };
@@ -161,6 +446,14 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     if (tool.forkStatus === "FORKED") metrics.forked++;
     else metrics.pendingFork++;
 
+    if (tool.upstreamStatus === "VERIFIED") {
+      metrics.upstreamVerified++;
+    } else if (tool.upstreamStatus === "UNAVAILABLE") {
+      metrics.upstreamUnavailable++;
+    } else {
+      metrics.upstreamUnverified++;
+    }
+
     const cat = tool.category || "general";
     metrics.byCategory[cat] = (metrics.byCategory[cat] || 0) + 1;
 
@@ -172,7 +465,7 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
 }
 
 export async function getOsintToolById(toolId: string): Promise<OsintToolRecord | undefined> {
-  const registry = await loadOsintRegistry();
+  const registry = await loadOsintRuntimeRegistry();
   return registry.find(
     (t) => t.toolId.toLowerCase() === toolId.toLowerCase() || t.repo.toLowerCase() === toolId.toLowerCase(),
   );
@@ -189,6 +482,20 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
   }
 
   const startTime = Date.now();
+
+  const astraResult = await smokeAstraRuntime(entry);
+  if (astraResult) {
+    entry.smokeResult = astraResult;
+    await saveOsintRegistry(registry);
+    return entry.smokeResult;
+  }
+
+  const serviceResult = await smokeServiceRuntime(entry);
+  if (serviceResult) {
+    entry.smokeResult = serviceResult;
+    await saveOsintRegistry(registry);
+    return entry.smokeResult;
+  }
 
   if (entry.runtimeType === "gui-only" || entry.status === "GUI_ONLY") {
     entry.smokeResult = { success: true, message: "GUI-only web tool verified reference", outputSnippet: entry.upstreamUrl };

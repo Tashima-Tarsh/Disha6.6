@@ -350,6 +350,8 @@ export async function discoverUpstreams() {
       defaultBranch: previous.defaultBranch || "main",
       pinnedSha: previous.pinnedSha || null,
       upstreamSha: previous.upstreamSha || null,
+      upstreamStatus: previous.upstreamStatus || "UNVERIFIED",
+      upstreamVerifiedAt: previous.upstreamVerifiedAt || null,
       forkUrl: previous.forkUrl || null,
       forkStatus: previous.forkStatus || "FORK_PENDING",
       license: entry.license || previous.license || "Unknown",

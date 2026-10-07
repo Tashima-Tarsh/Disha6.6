@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withContext } from "@/lib/unified/api";
-import { loadOsintRegistry, type OsintToolRecord } from "@/lib/unified/osint-runtime-service";
+import { loadOsintRuntimeRegistry, type OsintToolRecord } from "@/lib/unified/osint-runtime-service";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   return withContext(req, "agent:read", async (ctx) => {
-    const registry = await loadOsintRegistry();
+    const registry = await loadOsintRuntimeRegistry();
     const url = new URL(req.url);
 
     const category = url.searchParams.get("category");
     const status = url.searchParams.get("status");
     const runtime = url.searchParams.get("runtime");
     const search = url.searchParams.get("search")?.toLowerCase();
-    const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get("limit") || "100", 10)));
+    const limit = Math.min(600, Math.max(1, parseInt(url.searchParams.get("limit") || "100", 10)));
     const offset = Math.max(0, parseInt(url.searchParams.get("offset") || "0", 10));
 
     let filtered = registry;

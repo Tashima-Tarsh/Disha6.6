@@ -84,8 +84,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "GPL-3.0",
     capabilities: ["modular OSINT", "workspace correlation", "reporting"],
     risk: "mixed_recon",
-    mode: "builtin",
-    reason: "Production-integrated through the ASTRA advanced worker using only pinned, approved official marketplace modules.",
+    mode: "catalog_only",
+    reason: "Module-by-module review is required before production execution.",
   },
   {
     id: "photon",
@@ -94,8 +94,8 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     license: "See upstream LICENSE before promotion",
     capabilities: ["public web crawling", "URL extraction", "technology discovery"],
     risk: "active_recon",
-    mode: "builtin",
-    reason: "Production-integrated as a bounded depth-1 public-site crawler; execution requires the active-recon deployment gate plus per-investigation operator/admin authorization.",
+    mode: "blocked_by_default",
+    reason: "Direct crawling sends requests to targets; keep outside the default passive-public runtime.",
   },
   {
     id: "sherlock",

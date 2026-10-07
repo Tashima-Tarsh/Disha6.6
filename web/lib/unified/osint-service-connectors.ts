@@ -1,12 +1,17 @@
+codex/rewire-osint-production-447dcddf
 import { safePublicFetch } from "../server/safe-public-fetch";
+ main
 import {
   buildAdapterEvidence,
   type GovernedOsintAdapter,
 } from "./osint-adapter-bus";
 
+ codex/rewire-osint-production-447dcddf
+type ServiceFetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
+ main
 export type OsintServiceConnectorId = "opencti" | "intelowl" | "spiderfoot" | "sherlock" | "maigret";
 export type OsintServiceConnectorFamily = "cti_platform" | "osint_engine" | "identity_enumeration";
-export type OsintServiceConnectorState = "configured_live" | "needs_configuration" | "astra_worker" | "blocked_by_policy";
+export type OsintServiceConnectorState = "configured_live" | "needs_configuration" | "blocked_by_policy";
 
 export type OsintServiceConnectorDefinition = {
   id: OsintServiceConnectorId;
@@ -88,11 +93,11 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
     family: "osint_engine",
     upstream: "https://github.com/smicallef/spiderfoot",
     license: "MIT",
-    executionState: "astra_worker",
-    env: ["DATABASE_URL", "DISHA_ASTRA6_SPIDERFOOT_ENABLED"],
-    liveCapabilities: ["pinned-source passive module execution", "multi-source OSINT", "normalized SpiderFoot events"],
-    blockedCapabilities: ["port scanning", "DNS brute force", "zone transfer", "unbounded crawling"],
-    policy: "SpiderFoot executes in the isolated ASTRA advanced worker with a fixed passive module allowlist.",
+    executionState: "blocked_by_policy",
+    env: ["SPIDERFOOT_BASE_URL", "SPIDERFOOT_API_KEY", "DISHA_SPIDERFOOT_PASSIVE_PROFILE_APPROVED"],
+    liveCapabilities: ["future passive-profile service connector after module allowlist"],
+    blockedCapabilities: ["arbitrary module execution", "active target probing", "credential or secret discovery", "unbounded scans"],
+    policy: "Catalogued and configurable for future passive-only profiles, but not executable until a reviewed module allowlist exists.",
   },
   {
     id: "sherlock",
@@ -100,11 +105,18 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
     family: "identity_enumeration",
     upstream: "https://github.com/sherlock-project/sherlock",
     license: "MIT",
+codex/rewire-osint-production-447dcddf
+    executionState: "blocked_by_policy",
+    env: ["DISHA_IDENTITY_ENUMERATION_APPROVED"],
+    liveCapabilities: [],
+    blockedCapabilities: ["cross-site username enumeration", "profile correlation", "personal account discovery"],
+    policy: "Identity enumeration is not executable in the default DISHA service-connector runtime. ASTRA requires a separately authorized investigation.",
     executionState: "astra_worker",
     env: ["DATABASE_URL", "DISHA_ASTRA6_SHERLOCK_ENABLED", "DISHA_IDENTITY_ENUMERATION_APPROVED"],
     liveCapabilities: ["authorized public username-presence discovery"],
     blockedCapabilities: ["private-account access", "credential attacks", "non-authorized identity enumeration"],
     policy: "Sherlock executes through ASTRA only when deployment approval and per-investigation operator/admin authorization are both present.",
+main
   },
   {
     id: "maigret",
@@ -112,19 +124,27 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
     family: "identity_enumeration",
     upstream: "https://github.com/soxoj/maigret",
     license: "MIT",
+codex/rewire-osint-production-447dcddf
+    executionState: "blocked_by_policy",
+    env: ["DISHA_IDENTITY_ENUMERATION_APPROVED"],
+    liveCapabilities: [],
+    blockedCapabilities: ["cross-site username enumeration", "profile correlation", "personal account discovery"],
+    policy: "Identity enumeration is not executable in the default DISHA service-connector runtime. ASTRA requires a separately authorized investigation.",
+
     executionState: "astra_worker",
     env: ["DATABASE_URL", "DISHA_ASTRA6_MAIGRET_ENABLED", "DISHA_IDENTITY_ENUMERATION_APPROVED"],
     liveCapabilities: ["authorized public username/profile discovery"],
     blockedCapabilities: ["private-account access", "credential attacks", "non-authorized identity enumeration"],
     policy: "Maigret executes through ASTRA only when deployment approval and per-investigation operator/admin authorization are both present.",
+ main
   },
 ];
 
 function envConfigured(name: string): boolean {
-  const value = process.env[name]?.trim();
-  if (!value) return false;
-  if (name.startsWith("DISHA_") && (name.endsWith("_ENABLED") || name.endsWith("_APPROVED"))) return value === "true";
-  return true;
+  if (name === "INTELOWL_ANALYZERS_ALLOWLIST") {
+    return Boolean(process.env.INTELOWL_ANALYZERS_ALLOWLIST?.trim() || process.env.INTELOWL_ANALYZERS?.trim());
+  }
+  return Boolean(process.env[name]?.trim());
 }
 
 export function listOsintServiceConnectors(): OsintServiceConnectorPosture[] {
@@ -139,7 +159,7 @@ export function listOsintServiceConnectors(): OsintServiceConnectorPosture[] {
       configured,
       missingEnv,
       canProbe: configured && definition.executionState === "configured_live",
-      canRunTargetSearch: configured && ["configured_live", "astra_worker"].includes(definition.executionState),
+      canRunTargetSearch: configured && definition.executionState === "configured_live" && ["opencti", "intelowl"].includes(definition.id),
     };
   });
 }
@@ -150,32 +170,47 @@ export function getOsintServiceConnectorSummary() {
     total: connectors.length,
     configuredLive: connectors.filter((connector) => connector.executionState === "configured_live" && connector.configured).length,
     needsConfiguration: connectors.filter((connector) => connector.executionState === "configured_live" && !connector.configured).length,
-    astraWorkers: connectors.filter((connector) => connector.executionState === "astra_worker").length,
     blockedByPolicy: connectors.filter((connector) => connector.executionState === "blocked_by_policy").length,
+codex/rewire-osint-production-447dcddf
+    rule: "OpenCTI and IntelOwl are service-backed governed adapters when configured. OpenCTI is read-only; IntelOwl execution is limited to an explicit passive analyzer allowlist. Identity-oriented service connectors remain blocked outside ASTRA authorization.",
+=======
     rule: "OpenCTI and IntelOwl execute through configured service APIs. SpiderFoot, Sherlock and Maigret execute through isolated ASTRA workers with their respective policy gates.",
+ main
   };
 }
 
 export async function probeOsintServiceConnector(
   connectorId: OsintServiceConnectorId,
-  fetcher: typeof fetch = fetch,
+  fetcher: ServiceFetch = fetch,
 ): Promise<OsintServiceProbeResult> {
   const posture = listOsintServiceConnectors().find((connector) => connector.id === connectorId);
+codex/rewire-osint-production-447dcddf
+  if (!posture) throw new Error("unknown_osint_service_connector:" + connectorId);
+  if (posture.executionState === "blocked_by_policy") {
+    return { connectorId, status: "blocked", detail: posture.policy };
+  }
+  if (!posture.configured) {
+    return { connectorId, status: "skipped", detail: "Missing configuration: " + posture.missingEnv.join(", ") };
+  }
+
   if (!posture) throw new Error(`unknown_osint_service_connector:${connectorId}`);
   if (posture.executionState === "blocked_by_policy") return { connectorId, status: "blocked", detail: posture.policy };
   if (!posture.configured) return { connectorId, status: "skipped", detail: `Missing configuration: ${posture.missingEnv.join(", ")}` };
   if (posture.executionState === "astra_worker") return { connectorId, status: "ok", detail: `${posture.name} is configured for the ASTRA worker queue.` };
+ main
   if (connectorId === "opencti") return probeOpenCti(fetcher);
   if (connectorId === "intelowl") return probeIntelOwl(fetcher);
-  return { connectorId, status: "skipped", detail: "No direct service probe is defined." };
+  return { connectorId, status: "blocked", detail: "Connector is not executable in the current DISHA runtime." };
 }
 
-export async function probeConfiguredOsintServices(fetcher: typeof fetch = fetch): Promise<OsintServiceProbeResult[]> {
-  return Promise.all(connectorDefinitions.map((definition) => probeOsintServiceConnector(definition.id, fetcher)));
+export async function probeConfiguredOsintServices(fetcher: ServiceFetch = fetch): Promise<OsintServiceProbeResult[]> {
+  return Promise.all(["opencti", "intelowl", "spiderfoot", "sherlock", "maigret"].map((id) =>
+    probeOsintServiceConnector(id as OsintServiceConnectorId, fetcher),
+  ));
 }
 
 export function createOpenCtiServiceAdapter(
-  fetcher: typeof safePublicFetch = safePublicFetch,
+  fetcher: ServiceFetch = fetch,
 ): GovernedOsintAdapter<OpenCtiServiceInput, OpenCtiServiceOutput> {
   return {
     metadata: {
@@ -265,7 +300,7 @@ export function createOpenCtiServiceAdapter(
 }
 
 export function createIntelOwlServiceAdapter(
-  fetcher: typeof safePublicFetch = safePublicFetch,
+  fetcher: ServiceFetch = fetch,
 ): GovernedOsintAdapter<IntelOwlServiceInput, IntelOwlServiceOutput> {
   return {
     metadata: {
@@ -277,7 +312,7 @@ export function createIntelOwlServiceAdapter(
       legalUse: ["Defensive IOC enrichment", "Allowlisted passive analyzer execution", "Threat-intelligence report normalization"],
       blockedUse: ["Arbitrary analyzer execution", "Connector/playbook execution", "Malware detonation", "Private file submission"],
       rateLimitPerMinute: 10,
-      timeoutMs: 55_000,
+      timeoutMs: 22_000,
       maxRetries: 0,
       executionClass: "credentialed_public_api",
       defaultEnabled: true,
@@ -360,7 +395,11 @@ export function createIntelOwlServiceAdapter(
   };
 }
 
+codex/rewire-osint-production-447dcddf
+async function probeOpenCti(fetcher: ServiceFetch): Promise<OsintServiceProbeResult> {
+
 async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
+ main
   const response = await fetcher(serviceUrl("OPENCTI_BASE_URL", "/graphql"), {
     method: "POST",
     headers: {
@@ -368,8 +407,13 @@ async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeRes
       authorization: "Bearer " + requireEnv("OPENCTI_TOKEN"),
     },
     body: JSON.stringify({ query: "query DishaOpenCtiHealth { about { version } }" }),
+codex/rewire-osint-production-447dcddf
+    redirect: "error",
+    signal: AbortSignal.timeout(5_000),
+
     signal: AbortSignal.timeout(5_000),
     cache: "no-store",
+ main
   });
   return {
     connectorId: "opencti",
@@ -379,15 +423,24 @@ async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeRes
   };
 }
 
+codex/rewire-osint-production-447dcddf
+async function probeIntelOwl(fetcher: ServiceFetch): Promise<OsintServiceProbeResult> {
+
 async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
+ main
   const response = await fetcher(serviceUrl("INTELOWL_BASE_URL", "/api/healthcheck"), {
     method: "GET",
     headers: {
       authorization: "Token " + requireEnv("INTELOWL_API_KEY"),
       accept: "application/json",
     },
+codex/rewire-osint-production-447dcddf
+    redirect: "error",
+    signal: AbortSignal.timeout(5_000),
+
     signal: AbortSignal.timeout(5_000),
     cache: "no-store",
+ main
   });
   return {
     connectorId: "intelowl",
@@ -400,13 +453,13 @@ async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeRe
 async function pollIntelOwlJob(
   jobId: number,
   headers: Record<string, string>,
-  fetcher: typeof safePublicFetch,
+  fetcher: ServiceFetch,
   signal?: AbortSignal,
 ): Promise<Record<string, unknown>> {
-  const configuredTimeout = Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 40_000);
+  const configuredTimeout = Number(process.env.INTELOWL_JOB_TIMEOUT_MS ?? 15_000);
   const timeoutMs = Number.isFinite(configuredTimeout)
-    ? Math.max(5_000, Math.min(45_000, configuredTimeout))
-    : 40_000;
+    ? Math.max(5_000, Math.min(18_000, configuredTimeout))
+    : 15_000;
   const deadline = Date.now() + timeoutMs;
   const finalStatuses = new Set(["reported_without_fails", "reported_with_fails", "killed", "failed"]);
 
@@ -446,7 +499,7 @@ function normalizeAnalyzerNames(value: unknown): string[] {
 }
 
 function intelOwlAnalyzerAllowlist(): string[] {
-  const raw = process.env.INTELOWL_ANALYZERS_ALLOWLIST ?? "";
+  const raw = process.env.INTELOWL_ANALYZERS_ALLOWLIST ?? process.env.INTELOWL_ANALYZERS ?? "";
   if (!raw.trim()) return [];
   return normalizeAnalyzerNames(raw.split(","));
 }
@@ -501,12 +554,23 @@ function stringArray(value: unknown): string[] {
 }
 
 function serviceUrl(envName: string, path: string): string {
-  return requireEnv(envName).replace(/\/+$/, "") + (path.startsWith("/") ? path : "/" + path);
+  const base = serviceBaseUrl(envName);
+  return new URL(path.startsWith("/") ? path : "/" + path, base).toString();
+}
+
+function serviceBaseUrl(envName: string): URL {
+  const url = new URL(requireEnv(envName));
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
+    throw new Error("invalid_service_url:" + envName);
+  }
+  url.pathname = "/";
+  url.search = "";
+  url.hash = "";
+  return url;
 }
 
 function serviceOrigin(envName: string): string {
-  const url = new URL(requireEnv(envName));
-  return url.origin + "/";
+  return serviceBaseUrl(envName).origin + "/";
 }
 
 async function sleepWithSignal(ms: number, signal?: AbortSignal): Promise<void> {
