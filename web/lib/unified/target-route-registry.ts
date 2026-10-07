@@ -76,27 +76,6 @@ function addAstraRoute(
   );
 }
 
-function addServiceRoute(
-  plan: AdapterPlan[],
-  adapterId: "service-opencti" | "service-intelowl",
-  sourceName: string,
-  target: string,
-  targetType: string,
-) {
-  const configured = adapterId === "service-opencti"
-    ? Boolean(process.env.OPENCTI_BASE_URL && process.env.OPENCTI_TOKEN)
-    : Boolean(process.env.INTELOWL_BASE_URL && process.env.INTELOWL_API_KEY && process.env.INTELOWL_ANALYZERS);
-  add(
-    plan,
-    adapterId,
-    sourceName,
-    { target, targetType },
-    configured
-      ? `Execute ${sourceName} target enrichment and normalize returned records.`
-      : `${sourceName} requires its configured service endpoint and credentials.`,
-    configured ? undefined : "NOT_CONFIGURED",
-  );
-}
 
 function addIdentityBoundaries(plan: AdapterPlan[]) {
   add(plan, "restricted-private-data", "Private / stolen credential datasets", {}, "Private and stolen datasets are blocked.", "BLOCKED");
@@ -141,13 +120,18 @@ function addOpenCti(plan: AdapterPlan[], target: string) {
 }
 
 function addIntelOwl(plan: AdapterPlan[], target: string) {
+  const configured = Boolean(
+    process.env.INTELOWL_BASE_URL?.trim() &&
+    process.env.INTELOWL_API_KEY?.trim() &&
+    (process.env.INTELOWL_ANALYZERS_ALLOWLIST?.trim() || process.env.INTELOWL_ANALYZERS?.trim())
+  );
   add(
     plan,
     "service-intelowl",
     "IntelOwl",
     { observable: target },
     "Observable enrichment through the configured IntelOwl service using only the server-side analyzer allowlist.",
-    serviceConfigured("INTELOWL_BASE_URL", "INTELOWL_API_KEY", "INTELOWL_ANALYZERS_ALLOWLIST") ? undefined : "NOT_CONFIGURED",
+    configured ? undefined : "NOT_CONFIGURED",
   );
 }
 
@@ -222,7 +206,7 @@ export function buildTargetRoutePlan(
     addThreatFox(plan, target, "ioc");
   }
 
-  if (["domain", "url", "ip", "file_hash", "ioc", "cve", "certificate"].includes(type)) {
+  if (["domain", "url", "ip", "asn", "file_hash", "ioc", "cve", "certificate"].includes(type)) {
     addOpenCti(plan, target);
   }
 
@@ -232,14 +216,6 @@ export function buildTargetRoutePlan(
 
   if (["domain", "ip", "url"].includes(type)) {
     addThreatFox(plan, target, "ioc");
-  }
-
-  if (["domain", "url", "ip", "asn", "cve", "file_hash", "ioc", "certificate"].includes(type)) {
-    addServiceRoute(plan, "service-opencti", "OpenCTI", target, type);
-  }
-
-  if (["domain", "url", "ip", "file_hash", "ioc"].includes(type)) {
-    addServiceRoute(plan, "service-intelowl", "IntelOwl", target, type);
   }
 
   if (type === "email") {
