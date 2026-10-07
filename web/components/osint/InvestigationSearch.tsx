@@ -9,7 +9,7 @@ const quickChoices = SEARCH_TARGET_CHOICES.filter(([value]) => value !== "auto")
 export function InvestigationSearch({ busy, onSearch }: { busy: boolean; onSearch: (target: string, targetType: string, identityAuthorization: boolean, activeAuthorization: boolean) => void }) {
   const [target, setTarget] = useState("");
   const [type, setType] = useState("auto");
-  const [identityAuthorization, setIdentityAuthorization] = useState(false);
+  const [identityAuthorization, setIdentityAuthorization] = useState(true);
   const [activeAuthorization, setActiveAuthorization] = useState(false);
 
   const submit = (event: FormEvent) => {
