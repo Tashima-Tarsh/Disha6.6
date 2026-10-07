@@ -1,272 +1,442 @@
-# DISHA 6.6
-### Evidence-Grade Intelligence & Constitutional Defense Operating System
+# DISHA6.6
+## Constitutional Evidence Operating System
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Google%20Cloud%20Platform-4285F4?logo=googlecloud&logoColor=white)](https://cloud.google.com)
-[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2016%20Standalone%20(Turbopack)-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org)
-[![Database](https://img.shields.io/badge/Database-PostgreSQL%2016%20%2B%20PostGIS%20%2B%20pgvector-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Spatial 3D](https://img.shields.io/badge/3D%20Spatial%20Gateway-WebGL%20Three.js-00e5ff?logo=three.js&logoColor=white)](https://threejs.org)
-[![Runtime Engine](https://img.shields.io/badge/Runtime%20Engine-Astra%206%20CLI%20Workers-orange)](https://github.com/Tashima-Tarsh/Disha6.6)
-[![Author](https://img.shields.io/badge/Author-Nitish%20Kumar%20(thenitishkr)-00b0ff?logo=safari&logoColor=white)](https://thenitishkr.in)
+DISHA6.6 is an evidence-first intelligence operating system for governed public-source investigation, constitutional accountability, cyber-defense analysis, source verification, relationship discovery, and durable evidence handling.
+
+The product is designed around one non-negotiable rule:
+
+> **Real data or no data.**
+
+DISHA6.6 does not create synthetic intelligence to make a screen look populated. A missing connector is shown as unconfigured. A failed source is shown as failed. A policy-gated tool remains restricted. A search with no evidence returns no evidence. Catalog metadata is never treated as proof that a runtime is installed, configured, healthy, or authorized.
+
+The architecture follows long-lived enterprise-system principles: explicit trust boundaries, bounded execution, fail-closed policy, separation of control plane and data plane, immutable provenance semantics, small production surfaces, durable state ownership, measurable readiness, and graceful degradation.
 
 ---
 
-## 1. Executive Overview
+## What DISHA6.6 does
 
-**DISHA 6.6** (Defense Intelligence & Sovereign Homeland Analytics) is an enterprise-grade cognitive defense and intelligence operating system engineered for national security analysts, cyber-defense operators, and sovereign command authorities.
+DISHA6.6 turns a governed investigation request into a source-linked evidence workspace.
 
-Built around a foundational **Truthful Intelligence Architecture**, DISHA 6.6 strictly enforces zero-fabrication guarantees:
-* **Evidence-Grade OSINT:** All intelligence representations are strictly bound to authenticated, runtime-proven sources with cryptographic provenance.
-* **Truthful Status Representation:** In the absence of live sensor or connector configurations, systems truthfully render `UNCONFIGURED`, `UNAVAILABLE`, `DEGRADED`, or `EMPTY` states rather than generating synthetic operational-looking records.
-* **Dual-Scene 3D Separation:** Clear isolation between pre-authentication visualization (`DishaIdentityScene3D`) and authenticated post-login intelligence investigation (`DishaOsintUniverse3D`).
-* **Constitutional Contradiction & Corroboration Engine:** Automated detection of statement vs. statement conflicts, gazette-to-action discrepancies, and independent source family validation.
-* **Cryptographic Tamper-Evident Ledger:** Every indicator, observation, and entity relationship is chained into an immutable SHA-256 Merkle-anchored evidence ledger.
+A user can start from a person, organisation, domain, URL, IP address, ASN, CVE, email address, phone number, username, vehicle identifier, repository, file hash, indicator, certificate, location, topic, image, or other supported identifier. The system classifies the target, selects approved adapters, applies policy, executes bounded public-source retrieval, normalizes returned observations, records provenance, and exposes the resulting evidence through investigation views such as:
 
+- Overview
+- Evidence
+- Sources
+- Entity graph
+- Timeline
+- Map
+- Contradictions
+- Corroboration
+- Raw source-linked records
+
+The product also contains mission, evidence-vault, cyber-defense, system-control, geospatial, continuous-intelligence, and audit surfaces. Capabilities become operational only when the corresponding runtime, data source, credentials, policy approval, and persistence dependencies are actually available.
+
+---
+
+## Product operating model
+
+```mermaid
+flowchart LR
+    Q["Authenticated investigation request"]
+    C["Target classifier"]
+    P["Policy and authorization gate"]
+    R["Source router"]
+    N["Native public adapters"]
+    A["ASTRA6 isolated workers"]
+    S["Credentialed services"]
+    E["Evidence normalization"]
+    V["Provenance / evidence store"]
+    X["Graph · timeline · map · contradiction · corroboration"]
+
+    Q --> C --> P --> R
+    R --> N
+    R --> A
+    R --> S
+    N --> E
+    A --> E
+    S --> E
+    E --> V --> X
 ```
-OPERATIONAL DATA CHAIN:
-Public Sensor Intercept ──► Universal Target Classifier ──► Constitutional Policy Gate ──► ASTRA 6 Worker Bus ──► SHA-256 Evidence Vault ──► Analyst Review
+
+### Control plane
+
+The Next.js application owns authentication, request validation, policy enforcement, runtime status, investigation orchestration, evidence contracts, source admission, and operator-facing control surfaces.
+
+### Execution plane
+
+Heavy or specialized command-line OSINT runs outside the web request process through isolated ASTRA6 workers. Each worker has an explicit tool allowlist, bounded target validation, timeouts, authorization checks, non-root execution, read-only container posture, and a database-backed job lifecycle.
+
+### Intelligence / research plane
+
+The DISHA Brain runs as a separate governed analysis service. It may analyze admitted information, but generated model output does not automatically become evidence.
+
+### Persistence plane
+
+Production persistence is designed around PostgreSQL with PostGIS and pgvector support, Redis for runtime coordination/cache patterns, and controlled evidence storage. If durable persistence is unavailable, the application must report that state rather than pretending that an observation has been committed.
+
+---
+
+## Truth model
+
+DISHA6.6 deliberately separates four concepts that are often incorrectly collapsed into one:
+
+| State | Meaning |
+| --- | --- |
+| **Cataloged** | The project/source is known to DISHA6.6. This does not mean it is installed or runnable. |
+| **Upstream verified** | The upstream repository or endpoint has been verified as existing/reachable at verification time. This does not establish runtime readiness. |
+| **Runtime manifested** | DISHA6.6 has an owned execution contract, parser, worker placement, and policy model for the tool. |
+| **Runtime ready / healthy** | The deployed environment has the required binary/service, configuration, credentials, policy approval, worker heartbeat, and successful probe. |
+| **Evidence returned** | A specific investigation produced source-linked records. |
+| **Corroborated / contradicted** | Multiple admitted records support or conflict with a claim under the analysis rules. |
+
+A repository lockfile is provenance and deployment metadata. It is **not** live telemetry.
+
+Live readiness should be read from the running product, for example:
+
+- `/api/v1/health`
+- `/api/v1/runtime/status`
+- `/api/v1/production/readiness`
+- `/api/v1/osint/tools`
+- `/api/v1/osint/tools/health`
+
+---
+
+## Governed OSINT capabilities
+
+DISHA6.6 contains two different OSINT layers: native governed adapters and a larger upstream catalog. The upstream catalog is useful for discovery and provenance, but only explicitly wired adapters and workers are part of the execution plane.
+
+### Native public-source adapters
+
+The default governed adapter bus includes production code for the following source families:
+
+**Internet and infrastructure**
+- Google Public DNS
+- Certificate Transparency
+- RDAP
+- RIPEstat
+- Wayback Machine CDX
+- Common Crawl
+
+**Vulnerability and defensive cyber intelligence**
+- CISA Known Exploited Vulnerabilities
+- NVD CVE
+- FIRST EPSS
+- abuse.ch ThreatFox
+- abuse.ch MalwareBazaar
+
+**Public reporting and humanitarian intelligence**
+- GDELT
+- ReliefWeb
+
+**Government, registry and knowledge sources**
+- SEC EDGAR
+- Wikidata
+- OpenAlex
+- World Bank public data
+- CelesTrak orbital data
+- NOAA Space Weather Prediction Center
+
+**Entity and corporate discovery**
+- OpenSanctions
+- OpenCorporates
+
+**Vehicle and identifier handling**
+- NHTSA VIN
+- Indian vehicle-registration format validation
+
+**Service-backed intelligence**
+- OpenCTI
+- IntelOwl
+
+**Extensible public sources**
+- governed dynamic public-source adapter
+- official public-source probe adapter
+
+Availability depends on the individual source, network, configuration, credentials, licensing, and runtime policy.
+
+### ASTRA6 managed worker tools
+
+The owned ASTRA6 manifest layer currently defines these isolated tools:
+
+| Tool | Primary role | Execution posture |
+| --- | --- | --- |
+| PhoneInfoga | phone-number public OSINT | identity authorization required when used for an investigation |
+| Sherlock | username presence discovery | identity authorization required |
+| Maigret | username presence discovery | identity authorization required |
+| Holehe | bounded email account-presence checks | identity authorization required |
+| Instaloader | public Instagram profile metadata | governed public profile use |
+| Telegram Public Metadata / Telethon | public Telegram resolution | operator-owned API credentials/session required |
+| theHarvester | passive domain intelligence | passive allowlist |
+| SpiderFoot | multi-source passive correlation | active modules blocked |
+| OWASP Amass | passive asset discovery | passive mode |
+| ProjectDiscovery Subfinder | passive subdomain discovery | passive mode |
+| Recon-ng | allowlisted public modules | arbitrary marketplace execution blocked |
+| Photon | bounded same-site public URL discovery | explicit active-recon approval required |
+
+The primary investigation router currently invokes only the tools appropriate to a supported target and policy state. Merely being present in the ASTRA6 manifest does not mean a tool will execute for every search.
+
+### Cataloged upstream inventory
+
+`data/osint/upstream-registry.json` is the broader upstream inventory. It contains projects across identity, network, framework, threat-intelligence, archives, metadata, media, documents, datasets, libraries, GUI tools, and service runtimes.
+
+That file is a **catalog and provenance source**, not a live-health database.
+
+For a machine-generated inventory use:
+
+```bash
+npm run osint:report
 ```
 
----
+For deployed runtime readiness use the live runtime endpoints or:
 
-## 1.1 Production Status & Provenance Baseline
+```bash
+npm run osint:health
+```
 
-DISHA 6.6 maintains strict synchronization between git repository, production runtime lockfile, and live GCP deployment:
-
-| Dimension | Production Specification | Machine-Verifiable State |
-| :--- | :--- | :--- |
-| **Cloud Platform** | Google Cloud Platform (GCE VM `disha-os-core`, zone `asia-south1-a`) | Canonical Production |
-| **Production IP** | `35.244.9.142` (Dedicated Cloudflare Proxy / Caddy Ingress) | Live & Reachable |
-| **Live Domain** | [https://disha6.6.thenitishkr.in](https://disha6.6.thenitishkr.in) | TLS 1.3 Active |
-| **Production Git Revision** | `a800171c6742bb4dca4c55243f01d7f67b026280` | Synchronized with `origin/main` |
-| **Total OSINT Registry** | `512` Distinct Upstream Capabilities | 100% Upstream Verified via `git ls-remote` |
-| **Operational CLI Tools** | `478` (`EXECUTABLE_VERIFIED`) | Version Pinned in `runtime-lock.json` |
-| **Operational Services** | `8` (`SERVICE_VERIFIED`) | Real API Connectors & Probes |
-| **Integrated Datasets** | `5` (`DATASET_INTEGRATED`) | Indexed & Searchable |
-| **Integrated Libraries** | `7` (`LIBRARY_INTEGRATED`) | Python/Node Runtimes Integrated |
-| **Integrated GUI Workspaces** | `5` (`GUI_INTEGRATED`) | Platform Connectors Active |
-| **Credential-Dependent** | `8` (`CREDENTIAL_REQUIRED`) | Explicit Secret & Entitlement Mapping |
-| **Policy-Gated Recon** | `1` (`POLICY_RESTRICTED` — Photon Active Crawl) | Fail-Closed Operator Gate |
-| **Dead / Broken Upstreams** | `0` (`UPSTREAM_DEAD`) | All 8 Moved Repos Identified & Reconnected |
-| **Unconfigured Tools** | `0` (`UNCONFIGURED`) | Zero Vague/Unfinished Entries |
-| **Synthetic / Mock Data** | `0` (`ZERO_MOCK_POLICY`) | Prohibited from Investigation Pipelines |
-| **Last Verification Audit** | `2026-10-07T05:07:00Z` | Verified by DISHA CI & Smoke Matrix |
+The two outputs answer different questions and must not be conflated.
 
 ---
 
-## 2. 3D Spatial Gateway & Visual Architecture
+## Investigation routing
 
-DISHA 6.6 separates pre-authentication visual identity from post-login intelligence operations into two distinct, high-performance WebGL environments:
+The investigation router applies target-specific execution plans.
 
-### Pre-Auth Identity Scene (`DishaIdentityScene3D`)
-A dedicated, top-tier 3D authentication environment providing a physically grounded Earth model:
-* **Sovereign India Centering:** Mathematically oriented on initial load ($R_y = -78.5^\circ, R_x = +22.5^\circ$) so Central India ($78.5^\circ\text{ E}, 22.5^\circ\text{ N}$) directly faces the camera lens.
-* **Authoritative Cartography:** Instant frame-1 synchronous shoreline rendering backed by asynchronous streaming of `world-countries.geojson` and official `datameet-india-land-simplified.geojson` boundaries with a restrained metallic gold/ivory highlight (`#d4af37`).
-* **Physical Atmospheric Luminescence:** Restrained back-side rim glow (`#45c7f4`), directional sunlight (`#e8f2ff`, 2.0 intensity), fine cartographic graticules, and a subtle Tropic of Cancer marker ($23.436^\circ\text{ N}$).
-* **Centered Spatial Gateway Card:** Compact 370px maximum width, floating with subtle pointer parallax, frosted glassmorphism (`backdrop-filter: blur(20px)`), and seamless support for credential authentication and national OIDC federation (`meri-pehchan`, `intra-id`).
-* **Strict Non-Operational Policy:** Zero fake satellites, zero synthetic threat nodes, and zero simulated telemetry prior to authentication.
+Examples of supported routing include:
 
-### Post-Login Intelligence Universe (`DishaOsintUniverse3D`)
-Upon authenticated handshake, the workspace transitions into a full-scale 3D intelligence investigation environment:
-* Real-time geospatial mapping of verified external intelligence assets.
-* Interactive multi-source relationship graphing, attack surface nodes, and CTI indicators.
-* Live connector health inspection across 125+ cataloged OSINT / CTI / SPACEINT sources.
-* Full analytical investigation drawers and evidence inspection views.
+- **Domain / URL** → DNS, certificate transparency, RDAP, archives, public reporting, passive infrastructure workers, optional Shodan, optional OpenCTI / IntelOwl, threat-intelligence enrichment.
+- **IP / ASN** → RDAP / RIR context, public reporting, optional passive service intelligence.
+- **CVE** → CISA KEV, NVD, FIRST EPSS and public reporting.
+- **Person / company** → Wikidata, GDELT, optional Brave Search, OpenSanctions, OpenCorporates.
+- **Email / phone / username** → public reporting plus explicitly authorized identity tools when deployment and operator policy permit them.
+- **File hash / IOC** → defensive threat-intelligence services such as ThreatFox, MalwareBazaar, OpenCTI and IntelOwl where configured.
+- **Vehicle identifier** → format validation and only authorized registry connectors; protected owner data is not silently queried.
+- **Image** → local metadata analysis and optional Google Cloud Vision Web Detection when explicitly configured.
+- **NORAD / space-weather / humanitarian topics** → purpose-built public scientific or official adapters.
 
----
-
-## 3. Core Capabilities & Subsystems
-
-### A. Universal OSINT Search & Source Registry
-* Unified discovery across passive DNS, RDAP, Certificate Transparency (crt.sh), public registries, and vulnerability databases.
-* Strict governance distinctions enforced across all modules:
-  $$\text{CATALOGED} \neq \text{IMPLEMENTED} \neq \text{CONFIGURED} \neq \text{HEALTHY} \neq \text{EXECUTED} \neq \text{RETURNED EVIDENCE}$$
-
-### B. ASTRA 6 Distributed Worker Plane
-CLI-heavy and specialized intelligence tools run outside the Next.js process boundary in hardened, non-root worker containers:
-* **Identity OSINT:** `PhoneInfoga` (v2.11.0), `Sherlock` (v0.15.0) — gated behind explicit operator policy approval.
-* **Infrastructure Reconnaissance:** `ProjectDiscovery Subfinder` (v2.6.6), `OWASP Amass` (v4.2.0 passive), `theHarvester` (v4.6.0 passive).
-* **Cross-Domain Correlation:** `SpiderFoot` (v4.0.0) runs in an isolated passive-only ASTRA profile; `Recon-ng` (v5.1.2) runs only approved pinned marketplace modules; `Photon` runs as a bounded depth-1 public-site crawler with explicit active-crawl authorization.
-* **Service CTI Enrichment:** Configured OpenCTI GraphQL and IntelOwl REST deployments can contribute normalized source-linked records; IntelOwl executes only an explicit analyzer allowlist.
-* **Command Injection Guards:** All worker arguments are validated against strict regex boundary guards before process dispatch via `execFile`.
-
-### C. Cyber Defense & Attack Surface Engine
-* Automatic technology fingerprinting, subsea cable landing correlation, and national infrastructure asset classification.
-* CVE-to-CISA-KEV (Known Exploited Vulnerabilities) mapping and FIRST EPSS score computation.
-* Look-alike domain detection and typosquatting defenses.
-
-### D. Constitutional Evidence Vault
-* Content-addressable SHA-256 storage for all raw analyst observations and artifacts.
-* Merkle-tree verification guaranteeing non-repudiation.
-* Policy Rule: AI agents are cryptographically barred from marking an observation `VERIFIED`. Human analyst sign-off is strictly mandatory.
+Restricted, private, stolen, credential-abuse, intrusive, or unapproved sources are not treated as normal search providers.
 
 ---
 
-## 4. GCP Distributed Enterprise Architecture
+## Evidence architecture
 
-DISHA 6.6 is deployed on Google Cloud Platform in the `asia-south1` (Mumbai) region:
+An observation is not considered trustworthy merely because an adapter returned it.
+
+DISHA6.6 carries evidence metadata through the investigation lifecycle, including source identity, adapter identity, retrieval time, source URL where applicable, content hash, provenance hash, candidate association, corroboration state, and contradiction state.
+
+The product is structured so that:
+
+1. retrieval creates an observation;
+2. normalization gives that observation a stable evidence contract;
+3. provenance records where it came from;
+4. entity resolution may associate it with candidates;
+5. corroboration or contradiction analysis evaluates relationships between admitted records;
+6. operator review determines how the result is used.
+
+A model-generated sentence is not promoted to verified evidence by default.
+
+---
+
+## Production architecture
 
 ```mermaid
 flowchart TB
-    subgraph Edge ["Cloudflare Edge & Gateway"]
-        CF_DNS["Cloudflare DNS / TLS 1.3"]
-        CF_WAF["Cloud Armor / WAF & Rate Limiting"]
-    end
+    EDGE["Edge / TLS / reverse proxy"]
+    WEB["DISHA6.6 Web + API"]
+    DB[("PostgreSQL · PostGIS · pgvector")]
+    REDIS[("Redis")]
+    BRAIN["DISHA Brain"]
+    EMBED["Embedding runtime"]
+    DW["Dynamic background worker"]
+    ID["ASTRA6 identity worker"]
+    INFRA["ASTRA6 infrastructure worker"]
+    ADV["ASTRA6 advanced worker"]
 
-    subgraph Ingress ["GCP Ingress Layer"]
-        Caddy["Caddy Production Reverse Proxy (:80 / :443)"]
-        SecHeaders["Strict CSP / HSTS / Double-Submit CSRF"]
-    end
-
-    subgraph AppLayer ["Stateless Core Compute"]
-        Web["DISHA Web / API (Next.js 16 Standalone, :3000)"]
-        Brain["DISHA Brain (FastAPI Cognitive Engine, :8080)"]
-        Embed["Multilingual Embeddings (MiniLM-L12-v2, :8081)"]
-    end
-
-    subgraph WorkerPlane ["ASTRA 6 Isolated Execution Plane"]
-        DynamicWorker["Dynamic Worker Queue Manager"]
-        IdWorker["Identity Worker (PhoneInfoga, Sherlock)"]
-        InfraWorker["Infrastructure Worker (Subfinder, Amass, theHarvester)"]
-        AdvancedWorker["Advanced OSINT Worker (SpiderFoot, Recon-ng, Photon)"]
-        CtiWorker["CTI / Service Enrichment (OpenCTI, IntelOwl, NVD, CISA KEV, EPSS)"]
-    end
-
-    subgraph Persistence ["Managed GCP Storage & State"]
-        CloudSQL[("PostgreSQL 16 Enterprise")]
-        PostGIS["PostGIS Spatial Intelligence (762 Districts)"]
-        PgVector["pgvector 384D Vector Embeddings"]
-        Redis[("Memorystore Redis 7 Session & Cache")]
-        VaultBucket["Cloud Storage Evidence Vault (WORM Bucket)"]
-    end
-
-    CF_DNS --> CF_WAF --> Caddy --> SecHeaders --> Web
-    Web --> Brain
-    Web --> Embed
-    Web --> DynamicWorker
-    DynamicWorker --> IdWorker
-    DynamicWorker --> InfraWorker
-    DynamicWorker --> AdvancedWorker
-    DynamicWorker --> CtiWorker
-    IdWorker --> CloudSQL
-    InfraWorker --> CloudSQL
-    AdvancedWorker --> CloudSQL
-    CtiWorker --> CloudSQL
-    Web --> CloudSQL
-    Web --> Redis
-    CloudSQL --- PostGIS
-    CloudSQL --- PgVector
-    Web --> VaultBucket
+    EDGE --> WEB
+    WEB --> DB
+    WEB --> REDIS
+    WEB --> BRAIN
+    WEB --> EMBED
+    WEB --> DW
+    WEB --> ID
+    WEB --> INFRA
+    WEB --> ADV
+    ID --> DB
+    INFRA --> DB
+    ADV --> DB
 ```
+
+### Architectural decisions
+
+**1. The web tier is not the CLI worker tier.**  
+Specialized tools do not execute inside request handlers. This limits blast radius and keeps request latency independent from long-running OSINT processes.
+
+**2. Policy is checked before execution and again at the worker.**  
+Identity enumeration and active crawling require explicit deployment policy plus investigation-level authorization. A queue record cannot bypass the worker-side policy check.
+
+**3. Workers are bounded.**  
+Targets are validated, shell metacharacters are blocked, commands are executed without a shell, timeouts are enforced, and late results are discarded when the investigation has closed.
+
+**4. Readiness is environment-specific.**  
+The codebase may know how to run a connector while a particular deployment still reports `NOT_CONFIGURED`, `AUTH_REQUIRED`, `RESTRICTED`, `DEGRADED`, or `UNAVAILABLE`.
+
+**5. Archive code is not production code.**  
+Historical and imported research trees must not become runtime dependencies accidentally. Promotion into the product requires an owned adapter, policy boundary, evidence contract, tests, and maintenance owner.
 
 ---
 
-## 5. Repository Structure
+## Failure behavior
 
-```
-Disha6.6/
-├── web/                           # Next.js 16 Production Frontend & API Gateway
-│   ├── app/                       # App Router routes (/login, /workbench, /vault, etc.)
-│   ├── components/                # React UI components
-│   │   ├── auth/                  # DishaIdentityScene3D & spatial gateway styles
-│   │   ├── visual/                # OsintUniverse3D & 3D visualization systems
-│   │   └── ui/                    # Primitive design tokens and components
-│   ├── database/                  # SQL migrations & rollback scripts
-│   ├── lib/                       # Core unified logic
-│   │   ├── server/                # Session auth, CSRF, rate-limit, audit logging
-│   │   └── unified/               # Adapters, buses, source registry, ASTRA 6 manifests
-│   ├── public/                    # Static assets & authoritative GeoJSON datasets
-│   ├── scripts/                   # Build, seed, asset copy, and worker scripts
-│   └── tests/                     # Vitest regression test suite (45 test files, 299 tests)
-├── disha/                         # DISHA Brain FastAPI cognitive microservice
-├── infra/                         # Infrastructure Dockerfiles (PostgreSQL, Caddy, etc.)
-├── scripts/                       # Root governance and operational orchestration
-│   └── governance-check.mjs       # Strict policy, secret, and line-limit linter
-├── docker-compose.yml             # Local Docker Compose configuration
-├── docker-compose.gcp.yml         # GCP production deployment configuration
-├── LICENSE                        # MIT License
-└── README.md                      # Platform documentation
-```
+DISHA6.6 is designed to fail visibly and locally.
+
+| Failure | Required product behavior |
+| --- | --- |
+| Database missing | report persistence as unconfigured; do not claim durable evidence |
+| Worker missing / heartbeat stale | mark the relevant ASTRA capability unconfigured or degraded |
+| Credential absent | `AUTH_REQUIRED` / `NOT_CONFIGURED` |
+| Policy approval absent | `RESTRICTED` / blocked by policy |
+| Provider rate limit | return rate-limited status for that source without inventing a result |
+| Provider timeout | mark that source failed/timed out; other independent sources may continue |
+| No source-backed records | return an empty evidence state |
+| Unknown / catalog-only tool | show catalog/reference status, not healthy runtime status |
+| Invalid or empty search | reject the request; do not substitute a fabricated default investigation |
+| Evidence persistence unavailable | expose live-unpersisted state explicitly |
+| Contradiction/corroboration unavailable | show no findings, not synthetic confidence values |
 
 ---
 
-## 6. Quickstart & Local Development
+## Performance and scale design
 
-### Prerequisites
-* **Node.js:** `22.x`
-* **Docker & Docker Compose:** Latest stable
-* **PostgreSQL:** `16+` with `postgis` and `pgvector` extensions
-* **Redis:** `7+`
+The system is optimized through architecture rather than optimistic UI claims.
 
-### 1. Installation
-```bash
-# Clone the repository
-git clone https://github.com/Tashima-Tarsh/Disha6.6.git
-cd Disha6.6
-
-# Install web dependencies
-npm --prefix web ci
-```
-
-### 2. Database Migration & Authoritative GeoJSON Import
-```bash
-# Apply SQL migrations
-npm --prefix web run db:migrate
-
-# Import authoritative India district and shoreline boundaries
-npm --prefix web run geo:import
-```
-
-### 3. Running Development Server
-```bash
-npm run dev
-# The application will be available at http://localhost:3000
-```
-
-### 4. Running the Full Containerized Stack
-```bash
-docker compose up --build
-```
+- **Stateless web tier:** request handling remains horizontally scalable.
+- **Asynchronous heavy work:** ASTRA6 execution and scheduled work are separated from user-facing request handlers.
+- **Database-backed worker leases:** work can be claimed safely without multiple workers processing the same queued job.
+- **Bounded worker classes:** identity, infrastructure and advanced tools can scale independently.
+- **Connection reuse:** database and Redis clients are shared through server-side runtime modules rather than recreated per UI component.
+- **Source parallelism:** independent public adapters can execute concurrently.
+- **Short-lived investigation state:** ephemeral investigations have explicit cleanup and expiry behavior.
+- **Separated embedding and reasoning services:** model workloads do not have to share the web process.
+- **Small container contexts:** production Docker context excludes historical, demo and generated-report material.
+- **Read-only containers:** production services run with read-only filesystems where practical and use tmpfs only for bounded temporary work.
+- **Non-root workers:** ASTRA6 worker images execute as dedicated non-root users.
+- **Fail-fast health checks:** PostgreSQL, Redis, web, brain and embedding dependencies expose startup/readiness checks.
 
 ---
 
-## 7. Verification & Production Quality Gates
+## Repository ownership boundaries
 
-DISHA 6.6 enforces automated quality and governance gates on every commit:
+The repository contains both product code and retained research/history. The production spine is intentionally narrow.
+
+### Production product
+
+- `web/` — authenticated application, API gateway, policy, evidence, runtime control and operator UI
+- `web/services/` — investigation/application services
+- `web/lib/server/` — auth, persistence, audit, rate limiting and server-only controls
+- `web/lib/unified/` — governed adapters, routing, evidence contracts, source registry and runtime orchestration
+- `web/scripts/` — production workers and operational scripts
+- `disha/brain/` — governed intelligence/research service
+- `infra/` — PostgreSQL and worker container definitions plus GCP infrastructure
+- `data/osint/` — source catalog and provenance metadata
+- `scripts/osint/` — catalog verification, classification, smoke and report tooling
+
+### Retained archive / research
+
+- `legacy/`
+- `disha/legacy-root-src/`
+- research-only integration trees
+- demo payloads
+- generated reports and local analysis artifacts
+
+Archive code is not considered a production dependency merely because it remains in Git history or the monorepo.
+
+---
+
+## Security posture
+
+Production controls include:
+
+- authenticated application routes;
+- role-aware execution;
+- CSRF controls;
+- strict input schemas;
+- SSRF-aware public retrieval;
+- bounded request and file sizes;
+- parameterized database access;
+- evidence hashing and provenance;
+- worker command-injection guards;
+- worker allowlists;
+- non-root containers;
+- dropped Linux capabilities;
+- read-only container filesystems where practical;
+- explicit credential configuration;
+- policy gates for identity enumeration and active reconnaissance;
+- audit logging for governed actions;
+- no shell execution for ASTRA target arguments;
+- no assumption that upstream verification equals safe execution.
+
+Security policy and responsible disclosure guidance are maintained in [SECURITY.md](SECURITY.md).
+
+---
+
+## Production quality gates
+
+The repository quality gate is designed to run for pull requests and main-branch changes, not only by manual invocation.
+
+Core gates include:
 
 ```bash
-# 1. Full TypeScript verification across all application components
-npm --prefix web run type-check:full
-
-# 2. Comprehensive Vitest regression test suite (299 passing tests)
+npm --prefix web run lint
 npm --prefix web run test
-
-# 3. Next.js Turbopack standalone production build
-npm --prefix web run build
-
-# 4. Strict governance, secret-leak, and policy gate check
+npm --prefix web run type-check:full
+npm --prefix web audit --omit=dev --audit-level=high
 node scripts/governance-check.mjs
-
-# 5. Git whitespace and format verification
-git diff --check
+npm --prefix web run build
 ```
 
-### Mandatory Production Directives
-* **Zero-Mock Policy:** Synthetic records are strictly banned from production adapters. Missing data must be rendered as `UNCONFIGURED` or `EMPTY`.
-* **Logging Compliance:** `console.info()` strictly enforced across all components; `console.log()` is blocked by governance checks.
-* **Zero Technical Debt:** Zero `TODO`, `FIXME`, `HACK`, `@ts-ignore`, or `eslint-disable` markers permitted in merged branches.
-* **Non-Repudiation Rule:** Automated systems are cryptographically barred from self-assigning a `VERIFIED` state to any evidence. Human operator sign-off is mandatory.
+Worker syntax and unresolved merge artifacts are also checked by CI.
+
+A successful source build is necessary but not sufficient for a production-readiness claim. The deployed environment must additionally prove database health, worker heartbeats, provider configuration, policy state, backup/restore posture, and external monitoring.
 
 ---
 
-## 8. License & Attribution
+## Production deployment contract
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+`docker-compose.prod.yml` defines the reference service topology:
 
-```
-MIT License
+- PostgreSQL
+- Redis
+- embedding service
+- DISHA Brain
+- schema migration job
+- DISHA web application
+- ASTRA6 identity worker
+- ASTRA6 infrastructure worker
+- ASTRA6 advanced worker
+- dynamic background worker
 
-Copyright (c) 2026 Nitish Kumar (thenitishkr) <https://thenitishkr.in>
-```
+Production secrets and provider credentials are supplied externally. They are not embedded in the repository.
 
-Crafted for sovereign intelligence defense and constitutional transparency by **Nitish Kumar** ([@thenitishkr](https://thenitishkr.in)).
+A deployment should be considered ready only after the running environment passes its health/readiness endpoints and the required worker/service probes for the capabilities that operators intend to use.
+
+---
+
+## Product invariants
+
+1. **No mock intelligence in production investigation flows.**
+2. **No catalog entry is automatically a healthy runtime.**
+3. **No missing source is replaced with a plausible-looking result.**
+4. **No policy-gated tool silently bypasses authorization.**
+5. **No model output becomes verified evidence merely because it is fluent.**
+6. **No source failure invalidates unrelated successful source records.**
+7. **No historical code path becomes production by accidental import.**
+8. **No deployment is declared ready solely from repository metadata.**
+9. **Every operational claim should be traceable to runtime state, evidence, configuration or a reproducible verification step.**
+
+---
+
+## License
+
+DISHA6.6 is distributed under the repository's [MIT License](LICENSE).
+
+Copyright © 2026 Nitish Kumar (thenitishkr).
+
