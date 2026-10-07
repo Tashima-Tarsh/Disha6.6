@@ -1,4 +1,4 @@
-import type { Investigation } from "./types";
+import type { Investigation, InvestigationStartRequest } from "./types";
 export type Requester = <T>(url: string, init?: RequestInit) => Promise<T>;
 export function csrfHeaders(): Record<string, string> {
   const entry = document.cookie.split("; ").find(value => value.startsWith("disha_csrf="));
@@ -19,7 +19,7 @@ export class InvestigationSession {
   private disposed = false;
   active: Investigation | null = null;
   constructor(private update: (value: Investigation | null) => void, private error: (message: string) => void, private request: Requester = investigationRequest) {}
-  async start(input: { target: string; targetType: string; identityAuthorization?: boolean; activeAuthorization?: boolean } | File) {
+  async start(input: InvestigationStartRequest | File) {
     if (this.active) throw new Error("Close the current investigation before starting another.");
     const generation = ++this.generation;
     const image = input instanceof File;

@@ -12,6 +12,7 @@ import { investigationInput, classifyTarget, planInvestigation } from "./plan";
 import { executeProvider } from "./providers";
 import { appendEvidence, normalizeRecords, record } from "./normalize";
 import { analyzeImage } from "./image";
+import { executeIntelligencePipeline } from "./intelligence-pipeline";
 
 const controllers = new Map<string, AbortController>();
 const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -23,6 +24,7 @@ export function publicInvestigation(value: TemporaryInvestigation): Investigatio
 }
 
 export function runFailure(error: string): { status: RunStatus; error: string } {
+  if (/incompatible/.test(error)) return { status: "INCOMPATIBLE", error: "Source is incompatible with target type" };
   if (/not_configured|worker_unavailable/.test(error)) return { status: "NOT_CONFIGURED", error: "Provider or worker is not configured" };
   if (/429|rate_limit|credits_exhausted/.test(error)) return { status: "RATE_LIMITED", error: "Provider rate limit or query credits reached" };
   if (/execution_class_denied|policy_denied|adapter_disabled/.test(error)) return { status: "BLOCKED", error: "Source execution is blocked by policy" };
@@ -58,10 +60,31 @@ export class InvestigationService {
   ) {}
 
   async create(input: unknown, ctx: RequestContext, upload?: { bytes: Buffer; type: string }): Promise<Investigation> {
-    if (!await this.store.budget(`create:${ctx.principal.userId}`, 6)) throw failure("Investigation rate limit exceeded", 429);
-    const parsed = upload ? { target: "Uploaded image", targetType: "auto" as const } : investigationInput.safeParse(input);
-    if ("success" in parsed && !parsed.success) throw failure("Invalid target or target type", 400);
-    const values = "success" in parsed ? parsed.data : parsed;
+    if (!await this.store.budget(`create:${ctx.principal.userId}`, 10)) throw failure("Investigation rate limit exceeded", 429);
+    let values: ReturnType<typeof investigationInput.parse>;
+    if (upload) {
+      values = {
+        target: "Uploaded image",
+        targetType: "auto",
+        searchUniverse: "universal",
+        investigationMode: "standard",
+        sourcePolicy: "all_approved",
+        jurisdiction: "global",
+        timeRange: "30d",
+        selectedToolIds: [],
+        identityAuthorization: false,
+        activeAuthorization: false,
+      };
+    } else {
+      const parsed = investigationInput.safeParse(input);
+      if (!parsed.success) {
+        throw failure(
+          "Invalid investigation request: " + parsed.error.issues.map((i: { message: string }) => i.message).join(", "),
+          400,
+        );
+      }
+      values = parsed.data;
+    }
     const identityAuthorized = !upload
       && "identityAuthorization" in values
       && values.identityAuthorization === true;
@@ -74,29 +97,121 @@ export class InvestigationService {
     if (activeAuthorized && !ctx.principal.roles.some((role) => role === "admin" || role === "operator")) {
       throw failure("Active public-site crawl authorization requires operator or admin role", 403);
     }
-    const classification = upload ? { targetType: "image" as const, normalizedTarget: "Uploaded image" } : classifyTarget(values.target, values.targetType);
+
+    const classification = upload
+      ? { targetType: "image" as const, normalizedTarget: "Uploaded image", searchUniverse: "universal" as const }
+      : classifyTarget(values.target, values.targetType, values.searchUniverse);
     const metadata = upload ? await analyzeImage(upload.bytes, upload.type) : undefined;
     const now = Date.now();
     const plannedAdapters = planInvestigation(
       classification.normalizedTarget,
       classification.targetType,
-      { identityAuthorized, activeAuthorized },
+      {
+        identityAuthorized,
+        activeAuthorized,
+        searchUniverse: values.searchUniverse,
+        investigationMode: values.investigationMode,
+        sourcePolicy: values.sourcePolicy,
+        jurisdiction: values.jurisdiction,
+        timeRange: values.timeRange,
+        selectedToolIds: values.selectedToolIds,
+      },
     );
+
     const value: TemporaryInvestigation = {
-      investigationId: randomUUID(), revision: 0, ownerId: ctx.principal.userId, target: values.target, ...classification,
-      createdAt: new Date(now).toISOString(), expiresAt: new Date(now + 15 * 60_000).toISOString(),
-      plannedAdapters, runs: plannedAdapters.map(plan => ({ adapterId: plan.adapterId, sourceName: plan.sourceName, status: plan.initialStatus ?? "QUEUED", evidenceCount: 0, warnings: plan.initialStatus ? [plan.reason] : [] })),
-      status: plannedAdapters.some(plan => !plan.initialStatus) ? "QUEUED" : "COMPLETED", evidence: [], candidateClusters: [], edges: [],
+      investigationId: randomUUID(),
+      revision: 0,
+      ownerId: ctx.principal.userId,
+      target: values.target,
+      normalizedTarget: classification.normalizedTarget,
+      targetType: classification.targetType,
+      searchUniverse: values.searchUniverse,
+      investigationMode: values.investigationMode,
+      sourcePolicy: values.sourcePolicy,
+      jurisdiction: values.jurisdiction,
+      timeRange: values.timeRange,
+      selectedToolIds: values.selectedToolIds,
+      identityAuthorization: identityAuthorized,
+      activeAuthorization: activeAuthorized,
+      createdAt: new Date(now).toISOString(),
+      expiresAt: new Date(now + 15 * 60_000).toISOString(),
+      plannedAdapters,
+      runs: plannedAdapters.map((plan) => ({
+        adapterId: plan.adapterId,
+        sourceName: plan.sourceName,
+        status: plan.initialStatus ?? "QUEUED",
+        evidenceCount: 0,
+        warnings: plan.initialStatus ? [plan.reason] : [],
+      })),
+      status: plannedAdapters.some((plan) => !plan.initialStatus) ? "QUEUED" : "COMPLETED",
+      evidence: [],
+      candidateClusters: [],
+      edges: [],
+      rankedFindings: [],
+      timeline: [],
+      markers: [],
+      contradictions: [],
+      corroborations: [],
     };
+
     if (metadata) {
       const evidenceId = randomUUID();
       const contentHash = createHash("sha256").update(JSON.stringify(metadata)).digest("hex");
-      value.evidence.push({ evidenceId, sourceId: "uploaded-image", sourceName: "Uploaded image · local analysis", adapterId: "image-metadata", retrievedAt: value.createdAt, summary: `${metadata.width} × ${metadata.height} ${metadata.format.toUpperCase()} · image metadata`, contentHash, provenanceHash: createHash("sha256").update(`${evidenceId}:${metadata.sha256}:${value.createdAt}`).digest("hex"), corroborationState: "unverified", contradictionState: "not_assessed", fields: { ...metadata } });
-      value.runs.unshift({ adapterId: "image-metadata", sourceName: "Image metadata", status: "COMPLETED", evidenceCount: 1, warnings: ["Image metadata is not identity evidence. Embedded timestamps are unverified."] });
-      value.edges.push({ id: randomUUID(), sourceId: evidenceId, targetId: "image-metadata", type: "DERIVED_FROM", evidenceId });
+      value.evidence.push({
+        evidenceId,
+        sourceId: "uploaded-image",
+        sourceName: "Uploaded image · local analysis",
+        adapterId: "image-metadata",
+        retrievedAt: value.createdAt,
+        summary: `${metadata.width} × ${metadata.height} ${metadata.format.toUpperCase()} · image metadata`,
+        contentHash,
+        provenanceHash: createHash("sha256").update(`${evidenceId}:${metadata.sha256}:${value.createdAt}`).digest("hex"),
+        corroborationState: "unverified",
+        contradictionState: "not_assessed",
+        fields: { ...metadata },
+      });
+      value.runs.unshift({
+        adapterId: "image-metadata",
+        sourceName: "Image metadata",
+        status: "COMPLETED",
+        evidenceCount: 1,
+        warnings: ["Image metadata is not identity evidence. Embedded timestamps are unverified."],
+      });
+      value.edges.push({
+        id: randomUUID(),
+        sourceId: evidenceId,
+        targetId: "image-metadata",
+        type: "DERIVED_FROM",
+        evidenceId,
+      });
     }
+
+    const insights = executeIntelligencePipeline(value);
+    value.rankedFindings = insights.rankedFindings;
+    value.timeline = insights.timeline;
+    value.markers = insights.markers;
+    value.contradictions = insights.contradictions;
+    value.corroborations = insights.corroborations;
+
     await this.store.create(value, upload?.bytes);
-    await this.log({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "investigation.started", resource: value.investigationId, outcome: "success", metadata: { targetClass: value.targetType, startTime: value.createdAt, expiresAt: value.expiresAt, identityAuthorized, activeAuthorized, adapters: value.runs.map(run => run.adapterId) } });
+    await this.log({
+      requestId: ctx.requestId,
+      userId: ctx.principal.userId,
+      action: "investigation.started",
+      resource: value.investigationId,
+      outcome: "success",
+      metadata: {
+        targetClass: value.targetType,
+        searchUniverse: value.searchUniverse,
+        investigationMode: value.investigationMode,
+        startTime: value.createdAt,
+        expiresAt: value.expiresAt,
+        identityAuthorized,
+        activeAuthorized,
+        adapters: value.runs.map((run) => run.adapterId),
+      },
+    });
+
     return publicInvestigation(value);
   }
 
@@ -156,7 +271,7 @@ export class InvestigationService {
       value = await this.owned(id, ctx.principal.userId);
       if (await this.store.stopped(id)) throw failure("Investigation is closing", 409);
 
-      // Only in-request inline runs are considered orphaned. ASTRA runs are durable external jobs.
+      // In-request inline runs interrupted previously are cleaned up
       for (const orphan of value.runs.filter(item => item.status === "RUNNING" && !item.externalRunId)) {
         Object.assign(orphan, { status: "FAILED", error: "Source worker interrupted", endedAt: new Date().toISOString() });
       }
@@ -178,56 +293,96 @@ export class InvestigationService {
         applyResult(value, run, plan, polled.result);
         run.endedAt = new Date().toISOString();
       } else {
-        run = value.runs.find(item => item.status === "QUEUED");
-        if (!run) {
+        const queuedRuns = value.runs.filter((item) => item.status === "QUEUED");
+        if (queuedRuns.length === 0) {
+          const insights = executeIntelligencePipeline(value);
+          value.rankedFindings = insights.rankedFindings;
+          value.timeline = insights.timeline;
+          value.markers = insights.markers;
+          value.contradictions = insights.contradictions;
+          value.corroborations = insights.corroborations;
           value.status = "COMPLETED";
           await this.save(value);
           skipFinalSave = true;
           return publicInvestigation(value);
         }
 
-        const plan = value.plannedAdapters.find(item => item.adapterId === run?.adapterId);
-        if (!plan) throw failure("Investigation source plan is missing", 500);
+        const firstQueued = queuedRuns[0];
+        const planFirst = value.plannedAdapters.find((item) => item.adapterId === firstQueued.adapterId);
+        if (!planFirst) throw failure("Investigation source plan is missing", 500);
 
-        const providerLimit = plan.adapterId === "public-nvd-cve" ? 5 : plan.adapterId === "passive-shodan" ? 10 : 25;
-        if (!await this.store.budget(`provider:${plan.adapterId}`, providerLimit)) {
-          Object.assign(run, { status: "RATE_LIMITED", error: "Shared provider request limit reached", endedAt: new Date().toISOString() });
-        } else if (this.astra.isAdapter(plan.adapterId)) {
+        if (this.astra.isAdapter(planFirst.adapterId)) {
+          run = firstQueued;
           value.status = "RUNNING";
-          run.status = "RUNNING";
-          run.startedAt = new Date().toISOString();
-          run.externalRunId = await this.astra.enqueue(plan, ctx.principal.userId, id);
+          firstQueued.status = "RUNNING";
+          firstQueued.startedAt = new Date().toISOString();
+          firstQueued.externalRunId = await this.astra.enqueue(planFirst, ctx.principal.userId, id);
           if (!await this.save(value)) {
             await this.astra.cleanup(id, ctx.principal.userId);
             throw failure("Investigation closed", 409);
           }
           skipFinalSave = true;
           return publicInvestigation(value);
-        } else {
-          value.status = "RUNNING";
-          run.status = "RUNNING";
-          run.startedAt = new Date().toISOString();
-          if (!await this.save(value)) throw failure("Investigation closed", 409);
+        }
 
-          const signal = AbortSignal.any([
-            controller.signal,
-            AbortSignal.timeout(Math.max(1, Math.min(24_000, Date.parse(value.expiresAt) - Date.now()))),
-            ...(requestSignal ? [requestSignal] : []),
-          ]);
-          const image = value.targetType === "image" ? await this.store.image(id) : null;
-          try {
-            const result = await this.execute(plan, ctx.principal.userId, id, signal, image);
-            if (signal.aborted || await this.store.stopped(id)) throw failure("Investigation stopped", 409);
-            applyResult(value, run, plan, result);
-          } finally {
-            image?.fill(0);
-          }
-          run.endedAt = new Date().toISOString();
+        // Bounded concurrency for inline queued adapters (up to 3) (Bug 17)
+        const batch = queuedRuns.slice(0, 3).filter((item) => !this.astra.isAdapter(item.adapterId));
+        value.status = "RUNNING";
+        for (const item of batch) {
+          item.status = "RUNNING";
+          item.startedAt = new Date().toISOString();
+        }
+        if (!await this.save(value)) throw failure("Investigation closed", 409);
+
+        const signal = AbortSignal.any([
+          controller.signal,
+          AbortSignal.timeout(Math.max(1, Math.min(24_000, Date.parse(value.expiresAt) - Date.now()))),
+          ...(requestSignal ? [requestSignal] : []),
+        ]);
+        const image = value.targetType === "image" ? await this.store.image(id) : null;
+
+        try {
+          await Promise.all(
+            batch.map(async (batchRun) => {
+              const plan = value!.plannedAdapters.find((item) => item.adapterId === batchRun.adapterId);
+              if (!plan) return;
+              const providerLimit = plan.adapterId === "public-nvd-cve" ? 5 : plan.adapterId === "passive-shodan" ? 10 : 25;
+              if (!await this.store.budget(`provider:${plan.adapterId}`, providerLimit)) {
+                Object.assign(batchRun, {
+                  status: "RATE_LIMITED",
+                  error: "Shared provider request limit reached",
+                  endedAt: new Date().toISOString(),
+                });
+                return;
+              }
+              try {
+                const result = await this.execute(plan, ctx.principal.userId, id, signal, image);
+                if (signal.aborted || await this.store.stopped(id)) throw failure("Investigation stopped", 409);
+                applyResult(value!, batchRun, plan, result);
+              } catch (err) {
+                Object.assign(batchRun, runFailure(err instanceof Error ? err.message : "provider_failed"));
+              } finally {
+                batchRun.endedAt = new Date().toISOString();
+              }
+            }),
+          );
+        } finally {
+          image?.fill(0);
         }
       }
+
+      const insights = executeIntelligencePipeline(value);
+      value.rankedFindings = insights.rankedFindings;
+      value.timeline = insights.timeline;
+      value.markers = insights.markers;
+      value.contradictions = insights.contradictions;
+      value.corroborations = insights.corroborations;
+
     } catch (error) {
-      if (!value || !run) throw error;
-      Object.assign(run, runFailure(error instanceof Error ? error.message : "provider_failed"), { endedAt: new Date().toISOString() });
+      if (!value) throw error;
+      if (run) {
+        Object.assign(run, runFailure(error instanceof Error ? error.message : "provider_failed"), { endedAt: new Date().toISOString() });
+      }
     } finally {
       finished = true;
       if (heartbeat) clearTimeout(heartbeat);
@@ -261,7 +416,22 @@ export class InvestigationService {
 
     await this.store.remove(id);
     if (await this.store.read(id) || await this.store.image(id)) throw failure("Cleanup could not be confirmed. Retry Close.", 503);
-    await this.log({ requestId: ctx.requestId, userId: ctx.principal.userId, action: "investigation.closed", resource: id, outcome: "success", metadata: { targetClass: value?.targetType, startTime: value?.createdAt, closeTime: new Date().toISOString(), runs: (value?.runs ?? []).map(item => ({ adapterId: item.adapterId, status: item.status === "RUNNING" || item.status === "QUEUED" ? "SKIPPED" : item.status })) } });
+    await this.log({
+      requestId: ctx.requestId,
+      userId: ctx.principal.userId,
+      action: "investigation.closed",
+      resource: id,
+      outcome: "success",
+      metadata: {
+        targetClass: value?.targetType,
+        startTime: value?.createdAt,
+        closeTime: new Date().toISOString(),
+        runs: (value?.runs ?? []).map((item) => ({
+          adapterId: item.adapterId,
+          status: item.status === "RUNNING" || item.status === "QUEUED" ? "SKIPPED" : item.status,
+        })),
+      },
+    });
     return { investigationId: id, status: "CLOSED" as const, cleanupConfirmed: true };
   }
 }
