@@ -603,6 +603,10 @@ function authorizeQueuedJob(job) {
     return { allowed: false, error: "policy_denied_tool_disabled_live" };
   }
 
+  if (job.tool_id === "photon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
+    return { allowed: false, error: "policy_denied_active_recon" };
+  }
+
   const identitySensitive = IDENTITY_TOOLS.has(job.tool_id) || IDENTITY_TARGET_TYPES.has(job.target_type);
   if (!identitySensitive) return { allowed: true };
 
@@ -704,9 +708,6 @@ async function processNextJob() {
 
   try {
     const target = validateTarget(job.tool_id, job.target);
-    if (job.tool_id === "photon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
-      throw new Error("policy_denied_active_recon");
-    }
     const { binary, args, outputFile, cleanupPath } = buildToolCommand(job.tool_id, target);
     const timeoutMs = Math.max(1_000, Math.min(Number(job.timeout_ms) || TOOL_DEFAULT_TIMEOUT_MS[job.tool_id] || 60_000, 240_000));
     const raw = await executeBinary(binary, args, timeoutMs, outputFile, cleanupPath);
