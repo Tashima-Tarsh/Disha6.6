@@ -98,3 +98,6 @@ web/public/vendor/maplibre/
 /Caddyfile
 /DEPLOYED_COMMIT
 /CREDENTIALS.txt
+
+# Generated local audit/runtime artifacts
+/lint_report.txt
