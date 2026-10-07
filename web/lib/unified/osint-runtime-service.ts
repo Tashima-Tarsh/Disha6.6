@@ -240,8 +240,125 @@ export async function saveOsintRegistry(registry: OsintToolRecord[]): Promise<vo
   }
 }
 
-export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
+async function loadLiveRuntimeRegistry(): Promise<OsintToolRecord[]> {
   const registry = await loadOsintRegistry();
+  const checkedAt = new Date().toISOString();
+  const workerClasses = [...new Set(
+    registry
+      .map((tool) => ASTRA_TOOL_WORKER_CLASS[tool.toolId])
+      .filter((value): value is "identity" | "infrastructure" | "advanced" => Boolean(value)),
+  )];
+
+  const pool = getDbPool();
+  const workerHealth = new Map<string, { workerId?: string; status?: string }>();
+  let workerProbeError: string | null = null;
+
+  if (pool && workerClasses.length > 0) {
+    try {
+      const result = await pool.query(
+        `select distinct on (worker_class) worker_class, worker_id, status, last_heartbeat
+           from disha_worker_heartbeats
+          where worker_class = ANY($1::text[])
+            and last_heartbeat > now() - interval '45 seconds'
+          order by worker_class, last_heartbeat desc`,
+        [workerClasses],
+      );
+      for (const row of result.rows as Array<{ worker_class?: string; worker_id?: string; status?: string }>) {
+        if (row.worker_class) workerHealth.set(row.worker_class, { workerId: row.worker_id, status: row.status });
+      }
+    } catch (error) {
+      workerProbeError = error instanceof Error ? error.message : String(error);
+    }
+  }
+
+  for (const tool of registry) {
+    const workerClass = ASTRA_TOOL_WORKER_CLASS[tool.toolId];
+    if (!workerClass) continue;
+
+    tool.lastSmokeTested = checkedAt;
+
+    if (!astraToolEnabled(tool.toolId)) {
+      tool.status = "UNCONFIGURED";
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = {
+        success: false,
+        error: `ASTRA tool '${tool.toolId}' is not enabled in this deployment`,
+      };
+      continue;
+    }
+
+    if (!pool) {
+      tool.status = "UNCONFIGURED";
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = { success: false, error: "DATABASE_URL is required for ASTRA worker health" };
+      continue;
+    }
+
+    if (workerProbeError) {
+      tool.status = "DEGRADED";
+      tool.healthStatus = "DEGRADED";
+      tool.smokeResult = { success: false, error: `ASTRA worker heartbeat probe failed: ${workerProbeError.slice(0, 200)}` };
+      continue;
+    }
+
+    const heartbeat = workerHealth.get(workerClass);
+    if (!heartbeat || heartbeat.status !== "HEALTHY") {
+      tool.status = "DEGRADED";
+      tool.healthStatus = "DEGRADED";
+      tool.smokeResult = {
+        success: false,
+        error: `ASTRA ${workerClass} worker has no healthy heartbeat in the last 45 seconds`,
+      };
+      continue;
+    }
+
+    tool.status = "HEALTHY";
+    tool.healthStatus = "HEALTHY";
+    tool.smokeResult = {
+      success: true,
+      message: `ASTRA ${workerClass} worker healthy`,
+      outputSnippet: heartbeat.workerId ?? workerClass,
+    };
+  }
+
+  const serviceIds = ["opencti", "intelowl"] as const;
+  const serviceProbes = await Promise.all(serviceIds.map(async (connectorId) => {
+    try {
+      return await probeOsintServiceConnector(connectorId);
+    } catch (error) {
+      return {
+        connectorId,
+        status: "failed" as const,
+        detail: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }));
+
+  for (const probe of serviceProbes) {
+    const tool = registry.find((entry) => entry.toolId === probe.connectorId);
+    if (!tool) continue;
+    tool.lastSmokeTested = checkedAt;
+
+    if (probe.status === "ok") {
+      tool.status = "HEALTHY";
+      tool.healthStatus = "HEALTHY";
+      tool.smokeResult = { success: true, message: probe.detail };
+    } else if (probe.status === "skipped") {
+      tool.status = "AUTH_REQUIRED";
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = { success: false, error: probe.detail };
+    } else {
+      tool.status = "DEGRADED";
+      tool.healthStatus = "DEGRADED";
+      tool.smokeResult = { success: false, error: probe.detail };
+    }
+  }
+
+  return registry;
+}
+
+export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
+  const registry = await loadLiveRuntimeRegistry();
 
   const metrics: OsintRuntimeMetrics = {
     total: registry.length,
@@ -273,7 +390,7 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     if (tool.forkStatus === "FORKED") metrics.forked++;
     else metrics.pendingFork++;
 
-    if (tool.upstreamStatus === "VERIFIED" || (!!tool.upstreamSha && tool.upstreamStatus !== "UNAVAILABLE")) {
+    if (tool.upstreamStatus === "VERIFIED") {
       metrics.upstreamVerified++;
     } else if (tool.upstreamStatus === "UNAVAILABLE") {
       metrics.upstreamUnavailable++;
