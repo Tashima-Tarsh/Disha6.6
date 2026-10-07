@@ -1,6 +1,8 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFile, rm } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { Pool } from "pg";
 import { createClient } from "redis";
@@ -595,7 +597,7 @@ function deploymentToolEnabled(toolId) {
   return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
 }
 
-function authorizeQueuedJob(job) {
+export function authorizeQueuedJob(job) {
   if (job.manifest_enabled !== true) {
     return { allowed: false, error: "policy_denied_tool_disabled" };
   }
@@ -603,22 +605,32 @@ function authorizeQueuedJob(job) {
     return { allowed: false, error: "policy_denied_tool_disabled_live" };
   }
 
-  if (job.tool_id === "photon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
-    return { allowed: false, error: "policy_denied_active_recon" };
-  }
-
-  const identitySensitive = IDENTITY_TOOLS.has(job.tool_id) || IDENTITY_TARGET_TYPES.has(job.target_type);
-  if (!identitySensitive) return { allowed: true };
-
-  if (process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
-    return { allowed: false, error: "policy_denied_identity_deployment" };
-  }
-
   const input = objectInput(job.dispatch_input);
-  const requestApproved = input.identityAuthorization === true
-    || (input.authorization && typeof input.authorization === "object" && input.authorization.identityEnumeration === true);
-  if (!requestApproved) {
-    return { allowed: false, error: "policy_denied_identity_request" };
+
+  // Identity enumeration checks
+  const identitySensitive = IDENTITY_TOOLS.has(job.tool_id) || IDENTITY_TARGET_TYPES.has(job.target_type);
+  if (identitySensitive) {
+    if (process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
+      return { allowed: false, error: "policy_denied_identity_deployment" };
+    }
+    const requestApproved = input.identityAuthorization === true
+      || (input.authorization && typeof input.authorization === "object" && input.authorization.identityEnumeration === true);
+    if (!requestApproved) {
+      return { allowed: false, error: "policy_denied_identity_request" };
+    }
+  }
+
+  // Active reconnaissance checks (Photon)
+  const activeSensitive = job.tool_id === "photon";
+  if (activeSensitive) {
+    if (process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
+      return { allowed: false, error: "policy_denied_active_deployment" };
+    }
+    const requestApproved = input.activeAuthorization === true
+      || (input.authorization && typeof input.authorization === "object" && input.authorization.activeRecon === true);
+    if (!requestApproved) {
+      return { allowed: false, error: "policy_denied_active_request" };
+    }
   }
 
   return { allowed: true };
@@ -708,6 +720,10 @@ async function processNextJob() {
 
   try {
     const target = validateTarget(job.tool_id, job.target);
+    const authCheck = authorizeQueuedJob(job);
+    if (!authCheck.allowed) {
+      throw new Error(authCheck.error);
+    }
     const { binary, args, outputFile, cleanupPath } = buildToolCommand(job.tool_id, target);
     const timeoutMs = Math.max(1_000, Math.min(Number(job.timeout_ms) || TOOL_DEFAULT_TIMEOUT_MS[job.tool_id] || 60_000, 240_000));
     const raw = await executeBinary(binary, args, timeoutMs, outputFile, cleanupPath);
@@ -731,7 +747,9 @@ async function processNextJob() {
   } catch (error) {
     const durationMs = Date.now() - started;
     const message = error instanceof Error ? error.message : String(error);
-    const status = /timeout/i.test(message) ? "timed_out" : "failed";
+    const status = message.startsWith("policy_denied")
+      ? "blocked_by_policy"
+      : /timeout/i.test(message) ? "timed_out" : "failed";
 
     await pool.query(
       `UPDATE astra6_connector_runs
@@ -740,7 +758,7 @@ async function processNextJob() {
       [status, message.slice(0, 1000), durationMs, job.run_id],
     );
 
-    console.info(`[ASTRA 6 Worker] failed run=${job.run_id} tool=${job.tool_id}: ${message}`);
+    console.info(`[ASTRA 6 Worker] ${status} run=${job.run_id} tool=${job.tool_id}: ${message}`);
   }
 }
 
@@ -771,7 +789,10 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(`[ASTRA 6 Worker] fatal: ${error instanceof Error ? error.message : String(error)}`);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isDirectRun) {
+  main().catch((error) => {
+    console.error(`[ASTRA 6 Worker] fatal: ${error instanceof Error ? error.message : String(error)}`);
+    process.exit(1);
+  });
+}

@@ -147,6 +147,7 @@ async function queueRun(
   const dispatchInput = {
     options: input.options ?? {},
     ...(context.identityAuthorization === true ? { identityAuthorization: true } : {}),
+    ...(context.activeAuthorization === true ? { activeAuthorization: true } : {}),
   };
   const provenanceHash = hashValue({
     runId,
