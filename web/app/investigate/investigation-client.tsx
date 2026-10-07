@@ -98,7 +98,7 @@ const INVESTIGATION_MODES = [
 const SOURCE_POLICIES = ["Public Sources", "Authoritative", "Government", "All Approved"] as const;
 const JURISDICTIONS = ["India", "Global"] as const;
 const TIME_RANGES = ["24 Hours", "7 Days", "30 Days", "Custom"] as const;
-production/hardening-product-readme
+
 const MANAGED_TOOL_IDS = new Set([
   "phoneinfoga",
   "sherlock",
@@ -119,37 +119,33 @@ const MANAGED_TOOL_IDS = new Set([
 ]);
 
 export function InvestigationClient({ email: _email, roles }: { email: string; roles: string[] }) {
+  function mapInvestigationMode(mode: string | null): InvestigationMode {
+    if (mode === "Deep Search") return "deep";
+    if (mode === "Evidence First") return "evidence_first";
+    if (mode === "Continuous Watch") return "continuous_watch";
+    return "standard";
+  }
 
+  function mapSourcePolicy(policy: string | null): SourcePolicy {
+    if (policy === "Public Sources") return "public";
+    if (policy === "Authoritative") return "authoritative";
+    if (policy === "Government") return "government";
+    return "all_approved";
+  }
 
-function mapInvestigationMode(mode: string | null): InvestigationMode {
-  if (mode === "Deep Search") return "deep";
-  if (mode === "Evidence First") return "evidence_first";
-  if (mode === "Continuous Watch") return "continuous_watch";
-  return "standard";
-}
+  function mapJurisdiction(jur: string | null): Jurisdiction {
+    if (jur === "India") return "india";
+    return "global";
+  }
 
-function mapSourcePolicy(policy: string | null): SourcePolicy {
-  if (policy === "Public Sources") return "public";
-  if (policy === "Authoritative") return "authoritative";
-  if (policy === "Government") return "government";
-  return "all_approved";
-}
+  function mapTimeRange(range: string | null): TimeRange {
+    if (range === "24 Hours") return "24h";
+    if (range === "7 Days") return "7d";
+    if (range === "30 Days") return "30d";
+    if (range === "Custom") return "custom";
+    return "30d";
+  }
 
-function mapJurisdiction(jur: string | null): Jurisdiction {
-  if (jur === "India") return "india";
-  return "global";
-}
-
-function mapTimeRange(range: string | null): TimeRange {
-  if (range === "24 Hours") return "24h";
-  if (range === "7 Days") return "7d";
-  if (range === "30 Days") return "30d";
-  if (range === "Custom") return "custom";
-  return "30d";
-}
-
-export function InvestigationClient({ email: _email }: { email: string }) {
- main
   const [active, setActive] = useState<Investigation | null>(null);
   const [busy, setBusy] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -158,8 +154,13 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   const [selectedEvidence, setSelectedEvidence] = useState<string | null>(null);
   const [selectedSearchMode, setSelectedSearchMode] = useState("Universal Search");
   const [activeTab, setActiveTab] = useState<(typeof RESULT_TABS)[number]>("Overview");
+  const [investigationMode, setInvestigationMode] = useState<string | null>(null);
+  const [sourcePolicy, setSourcePolicy] = useState<string | null>(null);
+  const [jurisdiction, setJurisdiction] = useState<string | null>(null);
+  const [timeRange, setTimeRange] = useState<string | null>(null);
   const [tools, setTools] = useState<ToolRecord[]>([]);
   const [toolsError, setToolsError] = useState("");
+  const [selectedTools, setSelectedTools] = useState<Set<string>>(new Set());
   const [identityAuthorization, setIdentityAuthorization] = useState(false);
   const [activeAuthorization, setActiveAuthorization] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -194,12 +195,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
 
   useEffect(() => {
     const controller = new AbortController();
- production/hardening-product-readme
-    void fetch("/api/v1/osint/tools?limit=600", {
-
     const universeParam = selectedSearch.universe !== "universal" ? `&universe=${selectedSearch.universe}` : "";
     void fetch(`/api/v1/osint/tools?runnable=true${universeParam}&limit=30`, {
-main
       credentials: "same-origin",
       cache: "no-store",
       signal: controller.signal,
@@ -230,7 +227,6 @@ main
       await session.current?.start({
         target,
         targetType: selectedSearch.targetType,
-production/hardening-product-readme
         identityAuthorization,
         activeAuthorization,
         searchUniverse: selectedSearch.universe,
@@ -239,17 +235,27 @@ production/hardening-product-readme
         jurisdiction: mapJurisdiction(jurisdiction),
         timeRange: mapTimeRange(timeRange),
         selectedToolIds: Array.from(selectedTools),
-        identityAuthorization: false,
-        activeAuthorization: false,
-main
       });
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "INVESTIGATION SERVICE FAILED");
     } finally {
       setBusy(false);
     }
-production/hardening-product-readme
-  }, [active, activeAuthorization, busy, closing, identityAuthorization, query, selectedSearch.targetType]);
+  }, [
+    active,
+    activeAuthorization,
+    busy,
+    closing,
+    identityAuthorization,
+    investigationMode,
+    jurisdiction,
+    query,
+    selectedSearch.targetType,
+    selectedSearch.universe,
+    selectedTools,
+    sourcePolicy,
+    timeRange,
+  ]);
 
   const startImage = useCallback(async (file: File) => {
     if (busy || closing || active) return;
@@ -269,20 +275,6 @@ production/hardening-product-readme
       setBusy(false);
     }
   }, [active, busy, closing]);
-  }, [
-    active,
-    busy,
-    closing,
-    query,
-    selectedSearch.targetType,
-    selectedSearch.universe,
-    investigationMode,
-    sourcePolicy,
-    jurisdiction,
-    timeRange,
-    selectedTools,
-  ]);
- main
 
   const close = useCallback(async () => {
     setClosing(true);
@@ -310,6 +302,15 @@ production/hardening-product-readme
   }, [start]);
 
   const evidence = active?.evidence.find((item) => item.evidenceId === selectedEvidence);
+
+  function toggleTool(toolId: string) {
+    setSelectedTools((current) => {
+      const next = new Set(current);
+      if (next.has(toolId)) next.delete(toolId);
+      else next.add(toolId);
+      return next;
+    });
+  }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -515,10 +516,7 @@ production/hardening-product-readme
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No timeline events"
-                  text="Timeline events appear only when live evidence provides verified temporal records."
-                />
+                <EmptyState title="No timeline events" text="Timeline events appear only when live evidence provides verified temporal records." />
               )
             ) : activeTab === "Map" ? (
               active.markers && active.markers.length > 0 ? (
@@ -532,10 +530,7 @@ production/hardening-product-readme
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No investigation markers"
-                  text="Map markers appear only when live investigation results contain geospatial evidence."
-                />
+                <EmptyState title="No investigation markers" text="Map markers appear only when live investigation results contain geospatial evidence." />
               )
             ) : activeTab === "Contradictions" ? (
               active.contradictions && active.contradictions.length > 0 ? (
@@ -549,10 +544,7 @@ production/hardening-product-readme
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No contradiction findings"
-                  text="Contradictions appear only when independent sources produce conflicting claims."
-                />
+                <EmptyState title="No contradiction findings" text="Contradictions appear only when independent sources produce conflicting claims." />
               )
             ) : activeTab === "Corroboration" ? (
               active.corroborations && active.corroborations.length > 0 ? (
@@ -566,10 +558,7 @@ production/hardening-product-readme
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No corroboration findings"
-                  text="Corroboration appears only when multiple independent sources confirm the same finding."
-                />
+                <EmptyState title="No corroboration findings" text="Corroboration appears only when multiple independent sources confirm the same finding." />
               )
             ) : activeTab === "Raw" ? (
               <RawState active={active} />
@@ -610,17 +599,6 @@ production/hardening-product-readme
             <p className={styles.neutralState}>Approved tools are selected automatically from the target type and live policy state.</p>
             <div className={styles.toolList}>
               {tools.length ? (
-production/hardening-product-readme
-                tools.slice(0, 12).map((tool) => (
-                  <div key={tool.toolId} className={styles.toolRow}>
-                    <span>
-                      <strong>{tool.name}</strong>
-                      <small>{humanStatus(tool.status || tool.healthStatus)}</small>
-                    </span>
-                    <i />
-                  </div>
-                ))
-
                 tools.map((tool) => {
                   const selected = selectedTools.has(tool.toolId);
                   return (
@@ -638,7 +616,6 @@ production/hardening-product-readme
                     </button>
                   );
                 })
-main
               ) : (
                 <p className={styles.neutralState}>
                   {toolsError || "Loading managed runtime registry…"}
@@ -853,12 +830,7 @@ function OverviewState({
   }
 
   if (!active.evidence.length) {
-    return (
-      <EmptyState
-        title="No results"
-        text="The live investigation completed without source-backed evidence."
-      />
-    );
+    return <EmptyState title="No results" text="The live investigation completed without source-backed evidence." />;
   }
 
   return (
@@ -889,12 +861,7 @@ function EvidenceView({
   onSelect: (id: string) => void;
 }) {
   if (!active.evidence.length) {
-    return (
-      <EmptyState
-        title="No evidence loaded"
-        text="Evidence records will appear here after a live investigation is executed."
-      />
-    );
+    return <EmptyState title="No evidence loaded" text="Evidence records will appear here after a live investigation is executed." />;
   }
 
   return (
@@ -912,12 +879,7 @@ function EvidenceView({
 
 function SourceView({ active }: { active: Investigation }) {
   if (!active.runs.length) {
-    return (
-      <EmptyState
-        title="No sources loaded"
-        text="Source activity appears only after a live investigation starts."
-      />
-    );
+    return <EmptyState title="No sources loaded" text="Source activity appears only after a live investigation starts." />;
   }
 
   return (
@@ -956,12 +918,7 @@ function GraphState({ active }: { active: Investigation }) {
     );
   }
 
-  return (
-    <EmptyState
-      title="Graph data available"
-      text="Evidence-backed relationships are present in the active investigation."
-    />
-  );
+  return <EmptyState title="Graph data available" text="Evidence-backed relationships are present in the active investigation." />;
 }
 
 function RawState({ active }: { active: Investigation }) {
