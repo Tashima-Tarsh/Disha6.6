@@ -86,6 +86,23 @@ const INVESTIGATION_MODES = [
 const SOURCE_POLICIES = ["Public Sources", "Authoritative", "Government", "All Approved"] as const;
 const JURISDICTIONS = ["India", "Global"] as const;
 const TIME_RANGES = ["24 Hours", "7 Days", "30 Days", "Custom"] as const;
+const MANAGED_TOOL_IDS = new Set([
+  "phoneinfoga",
+  "sherlock",
+  "maigret",
+  "holehe",
+  "instaloader",
+  "telethon",
+  "theharvester",
+  "amass",
+  "owasp-amass",
+  "subfinder",
+  "spiderfoot",
+  "recon-ng",
+  "photon",
+  "opencti",
+  "intelowl",
+]);
 
 export function InvestigationClient({ email: _email }: { email: string }) {
   const [active, setActive] = useState<Investigation | null>(null);
@@ -96,13 +113,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   const [selectedEvidence, setSelectedEvidence] = useState<string | null>(null);
   const [selectedSearchMode, setSelectedSearchMode] = useState("Universal Search");
   const [activeTab, setActiveTab] = useState<(typeof RESULT_TABS)[number]>("Overview");
-  const [investigationMode, setInvestigationMode] = useState<string | null>(null);
-  const [sourcePolicy, setSourcePolicy] = useState<string | null>(null);
-  const [jurisdiction, setJurisdiction] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState<string | null>(null);
   const [tools, setTools] = useState<ToolRecord[]>([]);
   const [toolsError, setToolsError] = useState("");
-  const [selectedTools, setSelectedTools] = useState<Set<string>>(new Set());
   const session = useRef<InvestigationSession | null>(null);
 
   const selectedSearch = useMemo(
@@ -142,7 +154,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
         return response.json() as Promise<{ tools?: ToolRecord[] }>;
       })
       .then((payload) => {
-        setTools(Array.isArray(payload.tools) ? payload.tools : []);
+        const entries = Array.isArray(payload.tools) ? payload.tools : [];
+        setTools(entries.filter((tool) => MANAGED_TOOL_IDS.has(tool.toolId)));
       })
       .catch((failure) => {
         if (!controller.signal.aborted) {
@@ -201,15 +214,6 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void start();
-  }
-
-  function toggleTool(toolId: string) {
-    setSelectedTools((current) => {
-      const next = new Set(current);
-      if (next.has(toolId)) next.delete(toolId);
-      else next.add(toolId);
-      return next;
-    });
   }
 
   return (
@@ -312,10 +316,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
               <span>Investigation Workspace</span>
               <div className={styles.configChips}>
                 <span>{selectedSearchMode}</span>
-                {investigationMode ? <span>{investigationMode}</span> : null}
-                {sourcePolicy ? <span>{sourcePolicy}</span> : null}
-                {jurisdiction ? <span>{jurisdiction}</span> : null}
-                {timeRange ? <span>{timeRange}</span> : null}
+                <span>Automatic governed routing</span>
               </div>
             </div>
 
@@ -414,45 +415,39 @@ export function InvestigationClient({ email: _email }: { email: string }) {
           </div>
 
           <ControlGroup title="Mode">
-            {INVESTIGATION_MODES.map(([label, description]) => (
+            {INVESTIGATION_MODES.map(([label, description], index) => (
               <button
                 key={label}
-                className={investigationMode === label ? styles.controlActive : styles.controlRow}
+                className={index === 0 ? styles.controlActive : styles.controlRow}
                 type="button"
-                onClick={() => setInvestigationMode((current) => (current === label ? null : label))}
+                disabled={index !== 0}
+                title={index === 0 ? "Current governed investigation mode" : "Not enabled by the current investigation contract"}
               >
                 <span>
                   <strong>{label}</strong>
-                  <small>{description}</small>
+                  <small>{index === 0 ? description : `${description} · Not enabled`}</small>
                 </span>
                 <i />
               </button>
             ))}
           </ControlGroup>
 
-          <ControlGroup title="Tool Selection">
+          <ControlGroup title="Runtime Tools">
+            <p className={styles.neutralState}>Approved tools are selected automatically from the target type and live policy state.</p>
             <div className={styles.toolList}>
               {tools.length ? (
-                tools.slice(0, 12).map((tool) => {
-                  const selected = selectedTools.has(tool.toolId);
-                  return (
-                    <button
-                      key={tool.toolId}
-                      type="button"
-                      className={selected ? styles.toolActive : styles.toolRow}
-                      onClick={() => toggleTool(tool.toolId)}
-                    >
-                      <span>
-                        <strong>{tool.name}</strong>
-                        <small>{humanStatus(tool.status || tool.healthStatus)}</small>
-                      </span>
-                      <i />
-                    </button>
-                  );
-                })
+                tools.slice(0, 12).map((tool) => (
+                  <div key={tool.toolId} className={styles.toolRow}>
+                    <span>
+                      <strong>{tool.name}</strong>
+                      <small>{humanStatus(tool.status || tool.healthStatus)}</small>
+                    </span>
+                    <i />
+                  </div>
+                ))
               ) : (
                 <p className={styles.neutralState}>
-                  {toolsError || "Loading configured tool registry…"}
+                  {toolsError || "Loading managed runtime registry…"}
                 </p>
               )}
             </div>
@@ -464,8 +459,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={sourcePolicy === item}
-                  onClick={() => setSourcePolicy((current) => (current === item ? null : item))}
+                  disabled
+                  title="Source-policy selection is not enabled by the current investigation contract"
                 >
                   {item}
                 </button>
@@ -479,8 +474,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={jurisdiction === item}
-                  onClick={() => setJurisdiction((current) => (current === item ? null : item))}
+                  disabled
+                  title="Jurisdiction filtering is not enabled by the current investigation contract"
                 >
                   {item}
                 </button>
@@ -494,8 +489,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={timeRange === item}
-                  onClick={() => setTimeRange((current) => (current === item ? null : item))}
+                  disabled
+                  title="Time-range filtering is not enabled by the current investigation contract"
                 >
                   {item}
                 </button>
@@ -512,7 +507,12 @@ export function InvestigationClient({ email: _email }: { email: string }) {
             >
               {busy ? "Investigation running" : "Run Investigation"}
             </button>
-            <button type="button" className={styles.secondaryWide}>
+            <button
+              type="button"
+              className={styles.secondaryWide}
+              disabled
+              title="Configuration persistence is not enabled by the current investigation contract"
+            >
               Save Configuration
             </button>
           </div>
@@ -549,8 +549,8 @@ function ReadyState() {
       </div>
       <h1>Start an investigation</h1>
       <p>
-        Select a search type, configure approved sources, and run a query to build a governed
-        evidence workspace.
+        Select a search type and run a query. DISHA6.6 routes approved sources automatically
+        and builds the evidence workspace only from returned source records.
       </p>
 
       <div className={styles.capabilityRail}>
