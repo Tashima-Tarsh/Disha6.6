@@ -304,7 +304,7 @@ function buildToolCommand(toolId, target) {
       };
     }
     case "owasp-amass":
-      return { binary: "amass", args: ["enum", "-passive", "-d", target] };
+      return { binary: "amass", args: ["enum", "-passive", "-d", target, "-timeout", "1"] };
     case "subfinder":
       return { binary: "subfinder", args: ["-d", target, "-silent", "-json"] };
     case "spiderfoot":
