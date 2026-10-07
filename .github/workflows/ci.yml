@@ -1,6 +1,10 @@
-name: Fast CI
+name: Production CI
 
 on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -62,8 +66,8 @@ jobs:
       - name: Governance and security line scan
         working-directory: .
         env:
-          BASE_SHA: ${{ github.sha }}
-          EVENT_NAME: workflow_dispatch
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
         run: node scripts/governance-check.mjs
 
       - name: Build
