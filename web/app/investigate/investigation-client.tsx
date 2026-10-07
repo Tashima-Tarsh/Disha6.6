@@ -94,6 +94,7 @@ const MANAGED_TOOL_IDS = new Set([
   "holehe",
   "instaloader",
   "telethon",
+  "telegram-public",
   "theharvester",
   "amass",
   "owasp-amass",
@@ -150,7 +151,7 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch("/api/v1/osint/tools?limit=100", {
+    void fetch("/api/v1/osint/tools?limit=600", {
       credentials: "same-origin",
       cache: "no-store",
       signal: controller.signal,
