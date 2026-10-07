@@ -265,7 +265,7 @@ export async function runUniversalOsintSearch(
 
 export function sanitizeUniversalQuery(value: string): string {
   const compact = value.trim().replace(/\s+/g, " ");
-  if (!compact) return "India government";
+  if (!compact) throw new Error("query_required");
   return compact.slice(0, 180);
 }
 
