@@ -1153,3 +1153,118 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+.evidencePanel {
+  position: fixed;
+  z-index: 60;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(500px, 100%);
+  overflow: auto;
+  padding: 28px 30px;
+  border-left: 1px solid var(--line-strong);
+  background: rgba(9, 19, 32, 0.97);
+  backdrop-filter: blur(24px);
+  box-shadow: -30px 0 100px rgba(0, 0, 0, 0.45);
+}
+
+.panelHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #6f93ff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.panelHeading button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #0d1929;
+  color: #9db0c8;
+  cursor: pointer;
+}
+
+.evidencePanel h2 {
+  margin: 22px 0 14px;
+  color: #eef4fb;
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.evidencePanel > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 24px;
+  color: #78a5ff;
+  font-size: 11px;
+}
+
+.evidencePanel dl {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.evidencePanel dl > div {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.evidencePanel dt {
+  color: #6e819c;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.evidencePanel dd {
+  margin: 0;
+  color: #bac9da;
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.evidencePanel details {
+  margin-top: 22px;
+  color: #91a5be;
+  font-size: 10px;
+}
+
+.evidencePanel summary {
+  cursor: pointer;
+}
+
+.evidencePanel pre {
+  max-height: 320px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #08131f;
+  color: #8ea2bd;
+  font-size: 9px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.evidencePanel > p {
+  color: #71849e;
+  font-size: 9px;
+  line-height: 1.6;
+}
