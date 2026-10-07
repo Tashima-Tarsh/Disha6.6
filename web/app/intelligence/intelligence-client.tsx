@@ -272,7 +272,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
 
 function BundleFields({ kind, values, onChange }: { kind: string; values: Record<string, string>; onChange: (key: string, value: string) => void }) {
   const input = (key: string, placeholder: string) => <input value={values[key] ?? ""} onChange={(event) => onChange(key, event.target.value)} placeholder={placeholder} aria-label={placeholder} />;
-  if (kind === "domain") return input("domain", "example.org");
+  if (kind === "domain") return input("domain", "Enter domain");
   if (kind === "topic") return input("query", "Public-interest topic");
   if (kind === "humanitarian") return input("query", "Earthquake, flood, disaster or humanitarian topic");
   if (kind === "company") return <>{input("cik", "SEC CIK")}{input("query", "Company name / topic")}</>;

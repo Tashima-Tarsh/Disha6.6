@@ -47,7 +47,7 @@ describe("OSINT Runtime Integration & Truthful Status Invariants", () => {
     const metrics = await getOsintMetrics();
 
     expect(metrics.total).toBe(registry.length);
-    expect(metrics.healthy + metrics.unconfigured + metrics.degraded + metrics.authRequired + metrics.guiOnly + metrics.datasetOnly + metrics.libraryOnly).toBe(metrics.total);
+    expect(metrics.healthy + metrics.unconfigured + metrics.degraded + metrics.authRequired + metrics.catalogOnly + metrics.guiOnly + metrics.datasetOnly + metrics.libraryOnly).toBe(metrics.total);
     expect(metrics.forked + metrics.pendingFork).toBe(metrics.total);
     expect(metrics.upstreamVerified + metrics.upstreamUnverified + metrics.upstreamUnavailable).toBe(metrics.total);
     expect(Object.keys(metrics.byCategory).length).toBeGreaterThan(0);

@@ -11,6 +11,7 @@ import {
   Globe2,
   Landmark,
   MapPinned,
+  ImagePlus,
   Network,
   Phone,
   Search,
@@ -98,34 +99,53 @@ const SOURCE_POLICIES = ["Public Sources", "Authoritative", "Government", "All A
 const JURISDICTIONS = ["India", "Global"] as const;
 const TIME_RANGES = ["24 Hours", "7 Days", "30 Days", "Custom"] as const;
 
-function mapInvestigationMode(mode: string | null): InvestigationMode {
-  if (mode === "Deep Search") return "deep";
-  if (mode === "Evidence First") return "evidence_first";
-  if (mode === "Continuous Watch") return "continuous_watch";
-  return "standard";
-}
+const MANAGED_TOOL_IDS = new Set([
+  "phoneinfoga",
+  "sherlock",
+  "maigret",
+  "holehe",
+  "instaloader",
+  "telethon",
+  "telegram-public",
+  "theharvester",
+  "amass",
+  "owasp-amass",
+  "subfinder",
+  "spiderfoot",
+  "recon-ng",
+  "photon",
+  "opencti",
+  "intelowl",
+]);
 
-function mapSourcePolicy(policy: string | null): SourcePolicy {
-  if (policy === "Public Sources") return "public";
-  if (policy === "Authoritative") return "authoritative";
-  if (policy === "Government") return "government";
-  return "all_approved";
-}
+export function InvestigationClient({ email: _email, roles }: { email: string; roles: string[] }) {
+  function mapInvestigationMode(mode: string | null): InvestigationMode {
+    if (mode === "Deep Search") return "deep";
+    if (mode === "Evidence First") return "evidence_first";
+    if (mode === "Continuous Watch") return "continuous_watch";
+    return "standard";
+  }
 
-function mapJurisdiction(jur: string | null): Jurisdiction {
-  if (jur === "India") return "india";
-  return "global";
-}
+  function mapSourcePolicy(policy: string | null): SourcePolicy {
+    if (policy === "Public Sources") return "public";
+    if (policy === "Authoritative") return "authoritative";
+    if (policy === "Government") return "government";
+    return "all_approved";
+  }
 
-function mapTimeRange(range: string | null): TimeRange {
-  if (range === "24 Hours") return "24h";
-  if (range === "7 Days") return "7d";
-  if (range === "30 Days") return "30d";
-  if (range === "Custom") return "custom";
-  return "30d";
-}
+  function mapJurisdiction(jur: string | null): Jurisdiction {
+    if (jur === "India") return "india";
+    return "global";
+  }
 
-export function InvestigationClient({ email: _email }: { email: string }) {
+  function mapTimeRange(range: string | null): TimeRange {
+    if (range === "24 Hours") return "24h";
+    if (range === "7 Days") return "7d";
+    if (range === "30 Days") return "30d";
+    if (range === "Custom") return "custom";
+    return "30d";
+  }
+
   const [active, setActive] = useState<Investigation | null>(null);
   const [busy, setBusy] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -141,7 +161,12 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   const [tools, setTools] = useState<ToolRecord[]>([]);
   const [toolsError, setToolsError] = useState("");
   const [selectedTools, setSelectedTools] = useState<Set<string>>(new Set());
+  const [identityAuthorization, setIdentityAuthorization] = useState(false);
+  const [activeAuthorization, setActiveAuthorization] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const session = useRef<InvestigationSession | null>(null);
+  const uploadInput = useRef<HTMLInputElement | null>(null);
+  const canAuthorizeSensitive = roles.includes("admin") || roles.includes("operator");
 
   const selectedSearch = useMemo(
     () => SEARCH_MODES.find((item) => item.label === selectedSearchMode) ?? SEARCH_MODES[0],
@@ -181,7 +206,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
         return response.json() as Promise<{ tools?: ToolRecord[] }>;
       })
       .then((payload) => {
-        setTools(Array.isArray(payload.tools) ? payload.tools : []);
+        const entries = Array.isArray(payload.tools) ? payload.tools : [];
+        setTools(entries.filter((tool) => MANAGED_TOOL_IDS.has(tool.toolId)));
       })
       .catch((failure) => {
         if (!controller.signal.aborted) {
@@ -201,14 +227,14 @@ export function InvestigationClient({ email: _email }: { email: string }) {
       await session.current?.start({
         target,
         targetType: selectedSearch.targetType,
+        identityAuthorization,
+        activeAuthorization,
         searchUniverse: selectedSearch.universe,
         investigationMode: mapInvestigationMode(investigationMode),
         sourcePolicy: mapSourcePolicy(sourcePolicy),
         jurisdiction: mapJurisdiction(jurisdiction),
         timeRange: mapTimeRange(timeRange),
         selectedToolIds: Array.from(selectedTools),
-        identityAuthorization: false,
-        activeAuthorization: false,
       });
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "INVESTIGATION SERVICE FAILED");
@@ -217,17 +243,38 @@ export function InvestigationClient({ email: _email }: { email: string }) {
     }
   }, [
     active,
+    activeAuthorization,
     busy,
     closing,
+    identityAuthorization,
+    investigationMode,
+    jurisdiction,
     query,
     selectedSearch.targetType,
     selectedSearch.universe,
-    investigationMode,
-    sourcePolicy,
-    jurisdiction,
-    timeRange,
     selectedTools,
+    sourcePolicy,
+    timeRange,
   ]);
+
+  const startImage = useCallback(async (file: File) => {
+    if (busy || closing || active) return;
+    if (!["image/jpeg", "image/png"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setUploadError("Choose a JPG or PNG up to 5 MB.");
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    setUploadError("");
+    try {
+      await session.current?.start(file);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "IMAGE INVESTIGATION FAILED");
+    } finally {
+      setBusy(false);
+    }
+  }, [active, busy, closing]);
 
   const close = useCallback(async () => {
     setClosing(true);
@@ -235,6 +282,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
     try {
       await session.current?.close();
       setQuery("");
+      setUploadError("");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Cleanup could not be confirmed.");
     } finally {
@@ -255,11 +303,6 @@ export function InvestigationClient({ email: _email }: { email: string }) {
 
   const evidence = active?.evidence.find((item) => item.evidenceId === selectedEvidence);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    void start();
-  }
-
   function toggleTool(toolId: string) {
     setSelectedTools((current) => {
       const next = new Set(current);
@@ -267,6 +310,11 @@ export function InvestigationClient({ email: _email }: { email: string }) {
       else next.add(toolId);
       return next;
     });
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void start();
   }
 
   return (
@@ -295,15 +343,15 @@ export function InvestigationClient({ email: _email }: { email: string }) {
         </Link>
 
         <div className={styles.utilityCluster}>
-          <button type="button" aria-label="Notifications">
+          <button type="button" aria-label="Notifications" disabled title="Notification inbox is not enabled in the current product contract">
             <Bell size={16} />
           </button>
           <Link href="/system" aria-label="System">
             <ShieldCheck size={16} />
           </Link>
-          <button type="button" aria-label="Settings">
+          <Link href="/system" aria-label="Settings">
             <Settings size={16} />
-          </button>
+          </Link>
 
           <details className={styles.profileMenu}>
             <summary>
@@ -354,8 +402,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
             <div className={styles.divider} />
             <nav className={styles.workspaceNav} aria-label="Investigation workspace navigation">
               <Link href="/investigate">Investigate</Link>
-              <Link href="/workbench">Saved Cases</Link>
-              <Link href="/operations">Watches</Link>
+              <Link href="/workbench">Mission Workbench</Link>
+              <Link href="/intelligence">Continuous Intelligence</Link>
               <Link href="/vault">Evidence Vault</Link>
               <Link href="/contradictions">Contradictions</Link>
               <Link href="/corroboration">Corroboration</Link>
@@ -369,10 +417,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
               <span>Investigation Workspace</span>
               <div className={styles.configChips}>
                 <span>{selectedSearchMode}</span>
-                {investigationMode ? <span>{investigationMode}</span> : null}
-                {sourcePolicy ? <span>{sourcePolicy}</span> : null}
-                {jurisdiction ? <span>{jurisdiction}</span> : null}
-                {timeRange ? <span>{timeRange}</span> : null}
+                <span>Automatic governed routing</span>
               </div>
             </div>
 
@@ -388,6 +433,31 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 spellCheck={false}
               />
               <kbd>Ctrl + Enter</kbd>
+              <input
+                ref={uploadInput}
+                type="file"
+                accept="image/jpeg,image/png"
+                hidden
+                disabled={busy || Boolean(active)}
+                aria-label="Upload investigation image"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (file) void startImage(file);
+                }}
+              />
+              {!active ? (
+                <button
+                  type="button"
+                  className={styles.imageSearchButton}
+                  aria-label="Investigate an image"
+                  title="Investigate JPG or PNG up to 5 MB"
+                  disabled={busy}
+                  onClick={() => uploadInput.current?.click()}
+                >
+                  <ImagePlus size={17} />
+                </button>
+              ) : null}
 
               {active ? (
                 <button
@@ -446,10 +516,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No timeline events"
-                  text="Timeline events appear only when live evidence provides verified temporal records."
-                />
+                <EmptyState title="No timeline events" text="Timeline events appear only when live evidence provides verified temporal records." />
               )
             ) : activeTab === "Map" ? (
               active.markers && active.markers.length > 0 ? (
@@ -463,10 +530,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No investigation markers"
-                  text="Map markers appear only when live investigation results contain geospatial evidence."
-                />
+                <EmptyState title="No investigation markers" text="Map markers appear only when live investigation results contain geospatial evidence." />
               )
             ) : activeTab === "Contradictions" ? (
               active.contradictions && active.contradictions.length > 0 ? (
@@ -480,10 +544,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No contradiction findings"
-                  text="Contradictions appear only when independent sources produce conflicting claims."
-                />
+                <EmptyState title="No contradiction findings" text="Contradictions appear only when independent sources produce conflicting claims." />
               )
             ) : activeTab === "Corroboration" ? (
               active.corroborations && active.corroborations.length > 0 ? (
@@ -497,10 +558,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No corroboration findings"
-                  text="Corroboration appears only when multiple independent sources confirm the same finding."
-                />
+                <EmptyState title="No corroboration findings" text="Corroboration appears only when multiple independent sources confirm the same finding." />
               )
             ) : activeTab === "Raw" ? (
               <RawState active={active} />
@@ -509,6 +567,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
             )}
           </section>
 
+          {uploadError ? <div className={styles.errorBanner} role="alert">{uploadError}</div> : null}
           {error ? <div className={styles.errorBanner} role="alert">{error}</div> : null}
         </section>
 
@@ -519,23 +578,25 @@ export function InvestigationClient({ email: _email }: { email: string }) {
           </div>
 
           <ControlGroup title="Mode">
-            {INVESTIGATION_MODES.map(([label, description]) => (
+            {INVESTIGATION_MODES.map(([label, description], index) => (
               <button
                 key={label}
-                className={investigationMode === label ? styles.controlActive : styles.controlRow}
+                className={index === 0 ? styles.controlActive : styles.controlRow}
                 type="button"
-                onClick={() => setInvestigationMode((current) => (current === label ? null : label))}
+                disabled={index !== 0}
+                title={index === 0 ? "Current governed investigation mode" : "Not enabled by the current investigation contract"}
               >
                 <span>
                   <strong>{label}</strong>
-                  <small>{description}</small>
+                  <small>{index === 0 ? description : `${description} · Not enabled`}</small>
                 </span>
                 <i />
               </button>
             ))}
           </ControlGroup>
 
-          <ControlGroup title="Tool Selection">
+          <ControlGroup title="Runtime Tools">
+            <p className={styles.neutralState}>Approved tools are selected automatically from the target type and live policy state.</p>
             <div className={styles.toolList}>
               {tools.length ? (
                 tools.map((tool) => {
@@ -557,10 +618,39 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 })
               ) : (
                 <p className={styles.neutralState}>
-                  {toolsError || "Loading configured tool registry…"}
+                  {toolsError || "Loading managed runtime registry…"}
                 </p>
               )}
             </div>
+          </ControlGroup>
+
+          <ControlGroup title="Authorization">
+            <button
+              className={identityAuthorization ? styles.controlActive : styles.controlRow}
+              type="button"
+              disabled={!canAuthorizeSensitive || Boolean(active)}
+              aria-pressed={identityAuthorization}
+              onClick={() => setIdentityAuthorization((current) => !current)}
+            >
+              <span>
+                <strong>Authorized identity lookup</strong>
+                <small>{canAuthorizeSensitive ? "Explicitly authorize governed identity tools for this investigation" : "Operator or admin role required"}</small>
+              </span>
+              <i />
+            </button>
+            <button
+              className={activeAuthorization ? styles.controlActive : styles.controlRow}
+              type="button"
+              disabled={!canAuthorizeSensitive || Boolean(active)}
+              aria-pressed={activeAuthorization}
+              onClick={() => setActiveAuthorization((current) => !current)}
+            >
+              <span>
+                <strong>Authorized public-site crawl</strong>
+                <small>{canAuthorizeSensitive ? "Explicitly authorize policy-gated bounded active retrieval" : "Operator or admin role required"}</small>
+              </span>
+              <i />
+            </button>
           </ControlGroup>
 
           <ControlGroup title="Source Policy">
@@ -569,8 +659,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={sourcePolicy === item}
-                  onClick={() => setSourcePolicy((current) => (current === item ? null : item))}
+                  disabled
+                  title="Source-policy selection is not enabled by the current investigation contract"
                 >
                   {item}
                 </button>
@@ -584,8 +674,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={jurisdiction === item}
-                  onClick={() => setJurisdiction((current) => (current === item ? null : item))}
+                  disabled
+                  title="Jurisdiction filtering is not enabled by the current investigation contract"
                 >
                   {item}
                 </button>
@@ -599,8 +689,8 @@ export function InvestigationClient({ email: _email }: { email: string }) {
                 <button
                   key={item}
                   type="button"
-                  aria-pressed={timeRange === item}
-                  onClick={() => setTimeRange((current) => (current === item ? null : item))}
+                  disabled
+                  title="Time-range filtering is not enabled by the current investigation contract"
                 >
                   {item}
                 </button>
@@ -617,12 +707,21 @@ export function InvestigationClient({ email: _email }: { email: string }) {
             >
               {busy ? "Investigation running" : "Run Investigation"}
             </button>
-            <button type="button" className={styles.secondaryWide}>
+            <button
+              type="button"
+              className={styles.secondaryWide}
+              disabled
+              title="Configuration persistence is not enabled by the current investigation contract"
+            >
               Save Configuration
             </button>
           </div>
         </aside>
       </div>
+
+      {active?.targetType === "image" ? (
+        <div className={styles.temporaryNotice}>Image investigation · temporary upload · source/provider retention follows configured provider terms</div>
+      ) : null}
 
       {evidence ? (
         <InvestigationEvidencePanel
@@ -654,8 +753,8 @@ function ReadyState() {
       </div>
       <h1>Start an investigation</h1>
       <p>
-        Select a search type, configure approved sources, and run a query to build a governed
-        evidence workspace.
+        Select a search type and run a query. DISHA6.6 routes approved sources automatically
+        and builds the evidence workspace only from returned source records.
       </p>
 
       <div className={styles.capabilityRail}>
@@ -731,12 +830,7 @@ function OverviewState({
   }
 
   if (!active.evidence.length) {
-    return (
-      <EmptyState
-        title="No results"
-        text="The live investigation completed without source-backed evidence."
-      />
-    );
+    return <EmptyState title="No results" text="The live investigation completed without source-backed evidence." />;
   }
 
   return (
@@ -767,12 +861,7 @@ function EvidenceView({
   onSelect: (id: string) => void;
 }) {
   if (!active.evidence.length) {
-    return (
-      <EmptyState
-        title="No evidence loaded"
-        text="Evidence records will appear here after a live investigation is executed."
-      />
-    );
+    return <EmptyState title="No evidence loaded" text="Evidence records will appear here after a live investigation is executed." />;
   }
 
   return (
@@ -790,12 +879,7 @@ function EvidenceView({
 
 function SourceView({ active }: { active: Investigation }) {
   if (!active.runs.length) {
-    return (
-      <EmptyState
-        title="No sources loaded"
-        text="Source activity appears only after a live investigation starts."
-      />
-    );
+    return <EmptyState title="No sources loaded" text="Source activity appears only after a live investigation starts." />;
   }
 
   return (
@@ -804,7 +888,14 @@ function SourceView({ active }: { active: Investigation }) {
         <div key={run.adapterId}>
           <span>
             <strong>{run.sourceName}</strong>
-            <small>{humanStatus(run.status)}</small>
+            <small>
+              {humanStatus(run.status)}
+              {run.providerHealth ? ` · ${humanStatus(run.providerHealth)}` : ""}
+            </small>
+            {run.error ? <small className={styles.sourceFailure}>{run.error}</small> : null}
+            {run.warnings.map((warning) => (
+              <small key={warning} className={styles.sourceWarning}>{warning}</small>
+            ))}
           </span>
           <i data-status={run.status} />
         </div>
@@ -827,12 +918,7 @@ function GraphState({ active }: { active: Investigation }) {
     );
   }
 
-  return (
-    <EmptyState
-      title="Graph data available"
-      text="Evidence-backed relationships are present in the active investigation."
-    />
-  );
+  return <EmptyState title="Graph data available" text="Evidence-backed relationships are present in the active investigation." />;
 }
 
 function RawState({ active }: { active: Investigation }) {

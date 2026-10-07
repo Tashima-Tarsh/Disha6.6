@@ -6,144 +6,136 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, "../..");
 const REGISTRY_PATH = path.join(ROOT_DIR, "data/osint/upstream-registry.json");
-const REPORT_JSON_PATH = path.join(ROOT_DIR, "reports/osint-runtime-report.json");
-const REPORT_MD_PATH = path.join(ROOT_DIR, "reports/osint-runtime-report.md");
+const RUNTIME_STATUS_PATH = path.join(ROOT_DIR, ".disha/osint/runtime-status.json");
+const REPORT_DIR = path.join(ROOT_DIR, ".disha/osint/reports");
+const REPORT_JSON_PATH = path.join(REPORT_DIR, "osint-runtime-report.json");
+const REPORT_MD_PATH = path.join(REPORT_DIR, "osint-runtime-report.md");
+
+async function readRuntimeStatus() {
+  try {
+    return JSON.parse(await fs.readFile(RUNTIME_STATUS_PATH, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function increment(bucket, value) {
+  const key = String(value || "UNKNOWN");
+  bucket[key] = (bucket[key] || 0) + 1;
+}
 
 export async function generateReport() {
-  console.info("Generating comprehensive OSINT runtime report...");
+  console.info("Generating OSINT catalog and local-runtime report...");
+
   const raw = await fs.readFile(REGISTRY_PATH, "utf8");
   const registry = JSON.parse(raw);
+  const runtime = await readRuntimeStatus();
+  const runtimeByTool = new Map(
+    Array.isArray(runtime?.tools)
+      ? runtime.tools.map((tool) => [tool.toolId, tool])
+      : [],
+  );
 
-  const reportDate = new Date().toISOString();
-
-  // Metrics computation
-  const total = registry.length;
   const byRuntime = {};
   const byCategory = {};
-  const byStatus = {};
-  const byHealth = {};
-  const byForkStatus = {};
+  const byCatalogStatus = {};
+  const byUpstreamStatus = {};
+  const byRuntimeStatus = {};
 
   for (const tool of registry) {
-    const r = tool.runtimeType || "unspecified";
-    byRuntime[r] = (byRuntime[r] || 0) + 1;
+    increment(byRuntime, tool.runtimeType || tool.workerRuntime);
+    increment(byCategory, tool.category);
+    increment(byCatalogStatus, tool.status);
+    increment(byUpstreamStatus, tool.upstreamStatus);
 
-    const c = tool.category || "general";
-    byCategory[c] = (byCategory[c] || 0) + 1;
-
-    const s = tool.status || "UNKNOWN";
-    byStatus[s] = (byStatus[s] || 0) + 1;
-
-    const h = tool.healthStatus || "UNKNOWN";
-    byHealth[h] = (byHealth[h] || 0) + 1;
-
-    const f = tool.forkStatus || "FORK_PENDING";
-    byForkStatus[f] = (byForkStatus[f] || 0) + 1;
+    const runtimeTool = runtimeByTool.get(tool.toolId);
+    if (runtimeTool) increment(byRuntimeStatus, runtimeTool.status);
   }
 
+  const generatedAt = new Date().toISOString();
   const reportData = {
-    generatedAt: reportDate,
-    totalCataloged: total,
+    generatedAt,
+    totalCataloged: registry.length,
+    runtimeSnapshotAt: runtime?.updatedAt || null,
+    runtimeSnapshotScope: runtime?.scope || null,
     metrics: {
       byRuntime,
       byCategory,
-      byStatus,
-      byHealth,
-      byForkStatus,
+      byCatalogStatus,
+      byUpstreamStatus,
+      byRuntimeStatus,
     },
-    tools: registry.map((t) => ({
-      toolId: t.toolId,
-      name: t.name,
-      fullName: t.fullName,
-      upstreamUrl: t.upstreamUrl,
-      category: t.category,
-      runtimeType: t.runtimeType,
-      status: t.status,
-      healthStatus: t.healthStatus,
-      forkUrl: t.forkUrl,
-      forkStatus: t.forkStatus,
-      pinnedSha: t.pinnedSha,
-      license: t.license,
-      stars: t.stars,
-      lastVerified: t.lastVerified,
-      lastSmokeTested: t.lastSmokeTested,
-      smokeResult: t.smokeResult,
-    })),
+    truthModel: {
+      catalogIsNotRuntime: true,
+      upstreamVerificationIsNotRuntimeHealth: true,
+      runtimeSnapshotAppliesOnlyToEnvironmentWhereProbeRan: true,
+    },
+    tools: registry.map((tool) => {
+      const runtimeTool = runtimeByTool.get(tool.toolId);
+      return {
+        toolId: tool.toolId,
+        name: tool.name,
+        fullName: tool.fullName,
+        upstreamUrl: tool.upstreamUrl,
+        category: tool.category,
+        runtimeType: tool.runtimeType,
+        upstreamStatus: tool.upstreamStatus,
+        catalogStatus: tool.status,
+        runtimeStatus: runtimeTool?.status || null,
+        runtimeHealthStatus: runtimeTool?.healthStatus || null,
+        runtimeSmokeResult: runtimeTool?.smokeResult || null,
+        license: tool.license,
+        pinnedSha: tool.pinnedSha,
+        upstreamSha: tool.upstreamSha,
+      };
+    }),
   };
 
-  // Write JSON report
-  await fs.mkdir(path.dirname(REPORT_JSON_PATH), { recursive: true });
+  await fs.mkdir(REPORT_DIR, { recursive: true });
   await fs.writeFile(REPORT_JSON_PATH, JSON.stringify(reportData, null, 2), "utf8");
 
-  // Markdown Report Generation
-  const mdLines = [
-    "# DISHA 6.6 — Truthful OSINT Runtime & Upstream Integration Report",
+  const markdown = [
+    "# DISHA6.6 OSINT Catalog / Runtime Report",
     "",
-    `**Generated:** ${reportDate}<br />`,
-    `**Total Upstream Repositories Cataloged:** ${total}<br />`,
-    `**Truthful Data Policy:** ZERO MOCK / REAL REPOSITORIES / VERIFIED ARCHITECTURE<br />`,
+    `Generated: ${generatedAt}`,
     "",
-    "---",
+    "> Catalog metadata, upstream verification and runtime readiness are separate states.",
     "",
-    "## 1. Executive Summary & Status Metrics",
+    `Catalog entries: **${registry.length}**`,
+    `Runtime snapshot: **${runtime?.updatedAt || "not available"}**`,
     "",
-    "| Metric Category | Detail / Count |",
-    "| :--- | :--- |",
-    `| **Total Cataloged Upstreams** | **${total}** |`,
-    `| **Fork Status** | Verified Forks: **${byForkStatus["FORKED"] || 0}**, Pending: **${byForkStatus["FORK_PENDING"] || 0}** |`,
-    `| **Health Classification** | Healthy: **${byHealth["HEALTHY"] || 0}**, Unconfigured: **${byHealth["UNCONFIGURED"] || 0}**, Reference Only: **${(byHealth["REFERENCE_ONLY"] || 0)}**, Degraded: **${byHealth["DEGRADED"] || 0}**, Unavailable: **${byHealth["UNAVAILABLE"] || 0}** |`,
-    `| **Runtime Breakdown** | Python: **${byRuntime["python"] || 0}**, Go: **${byRuntime["go"] || 0}**, Node: **${byRuntime["node"] || 0}**, Rust: **${byRuntime["rust"] || 0}**, Docker: **${byRuntime["docker"] || 0}**, Reference/Other: **${(byRuntime["dataset-only"] || 0) + (byRuntime["gui-only"] || 0) + (byRuntime["library-only"] || 0) + (byRuntime["binary"] || 0)}** |`,
+    "## Catalog status",
     "",
-    "### Runtime Distribution",
-    "",
-    "```",
-    Object.entries(byRuntime)
+    ...Object.entries(byCatalogStatus)
       .sort((a, b) => b[1] - a[1])
-      .map(([k, v]) => `${k.padEnd(20)} : ${v}`)
-      .join("\n"),
-    "```",
+      .map(([key, value]) => `- ${key}: ${value}`),
     "",
-    "### Category Distribution",
+    "## Local runtime status",
     "",
-    "```",
-    Object.entries(byCategory)
+    ...(runtime
+      ? Object.entries(byRuntimeStatus)
+          .sort((a, b) => b[1] - a[1])
+          .map(([key, value]) => `- ${key}: ${value}`)
+      : ["No local runtime smoke snapshot is available. Run `npm run osint:health`."]),
+    "",
+    "## Runtime distribution",
+    "",
+    ...Object.entries(byRuntime)
       .sort((a, b) => b[1] - a[1])
-      .map(([k, v]) => `${k.padEnd(20)} : ${v}`)
-      .join("\n"),
-    "```",
+      .map(([key, value]) => `- ${key}: ${value}`),
     "",
-    "---",
+    "## Category distribution",
     "",
-    "## 2. Mandatory Core OSINT Tools Status",
+    ...Object.entries(byCategory)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, value]) => `- ${key}: ${value}`),
     "",
-    "| Tool | Category | Runtime | Upstream Repository | Fork Status | Execution Class | Status |",
-    "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
-  ];
+    `Machine-readable report: ${REPORT_JSON_PATH}`,
+    "",
+  ].join("\n");
 
-  const mandatoryTools = registry.filter((t) => t.isMandatoryChat);
-  for (const m of mandatoryTools) {
-    const forkDisplay = m.forkUrl ? `[Forked](${m.forkUrl})` : "Pending";
-    mdLines.push(`| **${m.name}** | ${m.category} | \`${m.runtimeType}\` | [${m.fullName}](${m.upstreamUrl}) | ${forkDisplay} | \`${m.executionClass}\` | \`${m.status}\` |`);
-  }
-
-  mdLines.push("");
-  mdLines.push("---");
-  mdLines.push("");
-  mdLines.push("## 3. Complete Upstream Repository Inventory (Top 100 Sample)");
-  mdLines.push("");
-  mdLines.push("| Tool ID | Name | Category | Runtime | Upstream URL | License | Status |");
-  mdLines.push("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
-
-  for (const tool of registry.slice(0, 100)) {
-    mdLines.push(`| \`${tool.toolId}\` | ${tool.name} | ${tool.category} | \`${tool.runtimeType}\` | [GitHub](${tool.upstreamUrl}) | ${tool.license} | \`${tool.status}\` |`);
-  }
-
-  mdLines.push("");
-  mdLines.push("*(Full machine-readable manifest containing all " + total + " repositories is available in `reports/osint-runtime-report.json`)*");
-  mdLines.push("");
-
-  await fs.writeFile(REPORT_MD_PATH, mdLines.join("\n"), "utf8");
-  console.info(`Report generated at: ${REPORT_JSON_PATH} and ${REPORT_MD_PATH}`);
+  await fs.writeFile(REPORT_MD_PATH, markdown, "utf8");
+  console.info(`Report generated at ${REPORT_DIR}`);
   return { jsonPath: REPORT_JSON_PATH, mdPath: REPORT_MD_PATH };
 }
 

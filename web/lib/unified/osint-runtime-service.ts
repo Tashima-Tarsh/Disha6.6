@@ -169,6 +169,8 @@ export type OsintToolRecord = {
   runtimeType: string;
   status: string;
   healthStatus: string;
+  catalogStatus?: string;
+  catalogHealthStatus?: string;
   defaultBranch: string;
   pinnedSha: string | null;
   upstreamSha: string | null;
@@ -202,6 +204,7 @@ export type OsintRuntimeMetrics = {
   degraded: number;
   unconfigured: number;
   authRequired: number;
+  catalogOnly: number;
   guiOnly: number;
   datasetOnly: number;
   libraryOnly: number;
@@ -298,8 +301,39 @@ export async function saveOsintRegistry(registry: OsintToolRecord[]): Promise<vo
 }
 
 export async function loadOsintRuntimeRegistry(): Promise<OsintToolRecord[]> {
-  const registry = await loadOsintRegistry();
+  const registry = (await loadOsintRegistry()).map((tool) => ({
+    ...tool,
+    catalogStatus: tool.status,
+    catalogHealthStatus: tool.healthStatus,
+    smokeResult: tool.smokeResult ? { ...tool.smokeResult } : null,
+  }));
   const checkedAt = new Date().toISOString();
+
+  // The upstream registry is catalog/provenance metadata, not live telemetry.
+  // Only runtimes owned by DISHA (ASTRA workers and governed service connectors)
+  // are allowed to present deployment health from this API. Everything else is
+  // explicitly catalog/reference-only until an owned executor is wired.
+  const governedServices = new Set(["opencti", "intelowl"]);
+  for (const tool of registry) {
+    if (ASTRA_TOOL_WORKER_CLASS[tool.toolId] || governedServices.has(tool.toolId)) continue;
+
+    tool.lastSmokeTested = null;
+    tool.smokeResult = null;
+
+    if (tool.runtimeType === "dataset-only") {
+      tool.status = "DATASET_ONLY";
+      tool.healthStatus = "REFERENCE_ONLY";
+    } else if (tool.runtimeType === "library-only") {
+      tool.status = "LIBRARY_ONLY";
+      tool.healthStatus = "REFERENCE_ONLY";
+    } else if (tool.runtimeType === "gui-only") {
+      tool.status = "GUI_ONLY";
+      tool.healthStatus = "REFERENCE_ONLY";
+    } else {
+      tool.status = "CATALOGED";
+      tool.healthStatus = "UNCONFIGURED";
+    }
+  }
   const workerClasses = [...new Set(
     registry
       .filter((tool) => ASTRA_TOOL_WORKER_CLASS[tool.toolId] && astraToolEnabled(tool.toolId) && !astraRuntimeReadinessBlock(tool.toolId))
@@ -432,6 +466,7 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     degraded: 0,
     unconfigured: 0,
     authRequired: 0,
+    catalogOnly: 0,
     guiOnly: 0,
     datasetOnly: 0,
     libraryOnly: 0,
@@ -455,7 +490,9 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
   };
 
   for (const tool of registry) {
-    if (tool.status === "EXECUTABLE_VERIFIED" || tool.status === "HEALTHY") {
+    if (tool.status === "CATALOGED") {
+      metrics.catalogOnly++;
+    } else if (tool.status === "EXECUTABLE_VERIFIED" || tool.status === "HEALTHY") {
       metrics.healthy++;
       metrics.executableVerified++;
     } else if (tool.status === "SERVICE_VERIFIED") {
@@ -514,9 +551,12 @@ export async function getOsintToolById(toolId: string): Promise<OsintToolRecord 
 
 export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecord["smokeResult"]> {
   const registry = await loadOsintRegistry();
-  const entry = registry.find(
+  const sourceEntry = registry.find(
     (t) => t.toolId.toLowerCase() === toolId.toLowerCase() || t.repo.toLowerCase() === toolId.toLowerCase(),
   );
+  const entry = sourceEntry
+    ? { ...sourceEntry, smokeResult: sourceEntry.smokeResult ? { ...sourceEntry.smokeResult } : null }
+    : undefined;
 
   if (!entry) {
     throw new Error(`Tool not found: ${toolId}`);
@@ -527,14 +567,12 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
   const astraResult = await smokeAstraRuntime(entry);
   if (astraResult) {
     entry.smokeResult = astraResult;
-    await saveOsintRegistry(registry);
     return entry.smokeResult;
   }
 
   const serviceResult = await smokeServiceRuntime(entry);
   if (serviceResult) {
     entry.smokeResult = serviceResult;
-    await saveOsintRegistry(registry);
     return entry.smokeResult;
   }
 
@@ -543,7 +581,6 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
     entry.status = "GUI_ONLY";
     entry.healthStatus = "REFERENCE_ONLY";
     entry.lastSmokeTested = new Date().toISOString();
-    await saveOsintRegistry(registry);
     return entry.smokeResult;
   }
 
@@ -552,7 +589,6 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
     entry.status = "DATASET_ONLY";
     entry.healthStatus = "REFERENCE_ONLY";
     entry.lastSmokeTested = new Date().toISOString();
-    await saveOsintRegistry(registry);
     return entry.smokeResult;
   }
 
@@ -561,7 +597,6 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
     entry.status = "LIBRARY_ONLY";
     entry.healthStatus = "REFERENCE_ONLY";
     entry.lastSmokeTested = new Date().toISOString();
-    await saveOsintRegistry(registry);
     return entry.smokeResult;
   }
 
@@ -570,7 +605,6 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
     entry.status = "AUTH_REQUIRED";
     entry.healthStatus = "UNCONFIGURED";
     entry.lastSmokeTested = new Date().toISOString();
-    await saveOsintRegistry(registry);
     return entry.smokeResult;
   }
 
@@ -610,6 +644,5 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
     entry.lastSmokeTested = new Date().toISOString();
   }
 
-  await saveOsintRegistry(registry);
   return entry.smokeResult;
 }
