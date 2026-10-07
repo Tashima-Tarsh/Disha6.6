@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
- codex/osint-service-runtime-hardening
-
 import {
   createIntelOwlServiceAdapter,
   createOpenCtiServiceAdapter,
@@ -10,8 +8,6 @@ import {
 } from "../lib/unified/osint-service-connectors";
 import { createDefaultOsintBus } from "../lib/unified/osint-default-bus";
 
-import { getOsintServiceConnectorSummary, listOsintServiceConnectors, probeOsintServiceConnector } from "../lib/unified/osint-service-connectors";
- main
 
 describe("OSINT service connectors", () => {
   it("reports service-backed and ASTRA-backed runtime posture", () => {
@@ -52,7 +48,6 @@ describe("OSINT service connectors", () => {
     }
   });
 
-codex/osint-service-runtime-hardening
   it("allows OpenCTI and IntelOwl probes only when explicitly configured", async () => {
     const previousOpenCtiUrl = process.env.OPENCTI_BASE_URL;
     const previousOpenCtiToken = process.env.OPENCTI_TOKEN;
@@ -60,30 +55,17 @@ codex/osint-service-runtime-hardening
     const previousIntelOwlKey = process.env.INTELOWL_API_KEY;
     const previousIntelOwlAllowlist = process.env.INTELOWL_ANALYZERS_ALLOWLIST;
 
-  it("allows OpenCTI and IntelOwl probes when configured", async () => {
-    const previous = {
-      openCtiUrl: process.env.OPENCTI_BASE_URL,
-      openCtiToken: process.env.OPENCTI_TOKEN,
-      intelOwlUrl: process.env.INTELOWL_BASE_URL,
-      intelOwlKey: process.env.INTELOWL_API_KEY,
-      intelOwlAnalyzers: process.env.INTELOWL_ANALYZERS,
-    };
- main
     process.env.OPENCTI_BASE_URL = "https://opencti.example";
     process.env.OPENCTI_TOKEN = "token";
     process.env.INTELOWL_BASE_URL = "https://intelowl.example";
     process.env.INTELOWL_API_KEY = "key";
-codex/osint-service-runtime-hardening
     process.env.INTELOWL_ANALYZERS_ALLOWLIST = "PassiveDns";
 
-    process.env.INTELOWL_ANALYZERS = "Classic_DNS";
- main
     const fetcher = async () => new Response(JSON.stringify({ ok: true }), { status: 200 });
     try {
       await expect(probeOsintServiceConnector("opencti", fetcher)).resolves.toMatchObject({ status: "ok", httpStatus: 200 });
       await expect(probeOsintServiceConnector("intelowl", fetcher)).resolves.toMatchObject({ status: "ok", httpStatus: 200 });
     } finally {
-codex/osint-service-runtime-hardening
       if (previousOpenCtiUrl === undefined) delete process.env.OPENCTI_BASE_URL;
       else process.env.OPENCTI_BASE_URL = previousOpenCtiUrl;
       if (previousOpenCtiToken === undefined) delete process.env.OPENCTI_TOKEN;
@@ -215,18 +197,7 @@ codex/osint-service-runtime-hardening
     expect(ids).toContain("service-intelowl");
   });
 
-  it("summarizes live-configurable versus policy-blocked tools", () => {
-
-      if (previous.openCtiUrl === undefined) delete process.env.OPENCTI_BASE_URL; else process.env.OPENCTI_BASE_URL = previous.openCtiUrl;
-      if (previous.openCtiToken === undefined) delete process.env.OPENCTI_TOKEN; else process.env.OPENCTI_TOKEN = previous.openCtiToken;
-      if (previous.intelOwlUrl === undefined) delete process.env.INTELOWL_BASE_URL; else process.env.INTELOWL_BASE_URL = previous.intelOwlUrl;
-      if (previous.intelOwlKey === undefined) delete process.env.INTELOWL_API_KEY; else process.env.INTELOWL_API_KEY = previous.intelOwlKey;
-      if (previous.intelOwlAnalyzers === undefined) delete process.env.INTELOWL_ANALYZERS; else process.env.INTELOWL_ANALYZERS = previous.intelOwlAnalyzers;
-    }
-  });
-
   it("summarizes live services and ASTRA workers", () => {
- main
     const summary = getOsintServiceConnectorSummary();
     expect(summary.total).toBe(5);
     expect(summary.astraWorkers).toBe(3);

@@ -55,11 +55,7 @@ export const osintToolCatalog: OsintToolCatalogEntry[] = [
     capabilities: ["threat-intelligence aggregation", "IOC enrichment", "analyzers/connectors"],
     risk: "mixed_recon",
     mode: "builtin",
-codex/osint-service-runtime-hardening
     reason: "Integrated through a configured IntelOwl service adapter that accepts observables only and restricts execution to the server-side analyzer allowlist.",
-
-    reason: "Executable through the configured IntelOwl service adapter with an explicit analyzer allowlist; DISHA does not run every installed analyzer.",
- main
   },
   {
     id: "opensanctions",
@@ -79,11 +75,7 @@ codex/osint-service-runtime-hardening
     capabilities: ["STIX2 knowledge graph", "threat-intelligence management", "connectors", "GraphQL API"],
     risk: "mixed_recon",
     mode: "builtin",
-codex/osint-service-runtime-hardening
     reason: "Integrated through a configured read-only OpenCTI GraphQL adapter for bounded STIX core-object search; mutations and connector execution remain outside the adapter.",
-
-    reason: "Executable through the configured OpenCTI GraphQL service adapter; tenant connectors and data-feed permissions remain controlled by the OpenCTI deployment.",
- main
   },
   {
     id: "recon-ng",

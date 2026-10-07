@@ -1,12 +1,9 @@
- codex/osint-service-runtime-hardening
 import { safePublicFetch } from "../server/safe-public-fetch";
 import {
   buildAdapterEvidence,
   type GovernedOsintAdapter,
 } from "./osint-adapter-bus";
 
-
-main
 export type OsintServiceConnectorId = "opencti" | "intelowl" | "spiderfoot" | "sherlock" | "maigret";
 export type OsintServiceConnectorFamily = "cti_platform" | "osint_engine" | "identity_enumeration";
 export type OsintServiceConnectorState = "configured_live" | "needs_configuration" | "astra_worker" | "blocked_by_policy";
@@ -69,14 +66,9 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
     license: "Apache-2.0 Community Edition; Enterprise components separately licensed",
     executionState: "configured_live",
     env: ["OPENCTI_BASE_URL", "OPENCTI_TOKEN"],
-codex/osint-service-runtime-hardening
     liveCapabilities: ["configured CTI graph probe", "bounded STIX core-object search", "source-linked CTI enrichment"],
     blockedCapabilities: ["unreviewed connector execution", "bulk export of private CTI tenants", "secret/token exposure", "GraphQL mutations"],
     policy: "Live only when OPENCTI_BASE_URL and OPENCTI_TOKEN are configured. DISHA exposes a bounded read-only STIX graph search and never executes OpenCTI mutations through this adapter.",
-    liveCapabilities: ["CTI graph global search", "indicator/entity lookup", "source-linked CTI enrichment"],
-    blockedCapabilities: ["cross-tenant access", "secret/token exposure", "unreviewed connector execution"],
-    policy: "DISHA queries the configured OpenCTI GraphQL API using the operator-provided service token.",
- main
   },
   {
     id: "intelowl",
@@ -85,17 +77,10 @@ codex/osint-service-runtime-hardening
     upstream: "https://github.com/intelowlproject/IntelOwl",
     license: "AGPL-3.0",
     executionState: "configured_live",
- codex/osint-service-runtime-hardening
     env: ["INTELOWL_BASE_URL", "INTELOWL_API_KEY", "INTELOWL_ANALYZERS_ALLOWLIST"],
     liveCapabilities: ["configured enrichment-service probe", "allowlisted observable analysis", "bounded job report normalization"],
     blockedCapabilities: ["malware detonation by default", "unreviewed analyzer packs", "connector/playbook execution", "submission of private files without approval"],
     policy: "Live only when IntelOwl endpoint credentials and an explicit analyzer allowlist are configured. DISHA submits observables only to allowlisted analyzers and does not expose arbitrary connectors, playbooks, runtime configuration, or file submission.",
-
-    env: ["INTELOWL_BASE_URL", "INTELOWL_API_KEY", "INTELOWL_ANALYZERS"],
-    liveCapabilities: ["allowlisted observable analysis", "IOC enrichment", "analyzer result normalization"],
-    blockedCapabilities: ["run-all analyzers", "malware detonation by default", "private file submission"],
-    policy: "DISHA submits only observables to an explicit INTELOWL_ANALYZERS allowlist and never sends files through this adapter.",
-main
   },
   {
     id: "spiderfoot",
@@ -115,19 +100,11 @@ main
     family: "identity_enumeration",
     upstream: "https://github.com/sherlock-project/sherlock",
     license: "MIT",
-codex/osint-service-runtime-hardening
-    executionState: "blocked_by_policy",
-    env: ["DISHA_IDENTITY_ENUMERATION_APPROVED"],
-    liveCapabilities: [],
-    blockedCapabilities: ["cross-site username enumeration", "profile correlation", "personal account discovery"],
-    policy: "Identity enumeration is not executable in the default DISHA service-connector runtime. ASTRA requires a separately authorized investigation.",
-
     executionState: "astra_worker",
     env: ["DATABASE_URL", "DISHA_ASTRA6_SHERLOCK_ENABLED", "DISHA_IDENTITY_ENUMERATION_APPROVED"],
     liveCapabilities: ["authorized public username-presence discovery"],
     blockedCapabilities: ["private-account access", "credential attacks", "non-authorized identity enumeration"],
     policy: "Sherlock executes through ASTRA only when deployment approval and per-investigation operator/admin authorization are both present.",
-main
   },
   {
     id: "maigret",
@@ -135,19 +112,11 @@ main
     family: "identity_enumeration",
     upstream: "https://github.com/soxoj/maigret",
     license: "MIT",
- codex/osint-service-runtime-hardening
-    executionState: "blocked_by_policy",
-    env: ["DISHA_IDENTITY_ENUMERATION_APPROVED"],
-    liveCapabilities: [],
-    blockedCapabilities: ["cross-site username enumeration", "profile correlation", "personal account discovery"],
-    policy: "Identity enumeration is not executable in the default DISHA service-connector runtime. ASTRA requires a separately authorized investigation.",
-
     executionState: "astra_worker",
     env: ["DATABASE_URL", "DISHA_ASTRA6_MAIGRET_ENABLED", "DISHA_IDENTITY_ENUMERATION_APPROVED"],
     liveCapabilities: ["authorized public username/profile discovery"],
     blockedCapabilities: ["private-account access", "credential attacks", "non-authorized identity enumeration"],
     policy: "Maigret executes through ASTRA only when deployment approval and per-investigation operator/admin authorization are both present.",
- main
   },
 ];
 
@@ -160,10 +129,7 @@ function envConfigured(name: string): boolean {
 
 export function listOsintServiceConnectors(): OsintServiceConnectorPosture[] {
   return connectorDefinitions.map((definition) => {
-codex/osint-service-runtime-hardening
-    const missingEnv = definition.env.filter((name) => !process.env[name]?.trim());
     const missingEnv = definition.env.filter((name) => !envConfigured(name));
- main
     const configured = missingEnv.length === 0;
     return {
       ...definition,
@@ -186,10 +152,7 @@ export function getOsintServiceConnectorSummary() {
     needsConfiguration: connectors.filter((connector) => connector.executionState === "configured_live" && !connector.configured).length,
     astraWorkers: connectors.filter((connector) => connector.executionState === "astra_worker").length,
     blockedByPolicy: connectors.filter((connector) => connector.executionState === "blocked_by_policy").length,
-codex/osint-service-runtime-hardening
-    rule: "OpenCTI and IntelOwl are service-backed governed adapters when configured. OpenCTI is read-only; IntelOwl execution is limited to an explicit passive analyzer allowlist. Identity-oriented service connectors remain blocked outside ASTRA authorization.",
     rule: "OpenCTI and IntelOwl execute through configured service APIs. SpiderFoot, Sherlock and Maigret execute through isolated ASTRA workers with their respective policy gates.",
- main
   };
 }
 
@@ -198,20 +161,10 @@ export async function probeOsintServiceConnector(
   fetcher: typeof fetch = fetch,
 ): Promise<OsintServiceProbeResult> {
   const posture = listOsintServiceConnectors().find((connector) => connector.id === connectorId);
- codex/osint-service-runtime-hardening
-  if (!posture) throw new Error("unknown_osint_service_connector:" + connectorId);
-  if (posture.executionState === "blocked_by_policy") {
-    return { connectorId, status: "blocked", detail: posture.policy };
-  }
-  if (!posture.configured) {
-    return { connectorId, status: "skipped", detail: "Missing configuration: " + posture.missingEnv.join(", ") };
-  }
-
   if (!posture) throw new Error(`unknown_osint_service_connector:${connectorId}`);
   if (posture.executionState === "blocked_by_policy") return { connectorId, status: "blocked", detail: posture.policy };
   if (!posture.configured) return { connectorId, status: "skipped", detail: `Missing configuration: ${posture.missingEnv.join(", ")}` };
   if (posture.executionState === "astra_worker") return { connectorId, status: "ok", detail: `${posture.name} is configured for the ASTRA worker queue.` };
-main
   if (connectorId === "opencti") return probeOpenCti(fetcher);
   if (connectorId === "intelowl") return probeIntelOwl(fetcher);
   return { connectorId, status: "skipped", detail: "No direct service probe is defined." };
@@ -221,7 +174,6 @@ export async function probeConfiguredOsintServices(fetcher: typeof fetch = fetch
   return Promise.all(connectorDefinitions.map((definition) => probeOsintServiceConnector(definition.id, fetcher)));
 }
 
- codex/osint-service-runtime-hardening
 export function createOpenCtiServiceAdapter(
   fetcher: typeof safePublicFetch = safePublicFetch,
 ): GovernedOsintAdapter<OpenCtiServiceInput, OpenCtiServiceOutput> {
@@ -408,7 +360,7 @@ export function createIntelOwlServiceAdapter(
   };
 }
 
-async function probeOpenCti(fetcher: typeof safePublicFetch): Promise<OsintServiceProbeResult> {
+async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
   const response = await fetcher(serviceUrl("OPENCTI_BASE_URL", "/graphql"), {
     method: "POST",
     headers: {
@@ -416,17 +368,8 @@ async function probeOpenCti(fetcher: typeof safePublicFetch): Promise<OsintServi
       authorization: "Bearer " + requireEnv("OPENCTI_TOKEN"),
     },
     body: JSON.stringify({ query: "query DishaOpenCtiHealth { about { version } }" }),
-    redirect: "error",
-async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
-  const baseUrl = requireEnv("OPENCTI_BASE_URL").replace(/\/+$/, "");
-  const token = requireEnv("OPENCTI_TOKEN");
-  const response = await fetcher(`${baseUrl}/graphql`, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
-    body: JSON.stringify({ query: "query DishaOpenCtiHealth { about { version } }" }),
     signal: AbortSignal.timeout(5_000),
     cache: "no-store",
- main
   });
   return {
     connectorId: "opencti",
@@ -436,34 +379,21 @@ async function probeOpenCti(fetcher: typeof fetch): Promise<OsintServiceProbeRes
   };
 }
 
-codex/osint-service-runtime-hardening
-async function probeIntelOwl(fetcher: typeof safePublicFetch): Promise<OsintServiceProbeResult> {
+async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
   const response = await fetcher(serviceUrl("INTELOWL_BASE_URL", "/api/healthcheck"), {
     method: "GET",
     headers: {
       authorization: "Token " + requireEnv("INTELOWL_API_KEY"),
       accept: "application/json",
     },
-    redirect: "error",
-async function probeIntelOwl(fetcher: typeof fetch): Promise<OsintServiceProbeResult> {
-  const baseUrl = requireEnv("INTELOWL_BASE_URL").replace(/\/+$/, "");
-  const apiKey = requireEnv("INTELOWL_API_KEY");
-  const response = await fetcher(`${baseUrl}/api/jobs?limit=1`, {
-    method: "GET",
-    headers: { authorization: `Token ${apiKey}`, accept: "application/json" },
     signal: AbortSignal.timeout(5_000),
     cache: "no-store",
- main
   });
   return {
     connectorId: "intelowl",
     status: response.ok ? "ok" : "failed",
     httpStatus: response.status,
-codex/osint-service-runtime-hardening
     detail: response.ok ? "IntelOwl health endpoint responded." : "IntelOwl probe returned HTTP " + response.status + ".",
-
-    detail: response.ok ? "IntelOwl REST API responded." : `IntelOwl probe returned HTTP ${response.status}.`,
-main
   };
 }
 

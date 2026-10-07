@@ -112,10 +112,7 @@ Active-recon and identity-enumeration capabilities remain gated. Source availabi
 
 ## Next production promotions
 
-codex/osint-service-runtime-hardening
 OpenCTI and IntelOwl are now promoted as configured service-backed adapters without bypassing the governed bus: OpenCTI exposes bounded read-only STIX core-object search, while IntelOwl accepts observables only and runs the server-side `INTELOWL_ANALYZERS_ALLOWLIST` with bounded job polling/report normalization. Further promotions should keep the same contract for additional official/public corporate, sanctions, media/geolocation, and approved transport/movement sources.
-The next useful promotions are additional official/public corporate and sanctions sources, media/geolocation providers, and approved transport/movement data connectors. OpenCTI and IntelOwl now have configured target-search/enrichment adapters and are no longer promotion candidates.
-main
 
 SpiderFoot, Maigret, Sherlock, Amass and similar projects must not be exposed as arbitrary command execution. A production connector should select a reviewed passive profile, enforce target/purpose policy, bound runtime and result volume, and convert every accepted observation into DISHA evidence/provenance records.
 

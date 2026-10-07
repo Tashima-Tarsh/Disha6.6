@@ -100,16 +100,10 @@ describe("universal OSINT search planner", () => {
     });
   });
 
-codex/osint-service-runtime-hardening
   it("keeps catalog-only indexes separate from production-integrated CTI services", () => {
     const catalog = listOsintToolCatalog();
     expect(catalog.find((entry) => entry.id === "opensanctions")?.mode).toBe("catalog_only");
     expect(catalog.find((entry) => entry.id === "opencti")?.mode).toBe("builtin");
     expect(catalog.find((entry) => entry.id === "intelowl")?.mode).toBe("builtin");
-  it("keeps OpenSanctions catalog-only while marking the wired OpenCTI service adapter built in", () => {
-    const catalog = listOsintToolCatalog();
-    expect(catalog.find((entry) => entry.id === "opensanctions")?.mode).toBe("catalog_only");
-    expect(catalog.find((entry) => entry.id === "opencti")?.mode).toBe("builtin");
- main
   });
 });
