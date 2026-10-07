@@ -9,7 +9,14 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   return withContext(req, "agent:read", async (ctx) => {
-    const query = sanitizeUniversalQuery(req.nextUrl.searchParams.get("q") ?? "India government");
+    const rawQuery = req.nextUrl.searchParams.get("q");
+    if (!rawQuery?.trim()) {
+      return NextResponse.json(
+        { error: "Query is required." },
+        { status: 400, headers: { "X-Request-ID": ctx.requestId, "Cache-Control": "no-store, max-age=0" } },
+      );
+    }
+    const query = sanitizeUniversalQuery(rawQuery);
     const bus = createDefaultOsintBus({
       policyCheck: (metadata) => {
         const executionClass = metadata.executionClass ?? "passive_public";
