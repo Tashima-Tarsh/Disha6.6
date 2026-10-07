@@ -72,4 +72,72 @@ describe("Universal Target Classifier", () => {
     expect(user.primaryType).toBe("username");
     expect(user.ambiguityWarning).toBeDefined();
   });
+
+  describe("Bug 4 Regression: Natural-language tokens must not be classified as high-confidence usernames", () => {
+    it("does not classify 'Modi' as a username", () => {
+      const res = classifyUniversalTarget("Modi");
+      expect(res.primaryType).not.toBe("username");
+      expect(res.primaryType).toBe("topic");
+      expect(res.confidence).toBeLessThan(0.7);
+    });
+
+    it("does not classify 'Delhi' as a username", () => {
+      const res = classifyUniversalTarget("Delhi");
+      expect(res.primaryType).not.toBe("username");
+      expect(res.primaryType).toBe("location");
+    });
+
+    it("does not classify 'OpenAI' as a username", () => {
+      const res = classifyUniversalTarget("OpenAI");
+      expect(res.primaryType).not.toBe("username");
+      expect(res.primaryType).toBe("company");
+    });
+
+    it("does not classify 'Microsoft' as a username", () => {
+      const res = classifyUniversalTarget("Microsoft");
+      expect(res.primaryType).not.toBe("username");
+      expect(res.primaryType).toBe("company");
+    });
+
+    it("classifies 'Nitish Kumar' as person_name rather than username", () => {
+      const res = classifyUniversalTarget("Nitish Kumar");
+      expect(res.primaryType).toBe("person_name");
+      expect(res.primaryType).not.toBe("username");
+    });
+
+    it("classifies '@example_user' as username with high confidence", () => {
+      const res = classifyUniversalTarget("@example_user");
+      expect(res.primaryType).toBe("username");
+      expect(res.confidence).toBeGreaterThanOrEqual(0.9);
+      expect(res.normalizedValue).toBe("example_user");
+    });
+
+    it("classifies 'example_user' without '@' as ambiguous topic rather than high-confidence username", () => {
+      const res = classifyUniversalTarget("example_user");
+      expect(res.primaryType).toBe("topic");
+      expect(res.confidence).toBeLessThan(0.7);
+      expect(res.ambiguityWarning).toBeDefined();
+    });
+
+    it("classifies 'example.com' as domain", () => {
+      const res = classifyUniversalTarget("example.com");
+      expect(res.primaryType).toBe("domain");
+      expect(res.confidence).toBeGreaterThanOrEqual(0.95);
+    });
+
+    it("classifies 'DL01AB1234' as vehicle_identifier", () => {
+      const res = classifyUniversalTarget("DL01AB1234");
+      expect(res.primaryType).toBe("vehicle_identifier");
+    });
+
+    it("classifies an email address", () => {
+      const res = classifyUniversalTarget("investigator@agency.gov.in");
+      expect(res.primaryType).toBe("email");
+    });
+
+    it("classifies an international phone number", () => {
+      const res = classifyUniversalTarget("+919876543210");
+      expect(res.primaryType).toBe("phone");
+    });
+  });
 });

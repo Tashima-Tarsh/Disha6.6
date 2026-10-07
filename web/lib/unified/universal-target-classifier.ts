@@ -204,29 +204,71 @@ export function classifyUniversalTarget(input: string): TargetClassification {
     };
   }
 
-  if (trimmed.startsWith("@") || (/^[a-zA-Z0-9_.]{3,32}$/.test(trimmed) && !trimmed.includes("."))) {
-    const handle = trimmed.replace(/^@/, "");
+  if (trimmed.startsWith("@") && /^@[a-zA-Z0-9_.]{2,64}$/.test(trimmed)) {
+    const handle = trimmed.slice(1);
     return {
       rawInput: trimmed,
       normalizedValue: handle.toLowerCase(),
       primaryType: "username",
-      confidence: 0.85,
-      candidateTypes: ["username", "person_name"],
-      ambiguityWarning: "Single word token could represent a username, person alias, or organization.",
-      metadata: { handle },
+      confidence: 0.95,
+      candidateTypes: ["username"],
+      ambiguityWarning: "Social handle or username token; cross-site identity enumeration requires explicit policy approval.",
+      metadata: { handle, explicitHandle: true },
     };
   }
 
   if (trimmed.includes(" ")) {
-    const isOrg = /(inc|corp|ltd|llc|gmbh|pvt|foundation|ministry|department|bureau|council)\b/i.test(trimmed);
+    const isOrg = /(inc|corp|corporation|ltd|limited|llc|gmbh|pvt|private|foundation|ministry|department|bureau|council|agency|group|technologies|systems)\b/i.test(trimmed);
     return {
       rawInput: trimmed,
       normalizedValue: trimmed,
       primaryType: isOrg ? "company" : "person_name",
       confidence: 0.75,
-      candidateTypes: [isOrg ? "company" : "person_name", "unknown"],
+      candidateTypes: [isOrg ? "company" : "person_name", "topic"],
       ambiguityWarning: "Multi-word text requires corroborating identity or corporate registry verification.",
       metadata: { wordCount: trimmed.split(/\s+/).length, organizationKeywordFound: isOrg },
+    };
+  }
+
+  const singleLower = lower;
+  const KNOWN_COMPANIES = new Set([
+    "openai", "microsoft", "google", "apple", "meta", "amazon", "tata", "infosys", "wipro", "reliance", "ibm", "oracle", "intel"
+  ]);
+  const KNOWN_LOCATIONS = new Set([
+    "delhi", "mumbai", "punjab", "bengaluru", "kolkata", "chennai", "hyderabad", "london", "paris", "tokyo", "beijing", "berlin", "moscow", "washington"
+  ]);
+
+  if (KNOWN_COMPANIES.has(singleLower)) {
+    return {
+      rawInput: trimmed,
+      normalizedValue: trimmed,
+      primaryType: "company",
+      confidence: 0.7,
+      candidateTypes: ["company", "topic"],
+      metadata: { entityCategory: "known_organization" },
+    };
+  }
+
+  if (KNOWN_LOCATIONS.has(singleLower)) {
+    return {
+      rawInput: trimmed,
+      normalizedValue: trimmed,
+      primaryType: "location",
+      confidence: 0.7,
+      candidateTypes: ["location", "topic"],
+      metadata: { entityCategory: "known_location" },
+    };
+  }
+
+  if (/^[a-zA-Z0-9_.]{2,64}$/.test(trimmed)) {
+    return {
+      rawInput: trimmed,
+      normalizedValue: trimmed,
+      primaryType: "topic",
+      confidence: 0.4,
+      candidateTypes: ["topic", "person_name", "company", "location", "username"],
+      ambiguityWarning: "Natural language token without '@' is ambiguous across topic, person, organization, location, or handle.",
+      metadata: { token: trimmed, ambiguous: true },
     };
   }
 

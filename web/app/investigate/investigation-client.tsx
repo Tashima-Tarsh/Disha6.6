@@ -33,12 +33,21 @@ import {
 
 import { InvestigationEvidencePanel } from "@/components/osint/InvestigationEvidencePanel";
 import { InvestigationSession } from "@/lib/investigation/session";
-import type { Investigation } from "@/lib/investigation/types";
+import type {
+  Investigation,
+  InvestigationMode,
+  Jurisdiction,
+  SearchUniverse,
+  SourcePolicy,
+  TargetType,
+  TimeRange,
+} from "@/lib/investigation/types";
 import styles from "./investigate.module.css";
 
 type SearchMode = {
   label: string;
-  targetType: string;
+  universe: SearchUniverse;
+  targetType: TargetType | "auto";
   icon: typeof Search;
 };
 
@@ -47,22 +56,24 @@ type ToolRecord = {
   name: string;
   status: string;
   healthStatus: string;
+  runtimeState?: string;
+  selectable?: boolean;
   category: string;
 };
 
 const SEARCH_MODES: SearchMode[] = [
-  { label: "Universal Search", targetType: "auto", icon: Search },
-  { label: "Person", targetType: "person_name", icon: UserRound },
-  { label: "Domain", targetType: "domain", icon: Globe2 },
-  { label: "Email", targetType: "email", icon: CircleDot },
-  { label: "Phone", targetType: "phone", icon: Phone },
-  { label: "Company", targetType: "company", icon: Building2 },
-  { label: "Location", targetType: "location", icon: MapPinned },
-  { label: "Vehicle", targetType: "vehicle_identifier", icon: Car },
-  { label: "Document", targetType: "auto", icon: FileSearch },
-  { label: "Cyber", targetType: "auto", icon: ShieldCheck },
-  { label: "Government Data", targetType: "auto", icon: Landmark },
-  { label: "OSINT", targetType: "auto", icon: Network },
+  { label: "Universal Search", universe: "universal", targetType: "auto", icon: Search },
+  { label: "Person", universe: "person", targetType: "person_name", icon: UserRound },
+  { label: "Domain", universe: "domain", targetType: "domain", icon: Globe2 },
+  { label: "Email", universe: "email", targetType: "email", icon: CircleDot },
+  { label: "Phone", universe: "phone", targetType: "phone", icon: Phone },
+  { label: "Company", universe: "company", targetType: "company", icon: Building2 },
+  { label: "Location", universe: "location", targetType: "location", icon: MapPinned },
+  { label: "Vehicle", universe: "vehicle", targetType: "vehicle_identifier", icon: Car },
+  { label: "Document", universe: "document", targetType: "topic", icon: FileSearch },
+  { label: "Cyber", universe: "cyber", targetType: "auto", icon: ShieldCheck },
+  { label: "Government Data", universe: "government", targetType: "topic", icon: Landmark },
+  { label: "OSINT", universe: "osint", targetType: "auto", icon: Network },
 ];
 
 const RESULT_TABS = [
@@ -87,6 +98,7 @@ const INVESTIGATION_MODES = [
 const SOURCE_POLICIES = ["Public Sources", "Authoritative", "Government", "All Approved"] as const;
 const JURISDICTIONS = ["India", "Global"] as const;
 const TIME_RANGES = ["24 Hours", "7 Days", "30 Days", "Custom"] as const;
+production/hardening-product-readme
 const MANAGED_TOOL_IDS = new Set([
   "phoneinfoga",
   "sherlock",
@@ -107,6 +119,37 @@ const MANAGED_TOOL_IDS = new Set([
 ]);
 
 export function InvestigationClient({ email: _email, roles }: { email: string; roles: string[] }) {
+
+
+function mapInvestigationMode(mode: string | null): InvestigationMode {
+  if (mode === "Deep Search") return "deep";
+  if (mode === "Evidence First") return "evidence_first";
+  if (mode === "Continuous Watch") return "continuous_watch";
+  return "standard";
+}
+
+function mapSourcePolicy(policy: string | null): SourcePolicy {
+  if (policy === "Public Sources") return "public";
+  if (policy === "Authoritative") return "authoritative";
+  if (policy === "Government") return "government";
+  return "all_approved";
+}
+
+function mapJurisdiction(jur: string | null): Jurisdiction {
+  if (jur === "India") return "india";
+  return "global";
+}
+
+function mapTimeRange(range: string | null): TimeRange {
+  if (range === "24 Hours") return "24h";
+  if (range === "7 Days") return "7d";
+  if (range === "30 Days") return "30d";
+  if (range === "Custom") return "custom";
+  return "30d";
+}
+
+export function InvestigationClient({ email: _email }: { email: string }) {
+ main
   const [active, setActive] = useState<Investigation | null>(null);
   const [busy, setBusy] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -151,7 +194,12 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
 
   useEffect(() => {
     const controller = new AbortController();
+ production/hardening-product-readme
     void fetch("/api/v1/osint/tools?limit=600", {
+
+    const universeParam = selectedSearch.universe !== "universal" ? `&universe=${selectedSearch.universe}` : "";
+    void fetch(`/api/v1/osint/tools?runnable=true${universeParam}&limit=30`, {
+main
       credentials: "same-origin",
       cache: "no-store",
       signal: controller.signal,
@@ -170,7 +218,7 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
         }
       });
     return () => controller.abort();
-  }, []);
+  }, [selectedSearch.universe]);
 
   const start = useCallback(async () => {
     const target = query.trim();
@@ -182,14 +230,25 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
       await session.current?.start({
         target,
         targetType: selectedSearch.targetType,
+production/hardening-product-readme
         identityAuthorization,
         activeAuthorization,
+        searchUniverse: selectedSearch.universe,
+        investigationMode: mapInvestigationMode(investigationMode),
+        sourcePolicy: mapSourcePolicy(sourcePolicy),
+        jurisdiction: mapJurisdiction(jurisdiction),
+        timeRange: mapTimeRange(timeRange),
+        selectedToolIds: Array.from(selectedTools),
+        identityAuthorization: false,
+        activeAuthorization: false,
+main
       });
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "INVESTIGATION SERVICE FAILED");
     } finally {
       setBusy(false);
     }
+production/hardening-product-readme
   }, [active, activeAuthorization, busy, closing, identityAuthorization, query, selectedSearch.targetType]);
 
   const startImage = useCallback(async (file: File) => {
@@ -210,6 +269,20 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
       setBusy(false);
     }
   }, [active, busy, closing]);
+  }, [
+    active,
+    busy,
+    closing,
+    query,
+    selectedSearch.targetType,
+    selectedSearch.universe,
+    investigationMode,
+    sourcePolicy,
+    jurisdiction,
+    timeRange,
+    selectedTools,
+  ]);
+ main
 
   const close = useCallback(async () => {
     setClosing(true);
@@ -431,25 +504,73 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
             ) : activeTab === "Graph" ? (
               <GraphState active={active} />
             ) : activeTab === "Timeline" ? (
-              <EmptyState
-                title="No timeline events yet"
-                text="Timeline events appear only when live evidence provides temporal records."
-              />
+              active.timeline && active.timeline.length > 0 ? (
+                <div className={styles.evidenceCards}>
+                  {active.timeline.map((ev) => (
+                    <button key={ev.id} type="button" onClick={() => setSelectedEvidence(ev.evidenceId)}>
+                      <small>{ev.timestamp} · {ev.sourceName}</small>
+                      <strong>{ev.title}</strong>
+                      <span>{ev.summary}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No timeline events"
+                  text="Timeline events appear only when live evidence provides verified temporal records."
+                />
+              )
             ) : activeTab === "Map" ? (
-              <EmptyState
-                title="No investigation markers"
-                text="Map markers appear only when live investigation results contain geospatial evidence."
-              />
+              active.markers && active.markers.length > 0 ? (
+                <div className={styles.evidenceCards}>
+                  {active.markers.map((marker) => (
+                    <button key={marker.id} type="button" onClick={() => setSelectedEvidence(marker.evidenceId)}>
+                      <small>{marker.coordinates.join(", ")} · {marker.sourceName}</small>
+                      <strong>{marker.title}</strong>
+                      <span>{marker.locationName ?? "Geospatial marker"}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No investigation markers"
+                  text="Map markers appear only when live investigation results contain geospatial evidence."
+                />
+              )
             ) : activeTab === "Contradictions" ? (
-              <EmptyState
-                title="No contradiction findings"
-                text="Contradictions appear only when the live investigation produces evidence-backed conflicts."
-              />
+              active.contradictions && active.contradictions.length > 0 ? (
+                <div className={styles.evidenceCards}>
+                  {active.contradictions.map((contra) => (
+                    <button key={contra.id} type="button" onClick={() => setSelectedEvidence(contra.evidenceIds[0])}>
+                      <small>{contra.sourceA} vs {contra.sourceB}</small>
+                      <strong>{contra.description}</strong>
+                      <span>Conflicting Claims: {contra.claimA} / {contra.claimB}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No contradiction findings"
+                  text="Contradictions appear only when independent sources produce conflicting claims."
+                />
+              )
             ) : activeTab === "Corroboration" ? (
-              <EmptyState
-                title="No corroboration findings"
-                text="Corroboration appears only when multiple live sources support the same evidence-backed finding."
-              />
+              active.corroborations && active.corroborations.length > 0 ? (
+                <div className={styles.evidenceCards}>
+                  {active.corroborations.map((corrob) => (
+                    <button key={corrob.id} type="button" onClick={() => setSelectedEvidence(corrob.evidenceIds[0])}>
+                      <small>Corroborated by {corrob.sources.join(", ")}</small>
+                      <strong>{corrob.fact}</strong>
+                      <span>Confidence: {Math.round(corrob.confidence * 100)}%</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title="No corroboration findings"
+                  text="Corroboration appears only when multiple independent sources confirm the same finding."
+                />
+              )
             ) : activeTab === "Raw" ? (
               <RawState active={active} />
             ) : (
@@ -489,6 +610,7 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
             <p className={styles.neutralState}>Approved tools are selected automatically from the target type and live policy state.</p>
             <div className={styles.toolList}>
               {tools.length ? (
+production/hardening-product-readme
                 tools.slice(0, 12).map((tool) => (
                   <div key={tool.toolId} className={styles.toolRow}>
                     <span>
@@ -498,6 +620,25 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
                     <i />
                   </div>
                 ))
+
+                tools.map((tool) => {
+                  const selected = selectedTools.has(tool.toolId);
+                  return (
+                    <button
+                      key={tool.toolId}
+                      type="button"
+                      className={selected ? styles.toolActive : styles.toolRow}
+                      onClick={() => toggleTool(tool.toolId)}
+                    >
+                      <span>
+                        <strong>{tool.name}</strong>
+                        <small>{humanStatus(tool.runtimeState || tool.status || tool.healthStatus)}</small>
+                      </span>
+                      <i />
+                    </button>
+                  );
+                })
+main
               ) : (
                 <p className={styles.neutralState}>
                   {toolsError || "Loading managed runtime registry…"}
@@ -676,6 +817,41 @@ function OverviewState({
     return <LoadingState title="Investigation running" text="Retrieving approved sources" />;
   }
 
+  if (active.rankedFindings && active.rankedFindings.length > 0) {
+    return (
+      <div className={styles.liveResults}>
+        <div className={styles.liveHeader}>
+          <span>Ranked Intelligence Findings ({active.rankedFindings.length})</span>
+          <strong>{active.normalizedTarget}</strong>
+        </div>
+
+        <div className={styles.evidenceCards}>
+          {active.rankedFindings.map((finding) => (
+            <button
+              key={finding.id}
+              type="button"
+              onClick={() => {
+                if (finding.evidenceIds.length > 0) {
+                  onSelect(finding.evidenceIds[0]);
+                }
+              }}
+            >
+              <small>
+                {finding.matchState.replace(/_/g, " ")} · {finding.primarySource}
+                {finding.sourceCount > 1 ? ` (+${finding.sourceCount - 1} source${finding.sourceCount > 2 ? "s" : ""})` : ""}
+                {finding.observedAt ? ` · ${finding.observedAt.slice(0, 10)}` : ""}
+              </small>
+              <strong>{finding.title}</strong>
+              <span>
+                Relevance: {finding.relevanceScore}% · View Evidence
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (!active.evidence.length) {
     return (
       <EmptyState
@@ -795,11 +971,21 @@ function RawState({ active }: { active: Investigation }) {
         {
           investigationId: active.investigationId,
           targetType: active.targetType,
+          searchUniverse: active.searchUniverse,
+          investigationMode: active.investigationMode,
+          sourcePolicy: active.sourcePolicy,
+          jurisdiction: active.jurisdiction,
+          timeRange: active.timeRange,
           status: active.status,
           runs: active.runs,
+          rankedFindings: active.rankedFindings,
           evidence: active.evidence,
           candidateClusters: active.candidateClusters,
           edges: active.edges,
+          timeline: active.timeline,
+          markers: active.markers,
+          contradictions: active.contradictions,
+          corroborations: active.corroborations,
         },
         null,
         2,
