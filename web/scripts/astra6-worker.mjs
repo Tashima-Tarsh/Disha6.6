@@ -233,8 +233,9 @@ function parseNdjson(raw, kind) {
       const value = JSON.parse(line);
       if (value && typeof value === "object") rows.push(value);
     } catch {
-      if (kind === "subfinder" && line.includes(".")) {
-        rows.push({ host: line.trim(), source: "subfinder" });
+      if ((kind === "subfinder" || kind === "amass") && line.includes(".")) {
+        const trimmed = line.trim();
+        rows.push({ host: trimmed, name: trimmed, source: kind });
       }
     }
   }
@@ -303,7 +304,7 @@ function buildToolCommand(toolId, target) {
       };
     }
     case "owasp-amass":
-      return { binary: "amass", args: ["enum", "-passive", "-d", target, "-json", "/dev/stdout"] };
+      return { binary: "amass", args: ["enum", "-passive", "-d", target] };
     case "subfinder":
       return { binary: "subfinder", args: ["-d", target, "-silent", "-json"] };
     case "spiderfoot":
