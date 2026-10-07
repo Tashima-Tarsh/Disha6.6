@@ -12,6 +12,7 @@ DEPLOYED_SHA=$(git rev-parse HEAD)
 export DISHA_BUILD_SHA="$DEPLOYED_SHA"
 echo "Deploying DISHA revision: ${DEPLOYED_SHA}"
 printf "%s\n" "$DEPLOYED_SHA" > "$REPO_ROOT/DEPLOYED_COMMIT"
+sed -i "s/^DISHA_BUILD_SHA=.*/DISHA_BUILD_SHA=${DEPLOYED_SHA}/" "$REPO_ROOT/.env"
 
 if [ -f "$REPO_ROOT/.gitmodules" ]; then
   echo "Initializing pinned OSINT upstream source trees..."
