@@ -31,6 +31,41 @@ function astraToolEnabled(toolId: string): boolean {
   return process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true";
 }
 
+function astraRuntimeReadinessBlock(toolId: string): { status: "AUTH_REQUIRED"; error: string } | null {
+  const canonicalToolId = toolId === "amass" ? "owasp-amass" : toolId === "telethon" ? "telegram-public" : toolId;
+  const workerClass = ASTRA_TOOL_WORKER_CLASS[toolId];
+
+  if (workerClass === "identity" && process.env.DISHA_IDENTITY_ENUMERATION_APPROVED !== "true") {
+    return {
+      status: "AUTH_REQUIRED",
+      error: "Identity enumeration deployment approval is not enabled",
+    };
+  }
+
+  if (canonicalToolId === "telegram-public") {
+    const telegramConfigured = Boolean(
+      process.env.TELEGRAM_API_ID?.trim()
+      && process.env.TELEGRAM_API_HASH?.trim()
+      && process.env.TELEGRAM_SESSION?.trim(),
+    );
+    if (!telegramConfigured) {
+      return {
+        status: "AUTH_REQUIRED",
+        error: "Telegram API credentials and an authorized session are required",
+      };
+    }
+  }
+
+  if (canonicalToolId === "photon" && process.env.DISHA_ACTIVE_RECON_APPROVED !== "true") {
+    return {
+      status: "AUTH_REQUIRED",
+      error: "Active reconnaissance deployment approval is not enabled",
+    };
+  }
+
+  return null;
+}
+
 async function smokeAstraRuntime(entry: OsintToolRecord): Promise<OsintToolRecord["smokeResult"]> {
   const workerClass = ASTRA_TOOL_WORKER_CLASS[entry.toolId];
   if (!workerClass) return null;
@@ -44,6 +79,18 @@ async function smokeAstraRuntime(entry: OsintToolRecord): Promise<OsintToolRecor
       success: false,
       latencyMs: Date.now() - started,
       error: `ASTRA tool '${entry.toolId}' is not enabled in this deployment`,
+    };
+  }
+
+  const readinessBlock = astraRuntimeReadinessBlock(entry.toolId);
+  if (readinessBlock) {
+    entry.status = readinessBlock.status;
+    entry.healthStatus = "UNCONFIGURED";
+    entry.lastSmokeTested = new Date().toISOString();
+    return {
+      success: false,
+      latencyMs: Date.now() - started,
+      error: readinessBlock.error,
     };
   }
 
@@ -284,6 +331,14 @@ export async function loadOsintRuntimeRegistry(): Promise<OsintToolRecord[]> {
         success: false,
         error: `ASTRA tool '${tool.toolId}' is not enabled in this deployment`,
       };
+      continue;
+    }
+
+    const readinessBlock = astraRuntimeReadinessBlock(tool.toolId);
+    if (readinessBlock) {
+      tool.status = readinessBlock.status;
+      tool.healthStatus = "UNCONFIGURED";
+      tool.smokeResult = { success: false, error: readinessBlock.error };
       continue;
     }
 
