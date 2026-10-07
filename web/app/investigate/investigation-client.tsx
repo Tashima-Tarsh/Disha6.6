@@ -268,15 +268,15 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
         </Link>
 
         <div className={styles.utilityCluster}>
-          <button type="button" aria-label="Notifications">
+          <button type="button" aria-label="Notifications" disabled title="Notification inbox is not enabled in the current product contract">
             <Bell size={16} />
           </button>
           <Link href="/system" aria-label="System">
             <ShieldCheck size={16} />
           </Link>
-          <button type="button" aria-label="Settings">
+          <Link href="/system" aria-label="Settings">
             <Settings size={16} />
-          </button>
+          </Link>
 
           <details className={styles.profileMenu}>
             <summary>
@@ -327,8 +327,8 @@ export function InvestigationClient({ email: _email, roles }: { email: string; r
             <div className={styles.divider} />
             <nav className={styles.workspaceNav} aria-label="Investigation workspace navigation">
               <Link href="/investigate">Investigate</Link>
-              <Link href="/workbench">Saved Cases</Link>
-              <Link href="/operations">Watches</Link>
+              <Link href="/workbench">Mission Workbench</Link>
+              <Link href="/intelligence">Continuous Intelligence</Link>
               <Link href="/vault">Evidence Vault</Link>
               <Link href="/contradictions">Contradictions</Link>
               <Link href="/corroboration">Corroboration</Link>
@@ -749,7 +749,14 @@ function SourceView({ active }: { active: Investigation }) {
         <div key={run.adapterId}>
           <span>
             <strong>{run.sourceName}</strong>
-            <small>{humanStatus(run.status)}</small>
+            <small>
+              {humanStatus(run.status)}
+              {run.providerHealth ? ` · ${humanStatus(run.providerHealth)}` : ""}
+            </small>
+            {run.error ? <small className={styles.sourceFailure}>{run.error}</small> : null}
+            {run.warnings.map((warning) => (
+              <small key={warning} className={styles.sourceWarning}>{warning}</small>
+            ))}
           </span>
           <i data-status={run.status} />
         </div>
