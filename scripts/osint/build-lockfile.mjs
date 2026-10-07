@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, "../..");
 const REGISTRY_PATH = path.join(ROOT_DIR, "data/osint/upstream-registry.json");
-const LOCKFILE_PATH = path.join(ROOT_DIR, "data/osint/runtime-lock.json");
+const LOCKFILE_PATH = path.join(ROOT_DIR, ".disha/osint/runtime-lock.json");
 
 function sha256(content) {
   return crypto
@@ -203,6 +203,7 @@ export async function buildLockfile() {
     tools: lockEntries,
   };
 
+  await fs.mkdir(path.dirname(LOCKFILE_PATH), { recursive: true });
   await fs.writeFile(LOCKFILE_PATH, JSON.stringify(lockfilePayload, null, 2), "utf8");
 
   console.info(`Lockfile created with ${lockEntries.length} catalog entries.`);
