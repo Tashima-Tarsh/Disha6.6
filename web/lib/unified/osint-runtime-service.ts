@@ -292,6 +292,7 @@ export async function loadOsintRuntimeRegistry(): Promise<OsintToolRecord[]> {
   const checkedAt = new Date().toISOString();
   const workerClasses = [...new Set(
     registry
+      .filter((tool) => ASTRA_TOOL_WORKER_CLASS[tool.toolId] && astraToolEnabled(tool.toolId) && !astraRuntimeReadinessBlock(tool.toolId))
       .map((tool) => ASTRA_TOOL_WORKER_CLASS[tool.toolId])
       .filter((value): value is "identity" | "infrastructure" | "advanced" => Boolean(value)),
   )];
