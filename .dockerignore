@@ -45,3 +45,16 @@ disha/services/cyber/logs
 *.pth
 *.mlmodel
 *.h5
+
+
+# Production build-context pruning
+# These trees are retained for history/research but are not required by the
+# canonical web or ASTRA worker images.
+legacy
+demos
+disha/legacy-root-src
+docs/archive
+docs/internal
+lint_report.txt
+predictive_risk_report.json
+reports
