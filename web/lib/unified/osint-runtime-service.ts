@@ -409,7 +409,7 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
 }
 
 export async function getOsintToolById(toolId: string): Promise<OsintToolRecord | undefined> {
-  const registry = await loadOsintRegistry();
+  const registry = await loadOsintRuntimeRegistry();
   return registry.find(
     (t) => t.toolId.toLowerCase() === toolId.toLowerCase() || t.repo.toLowerCase() === toolId.toLowerCase(),
   );
