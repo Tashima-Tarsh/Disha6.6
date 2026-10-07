@@ -204,6 +204,7 @@ export type OsintRuntimeMetrics = {
   degraded: number;
   unconfigured: number;
   authRequired: number;
+  catalogOnly: number;
   guiOnly: number;
   datasetOnly: number;
   libraryOnly: number;
@@ -465,6 +466,7 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     degraded: 0,
     unconfigured: 0,
     authRequired: 0,
+    catalogOnly: 0,
     guiOnly: 0,
     datasetOnly: 0,
     libraryOnly: 0,
@@ -488,7 +490,9 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
   };
 
   for (const tool of registry) {
-    if (tool.status === "EXECUTABLE_VERIFIED" || tool.status === "HEALTHY") {
+    if (tool.status === "CATALOGED") {
+      metrics.catalogOnly++;
+    } else if (tool.status === "EXECUTABLE_VERIFIED" || tool.status === "HEALTHY") {
       metrics.healthy++;
       metrics.executableVerified++;
     } else if (tool.status === "SERVICE_VERIFIED") {
