@@ -1,0 +1,2 @@
+# Official OpenOSINT package. Its dependencies include the MCP SDK.
+openosint==2.34.0
