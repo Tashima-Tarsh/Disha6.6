@@ -3,6 +3,7 @@ import type {
   Investigation,
   InvestigationContradiction,
   InvestigationCorroboration,
+  InvestigationEdge,
   InvestigationEvidence,
   InvestigationFinding,
   InvestigationMapMarker,
@@ -60,6 +61,7 @@ export function executeIntelligencePipeline(investigation: Investigation): {
   markers: InvestigationMapMarker[];
   contradictions: InvestigationContradiction[];
   corroborations: InvestigationCorroboration[];
+  edges: InvestigationEdge[];
 } {
   const evidence = investigation?.evidence ?? [];
   const target = investigation?.target ?? "";
@@ -75,6 +77,7 @@ export function executeIntelligencePipeline(investigation: Investigation): {
       markers: [],
       contradictions: [],
       corroborations: [],
+      edges: [],
     };
   }
 
@@ -374,11 +377,80 @@ export function executeIntelligencePipeline(investigation: Investigation): {
   // Timeline chronological sort
   timeline.sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
 
+  // Extract Entity Chaining Edges across all evidence records
+  const edges: InvestigationEdge[] = [];
+  const edgeKeys = new Set<string>();
+
+  const addEdge = (targetId: string, type: InvestigationEdge["type"], evId: string) => {
+    const cleanTarget = targetId.trim();
+    if (!cleanTarget || cleanTarget.toLowerCase() === normalizedTarget.toLowerCase()) return;
+    const key = `${normalizedTarget}:${cleanTarget}:${type}`;
+    if (!edgeKeys.has(key)) {
+      edgeKeys.add(key);
+      edges.push({
+        id: randomUUID(),
+        sourceId: normalizedTarget,
+        targetId: cleanTarget,
+        type,
+        evidenceId: evId,
+      });
+    }
+  };
+
+  for (const ev of evidence) {
+    // 1. IP and Host relationships
+    const ip = ev.fields?.ip ?? ev.fields?.ip_str ?? ev.fields?.address;
+    if (typeof ip === "string" && ip.trim()) addEdge(ip, "LOCATED_AT", ev.evidenceId);
+
+    const domain = ev.fields?.domain ?? ev.fields?.host ?? ev.fields?.hostname;
+    if (typeof domain === "string" && domain.trim()) addEdge(domain, "DERIVED_FROM", ev.evidenceId);
+
+    // 2. Identity and Committer Email relationships
+    const email = ev.fields?.email ?? ev.fields?.author_email;
+    if (typeof email === "string" && email.trim()) addEdge(email, "SAME_IDENTIFIER", ev.evidenceId);
+
+    // Cryptographic SSH Key & Machine Workstation Attribution
+    const ssh = ev.fields?.ssh_fingerprint;
+    if (typeof ssh === "string" && ssh.trim()) addEdge(ssh, "SAME_IDENTIFIER", ev.evidenceId);
+    const machine = ev.fields?.machine_comment;
+    if (typeof machine === "string" && machine.trim() && machine !== "none") addEdge(machine, "OBSERVED_BY", ev.evidenceId);
+
+    // 3. Organization, Company and Registrar relationships
+    const org = ev.fields?.org ?? ev.fields?.organization ?? ev.fields?.registrar ?? ev.fields?.company;
+    if (typeof org === "string" && org.trim()) addEdge(org, "REGISTERED_TO", ev.evidenceId);
+
+    // 4. Source Origin relationships
+    if (ev.sourceUrl) {
+      try {
+        const u = new URL(ev.sourceUrl);
+        addEdge(u.hostname, "SOURCED_FROM", ev.evidenceId);
+      } catch {}
+    }
+
+    // 5. Threat Intelligence and IOC relationships
+    const ioc = ev.fields?.ioc ?? ev.fields?.cveID ?? ev.fields?.sha256_hash;
+    if (typeof ioc === "string" && ioc.trim()) addEdge(ioc, "OBSERVED_BY", ev.evidenceId);
+  }
+
+  // Corroboration edges
+  for (const corr of corroborations) {
+    if (corr.evidenceIds.length >= 2) {
+      edges.push({
+        id: randomUUID(),
+        sourceId: corr.evidenceIds[0],
+        targetId: corr.evidenceIds[1],
+        type: "CORROBORATES",
+        evidenceId: corr.evidenceIds[0],
+      });
+    }
+  }
+
   return {
     rankedFindings: findings,
     timeline,
     markers,
     contradictions,
     corroborations,
+    edges,
   };
 }

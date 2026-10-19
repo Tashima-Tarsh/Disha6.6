@@ -1,53 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Bell,
-  Building2,
-  Car,
-  ChevronDown,
-  CircleDot,
-  FileSearch,
-  Globe2,
-  Landmark,
-  MapPinned,
-  Network,
-  Phone,
-  Search,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  UserRound,
-  X,
-} from "lucide-react";
-import {
-  type FormEvent,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
+import { useSearchParams } from "next/navigation";
+import { AtSign, Building, Camera, Car, Coins, Database, Fingerprint, Globe, Hash, Mail, MapPin, Network, Phone, Search, Send, UserRound, ArrowUpRight, FileText, FolderOpen, Loader2, X } from "lucide-react";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { InvestigationEvidencePanel } from "@/components/osint/InvestigationEvidencePanel";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 import { InvestigationSession } from "@/lib/investigation/session";
-import type {
-  Investigation,
-  InvestigationMode,
-  Jurisdiction,
-  SearchUniverse,
-  SourcePolicy,
-  TargetType,
-  TimeRange,
-} from "@/lib/investigation/types";
+import { classifyIntelligenceTarget } from "@/lib/investigation/target-classifier";
+import { safeSourceUrl, type Investigation, type InvestigationMode, type Jurisdiction, type SearchUniverse, type SourcePolicy, type TargetType, type TimeRange } from "@/lib/investigation/types";
 import styles from "./investigate.module.css";
-
-type SearchMode = {
+type SearchChannel = {
+  id: string;
   label: string;
+  eyebrow: string;
+  title: string;
+  placeholder: string;
+  help: string;
   universe: SearchUniverse;
   targetType: TargetType | "auto";
   icon: typeof Search;
+  kind: "text" | "file";
+  inputMode?: "text" | "email" | "tel";
+  selectedToolIds?: string[];
+  identityAuthorization?: boolean;
+  activeAuthorization?: boolean;
 };
 
 type ToolRecord = {
@@ -60,93 +37,274 @@ type ToolRecord = {
   category: string;
 };
 
-const SEARCH_MODES: SearchMode[] = [
-  { label: "Universal Search", universe: "universal", targetType: "auto", icon: Search },
-  { label: "Person", universe: "person", targetType: "person_name", icon: UserRound },
-  { label: "Domain", universe: "domain", targetType: "domain", icon: Globe2 },
-  { label: "Email", universe: "email", targetType: "email", icon: CircleDot },
-  { label: "Phone", universe: "phone", targetType: "phone", icon: Phone },
-  { label: "Company", universe: "company", targetType: "company", icon: Building2 },
-  { label: "Location", universe: "location", targetType: "location", icon: MapPinned },
-  { label: "Vehicle", universe: "vehicle", targetType: "vehicle_identifier", icon: Car },
-  { label: "Document", universe: "document", targetType: "topic", icon: FileSearch },
-  { label: "Cyber", universe: "cyber", targetType: "auto", icon: ShieldCheck },
-  { label: "Government Data", universe: "government", targetType: "topic", icon: Landmark },
-  { label: "OSINT", universe: "osint", targetType: "auto", icon: Network },
+const CHANNELS: SearchChannel[] = [
+  {
+    id: "universal",
+    label: "Universal OSINT",
+    eyebrow: "Multi-Source Intelligence",
+    title: "Universal Target Investigation",
+    placeholder: "Enter domain, IP, handle, email, phone, name, hash, CVE, or company...",
+    help: "Intelligently classifies target and orchestrates multi-source OSINT adapters across all intelligence domains.",
+    universe: "universal",
+    targetType: "auto",
+    icon: Search,
+    kind: "text",
+    identityAuthorization: true,
+  },
+  {
+    id: "breach",
+    label: "Leak Database",
+    eyebrow: "Sovereign Breach Repositories",
+    title: "Search Sovereign Leak & Breach Databases",
+    placeholder: "Company name, entity, email, or domain (e.g. Yahoo, Sony, Adobe, Starbucks)...",
+    help: "Directly audits 175+ historical data breach archives, Sony Pictures hack logs, WikiLeaks SpyFiles, and leaked credential datasets.",
+    universe: "universal",
+    targetType: "topic",
+    icon: Database,
+    kind: "text",
+    selectedToolIds: ["leak-database", "biggest-data-breaches"],
+  },
+  {
+    id: "name",
+    label: "Person Name",
+    eyebrow: "Identity & Personnel",
+    title: "Search a Person Identity",
+    placeholder: "Full legal name, alias, or public record",
+    help: "Routes to approved person registries, GDELT news, and OpenAlex records. Requires verified lawful purpose.",
+    universe: "person",
+    targetType: "person_name",
+    icon: UserRound,
+    kind: "text",
+    identityAuthorization: true,
+  },
+  {
+    id: "username",
+    label: "Username / Handle",
+    eyebrow: "Account Intelligence",
+    title: "Search a Username / Handle",
+    placeholder: "handle or @alias across 500+ services",
+    help: "Dispatches to local Sherlock and Maigret runners with passive footprinting.",
+    universe: "person",
+    targetType: "username",
+    icon: AtSign,
+    kind: "text",
+    selectedToolIds: ["sherlock", "maigret"],
+    identityAuthorization: true,
+  },
+  {
+    id: "phone",
+    label: "Phone Number",
+    eyebrow: "Number Telemetry",
+    title: "Search a Phone Number",
+    placeholder: "+91 98765 43210 (E.164 format)",
+    help: "Normalizes country code and checks local phone carrier metadata and HLR tools.",
+    universe: "phone",
+    targetType: "phone",
+    icon: Phone,
+    kind: "text",
+    inputMode: "tel",
+    selectedToolIds: ["phoneinfoga"],
+    identityAuthorization: true,
+  },
+  {
+    id: "email",
+    label: "Email Address",
+    eyebrow: "Account Signal",
+    title: "Search an Email Address",
+    placeholder: "target@domain.com",
+    help: "Checks breach telemetry, email validation, and service existence without alerting target.",
+    universe: "email",
+    targetType: "email",
+    icon: Mail,
+    kind: "text",
+    inputMode: "email",
+    selectedToolIds: ["holehe"],
+    identityAuthorization: true,
+  },
+  {
+    id: "domain",
+    label: "Domain / URL",
+    eyebrow: "Infrastructure OSINT",
+    title: "Investigate Domain / Web Host",
+    placeholder: "subdomain.target.gov or https://...",
+    help: "Gathers passive DNS, certificate transparency logs, subdomains, and WHOIS provenance.",
+    universe: "domain",
+    targetType: "domain",
+    icon: Globe,
+    kind: "text",
+    selectedToolIds: ["sublist3r", "crtsh"],
+  },
+  {
+    id: "ip",
+    label: "IP / CIDR",
+    eyebrow: "Network Intelligence",
+    title: "Investigate IP Address / CIDR",
+    placeholder: "198.51.100.1 or 203.0.113.0/24",
+    help: "Performs Shodan host scanning, BGP routing analysis, and exposed port correlation.",
+    universe: "universal",
+    targetType: "ip",
+    icon: Network,
+    kind: "text",
+    selectedToolIds: ["shodan"],
+  },
+  {
+    id: "hash",
+    label: "File Hash",
+    eyebrow: "Malware & Artifacts",
+    title: "Analyze Cryptographic Hash",
+    placeholder: "SHA-256, SHA-1, or MD5 hash",
+    help: "Cross-checks MalwareBazaar, VirusTotal, and ThreatFox malware catalogs.",
+    universe: "universal",
+    targetType: "file_hash",
+    icon: Hash,
+    kind: "text",
+  },
+  {
+    id: "crypto",
+    label: "Crypto Wallet",
+    eyebrow: "Ledger Forensics",
+    title: "Trace Cryptocurrency Address",
+    placeholder: "BTC (1/3/bc1) or ETH (0x...) address",
+    help: "Queries public blockchain explorers and threat ledger sanctions lists.",
+    universe: "universal",
+    targetType: "ioc",
+    icon: Coins,
+    kind: "text",
+  },
+  {
+    id: "vehicle",
+    label: "Vehicle Plate",
+    eyebrow: "Transport Registry",
+    title: "Search a Vehicle Identifier",
+    placeholder: "DL01AB1234 or 17-char VIN",
+    help: "Validates against authorized vehicle registry formats and transport services.",
+    universe: "vehicle",
+    targetType: "vehicle_identifier",
+    icon: Car,
+    kind: "text",
+  },
+  {
+    id: "geo",
+    label: "Geospatial",
+    eyebrow: "Spatial Coordinates",
+    title: "Search Coordinates / POI",
+    placeholder: "28.6139, 77.2090 (Lat, Lon)",
+    help: "Correlates district polygons and PostGIS critical infrastructure datasets.",
+    universe: "location",
+    targetType: "location",
+    icon: MapPin,
+    kind: "text",
+  },
+  {
+    id: "social",
+    label: "Social Media",
+    eyebrow: "Social Intelligence",
+    title: "Search Social Profile URL",
+    placeholder: "instagram.com/username or t.me/channel",
+    help: "Passive inspection using local Instagram and Telegram public adapters.",
+    universe: "person",
+    targetType: "username",
+    icon: Send,
+    kind: "text",
+    selectedToolIds: ["instaloader", "telegram-public"],
+    identityAuthorization: true,
+  },
+  {
+    id: "company",
+    label: "Corporate Entity",
+    eyebrow: "Corporate Registry",
+    title: "Search Corporate / Legal Entity",
+    placeholder: "Company name, CIN, or registration ID",
+    help: "Cross-references corporate records and MCA filing metadata.",
+    universe: "company",
+    targetType: "company",
+    icon: Building,
+    kind: "text",
+  },
+  {
+    id: "photo",
+    label: "Media File",
+    eyebrow: "Forensic Media",
+    title: "Investigate Image / Photo",
+    placeholder: "Upload image (JPEG/PNG/WebP)",
+    help: "Extracts EXIF metadata, GPS coordinates, and hash verification without cloud exposure.",
+    universe: "universal",
+    targetType: "image",
+    icon: Camera,
+    kind: "file",
+  },
+  {
+    id: "biometric",
+    label: "Biometric",
+    eyebrow: "Consent Required",
+    title: "Run Biometric Comparison",
+    placeholder: "Upload reference image with consent",
+    help: "Restricted strictly to consent-based evidence matching under defense audit.",
+    universe: "universal",
+    targetType: "image",
+    icon: Fingerprint,
+    kind: "file",
+    identityAuthorization: true,
+  },
 ];
 
-const RESULT_TABS = [
-  "Overview",
-  "Evidence",
-  "Sources",
-  "Graph",
-  "Timeline",
-  "Map",
-  "Contradictions",
-  "Corroboration",
-  "Raw",
-] as const;
+const RESULT_TABS = ["Summary", "Evidence", "Sources", "Timeline", "Graph", "Raw"] as const;
+const INVESTIGATION_MODE: InvestigationMode = "standard";
+const SOURCE_POLICY: SourcePolicy = "all_approved";
+const JURISDICTION: Jurisdiction = "india";
+const TIME_RANGE: TimeRange = "30d";
 
-const INVESTIGATION_MODES = [
-  ["Standard Search", "Fast governed retrieval"],
-  ["Deep Search", "Expanded approved-source investigation"],
-  ["Evidence First", "Prioritise verifiable evidence"],
-  ["Continuous Watch", "Run approved recurring monitoring"],
-] as const;
-
-const SOURCE_POLICIES = ["Public Sources", "Authoritative", "Government", "All Approved"] as const;
-const JURISDICTIONS = ["India", "Global"] as const;
-const TIME_RANGES = ["24 Hours", "7 Days", "30 Days", "Custom"] as const;
-
-function mapInvestigationMode(mode: string | null): InvestigationMode {
-  if (mode === "Deep Search") return "deep";
-  if (mode === "Evidence First") return "evidence_first";
-  if (mode === "Continuous Watch") return "continuous_watch";
-  return "standard";
+export function InvestigationClient({ email }: { email: string }) {
+  return (
+    <Suspense fallback={<div className={styles.commandShell}>Opening your workspace…</div>}>
+      <InvestigationInner email={email} />
+    </Suspense>
+  );
 }
 
-function mapSourcePolicy(policy: string | null): SourcePolicy {
-  if (policy === "Public Sources") return "public";
-  if (policy === "Authoritative") return "authoritative";
-  if (policy === "Government") return "government";
-  return "all_approved";
-}
+function InvestigationInner({ email }: { email: string }) {
+  const searchParams = useSearchParams();
+  const incomingQ = searchParams?.get("q") ?? searchParams?.get("query");
+  const incomingChannel = searchParams?.get("channel") ?? searchParams?.get("type");
 
-function mapJurisdiction(jur: string | null): Jurisdiction {
-  if (jur === "India") return "india";
-  return "global";
-}
-
-function mapTimeRange(range: string | null): TimeRange {
-  if (range === "24 Hours") return "24h";
-  if (range === "7 Days") return "7d";
-  if (range === "30 Days") return "30d";
-  if (range === "Custom") return "custom";
-  return "30d";
-}
-
-export function InvestigationClient({ email: _email }: { email: string }) {
   const [active, setActive] = useState<Investigation | null>(null);
   const [busy, setBusy] = useState(false);
   const [closing, setClosing] = useState(false);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(incomingQ ?? "");
+  const [file, setFile] = useState<File | null>(null);
   const [selectedEvidence, setSelectedEvidence] = useState<string | null>(null);
-  const [selectedSearchMode, setSelectedSearchMode] = useState("Universal Search");
-  const [activeTab, setActiveTab] = useState<(typeof RESULT_TABS)[number]>("Overview");
-  const [investigationMode, setInvestigationMode] = useState<string | null>(null);
-  const [sourcePolicy, setSourcePolicy] = useState<string | null>(null);
-  const [jurisdiction, setJurisdiction] = useState<string | null>(null);
-  const [timeRange, setTimeRange] = useState<string | null>(null);
+
+  const [selectedChannelId, setSelectedChannelId] = useState(() => {
+    if (incomingChannel) {
+      const match = CHANNELS.find((c) => c.id === incomingChannel || c.targetType === incomingChannel);
+      if (match) return match.id;
+    }
+    return CHANNELS[0].id;
+  });
+
+  // Sync selected channel when URL search params change (e.g. clicking sidebar)
+  useEffect(() => {
+    const ch = searchParams?.get("channel") ?? searchParams?.get("type");
+    if (ch) {
+      const match = CHANNELS.find((c) => c.id === ch || c.targetType === ch);
+      if (match) setSelectedChannelId(match.id);
+    }
+  }, [searchParams]);
+  const [legalConsentChecked, setLegalConsentChecked] = useState(false);
+  const [activeTab, setActiveTab] = useState<(typeof RESULT_TABS)[number]>("Summary");
   const [tools, setTools] = useState<ToolRecord[]>([]);
   const [toolsError, setToolsError] = useState("");
-  const [selectedTools, setSelectedTools] = useState<Set<string>>(new Set());
   const session = useRef<InvestigationSession | null>(null);
 
-  const selectedSearch = useMemo(
-    () => SEARCH_MODES.find((item) => item.label === selectedSearchMode) ?? SEARCH_MODES[0],
-    [selectedSearchMode],
+  useEffect(() => { if (incomingQ !== null) setQuery(incomingQ); }, [incomingQ]);
+
+  const channel = useMemo(
+    () => CHANNELS.find((item) => item.id === selectedChannelId) ?? CHANNELS[0],
+    [selectedChannelId],
   );
+  const selectedTools = useMemo(() => channel.selectedToolIds ?? [], [channel.selectedToolIds]);
+  const detected = useMemo(() => classifyIntelligenceTarget(query), [query]);
 
   useEffect(() => {
     const current = new InvestigationSession(
@@ -154,10 +312,16 @@ export function InvestigationClient({ email: _email }: { email: string }) {
         setActive(value);
         if (!value) {
           setSelectedEvidence(null);
-          setActiveTab("Overview");
+          setActiveTab("Summary");
+          setBusy(false);
+        } else if (value.status === "COMPLETED" || value.status === "CLOSING") {
+          setBusy(false);
         }
       },
-      setError,
+      (msg) => {
+        setError(msg);
+        setBusy(false);
+      },
     );
     session.current = current;
     const leave = () => current.dispose();
@@ -169,9 +333,22 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   }, []);
 
   useEffect(() => {
+    if (active?.status === "COMPLETED" || active?.status === "CLOSING") {
+      setBusy(false);
+    }
+  }, [active?.status]);
+
+  // Auto-switch to Evidence tab when first results arrive so user sees populated cards without clicking
+  useEffect(() => {
+    if (active && active.evidence.length > 0 && activeTab === "Summary") {
+      setActiveTab("Evidence");
+    }
+  }, [active?.evidence.length]);
+
+  useEffect(() => {
     const controller = new AbortController();
-    const universeParam = selectedSearch.universe !== "universal" ? `&universe=${selectedSearch.universe}` : "";
-    void fetch(`/api/v1/osint/tools?runnable=true${universeParam}&limit=30`, {
+    const universeParam = channel.universe !== "universal" ? `&universe=${channel.universe}` : "";
+    void fetch(`/api/v1/osint/tools?runnable=true${universeParam}&limit=40`, {
       credentials: "same-origin",
       cache: "no-store",
       signal: controller.signal,
@@ -181,53 +358,62 @@ export function InvestigationClient({ email: _email }: { email: string }) {
         return response.json() as Promise<{ tools?: ToolRecord[] }>;
       })
       .then((payload) => {
+        setToolsError("");
         setTools(Array.isArray(payload.tools) ? payload.tools : []);
       })
       .catch((failure) => {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted)
           setToolsError(failure instanceof Error ? failure.message : "Tool registry unavailable");
-        }
       });
     return () => controller.abort();
-  }, [selectedSearch.universe]);
+  }, [channel.universe]);
 
   const start = useCallback(async () => {
-    const target = query.trim();
-    if (!target || busy || closing || active) return;
+    if (busy || closing || active) return;
+    if (channel.identityAuthorization && !legalConsentChecked) {
+      setError("Legal Purpose Verification: You must certify lawful authorization before executing identity queries.");
+      return;
+    }
 
     setBusy(true);
     setError("");
     try {
-      await session.current?.start({
-        target,
-        targetType: selectedSearch.targetType,
-        searchUniverse: selectedSearch.universe,
-        investigationMode: mapInvestigationMode(investigationMode),
-        sourcePolicy: mapSourcePolicy(sourcePolicy),
-        jurisdiction: mapJurisdiction(jurisdiction),
-        timeRange: mapTimeRange(timeRange),
-        selectedToolIds: Array.from(selectedTools),
-        identityAuthorization: false,
-        activeAuthorization: false,
-      });
+      if (channel.kind === "file") {
+        if (!file) throw new Error("Upload an authorized image before starting this search.");
+        await session.current?.start(file);
+      } else {
+        let target = query.trim();
+        if (!target) return;
+        if (channel.id === "phone") {
+          const rawClean = target.replace(/[\s().-]/g, "");
+          if (!rawClean.startsWith("+")) {
+            if (rawClean.length === 10) target = `+91${rawClean}`;
+            else if (rawClean.startsWith("0") && rawClean.length === 11) target = `+91${rawClean.slice(1)}`;
+            else if (rawClean.startsWith("00")) target = `+${rawClean.slice(2)}`;
+            else target = `+${rawClean}`;
+          }
+        }
+        const effectiveTargetType = channel.id === "universal" ? "auto" : channel.targetType;
+        const effectiveUniverse = channel.id === "universal" ? "universal" : channel.universe;
+        await session.current?.start({
+          target,
+          targetType: effectiveTargetType,
+          searchUniverse: effectiveUniverse,
+          investigationMode: INVESTIGATION_MODE,
+          sourcePolicy: SOURCE_POLICY,
+          jurisdiction: JURISDICTION,
+          timeRange: TIME_RANGE,
+          selectedToolIds: selectedTools,
+          identityAuthorization: Boolean(channel.identityAuthorization),
+          activeAuthorization: Boolean(channel.activeAuthorization),
+        });
+      }
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "INVESTIGATION SERVICE FAILED");
+      setError(failure instanceof Error ? failure.message : "Investigation failed.");
     } finally {
       setBusy(false);
     }
-  }, [
-    active,
-    busy,
-    closing,
-    query,
-    selectedSearch.targetType,
-    selectedSearch.universe,
-    investigationMode,
-    sourcePolicy,
-    jurisdiction,
-    timeRange,
-    selectedTools,
-  ]);
+  }, [active, busy, channel, closing, file, legalConsentChecked, query, selectedTools]);
 
   const close = useCallback(async () => {
     setClosing(true);
@@ -235,6 +421,7 @@ export function InvestigationClient({ email: _email }: { email: string }) {
     try {
       await session.current?.close();
       setQuery("");
+      setFile(null);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Cleanup could not be confirmed.");
     } finally {
@@ -254,640 +441,75 @@ export function InvestigationClient({ email: _email }: { email: string }) {
   }, [start]);
 
   const evidence = active?.evidence.find((item) => item.evidenceId === selectedEvidence);
+  const completedSources = active?.runs.filter((run) => run.status === "COMPLETED").length ?? 0;
+  const sourceCount = active?.runs.length ?? tools.length;
+  const resultCount = active?.evidence.length ?? 0;
+  const findingCount = active?.rankedFindings.length ?? 0;
+  const ready = channel.kind === "file" ? Boolean(file) : Boolean(query.trim());
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void start();
   }
 
-  function toggleTool(toolId: string) {
-    setSelectedTools((current) => {
-      const next = new Set(current);
-      if (next.has(toolId)) next.delete(toolId);
-      else next.add(toolId);
-      return next;
-    });
+  function chooseChannel(id: string) {
+    if (active) return;
+    setSelectedChannelId(id);
+    setQuery("");
+    setFile(null);
+    setError("");
   }
 
   return (
-    <main className={styles.appShell}>
-      <header className={styles.header}>
-        <div className={styles.sovereignBrand}>
-          <span className={styles.emblem} aria-hidden="true" />
-          <div>
-            <strong>Satyamev Jayate</strong>
-            <span className={styles.tricolour} aria-hidden="true" />
-          </div>
-        </div>
-
-        <Link
-          className={styles.productBrand}
-          href="/investigate"
-          onClick={(event) => {
-            if (active) {
-              event.preventDefault();
-              void close();
-            }
-          }}
-        >
-          <strong>DISHA6.6</strong>
-          <span>Constitutional Evidence Operating System</span>
-        </Link>
-
-        <div className={styles.utilityCluster}>
-          <button type="button" aria-label="Notifications">
-            <Bell size={16} />
-          </button>
-          <Link href="/system" aria-label="System">
-            <ShieldCheck size={16} />
-          </Link>
-          <button type="button" aria-label="Settings">
-            <Settings size={16} />
-          </button>
-
-          <details className={styles.profileMenu}>
-            <summary>
-              <span className={styles.avatar}>G</span>
-              <span>
-                <strong>Ghost</strong>
-                <small>Intelligence Cell</small>
-              </span>
-              <ChevronDown size={14} />
-            </summary>
-            <div>
-              <Link href="/system">System</Link>
-              <Link href="/workbench">Workbench</Link>
-            </div>
-          </details>
-        </div>
-      </header>
-
-      <div className={styles.threePanel}>
-        <aside className={styles.leftPanel}>
-          <section>
-            <div className={styles.panelTitle}>
-              <span>Search Universe</span>
-              <small>Target type</small>
-            </div>
-
-            <nav className={styles.searchModes} aria-label="Search Universe">
-              {SEARCH_MODES.map((item) => {
-                const Icon = item.icon;
-                const selected = selectedSearchMode === item.label;
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    className={selected ? styles.searchModeActive : styles.searchMode}
-                    onClick={() => setSelectedSearchMode(item.label)}
-                    disabled={Boolean(active)}
-                  >
-                    <Icon size={16} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </section>
-
-          <section className={styles.leftNavSection}>
-            <div className={styles.divider} />
-            <nav className={styles.workspaceNav} aria-label="Investigation workspace navigation">
-              <Link href="/investigate">Investigate</Link>
-              <Link href="/workbench">Saved Cases</Link>
-              <Link href="/operations">Watches</Link>
-              <Link href="/vault">Evidence Vault</Link>
-              <Link href="/contradictions">Contradictions</Link>
-              <Link href="/corroboration">Corroboration</Link>
-            </nav>
-          </section>
-        </aside>
-
-        <section className={styles.centerPanel}>
-          <div className={styles.queryComposer}>
-            <div className={styles.composerMeta}>
-              <span>Investigation Workspace</span>
-              <div className={styles.configChips}>
-                <span>{selectedSearchMode}</span>
-                {investigationMode ? <span>{investigationMode}</span> : null}
-                {sourcePolicy ? <span>{sourcePolicy}</span> : null}
-                {jurisdiction ? <span>{jurisdiction}</span> : null}
-                {timeRange ? <span>{timeRange}</span> : null}
-              </div>
-            </div>
-
-            <form className={styles.searchForm} onSubmit={submit}>
-              <Search size={20} aria-hidden="true" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search across connected intelligence sources"
-                disabled={busy || Boolean(active)}
-                maxLength={512}
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <kbd>Ctrl + Enter</kbd>
-
-              {active ? (
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={() => void close()}
-                  disabled={closing}
-                >
-                  <X size={15} />
-                  {closing ? "Closing" : "Close"}
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className={styles.primaryButton}
-                  disabled={busy || !query.trim()}
-                >
-                  {busy ? "Starting" : "Run Search"}
-                </button>
-              )}
-            </form>
-          </div>
-
-          <div className={styles.resultTabs} role="tablist" aria-label="Investigation result views">
-            {RESULT_TABS.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          <section className={styles.workspaceSurface}>
-            {!active ? (
-              <ReadyState />
-            ) : activeTab === "Evidence" ? (
-              <EvidenceView active={active} onSelect={setSelectedEvidence} />
-            ) : activeTab === "Sources" ? (
-              <SourceView active={active} />
-            ) : activeTab === "Graph" ? (
-              <GraphState active={active} />
-            ) : activeTab === "Timeline" ? (
-              active.timeline && active.timeline.length > 0 ? (
-                <div className={styles.evidenceCards}>
-                  {active.timeline.map((ev) => (
-                    <button key={ev.id} type="button" onClick={() => setSelectedEvidence(ev.evidenceId)}>
-                      <small>{ev.timestamp} · {ev.sourceName}</small>
-                      <strong>{ev.title}</strong>
-                      <span>{ev.summary}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No timeline events"
-                  text="Timeline events appear only when live evidence provides verified temporal records."
-                />
-              )
-            ) : activeTab === "Map" ? (
-              active.markers && active.markers.length > 0 ? (
-                <div className={styles.evidenceCards}>
-                  {active.markers.map((marker) => (
-                    <button key={marker.id} type="button" onClick={() => setSelectedEvidence(marker.evidenceId)}>
-                      <small>{marker.coordinates.join(", ")} · {marker.sourceName}</small>
-                      <strong>{marker.title}</strong>
-                      <span>{marker.locationName ?? "Geospatial marker"}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No investigation markers"
-                  text="Map markers appear only when live investigation results contain geospatial evidence."
-                />
-              )
-            ) : activeTab === "Contradictions" ? (
-              active.contradictions && active.contradictions.length > 0 ? (
-                <div className={styles.evidenceCards}>
-                  {active.contradictions.map((contra) => (
-                    <button key={contra.id} type="button" onClick={() => setSelectedEvidence(contra.evidenceIds[0])}>
-                      <small>{contra.sourceA} vs {contra.sourceB}</small>
-                      <strong>{contra.description}</strong>
-                      <span>Conflicting Claims: {contra.claimA} / {contra.claimB}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No contradiction findings"
-                  text="Contradictions appear only when independent sources produce conflicting claims."
-                />
-              )
-            ) : activeTab === "Corroboration" ? (
-              active.corroborations && active.corroborations.length > 0 ? (
-                <div className={styles.evidenceCards}>
-                  {active.corroborations.map((corrob) => (
-                    <button key={corrob.id} type="button" onClick={() => setSelectedEvidence(corrob.evidenceIds[0])}>
-                      <small>Corroborated by {corrob.sources.join(", ")}</small>
-                      <strong>{corrob.fact}</strong>
-                      <span>Confidence: {Math.round(corrob.confidence * 100)}%</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No corroboration findings"
-                  text="Corroboration appears only when multiple independent sources confirm the same finding."
-                />
-              )
-            ) : activeTab === "Raw" ? (
-              <RawState active={active} />
-            ) : (
-              <OverviewState active={active} onSelect={setSelectedEvidence} />
-            )}
-          </section>
-
-          {error ? <div className={styles.errorBanner} role="alert">{error}</div> : null}
+    <DishaCommandShell principal={{ email }} activeTarget={active?.normalizedTarget} evidenceCount={resultCount}>
+      <div className={styles.commandShell}>
+        <header className={styles.heroCopy}>
+          <p className={styles.eyebrow}>THE RESEARCH DESK</p>
+          <div className={styles.heroTitle}><h1>Follow the evidence.</h1><Link href="/investigate/osint-runtime">Tool runtime<ArrowUpRight size={14} /></Link></div>
+          <p>Start with a question. Search public sources, compare the records, and keep the source in view.</p>
+        </header>
+        <section className={styles.searchCard} aria-label="Investigation search">
+          <div className={styles.searchHeading}><Search size={17} /><h2>What are you looking into?</h2><span>01 / SEARCH</span></div>
+          <div className={styles.channelGrid} aria-label="Search category">{CHANNELS.map(item => <button key={item.id} type="button" disabled={Boolean(active) || busy} aria-pressed={channel.id === item.id} className={channel.id === item.id ? styles.channelActive : styles.channelButton} onClick={() => chooseChannel(item.id)}><item.icon size={14} /><span>{item.label}</span></button>)}</div>
+          <form onSubmit={submit} className={styles.searchForm}>
+            <label className={styles.inputLabel} htmlFor="investigation-query">{channel.label}</label>
+            {channel.kind === "file" ? <input id="investigation-query" className={styles.fileInput} type="file" accept="image/jpeg,image/png,image/webp" disabled={Boolean(active) || busy} onChange={event => setFile(event.target.files?.[0] ?? null)} /> : <div className={styles.inputRow}><Search size={18} /><input id="investigation-query" value={query} onChange={event => setQuery(event.target.value)} disabled={Boolean(active) || busy} inputMode={channel.inputMode ?? "text"} placeholder={channel.id === "universal" ? "A domain, name, handle, identifier or place" : channel.placeholder} autoComplete="off" /><button type="submit" disabled={!ready || busy || Boolean(active) || (Boolean(channel.identityAuthorization) && !legalConsentChecked)}>{busy ? <Loader2 size={16} className={styles.spin} /> : <ArrowUpRight size={17} />}<span>{busy ? "Searching…" : "Investigate"}</span></button></div>}
+            <div className={styles.formMeta}><span>{query.trim() && channel.kind === "text" ? `Detected: ${detected.label}` : "Only configured, approved sources can return records."}</span><span>Ctrl + Enter to search</span></div>
+            {channel.identityAuthorization && <label className={styles.authConsentStrip}><input type="checkbox" checked={legalConsentChecked} disabled={Boolean(active) || busy} onChange={event => setLegalConsentChecked(event.target.checked)} /><span>I confirm a lawful purpose and authorization for this identity search.</span></label>}
+            {channel.kind === "file" && <button className={styles.primaryAction} type="submit" disabled={!ready || busy || Boolean(active) || (Boolean(channel.identityAuthorization) && !legalConsentChecked)}>{busy ? "Searching…" : "Examine image"}<ArrowUpRight size={16} /></button>}
+          </form>
+          {error && <p className={styles.error} role="alert">{error}</p>}
         </section>
-
-        <aside className={styles.rightPanel}>
-          <div className={styles.panelTitle}>
-            <span>Investigation Control</span>
-            <small>Configuration</small>
-          </div>
-
-          <ControlGroup title="Mode">
-            {INVESTIGATION_MODES.map(([label, description]) => (
-              <button
-                key={label}
-                className={investigationMode === label ? styles.controlActive : styles.controlRow}
-                type="button"
-                onClick={() => setInvestigationMode((current) => (current === label ? null : label))}
-              >
-                <span>
-                  <strong>{label}</strong>
-                  <small>{description}</small>
-                </span>
-                <i />
-              </button>
-            ))}
-          </ControlGroup>
-
-          <ControlGroup title="Tool Selection">
-            <div className={styles.toolList}>
-              {tools.length ? (
-                tools.map((tool) => {
-                  const selected = selectedTools.has(tool.toolId);
-                  return (
-                    <button
-                      key={tool.toolId}
-                      type="button"
-                      className={selected ? styles.toolActive : styles.toolRow}
-                      onClick={() => toggleTool(tool.toolId)}
-                    >
-                      <span>
-                        <strong>{tool.name}</strong>
-                        <small>{humanStatus(tool.runtimeState || tool.status || tool.healthStatus)}</small>
-                      </span>
-                      <i />
-                    </button>
-                  );
-                })
-              ) : (
-                <p className={styles.neutralState}>
-                  {toolsError || "Loading configured tool registry…"}
-                </p>
-              )}
-            </div>
-          </ControlGroup>
-
-          <ControlGroup title="Source Policy">
-            <div className={styles.compactGrid}>
-              {SOURCE_POLICIES.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={sourcePolicy === item}
-                  onClick={() => setSourcePolicy((current) => (current === item ? null : item))}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </ControlGroup>
-
-          <ControlGroup title="Jurisdiction">
-            <div className={styles.compactGrid}>
-              {JURISDICTIONS.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={jurisdiction === item}
-                  onClick={() => setJurisdiction((current) => (current === item ? null : item))}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </ControlGroup>
-
-          <ControlGroup title="Time Range">
-            <div className={styles.compactGrid}>
-              {TIME_RANGES.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={timeRange === item}
-                  onClick={() => setTimeRange((current) => (current === item ? null : item))}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </ControlGroup>
-
-          <div className={styles.executionArea}>
-            <button
-              type="button"
-              className={styles.primaryButton}
-              disabled={busy || closing || Boolean(active) || !query.trim()}
-              onClick={() => void start()}
-            >
-              {busy ? "Investigation running" : "Run Investigation"}
-            </button>
-            <button type="button" className={styles.secondaryWide}>
-              Save Configuration
-            </button>
-          </div>
-        </aside>
+        {!active ? <>
+          <div className={styles.sectionLabel}><h2>Keep your research connected</h2><span>YOUR WORKSPACE</span></div>
+          <div className={styles.workspaceCards}><Link href="/vault"><span className={styles.cardIcon}><FolderOpen size={21} /></span><h3>Evidence vault</h3><p>Return to stored records and examine their provenance.</p><span className={styles.readLink}>Open vault<ArrowUpRight size={14} /></span></Link><Link href="/workbench"><span className={styles.cardIcon}><FileText size={21} /></span><h3>Research workbench</h3><p>Bring a question, its sources and your review into one place.</p><span className={styles.readLink}>Open workbench<ArrowUpRight size={14} /></span></Link><Link href="/investigate/osint-runtime"><span className={styles.cardIcon}><Network size={21} /></span><h3>Know what can run</h3><p>Check tool configuration and execution evidence before relying on it.</p><span className={styles.readLink}>Review tools<ArrowUpRight size={14} /></span></Link></div>
+          <div className={styles.sourceNote}><span>SOURCE AVAILABILITY</span><p>{toolsError || `${tools.length} tool entries returned for this category. Availability depends on configuration and current runtime evidence.`}</p><Link href="/investigate/osint-runtime">Inspect runtime evidence<ArrowUpRight size={13} /></Link></div>
+        </> : <section className={styles.results} aria-label="Investigation results">
+          <div className={styles.resultHeading}><div><p className={styles.eyebrow}>CURRENT INVESTIGATION · {humanStatus(active.status)}</p><h2>{active.normalizedTarget}</h2></div><button onClick={() => void close()} disabled={closing}><X size={14} />{closing ? "Closing…" : "Close and clear"}</button></div>
+          <div className={styles.metrics}><span><strong>{resultCount}</strong> records</span><span><strong>{completedSources}/{active.runs.length}</strong> sources completed</span><span><strong>{findingCount}</strong> findings</span></div>
+          {!!active.warnings?.length && <div className={styles.warning} role="status">{active.warnings.map((warning, i) => <p key={i}>{warning}</p>)}</div>}
+          <nav className={styles.resultTabs} aria-label="Result views">{RESULT_TABS.map(tab => <button key={tab} onClick={() => setActiveTab(tab)} aria-pressed={activeTab === tab} className={activeTab === tab ? styles.tabActive : ""}>{tab}</button>)}</nav>
+          <ResultView active={active} tab={activeTab} onSelect={setSelectedEvidence} />
+        </section>}
+        <footer className={styles.researchFooter}><span>DISHA 6.6 / EVIDENCE FIRST</span><p>A source record is an observation. A shared name does not establish identity.</p></footer>
+        {evidence && <InvestigationEvidencePanel evidence={evidence} status={active?.runs.find(run => run.adapterId === evidence.adapterId)?.status ?? "Unknown"} onClose={() => setSelectedEvidence(null)} />}
       </div>
-
-      {evidence ? (
-        <InvestigationEvidencePanel
-          evidence={evidence}
-          status={
-            active?.runs.find((run) => run.adapterId === evidence.adapterId)?.status ?? "COMPLETED"
-          }
-          onClose={() => setSelectedEvidence(null)}
-        />
-      ) : null}
-    </main>
+    </DishaCommandShell>
   );
 }
 
-function ControlGroup({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className={styles.controlGroup}>
-      <h2>{title}</h2>
-      {children}
-    </section>
-  );
+function ResultView({ active, tab, onSelect }: { active: Investigation; tab: string; onSelect: (id: string) => void }) {
+  if (tab === "Raw") return <pre className={styles.rawView}>{JSON.stringify(active, null, 2)}</pre>;
+  if (tab === "Sources") return <div className={styles.recordGrid}>{active.runs.length ? active.runs.map(run => <article key={run.adapterId} className={styles.record}><span>{humanStatus(run.status)}</span><h3>{run.sourceName}</h3><p>{run.error ?? `${run.evidenceCount} records returned`}</p>{run.warnings.map((warning, index) => <p key={index}>{warning}</p>)}</article>) : <EmptyState />}</div>;
+  if (tab === "Graph") return <div className={styles.recordGrid}>{active.edges.length ? active.edges.map(edge => <button key={edge.id} className={styles.record} onClick={() => onSelect(edge.evidenceId)}><span>{humanStatus(edge.type)}</span><h3>{edge.sourceId}</h3><p>→ {edge.targetId}</p><small>Inspect supporting evidence</small></button>) : <EmptyState />}</div>;
+  if (tab === "Timeline") return <div className={styles.recordGrid}>{active.timeline.length ? active.timeline.map(item => <button key={item.id} className={styles.record} onClick={() => onSelect(item.evidenceId)}><span>{item.timestamp}</span><h3>{item.title}</h3><p>{item.summary}</p><small>{item.sourceName}</small></button>) : <EmptyState />}</div>;
+  if (tab === "Summary") return <div className={styles.recordGrid}>{active.rankedFindings.length ? active.rankedFindings.map(item => <article key={item.id} className={styles.record}><span>{humanStatus(item.matchState)}</span><h3>{item.title}</h3><p>{item.summary}</p><small>{item.contributingSources.join(" · ")}</small>{item.evidenceIds.map(id => <button className={styles.evidenceButton} key={id} onClick={() => onSelect(id)}>Inspect evidence {id.slice(0, 8)}<ArrowUpRight size={12} /></button>)}</article>) : <EmptyState />}</div>;
+  return <div className={styles.recordGrid}>{active.evidence.length ? active.evidence.map(item => {
+    const url = safeSourceUrl(item.sourceUrl);
+    return <article key={item.evidenceId} className={styles.record}><span>{item.sourceName} · {humanStatus(item.corroborationState)}</span><h3>{item.summary}</h3><p>Observed: {item.observedAt ?? "Timestamp not supplied"}</p><small>Retrieved: {item.retrievedAt}</small><code>SHA-256: {item.contentHash}</code><button className={styles.evidenceButton} onClick={() => onSelect(item.evidenceId)}>Inspect provenance<ArrowUpRight size={13} /></button>{url && <a href={url} target="_blank" rel="noopener noreferrer">Open source record<ArrowUpRight size={13} /></a>}</article>;
+  }) : <EmptyState />}</div>;
 }
 
-function ReadyState() {
-  return (
-    <div className={styles.readyState}>
-      <div className={styles.readyGlyph}>
-        <Sparkles size={24} />
-      </div>
-      <h1>Start an investigation</h1>
-      <p>
-        Select a search type, configure approved sources, and run a query to build a governed
-        evidence workspace.
-      </p>
-
-      <div className={styles.capabilityRail}>
-        {[
-          "Evidence",
-          "Sources",
-          "Entity Graph",
-          "Timeline",
-          "Map",
-          "Contradictions",
-          "Corroboration",
-        ].map((item) => (
-          <span key={item}>{item}</span>
-        ))}
-      </div>
-
-      <div className={styles.graphChamber}>
-        <div className={styles.graphGrid} />
-        <div>
-          <Network size={22} />
-          <strong>No entity graph yet</strong>
-          <span>Relationships will appear when evidence-backed entities are discovered.</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function OverviewState({
-  active,
-  onSelect,
-}: {
-  active: Investigation;
-  onSelect: (id: string) => void;
-}) {
-  if (active.status !== "COMPLETED") {
-    return <LoadingState title="Investigation running" text="Retrieving approved sources" />;
-  }
-
-  if (active.rankedFindings && active.rankedFindings.length > 0) {
-    return (
-      <div className={styles.liveResults}>
-        <div className={styles.liveHeader}>
-          <span>Ranked Intelligence Findings ({active.rankedFindings.length})</span>
-          <strong>{active.normalizedTarget}</strong>
-        </div>
-
-        <div className={styles.evidenceCards}>
-          {active.rankedFindings.map((finding) => (
-            <button
-              key={finding.id}
-              type="button"
-              onClick={() => {
-                if (finding.evidenceIds.length > 0) {
-                  onSelect(finding.evidenceIds[0]);
-                }
-              }}
-            >
-              <small>
-                {finding.matchState.replace(/_/g, " ")} · {finding.primarySource}
-                {finding.sourceCount > 1 ? ` (+${finding.sourceCount - 1} source${finding.sourceCount > 2 ? "s" : ""})` : ""}
-                {finding.observedAt ? ` · ${finding.observedAt.slice(0, 10)}` : ""}
-              </small>
-              <strong>{finding.title}</strong>
-              <span>
-                Relevance: {finding.relevanceScore}% · View Evidence
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!active.evidence.length) {
-    return (
-      <EmptyState
-        title="No results"
-        text="The live investigation completed without source-backed evidence."
-      />
-    );
-  }
-
-  return (
-    <div className={styles.liveResults}>
-      <div className={styles.liveHeader}>
-        <span>Live investigation</span>
-        <strong>{active.normalizedTarget}</strong>
-      </div>
-
-      <div className={styles.evidenceCards}>
-        {active.evidence.map((item) => (
-          <button key={item.evidenceId} type="button" onClick={() => onSelect(item.evidenceId)}>
-            <small>{item.sourceName}</small>
-            <strong>{item.summary}</strong>
-            <span>Open evidence</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function EvidenceView({
-  active,
-  onSelect,
-}: {
-  active: Investigation;
-  onSelect: (id: string) => void;
-}) {
-  if (!active.evidence.length) {
-    return (
-      <EmptyState
-        title="No evidence loaded"
-        text="Evidence records will appear here after a live investigation is executed."
-      />
-    );
-  }
-
-  return (
-    <div className={styles.evidenceCards}>
-      {active.evidence.map((item) => (
-        <button key={item.evidenceId} type="button" onClick={() => onSelect(item.evidenceId)}>
-          <small>{item.sourceName}</small>
-          <strong>{item.summary}</strong>
-          <span>Inspect provenance</span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function SourceView({ active }: { active: Investigation }) {
-  if (!active.runs.length) {
-    return (
-      <EmptyState
-        title="No sources loaded"
-        text="Source activity appears only after a live investigation starts."
-      />
-    );
-  }
-
-  return (
-    <div className={styles.sourceRows}>
-      {active.runs.map((run) => (
-        <div key={run.adapterId}>
-          <span>
-            <strong>{run.sourceName}</strong>
-            <small>{humanStatus(run.status)}</small>
-          </span>
-          <i data-status={run.status} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function GraphState({ active }: { active: Investigation }) {
-  if (!active.edges.length) {
-    return (
-      <div className={styles.graphOnly}>
-        <div className={styles.graphGrid} />
-        <div>
-          <Network size={22} />
-          <strong>No entity graph yet</strong>
-          <span>Relationships will appear when evidence-backed entities are discovered.</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <EmptyState
-      title="Graph data available"
-      text="Evidence-backed relationships are present in the active investigation."
-    />
-  );
-}
-
-function RawState({ active }: { active: Investigation }) {
-  return (
-    <pre className={styles.rawView}>
-      {JSON.stringify(
-        {
-          investigationId: active.investigationId,
-          targetType: active.targetType,
-          searchUniverse: active.searchUniverse,
-          investigationMode: active.investigationMode,
-          sourcePolicy: active.sourcePolicy,
-          jurisdiction: active.jurisdiction,
-          timeRange: active.timeRange,
-          status: active.status,
-          runs: active.runs,
-          rankedFindings: active.rankedFindings,
-          evidence: active.evidence,
-          candidateClusters: active.candidateClusters,
-          edges: active.edges,
-          timeline: active.timeline,
-          markers: active.markers,
-          contradictions: active.contradictions,
-          corroborations: active.corroborations,
-        },
-        null,
-        2,
-      )}
-    </pre>
-  );
-}
-
-function LoadingState({ title, text }: { title: string; text: string }) {
-  return (
-    <div className={styles.emptyState}>
-      <span className={styles.spinner} />
-      <strong>{title}</strong>
-      <p>{text}</p>
-    </div>
-  );
-}
-
-function EmptyState({ title, text }: { title: string; text: string }) {
-  return (
-    <div className={styles.emptyState}>
-      <CircleDot size={22} />
-      <strong>{title}</strong>
-      <p>{text}</p>
-    </div>
-  );
-}
-
-function humanStatus(value: string) {
-  return value
-    .replaceAll("_", " ")
-    .toLowerCase()
-    .replace(/(^|\s)\S/g, (character) => character.toUpperCase());
-}
+function EmptyState() { return <p className={styles.empty}>No records in this view yet. Check Sources for execution status.</p>; }
+function humanStatus(value: string) { return value.replaceAll("_", " ").toLowerCase().replace(/(^|\s)\S/g, character => character.toUpperCase()); }
+export default InvestigationClient;

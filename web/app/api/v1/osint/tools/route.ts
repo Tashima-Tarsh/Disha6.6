@@ -12,17 +12,18 @@ const RUNNABLE_TOOL_IDS = new Set([
   "opencorporates", "wikidata", "openalex", "reliefweb", "threatfox", "malwarebazaar",
   "wayback", "common-crawl", "gdelt", "brave-search", "github-repository",
   "india-vehicle-format", "vahan-registry", "echallan", "certificate-transparency",
+  "openosint", "openosint-dns", "openosint-rdap", "openosint-whois", "openosint-dorks", "openosint-ip", "openosint-github", "openosint-breach",
 ]);
 
 const UNIVERSE_COMPATIBLE_TOOLS: Record<string, string[]> = {
-  domain: ["theharvester", "owasp-amass", "amass", "subfinder", "spiderfoot", "recon-ng", "photon", "shodan", "dns-google", "rdap", "certificate-transparency", "wayback", "common-crawl", "gdelt", "brave-search"],
-  person: ["sherlock", "maigret", "opensanctions", "opencorporates", "wikidata", "gdelt", "brave-search", "instaloader", "telegram-public"],
-  email: ["holehe", "gdelt", "brave-search"],
+  domain: ["theharvester", "owasp-amass", "amass", "subfinder", "spiderfoot", "recon-ng", "photon", "shodan", "dns-google", "rdap", "certificate-transparency", "wayback", "common-crawl", "gdelt", "brave-search", "openosint", "openosint-dns", "openosint-rdap", "openosint-whois", "openosint-dorks"],
+  person: ["sherlock", "maigret", "opensanctions", "opencorporates", "wikidata", "gdelt", "brave-search", "instaloader", "telegram-public", "openosint-dorks", "openosint-github"],
+  email: ["holehe", "gdelt", "brave-search", "openosint-breach"],
   phone: ["phoneinfoga", "gdelt", "brave-search"],
   company: ["opencorporates", "opensanctions", "sec-edgar", "wikidata", "gdelt", "brave-search"],
   location: ["reliefweb", "wikidata", "gdelt", "brave-search"],
   vehicle: ["india-vehicle-format", "vahan-registry", "echallan"],
-  cyber: ["cisa-kev", "nvd-cve", "epss", "threatfox", "malwarebazaar", "opencti", "intelowl", "shodan", "owasp-amass", "subfinder"],
+  cyber: ["cisa-kev", "nvd-cve", "epss", "threatfox", "malwarebazaar", "opencti", "intelowl", "shodan", "owasp-amass", "subfinder", "openosint", "openosint-ip", "openosint-dns", "openosint-rdap"],
   government: ["cisa-kev", "nvd-cve", "sec-edgar", "noaa-space-weather", "india-vehicle-format", "vahan-registry", "echallan", "opensanctions", "wikidata"],
   document: ["openalex", "wikidata", "gdelt", "brave-search"],
   osint: Array.from(RUNNABLE_TOOL_IDS),

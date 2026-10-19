@@ -97,6 +97,8 @@ class DatasetPreparer:
 
     @staticmethod
     def validate_sample(sample: dict[str, Any]) -> bool:
+        if not isinstance(sample, dict):
+            return False
         if not all(k in sample for k in DatasetPreparer.REQUIRED_FIELDS):
             return False
         if not sample.get("instruction", "").strip():

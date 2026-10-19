@@ -10,6 +10,7 @@ export function errorResponse(error: unknown, req: NextRequest, principal?: Prin
   const status = typeof error === "object" && error !== null && "status" in error ? Number(error.status) : 500;
   const isDev = process.env.NODE_ENV !== "production";
   const message = (error instanceof Error ? error.message : String(error)) || "Internal server error";
+  console.error("API ROUTE ERROR:", error);
   // In dev, surface real errors instead of swallowing them
   const publicMessage = isDev ? message : (error instanceof Error && status < 500 ? error.message : "Internal server error");
   try {

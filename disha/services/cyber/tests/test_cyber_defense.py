@@ -28,6 +28,13 @@ for p in [str(_REPO_ROOT), str(_CYBER / "model"), str(_CYBER / "response_engine"
 class TestAttackClassifier(unittest.TestCase):
     """Tests for the AI attack classifier."""
 
+    @classmethod
+    def setUpClass(cls):
+        try:
+            import torch
+        except ImportError:
+            raise unittest.SkipTest("torch is not installed; skipping PyTorch attack classifier tests")
+
     def test_model_creation(self):
         """Test that the model can be instantiated."""
         from train import AttackClassifier
@@ -219,6 +226,13 @@ class TestResponseEngine(unittest.TestCase):
 
 class TestInferencePipeline(unittest.TestCase):
     """Tests for the inference pipeline."""
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            import torch
+        except ImportError:
+            raise unittest.SkipTest("torch is not installed; skipping PyTorch inference tests")
 
     def test_threat_score_computation(self):
         """Test threat score calculation."""

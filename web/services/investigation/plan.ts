@@ -54,7 +54,10 @@ export function classifyTarget(
 
   // Explicit user Search Universe selection overrides ambiguous inference safely (Bug 4)
   if (universe === "person" && (requested === "auto" || requested === "person_name")) {
-    return { normalizedTarget: trimmed.replace(/^@/, ""), targetType: "person_name", searchUniverse: universe };
+    const unambiguous = classifyUniversalTarget(trimmed);
+    if (!["ip", "domain", "cve", "file_hash", "url", "asn"].includes(unambiguous.primaryType)) {
+      return { normalizedTarget: trimmed.replace(/^@/, ""), targetType: "person_name", searchUniverse: universe };
+    }
   }
   if (universe === "location" && (requested === "auto" || requested === "location")) {
     return { normalizedTarget: trimmed, targetType: "location", searchUniverse: universe };
@@ -72,8 +75,12 @@ export function classifyTarget(
     return { normalizedTarget: trimmed, targetType: "topic", searchUniverse: universe };
   }
 
-  if (["person_name", "company", "topic", "location"].includes(requested)) {
-    return { normalizedTarget: trimmed, targetType: requested as TargetType, searchUniverse: universe };
+  if (["person_name", "username", "company", "topic", "location"].includes(requested)) {
+    const normalized = requested === "username" ? trimmed.replace(/^@/, "") : trimmed;
+    if (requested === "username" && !/^[a-zA-Z0-9_.-]{1,64}$/.test(normalized)) {
+      fail("Enter a valid username or social handle");
+    }
+    return { normalizedTarget: normalized, targetType: requested as TargetType, searchUniverse: universe };
   }
 
   if (requested === "norad_id") {
@@ -98,9 +105,19 @@ export function classifyTarget(
     normalizedTarget = classified.normalizedValue;
   }
 
+  // Handle auto-detection heuristics for alphanumeric handles/usernames (e.g. Sangeetastar9818)
+  if (requested === "auto" && inferred === "topic") {
+    if (trimmed.startsWith("@") || (/^[a-zA-Z0-9_.-]{3,64}$/.test(trimmed) && /[0-9]/.test(trimmed) && /[a-zA-Z]/.test(trimmed))) {
+      inferred = "username";
+      normalizedTarget = trimmed.replace(/^@/, "");
+    }
+  }
+
   if (requested !== "auto") {
     const compatibleUrl = requested === "url" && inferred === "repository";
-    if (inferred !== requested && !compatibleUrl) fail("Target does not match selected type");
+    const compatibleUsername = requested === "username" && (inferred === "topic" || inferred === "person_name") && /^[a-zA-Z0-9_.-]{1,64}$/.test(trimmed.replace(/^@/, ""));
+    const compatiblePerson = requested === "person_name" && (inferred === "topic" || inferred === "username");
+    if (inferred !== requested && !compatibleUrl && !compatibleUsername && !compatiblePerson) fail("Target does not match selected type");
     inferred = requested;
   }
 

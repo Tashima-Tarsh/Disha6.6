@@ -1,18 +1,5 @@
-FROM node:22-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-# Build tooling (Tailwind/PostCSS/TypeScript/Next plugins) lives in devDependencies,
-# so the builder needs the complete lockfile install.
-RUN npm ci
-
-FROM node:22-alpine AS builder
-WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-
-FROM node:22-alpine AS runner
+﻿FROM node:22-alpine AS runner
+ARG NEXT_BUILD_DIR=.next
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
@@ -22,11 +9,12 @@ ENV NODE_ENV=production \
 RUN addgroup --system --gid 1001 nextjs \
   && adduser --system --uid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nextjs /app/public ./public
-COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nextjs /app/database ./database
-COPY --from=builder --chown=nextjs:nextjs /app/scripts ./scripts
+COPY --chown=nextjs:nextjs public ./public
+COPY --chown=nextjs:nextjs ${NEXT_BUILD_DIR}/standalone ./
+COPY --chown=nextjs:nextjs ${NEXT_BUILD_DIR}/static ./${NEXT_BUILD_DIR}/static
+COPY --chown=nextjs:nextjs database ./database
+COPY --chown=nextjs:nextjs data ./data
+COPY --chown=nextjs:nextjs scripts ./scripts
 
 USER nextjs
 EXPOSE 3000

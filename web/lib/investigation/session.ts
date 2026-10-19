@@ -6,9 +6,22 @@ export function csrfHeaders(): Record<string, string> {
 }
 export const investigationRequest: Requester = async <T>(url: string, init: RequestInit = {}): Promise<T> => {
   const response = await fetch(url, { ...init, credentials: "same-origin", cache: "no-store", headers: { ...csrfHeaders(), ...init.headers } });
-  const body: unknown = await response.json();
-  if (!response.ok) throw new Error(body && typeof body === "object" && "error" in body && typeof body.error === "string" ? body.error : "INVESTIGATION SERVICE FAILED");
-  return body as T;
+  const rawText = await response.text();
+  let body: unknown = null;
+  if (rawText && rawText.trim().length > 0) {
+    try {
+      body = JSON.parse(rawText);
+    } catch {
+      body = { error: rawText.slice(0, 300) };
+    }
+  }
+  if (!response.ok) {
+    const errorMsg = body && typeof body === "object" && "error" in body && typeof (body as { error: unknown }).error === "string"
+      ? (body as { error: string }).error
+      : `HTTP ${response.status}: ${response.statusText || "INVESTIGATION SERVICE UNAVAILABLE"}`;
+    throw new Error(errorMsg);
+  }
+  return (body ?? {}) as T;
 };
 const root = "/api/v1/osint/investigations";
 export class InvestigationSession {

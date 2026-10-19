@@ -2322,7 +2322,7 @@ export const generatedOsintManifests: GeneratedOsintToolManifest[] = [
     workerRuntime: "python",
     cliCommand: "sherlock {target} --print-found --timeout 15",
     outputFormat: "json",
-    timeoutMs: 60000,
+    timeoutMs: 120000,
     maxRetries: 1,
     rateLimitPerMinute: 6,
     legalUse: ["Authorized security analysis","Defensive research","Public OSINT lookup"],

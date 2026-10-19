@@ -90,7 +90,7 @@ class PostgresMemoryGraphStore implements MemoryGraphStore {
         missionId: String(row.mission_id),
         extensionId: "memory-graph",
         analysisEventId: String(row.analysis_event_id),
-        recordedAt: new Date(String(row.recorded_at)).toISOString(),
+        recordedAt: row.recorded_at instanceof Date ? row.recorded_at.toISOString() : new Date(String(row.recorded_at)).toISOString(),
         claim: {
           claimId: String(row.claim_id),
           text: String(row.claim),

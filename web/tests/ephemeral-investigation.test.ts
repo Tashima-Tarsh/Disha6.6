@@ -86,7 +86,7 @@ describe("truthful source records and temporary lifecycle", () => {
     const store = new MemoryStore(); const execute = vi.fn(async (plan: AdapterPlan) => result(plan.adapterId, { entities: [], articles: [], records: [] }));
     const service = new InvestigationService(store, execute, async () => {});
     const created = await service.create({ target: type === "email" ? "person@example.com" : type === "phone" ? "+12025550123" : "Shared name", targetType: type }, ctx);
-    const updated = await service.advance(created.investigationId, ctx); expect(execute).toHaveBeenCalledOnce(); expect(updated.evidence).toHaveLength(0); expect(updated.candidateClusters).toHaveLength(0); expect(updated.runs.some(run => run.status === "NO_RESULTS")).toBe(true);
+    const updated = await service.advance(created.investigationId, ctx); expect(execute).toHaveBeenCalledTimes(type === "person_name" ? 3 : 1); expect(updated.evidence).toHaveLength(0); expect(updated.candidateClusters).toHaveLength(0); expect(updated.runs.some(run => run.status === "NO_RESULTS")).toBe(true);
   });
   it("keeps blocked and unconfigured sources unexecuted", async () => {
     vi.stubEnv("BRAVE_SEARCH_API_KEY", ""); const store = new MemoryStore(); const execute = vi.fn(async (plan: AdapterPlan) => result(plan.adapterId, { articles: [] })); const service = new InvestigationService(store, execute, async () => {});

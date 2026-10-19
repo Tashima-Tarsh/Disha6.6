@@ -13,7 +13,6 @@ import {
   Layers3,
   Map as MapIcon,
   Network,
-  Search,
   Settings2,
   ShieldCheck,
   Waypoints,
@@ -26,12 +25,7 @@ import type {
   WorkspaceTimelineItem,
 } from "@/lib/intelligence/workspace-contract";
 import type { OperationalGeoFeature } from "@/lib/geospatial/contracts";
-import type {
-  CanonicalSourceRuntimeNode,
-  OsintSystemSystemDefinition,
-} from "@/lib/unified/canonical-source-registry";
 import { LiveOsintPlane } from "@/components/intelligence/LiveOsintPlane";
-import { DishaMotionField } from "@/components/visual/DishaMotionField";
 import { CommandPalette } from "./command-palette";
 import styles from "./analyst-workspace.module.css";
 
@@ -42,10 +36,6 @@ const GeospatialCommandMap = dynamic(
 const IntelligenceGraph = dynamic(
   () => import("@/components/intelligence/IntelligenceGraph").then((module) => module.IntelligenceGraph),
   { ssr: false, loading: () => <div className={styles.graphLoading}>Loading persisted entity graph…</div> },
-);
-const OsintUniverse3D = dynamic(
-  () => import("@/components/visual/OsintUniverse3D").then((module) => module.OsintUniverse3D),
-  { ssr: false, loading: () => <div className={styles.mapLoading}>Initializing 3D OSINT Universe runtime…</div> },
 );
 
 type PrincipalView = { email: string; roles: string[] };
@@ -62,35 +52,6 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
   const [playing, setPlaying] = useState(false);
   const [playbackIndex, setPlaybackIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [universeError, setUniverseError] = useState("");
-  const [universeData, setUniverseData] = useState<{
-    sources: CanonicalSourceRuntimeNode[];
-    systems: OsintSystemSystemDefinition[];
-    summary?: {
-      totalSources: number;
-      healthySources: number;
-      unconfiguredSources: number;
-      referenceOnlySources: number;
-      blockedSources: number;
-      persistedEvidenceTotal: number;
-    };
-  } | null>(null);
-  const [selectedSource, setSelectedSource] = useState<CanonicalSourceRuntimeNode | null>(null);
-
-  useEffect(() => {
-    fetch("/api/v1/osint/universe", { credentials: "same-origin" })
-      .then((res) => {
-        if (!res.ok) throw new Error("UNIVERSE API UNAVAILABLE");
-        return res.json();
-      })
-      .then((data) => {
-        if (data && Array.isArray(data.sources)) {
-          setUniverseData(data);
-        }
-      })
-      .catch(() => setUniverseError("UNIVERSE API UNAVAILABLE"));
-  }, []);
-
 
   useEffect(() => {
     const controller = new AbortController();
@@ -176,21 +137,19 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
 
   return (
     <div className={styles.shell}>
-      <DishaMotionField />
       <aside className={styles.rail}>
         <Link className={styles.brand} href="/dashboard" aria-label="disha6.6 intelligence workspace">
           <span>D</span>
-          <div><strong>disha6.6</strong><small>Constitutional Evidence OS</small></div>
+          <div><strong>disha6.6</strong><small>Evidence workspace</small></div>
         </Link>
 
         <nav className={styles.nav} aria-label="Primary">
-          <a href="#universe"><Globe size={16} /> 3D OSINT Universe</a>
           <a href="#map" className={styles.navActive}><MapIcon size={16} /> Situation map</a>
           <a href="#timeline"><Clock3 size={16} /> Timeline</a>
           <a href="#graph"><Network size={16} /> Entity graph</a>
           <a href="#evidence"><Fingerprint size={16} /> Evidence</a>
           <Link href="/workbench"><Waypoints size={16} /> Mission workbench</Link>
-          <Link href="/surveillance"><Globe size={16} /> 3D Cyber Space</Link>
+          <Link href="/surveillance"><Globe size={16} /> Geospatial view</Link>
           <Link href="/intelligence"><FileSearch size={16} /> Intelligence</Link>
           <Link href="/system"><Settings2 size={16} /> System console</Link>
         </nav>
@@ -214,14 +173,14 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
 
         <footer className={styles.railFooter}>
           <ShieldCheck size={15} />
-          <div><strong>Evidence-first runtime</strong><span>{principal.email}</span></div>
+          <div><strong>Source-linked runtime</strong><span>{principal.email}</span></div>
         </footer>
       </aside>
 
       <main className={styles.workspace}>
         <header className={styles.topbar}>
           <div>
-            <p>National intelligence workspace</p>
+            <p>Authenticated workspace</p>
             <h1>Operational picture</h1>
           </div>
           <div className={styles.topActions}>
@@ -259,7 +218,6 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
               entity={selectedEntity}
               timeline={selectedTimeline}
               latestEvidence={data.evidence[0] ?? null}
-              selectedSource={selectedSource}
             />
           </aside>
 
@@ -272,29 +230,6 @@ export function DashboardClient({ principal }: { principal: PrincipalView }) {
           </section>
 
           <LiveOsintPlane />
-
-          <section className={styles.universePanel} id="universe" aria-labelledby="universe-heading">
-            <header className={styles.sectionHead}>
-              <div>
-                <span className={styles.kicker}>Authenticated 3D Intelligence Universe</span>
-                <h2 id="universe-heading">OSINT Investigation Space</h2>
-              </div>
-              <div className={styles.mapMeta}>
-                <span><ShieldCheck size={14} /> {universeData?.sources.length ?? "—"} cataloged sources</span>
-                <span><Activity size={14} /> {universeData?.summary?.healthySources ?? "—"} runtime healthy</span>
-                <span><Layers3 size={14} /> {universeData?.summary?.persistedEvidenceTotal ?? 0} persisted evidence</span>
-              </div>
-            </header>
-
-            <Link className={styles.investigationBar} href="/investigate"><Search size={16} /> Open Investigation Universe <ArrowUpRight size={16} /></Link>
-
-            {universeError && <p role="alert">{universeError}</p>}
-            <OsintUniverse3D
-              sources={universeData?.sources}
-              systems={universeData?.systems}
-              onSelectSource={(source) => setSelectedSource(source)}
-            />
-          </section>
 
           <section className={styles.graphPanel} id="graph">
             <header className={styles.sectionHead}>
@@ -357,37 +292,12 @@ function Inspector({
   entity,
   timeline,
   latestEvidence,
-  selectedSource,
 }: {
   feature: OperationalGeoFeature | null;
   entity: WorkspaceEntity | null;
   timeline: WorkspaceTimelineItem | null;
   latestEvidence: IntelligenceWorkspace["evidence"][number] | null;
-  selectedSource?: CanonicalSourceRuntimeNode | null;
 }) {
-  if (selectedSource) {
-    return (
-      <div className={styles.inspectorBody}>
-        <StatusChip>{selectedSource.health}</StatusChip>
-        <h3>{selectedSource.name}</h3>
-        <Definition label="System" value={selectedSource.system} />
-        <Definition label="Category" value={selectedSource.originalCategory} />
-        <Definition label="Mode" value={selectedSource.mode} />
-        <Definition label="Persisted Evidence" value={String(selectedSource.evidenceCount)} />
-        {selectedSource.errorMessage ? <Definition label="Detail" value={selectedSource.errorMessage} /> : null}
-        <div className={styles.linkList}>
-          <span>Capabilities</span>
-          {selectedSource.capabilities.map((cap) => (
-            <code key={cap}>{cap}</code>
-          ))}
-        </div>
-        {selectedSource.providerUrl ? (
-          <a href={selectedSource.providerUrl} target="_blank" rel="noreferrer">Open canonical source <ArrowUpRight size={13} /></a>
-        ) : null}
-      </div>
-    );
-  }
-
   if (feature) {
     return (
       <div className={styles.inspectorBody}>

@@ -10,7 +10,7 @@ import {
   Layers,
   ArrowRight,
 } from "lucide-react";
-import { DishaShellNav } from "@/components/shell/DishaShellNav";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 import type { DISHACorroboration } from "@/lib/unified/canonical/types";
 import styles from "./corroboration.module.css";
 
@@ -55,8 +55,8 @@ export function CorroborationClient({ principal }: { principal: PrincipalView })
   }
 
   return (
-    <div className={styles.shell}>
-      <DishaShellNav />
+    <DishaCommandShell principal={principal}>
+      <div className={styles.shell}>
 
       <main className={styles.main}>
         <header className={styles.hero}>
@@ -157,6 +157,7 @@ export function CorroborationClient({ principal }: { principal: PrincipalView })
           </section>
         </div>
       </main>
-    </div>
+      </div>
+    </DishaCommandShell>
   );
 }

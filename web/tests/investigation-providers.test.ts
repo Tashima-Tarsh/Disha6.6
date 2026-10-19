@@ -20,9 +20,4 @@ describe("official configured providers", () => {
     vi.stubEnv("SHODAN_API_KEY", "test-key"); fetcher.mockResolvedValue(Response.json({ query_credits: 0 }));
     await expect(executeProvider({ ...plan, input: { type: "domain", target: "example.com" } }, "owner", "inv", new AbortController().signal)).rejects.toThrow("credits_exhausted"); expect(fetcher).toHaveBeenCalledOnce(); expect(runFailure("provider_query_credits_exhausted").status).toBe("RATE_LIMITED");
   });
-  it("normalizes real image page matches without requesting face identification", async () => {
-    vi.stubEnv("GOOGLE_CLOUD_VISION_API_KEY", "test-vision-key"); fetcher.mockResolvedValue(Response.json({ responses: [{ webDetection: { pagesWithMatchingImages: [{ url: "https://example.com/image-page", pageTitle: "Public image page" }] } }] }));
-    const imagePlan = { ...plan, adapterId: "google-vision-web", sourceName: "Google Cloud Vision", input: {} }; const result = await executeProvider(imagePlan, "owner", "inv", new AbortController().signal, Buffer.from("test image"));
-    const request = JSON.parse(String(fetcher.mock.calls[0][1]?.body)); expect(request.requests[0].features).toEqual([{ type: "WEB_DETECTION", maxResults: 20 }]); expect(normalizeRecords(imagePlan, result)[0].sourceUrl).toBe("https://example.com/image-page"); expect(JSON.stringify(result)).not.toContain("test-vision-key");
-  });
 });

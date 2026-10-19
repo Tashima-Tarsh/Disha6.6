@@ -14,15 +14,23 @@ describe("OSINT service connectors", () => {
     expect(connectors.map((connector) => connector.id)).toEqual([
       "opencti",
       "intelowl",
+      "dfir-iris",
+      "velociraptor",
+      "flowsint",
       "spiderfoot",
       "sherlock",
       "maigret",
+      "openosint",
     ]);
     expect(connectors.find((connector) => connector.id === "opencti")?.executionState).toBe("configured_live");
     expect(connectors.find((connector) => connector.id === "intelowl")?.executionState).toBe("configured_live");
+    expect(connectors.find((connector) => connector.id === "dfir-iris")?.executionState).toBe("configured_live");
+    expect(connectors.find((connector) => connector.id === "velociraptor")?.executionState).toBe("configured_live");
+    expect(connectors.find((connector) => connector.id === "flowsint")?.executionState).toBe("configured_live");
     expect(connectors.find((connector) => connector.id === "spiderfoot")?.executionState).toBe("blocked_by_policy");
     expect(connectors.find((connector) => connector.id === "sherlock")?.executionState).toBe("blocked_by_policy");
     expect(connectors.find((connector) => connector.id === "maigret")?.executionState).toBe("blocked_by_policy");
+    expect(connectors.find((connector) => connector.id === "openosint")?.executionState).toBe("configured_live");
   });
 
   it("does not expose secret values in connector posture", () => {
@@ -259,12 +267,15 @@ describe("OSINT service connectors", () => {
     const ids = createDefaultOsintBus().list().map((adapter) => adapter.id);
     expect(ids).toContain("service-opencti");
     expect(ids).toContain("service-intelowl");
+    expect(ids).toContain("service-dfir-iris");
+    expect(ids).toContain("service-velociraptor");
+    expect(ids).toContain("service-flowsint");
   });
 
   it("summarizes live-configurable versus policy-blocked tools", () => {
     const summary = getOsintServiceConnectorSummary();
-    expect(summary.total).toBe(5);
+    expect(summary.total).toBe(9);
     expect(summary.blockedByPolicy).toBe(3);
-    expect(summary.rule).toContain("OpenCTI and IntelOwl");
+    expect(summary.rule).toContain("DFIR-IRIS");
   });
 });

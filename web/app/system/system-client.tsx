@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Box, Cpu, Database, HardDrive, MapPinned, RadioTower, ServerCog } from "lucide-react";
+import { ArrowLeft, Box, Cpu, Database, ExternalLink, HardDrive, MapPinned, RadioTower, ServerCog } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import type { GeospatialRuntimeStatus } from "@/lib/geospatial/contracts";
 import { QuantumCore3D } from "@/components/visual/QuantumCore3D";
 import styles from "./system.module.css";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 
 type RuntimeStatus = {
   generatedAt: string;
@@ -16,6 +17,7 @@ type RuntimeStatus = {
   embeddingRoute: unknown;
   sourceScheduler: { policyCount: number; enabledCount: number; nextDueAt: string | null };
   researchRuntime: unknown;
+  pentagi?: { status: "unconfigured" | "available" | "unavailable"; publicUrl: string | null };
 };
 
 export function SystemClient({ principal }: { principal: { email: string; roles: string[] } }) {
@@ -38,7 +40,8 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
   }, []);
 
   return (
-    <main className={styles.shell}>
+    <DishaCommandShell principal={principal}>
+      <main className={styles.shell}>
       <header className={styles.header}>
         <div>
           <Link href="/dashboard"><ArrowLeft size={15} /> Analyst workspace</Link>
@@ -50,6 +53,14 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
       </header>
 
       {error ? <div className={styles.error}>{error}</div> : null}
+
+      <section className={styles.panel}>
+        <div className={styles.panelHead}><ServerCog size={18} /><div><p>Security testing</p><h2>PentAGI</h2></div></div>
+        <p>{runtime?.pentagi?.status ?? "loading"}</p>
+        {runtime?.pentagi?.publicUrl ? (
+          <a href={runtime.pentagi.publicUrl} target="_blank" rel="noopener noreferrer">Open PentAGI <ExternalLink size={14} /></a>
+        ) : null}
+      </section>
 
       <QuantumCore3D
         dbStatus={runtime?.database ?? "loading"}
@@ -97,6 +108,7 @@ export function SystemClient({ principal }: { principal: { email: string; roles:
         </section>
       </section>
     </main>
+    </DishaCommandShell>
   );
 }
 

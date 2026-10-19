@@ -1,0 +1,55 @@
+﻿.stage {
+  position: absolute;
+  right: 4%;
+  top: 14%;
+  width: min(470px, 42vw);
+  height: min(520px, 65vh);
+  perspective: 1000px;
+  z-index: -1;
+  isolation: isolate;
+}
+.sculpture {
+  position: absolute;
+  left: 20%;
+  top: 12%;
+  width: 64%;
+  height: 72%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--depth-x, -18deg)) rotateY(var(--depth-y, -28deg)) rotateZ(-12deg);
+  transition: transform 250ms ease-out;
+}
+.sheet, .cover {
+  position: absolute;
+  inset: 0;
+  border-radius: 40px 8px 40px 8px;
+  border: 1px solid #d2dac4;
+  backface-visibility: hidden;
+}
+.sheet {
+  background: #e1e8d6;
+  transform: translateZ(calc(var(--layer) * 13px)) translateX(calc(var(--layer) * 10px));
+  box-shadow: 5px 6px 12px #52633c15;
+}
+.sheet:nth-child(2) { background: #e8e9da; }
+.sheet:nth-child(3) { background: #eee9d5; }
+.sheet:nth-child(4) { background: #f3eedf; }
+.sheet:nth-child(5) { background: #f9f7ec; }
+.cover {
+  transform: translateZ(76px) translateX(50px);
+  background: #faf8ec;
+  border-color: #ffffffc9;
+  box-shadow: inset 2px 2px 2px #ffffff, 4px 6px 18px #59674718;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+.cover > span { font: italic clamp(80px, 10vw, 150px)/1 Georgia, serif; color: #657b4e; letter-spacing: -12px; }
+.cover > small { font: 10px "Segoe UI", Arial, sans-serif; color: #7a8c64; letter-spacing: 4px; }
+.edge { position: absolute; inset: 35px 14px 35px auto; width: 2px; transform: translateZ(78px) translateX(50px); background: #bcc9a5; }
+.shadow { position: absolute; inset: auto 6% 3% 10%; height: 18%; border-radius: 50%; background: radial-gradient(ellipse, #4c613b26, transparent 70%); transform: rotate(-12deg); z-index: -1; }
+@media(max-width:1000px) { .stage { right: 3%; width: 50vw; opacity: .7; } }
+@media(max-width:700px) { .stage { display: none; } }
+@media(prefers-reduced-motion:reduce) { .sculpture { transition: none; transform: rotateX(-18deg) rotateY(-28deg) rotateZ(-12deg); } }
+@media print { .stage { display: none; } }

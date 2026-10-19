@@ -106,7 +106,7 @@ class PostgresExtensionClaimStore implements ExtensionClaimStore {
         analysisEventId: String(row.analysis_event_id),
         policyEventId: String(row.policy_event_id),
         policyDecision: String(row.policy_decision) as PolicyDecision["decision"],
-        recordedAt: new Date(String(row.recorded_at)).toISOString(),
+        recordedAt: row.recorded_at instanceof Date ? row.recorded_at.toISOString() : new Date(String(row.recorded_at)).toISOString(),
         claim: {
           claimId: String(row.claim_id),
           text: String(row.claim),

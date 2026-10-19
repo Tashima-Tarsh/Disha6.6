@@ -285,22 +285,34 @@ export class InvestigationService {
         const polled = await this.astra.poll(external.externalRunId, ctx.principal.userId);
         if (polled.pending) {
           value.status = "RUNNING";
-          await sleep(350);
-          skipFinalSave = true;
-          return publicInvestigation(value);
+          // While the Astra job is still running, also process any remaining inline (non-Astra) queued adapters
+          const inlineQueued = value.runs.filter(
+            (item) => item.status === "QUEUED" && !this.astra.isAdapter(item.adapterId),
+          );
+          if (inlineQueued.length === 0) {
+            await sleep(350);
+            skipFinalSave = true;
+            return publicInvestigation(value);
+          }
+          // Fall through to process inline batch below
+          run = undefined; // clear so we don't double-apply
+        } else {
+          applyResult(value, run, plan, polled.result);
+          run.endedAt = new Date().toISOString();
         }
+      }
 
-        applyResult(value, run, plan, polled.result);
-        run.endedAt = new Date().toISOString();
-      } else {
+      // Process inline queued adapters (when no Astra job is blocking OR while Astra is pending)
+      if (!external?.externalRunId || (external?.externalRunId && run === undefined)) {
         const queuedRuns = value.runs.filter((item) => item.status === "QUEUED");
-        if (queuedRuns.length === 0) {
+        if (queuedRuns.length === 0 && !value.runs.some(r => r.status === "RUNNING" && r.externalRunId)) {
           const insights = executeIntelligencePipeline(value);
           value.rankedFindings = insights.rankedFindings;
           value.timeline = insights.timeline;
           value.markers = insights.markers;
           value.contradictions = insights.contradictions;
           value.corroborations = insights.corroborations;
+          value.edges = insights.edges;
           value.status = "COMPLETED";
           await this.save(value);
           skipFinalSave = true;
@@ -308,6 +320,12 @@ export class InvestigationService {
         }
 
         const firstQueued = queuedRuns[0];
+        if (!firstQueued) {
+          // Only Astra jobs remain in queue — wait for them
+          await sleep(350);
+          skipFinalSave = true;
+          return publicInvestigation(value);
+        }
         const planFirst = value.plannedAdapters.find((item) => item.adapterId === firstQueued.adapterId);
         if (!planFirst) throw failure("Investigation source plan is missing", 500);
 
@@ -377,6 +395,7 @@ export class InvestigationService {
       value.markers = insights.markers;
       value.contradictions = insights.contradictions;
       value.corroborations = insights.corroborations;
+      value.edges = insights.edges;
 
     } catch (error) {
       if (!value) throw error;

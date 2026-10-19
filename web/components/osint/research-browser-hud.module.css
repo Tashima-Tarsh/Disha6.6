@@ -1,0 +1,420 @@
+.browserHudCard {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #090e17 0%, #05080f 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(56, 189, 248, 0.05);
+  position: relative;
+  min-height: 520px;
+  height: 100%;
+  transition: all 0.25s ease;
+}
+
+.browserHudEnlarged {
+  position: fixed !important;
+  inset: 20px !important;
+  z-index: 9999 !important;
+  min-height: unset !important;
+  height: calc(100vh - 40px) !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(56, 189, 248, 0.35) !important;
+  border-color: #38bdf8 !important;
+}
+
+/* Top HUD Bar */
+.hudTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #0d1522;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+.hudModeSwitch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #7f93a7;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modeBtn:hover {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.modeBtnActive {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.hudActionGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.externalBrowserPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%);
+  border: 1px solid #38bdf8;
+  color: #e0f2fe;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.externalBrowserPill:hover {
+  background: #38bdf8;
+  color: #030712;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+  transform: translateY(-1px);
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.iconBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* Browser Toolbar */
+.browserToolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #080d16;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+}
+
+.browserUrlForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.urlInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #03060c;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 5px;
+  padding: 4px 8px;
+  flex: 1;
+}
+
+.urlSearchIcon {
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.urlInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e2e8f0;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  width: 100%;
+}
+
+.urlSubmitBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #0284c7;
+  border: 1px solid #38bdf8;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.urlSubmitBtn:hover {
+  background: #38bdf8;
+  color: #030712;
+}
+
+.iconBtnSmall {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.iconBtnSmall:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.quickEnginesStrip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.quickEnginesLabel {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.quickEngineBtn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.quickEngineBtn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* Viewport */
+.hudViewport {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 440px;
+  background: #020408;
+}
+
+.browserContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  position: relative;
+}
+
+.embeddedIframe {
+  width: 100%;
+  flex: 1;
+  min-height: 380px;
+  border: none;
+  background: #ffffff;
+}
+
+.browserSecurityStrip {
+  background: #090e18;
+  border-top: 1px solid rgba(56, 189, 248, 0.2);
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.browserSecurityInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #94a3b8;
+  flex-wrap: wrap;
+}
+
+.securityShield {
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.inlineExternalLink {
+  background: transparent;
+  border: none;
+  color: #38bdf8;
+  cursor: pointer;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+}
+
+.inlineExternalLink:hover {
+  text-decoration: underline;
+  color: #7dd3fc;
+}
+
+.targetDossierStrip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.targetPill {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.dossierBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dossierBtn:hover {
+  background: #38bdf8;
+  color: #030712;
+  border-color: #38bdf8;
+}
+
+/* Globe Container */
+.globeContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 440px;
+  flex: 1;
+}
+
+.globeTelemetryOverlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+  flex-wrap: wrap;
+}
+
+.telemetryPill {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(3, 7, 18, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  backdrop-filter: blur(6px);
+  color: #e0f2fe;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.telemetrySpin {
+  color: #38bdf8;
+  animation: spin 5s linear infinite;
+}
+
+.googleEarthBtn {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.25) 100%);
+  border: 1px solid #22c55e;
+  color: #86efac;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.googleEarthBtn:hover {
+  background: #22c55e;
+  color: #052e16;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.5);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

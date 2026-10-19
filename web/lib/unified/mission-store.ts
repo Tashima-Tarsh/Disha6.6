@@ -80,7 +80,7 @@ class PostgresMissionStore implements MissionStore {
   }
 
   async clearForTests(): Promise<void> {
-    await this.pool.query("delete from mission_results");
+    await this.pool.query("truncate table mission_approvals, mission_results, missions cascade");
   }
 }
 

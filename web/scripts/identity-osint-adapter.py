@@ -57,7 +57,7 @@ def run_sherlock(username: str) -> dict[str, Any]:
             username,
             site_data,
             QueryNotify(),
-            timeout=max(3, min(int(os.getenv("DISHA_SHERLOCK_TIMEOUT_SECONDS", "10")), 20)),
+            timeout=max(2, min(int(os.getenv("DISHA_SHERLOCK_TIMEOUT_SECONDS", "4")), 10)),
         )
 
     found: list[dict[str, Any]] = []

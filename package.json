@@ -11,7 +11,7 @@
     "build": "npm --prefix web run build",
     "start": "npm --prefix web run start",
     "test": "npm --prefix web run test",
-    "test:python": "python -m pytest tests/test_disha_brain_graph.py skills/vyuha-defense-engine/tests",
+    "test:python": "node scripts/test-python.mjs",
     "type-check": "npm --prefix web run type-check",
     "audit": "npm --prefix web audit --audit-level=moderate",
     "governance": "node scripts/governance-check.mjs",

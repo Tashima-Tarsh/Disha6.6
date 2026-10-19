@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, CheckCircle, AlertTriangle, XCircle, ShieldAlert, BookOpen, RefreshCw, X, Play } from "lucide-react";
 import styles from "./osint-runtime.module.css";
 import type { OsintToolRecord, OsintRuntimeMetrics } from "@/lib/unified/osint-runtime-service";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 
 export function OsintRuntimeClient() {
   const [tools, setTools] = useState<OsintToolRecord[]>([]);
@@ -17,6 +18,73 @@ export function OsintRuntimeClient() {
   const [smokingToolId, setSmokingToolId] = useState<string | null>(null);
   const [smokingAll, setSmokingAll] = useState(false);
   const [detailTool, setDetailTool] = useState<OsintToolRecord | null>(null);
+  const [runTarget, setRunTarget] = useState("");
+  const [runningTool, setRunningTool] = useState(false);
+  const [runResult, setRunResult] = useState<{ status: string; records: number; data?: unknown; sample?: string } | null>(null);
+
+  const openToolDetail = (tool: OsintToolRecord) => {
+    setDetailTool(tool);
+    setRunResult(null);
+    const inputs = tool.targetInputs || [];
+    if (inputs.includes("domain") || tool.category === "network" || tool.category === "dns") {
+      setRunTarget("gov.in");
+    } else if (inputs.includes("username") || tool.category === "social" || tool.category === "identity") {
+      setRunTarget("satyanadella");
+    } else if (inputs.includes("ip")) {
+      setRunTarget("8.8.8.8");
+    } else if (inputs.includes("email")) {
+      setRunTarget("security@gov.in");
+    } else if (inputs.includes("cve")) {
+      setRunTarget("CVE-2024-3400");
+    } else {
+      setRunTarget("India");
+    }
+  };
+
+  const handleExecuteTool = async () => {
+    if (!detailTool || !runTarget.trim()) return;
+    setRunningTool(true);
+    setRunResult(null);
+    try {
+      const res = await fetch(`/api/v1/surveillance/osint-search?q=${encodeURIComponent(runTarget.trim())}`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const json = await res.json();
+        const runs = json.runs || [];
+        const matchingRun = runs.find((r: { adapterId: string }) => r.adapterId.toLowerCase().includes(detailTool.toolId.toLowerCase()));
+        if (matchingRun) {
+          setRunResult({
+            status: matchingRun.status,
+            records: matchingRun.evidenceCount,
+            sample: matchingRun.sample,
+            data: matchingRun,
+          });
+        } else {
+          setRunResult({
+            status: json.runs?.[0]?.status ?? "COMPLETED",
+            records: json.runs?.reduce((acc: number, r: { evidenceCount: number }) => acc + r.evidenceCount, 0) ?? 0,
+            sample: json.runs?.[0]?.sample ?? `Backend executed across ${json.executedAdapters?.length || 0} active engines.`,
+            data: json,
+          });
+        }
+      } else {
+        setRunResult({
+          status: "FAILED",
+          records: 0,
+          sample: `Backend execution returned HTTP ${res.status}`,
+        });
+      }
+    } catch (err) {
+      setRunResult({
+        status: "ERROR",
+        records: 0,
+        sample: err instanceof Error ? err.message : "Execution failed",
+      });
+    } finally {
+      setRunningTool(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -43,7 +111,7 @@ export function OsintRuntimeClient() {
   };
 
   useEffect(() => {
-    fetchData();
+    void Promise.resolve().then(fetchData);
   }, []);
 
   const handleSmokeTest = async (toolId: string) => {
@@ -149,8 +217,9 @@ export function OsintRuntimeClient() {
   };
 
   return (
+    <DishaCommandShell principal={{ email: "operator@disha.defense" }}>
     <div className={styles.container}>
-      <header className={styles.header}>
+      {false && <header className={styles.header}>
         <div className={styles.brandGroup}>
           <Link href="/investigate" className={styles.brand}>
             <span>DISHA 6.6</span>
@@ -162,7 +231,7 @@ export function OsintRuntimeClient() {
           <Link href="/operations" className={styles.navLink}>Operations</Link>
           <Link href="/system" className={styles.navLink}>System</Link>
         </nav>
-      </header>
+      </header>}
 
       <main className={styles.content}>
         <section className={styles.titleSection}>
@@ -361,6 +430,13 @@ export function OsintRuntimeClient() {
                     <div style={{ display: "flex", gap: "0.5rem" }}>
                       <button
                         className={styles.smokeBtn}
+                        style={{ background: "rgba(57, 199, 215, 0.15)", borderColor: "#39c7d7", color: "#39c7d7" }}
+                        onClick={() => openToolDetail(tool)}
+                      >
+                        <Play size={10} style={{ display: "inline", marginRight: 3 }} /> Run
+                      </button>
+                      <button
+                        className={styles.smokeBtn}
                         onClick={() => handleSmokeTest(tool.toolId)}
                         disabled={smokingToolId === tool.toolId}
                       >
@@ -369,7 +445,7 @@ export function OsintRuntimeClient() {
                       <button
                         className={styles.smokeBtn}
                         style={{ background: "#0b0f17" }}
-                        onClick={() => setDetailTool(tool)}
+                        onClick={() => openToolDetail(tool)}
                       >
                         Inspect
                       </button>
@@ -418,10 +494,60 @@ export function OsintRuntimeClient() {
                   </pre>
                 </div>
               )}
+
+              {/* Interactive Backend Runner Panel */}
+              <div style={{ marginTop: 20, padding: 14, background: "rgba(57, 199, 215, 0.05)", border: "1px solid rgba(57, 199, 215, 0.25)", borderRadius: 6 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <h4 style={{ margin: 0, color: "#39c7d7", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Play size={14} /> TACTICAL BACKEND RUNNER
+                  </h4>
+                  <span style={{ fontSize: 10, color: "#94a3b8" }}>Governed OSINT Execution</span>
+                </div>
+                <p style={{ margin: "0 0 10px", fontSize: 11, color: "#94a3b8" }}>
+                  Execute this engine directly against live targets via DISHA&apos;s unified OSINT bus. Returns live extracted evidence and findings.
+                </p>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="text"
+                    value={runTarget}
+                    onChange={(e) => setRunTarget(e.target.value)}
+                    placeholder="Enter target value (e.g. domain, username, IP, CVE)..."
+                    style={{ flex: 1, background: "#080c12", border: "1px solid rgba(255, 255, 255, 0.12)", borderRadius: 4, padding: "8px 12px", color: "#dce7f0", fontSize: 12 }}
+                  />
+                  <button
+                    onClick={handleExecuteTool}
+                    disabled={runningTool || !runTarget.trim()}
+                    style={{ background: "#39c7d7", color: "#080c12", border: "none", borderRadius: 4, padding: "8px 16px", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    {runningTool ? <RefreshCw size={12} className="animate-spin" /> : <Play size={12} />}
+                    {runningTool ? "Running..." : "Run in Backend"}
+                  </button>
+                </div>
+
+                {runResult && (
+                  <div style={{ marginTop: 12, padding: 10, background: "#0b0f17", borderRadius: 4, border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: runResult.status === "completed" || runResult.status === "HEALTHY" || runResult.records > 0 ? "#4ade80" : "#facc15" }}>
+                        STATUS: {runResult.status.toUpperCase()} ({runResult.records} EVIDENCE RECORDS RETURNED)
+                      </span>
+                    </div>
+                    <p style={{ margin: "0 0 6px", fontSize: 11, color: "#dce7f0" }}>{runResult.sample}</p>
+                    {Boolean(runResult.data) ? (
+                      <details style={{ fontSize: 10, color: "#7f93a7" }}>
+                        <summary style={{ cursor: "pointer" }}>View raw execution payload</summary>
+                        <pre style={{ marginTop: 6, padding: 8, background: "#04070a", borderRadius: 4, overflowX: "auto" }}>
+                          {JSON.stringify(runResult.data, null, 2)}
+                        </pre>
+                      </details>
+                    ) : null}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       )}
     </div>
+    </DishaCommandShell>
   );
 }

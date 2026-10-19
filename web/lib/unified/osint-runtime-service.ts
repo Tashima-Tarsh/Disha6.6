@@ -134,7 +134,7 @@ async function smokeAstraRuntime(entry: OsintToolRecord): Promise<OsintToolRecor
 }
 
 async function smokeServiceRuntime(entry: OsintToolRecord): Promise<OsintToolRecord["smokeResult"]> {
-  if (entry.toolId !== "opencti" && entry.toolId !== "intelowl") return null;
+  if (entry.toolId !== "opencti" && entry.toolId !== "intelowl" && entry.toolId !== "openosint") return null;
   const started = Date.now();
   const probe = await probeOsintServiceConnector(entry.toolId);
   entry.lastSmokeTested = new Date().toISOString();
@@ -220,9 +220,55 @@ export type OsintRuntimeMetrics = {
   upstreamDead: number;
   licenseBlocked: number;
   technicallyImpossible: number;
+  runnableSmokePassed: number;
+  smokeFailed: number;
+  smokeMissing: number;
+  referenceOnly: number;
+  cataloguedOnly: number;
+  verificationClaimsRequiringRefresh: number;
   byCategory: Record<string, number>;
   byRuntime: Record<string, number>;
+  byRuntimeEvidence: Record<string, number>;
 };
+
+type RuntimeEvidenceState =
+  | "RUNNABLE_SMOKE_PASS"
+  | "REFERENCE_ONLY"
+  | "AUTH_OR_KEY_REQUIRED"
+  | "SMOKE_FAILED"
+  | "SMOKE_MISSING"
+  | "CATALOGUE_ONLY";
+
+function optionalLower(value: unknown): string {
+  return typeof value === "string" ? value.toLowerCase() : "";
+}
+
+function isReferenceOnlyTool(tool: OsintToolRecord): boolean {
+  return ["dataset-only", "library-only", "gui-only", "documentation"].includes(tool.runtimeType)
+    || ["DATASET_ONLY", "DATASET_INTEGRATED", "LIBRARY_ONLY", "LIBRARY_INTEGRATED", "GUI_ONLY", "GUI_INTEGRATED", "REFERENCE_ONLY"].includes(tool.status);
+}
+
+function hasRunnableSmokePass(tool: OsintToolRecord): boolean {
+  return Boolean(tool.lastSmokeTested && tool.smokeResult?.success === true && !isReferenceOnlyTool(tool));
+}
+
+function runtimeEvidenceState(tool: OsintToolRecord): RuntimeEvidenceState {
+  if (hasRunnableSmokePass(tool)) return "RUNNABLE_SMOKE_PASS";
+  if (isReferenceOnlyTool(tool)) return "REFERENCE_ONLY";
+  if (tool.requiresAuth || tool.requiresApiKey || ["AUTH_REQUIRED", "CREDENTIAL_REQUIRED"].includes(tool.status)) {
+    return "AUTH_OR_KEY_REQUIRED";
+  }
+  if (tool.smokeResult?.success === false) return "SMOKE_FAILED";
+  if (!tool.lastSmokeTested || !tool.smokeResult) return "SMOKE_MISSING";
+  return "CATALOGUE_ONLY";
+}
+
+function toolMatchesId(tool: OsintToolRecord, toolId: string): boolean {
+  const normalized = toolId.toLowerCase();
+  return optionalLower(tool.toolId) === normalized
+    || optionalLower(tool.repo) === normalized
+    || optionalLower(tool.fullName) === normalized;
+}
 
 function getRegistryFilePath(): string {
   return path.resolve(process.cwd(), "../data/osint/upstream-registry.json");
@@ -450,29 +496,48 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     upstreamDead: 0,
     licenseBlocked: 0,
     technicallyImpossible: 0,
+    runnableSmokePassed: 0,
+    smokeFailed: 0,
+    smokeMissing: 0,
+    referenceOnly: 0,
+    cataloguedOnly: 0,
+    verificationClaimsRequiringRefresh: 0,
     byCategory: {},
     byRuntime: {},
+    byRuntimeEvidence: {},
   };
 
   for (const tool of registry) {
-    if (tool.status === "EXECUTABLE_VERIFIED" || tool.status === "HEALTHY") {
+    const evidenceState = runtimeEvidenceState(tool);
+    metrics.byRuntimeEvidence[evidenceState] = (metrics.byRuntimeEvidence[evidenceState] || 0) + 1;
+
+    if (evidenceState === "RUNNABLE_SMOKE_PASS") {
       metrics.healthy++;
-      metrics.executableVerified++;
-    } else if (tool.status === "SERVICE_VERIFIED") {
-      metrics.healthy++;
-      metrics.serviceVerified++;
-    } else if (tool.status === "DATASET_INTEGRATED" || tool.status === "DATASET_ONLY") {
+      metrics.runnableSmokePassed++;
+      if (tool.status === "SERVICE_VERIFIED") metrics.serviceVerified++;
+      else metrics.executableVerified++;
+    } else if (evidenceState === "REFERENCE_ONLY" && (tool.status === "DATASET_INTEGRATED" || tool.status === "DATASET_ONLY" || tool.runtimeType === "dataset-only")) {
       metrics.datasetOnly++;
       metrics.datasetIntegrated++;
-    } else if (tool.status === "LIBRARY_INTEGRATED" || tool.status === "LIBRARY_ONLY") {
+      metrics.referenceOnly++;
+    } else if (evidenceState === "REFERENCE_ONLY" && (tool.status === "LIBRARY_INTEGRATED" || tool.status === "LIBRARY_ONLY" || tool.runtimeType === "library-only")) {
       metrics.libraryOnly++;
       metrics.libraryIntegrated++;
-    } else if (tool.status === "GUI_INTEGRATED" || tool.status === "GUI_ONLY") {
+      metrics.referenceOnly++;
+    } else if (evidenceState === "REFERENCE_ONLY" && (tool.status === "GUI_INTEGRATED" || tool.status === "GUI_ONLY" || tool.runtimeType === "gui-only" || tool.runtimeType === "documentation")) {
       metrics.guiOnly++;
       metrics.guiIntegrated++;
-    } else if (tool.status === "CREDENTIAL_REQUIRED" || tool.status === "AUTH_REQUIRED") {
+      metrics.referenceOnly++;
+    } else if (evidenceState === "AUTH_OR_KEY_REQUIRED") {
       metrics.authRequired++;
       metrics.credentialRequired++;
+    } else if (evidenceState === "SMOKE_FAILED") {
+      metrics.smokeFailed++;
+      if (tool.status === "DEGRADED" || tool.healthStatus === "DEGRADED") metrics.degraded++;
+      else metrics.unconfigured++;
+    } else if (evidenceState === "SMOKE_MISSING") {
+      metrics.smokeMissing++;
+      metrics.unconfigured++;
     } else if (tool.status === "POLICY_RESTRICTED") {
       metrics.degraded++;
       metrics.policyRestricted++;
@@ -481,7 +546,12 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
     } else if (tool.status === "DEGRADED") {
       metrics.degraded++;
     } else {
+      metrics.cataloguedOnly++;
       metrics.unconfigured++;
+    }
+
+    if (["EXECUTABLE_VERIFIED", "SERVICE_VERIFIED"].includes(tool.status) && !hasRunnableSmokePass(tool)) {
+      metrics.verificationClaimsRequiringRefresh++;
     }
 
     if (tool.forkStatus === "FORKED") metrics.forked++;
@@ -507,16 +577,12 @@ export async function getOsintMetrics(): Promise<OsintRuntimeMetrics> {
 
 export async function getOsintToolById(toolId: string): Promise<OsintToolRecord | undefined> {
   const registry = await loadOsintRuntimeRegistry();
-  return registry.find(
-    (t) => t.toolId.toLowerCase() === toolId.toLowerCase() || t.repo.toLowerCase() === toolId.toLowerCase(),
-  );
+  return registry.find((t) => toolMatchesId(t, toolId));
 }
 
 export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecord["smokeResult"]> {
   const registry = await loadOsintRegistry();
-  const entry = registry.find(
-    (t) => t.toolId.toLowerCase() === toolId.toLowerCase() || t.repo.toLowerCase() === toolId.toLowerCase(),
-  );
+  const entry = registry.find((t) => toolMatchesId(t, toolId));
 
   if (!entry) {
     throw new Error(`Tool not found: ${toolId}`);
@@ -574,13 +640,14 @@ export async function smokeTestOsintTool(toolId: string): Promise<OsintToolRecor
     return entry.smokeResult;
   }
 
-  let binaryName = entry.workerCommand ? entry.workerCommand.split(/\s+/)[0] : entry.repo.toLowerCase();
+  let binaryName = entry.workerCommand ? entry.workerCommand.split(/\s+/)[0] : (entry.repo || entry.toolId).toLowerCase();
   binaryName = binaryName.replace(/[^a-zA-Z0-9_.-]/g, "");
 
   try {
     const { stdout, stderr } = await execFileAsync(binaryName, ["--help"], {
       timeout: 5000,
       windowsHide: true,
+      shell: process.platform === "win32",
     });
     const latencyMs = Date.now() - startTime;
     const output = (stdout || stderr || "").trim();

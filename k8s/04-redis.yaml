@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disha-redis
+  namespace: disha
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disha-redis
+  template:
+    metadata:
+      labels:
+        app: disha-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command: ["redis-server", "--appendonly", "yes"]
+          ports:
+            - containerPort: 6379
+              name: redis
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 10
+            periodSeconds: 15
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: disha-redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disha-redis
+  namespace: disha
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  selector:
+    app: disha-redis

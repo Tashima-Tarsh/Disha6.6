@@ -23,7 +23,7 @@ async function providerJson(url: URL, init: RequestInit): Promise<unknown> {
   } finally { await reader.cancel(); }
   return JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown;
 }
-export async function executeProvider(plan: AdapterPlan, userId: string, investigationId: string, signal: AbortSignal, image?: Buffer | null): Promise<AdapterExecutionResult<unknown>> {
+export async function executeProvider(plan: AdapterPlan, userId: string, investigationId: string, signal: AbortSignal, _image?: Buffer | null): Promise<AdapterExecutionResult<unknown>> {
   const started = Date.now();
   const base = { signal, headers: { accept: "application/json" } };
   let rows: Record<string, unknown>[];
@@ -57,20 +57,6 @@ export async function executeProvider(plan: AdapterPlan, userId: string, investi
     const web = record(body.web);
     rows = Array.isArray(web.results) ? web.results.map(record).map(row => ({ title: row.title, url: row.url, description: row.description })) : [];
     sourceUrl = "https://search.brave.com/";
-  } else if (plan.adapterId === "google-vision-web") {
-    const key = process.env.GOOGLE_CLOUD_VISION_API_KEY;
-    if (!key) return missing(plan.adapterId);
-    if (!image) throw new Error("temporary_image_expired");
-    const body = record(await providerJson(new URL("https://vision.googleapis.com/v1/images:annotate"), {
-      signal, method: "POST", headers: { "content-type": "application/json", "X-Goog-Api-Key": key },
-      body: JSON.stringify({ requests: [{ image: { content: image.toString("base64") }, features: [{ type: "WEB_DETECTION", maxResults: 20 }] }] }),
-    }));
-    const first = record(Array.isArray(body.responses) ? body.responses[0] : undefined);
-    if (first.error) throw new Error("image_provider_failed");
-    const web = record(first.webDetection);
-    rows = (Array.isArray(web.pagesWithMatchingImages) ? web.pagesWithMatchingImages : []).map(record).map(row => ({ url: row.url, title: row.pageTitle, matchType: "page_with_matching_image" }));
-    rows.push(...(Array.isArray(web.fullMatchingImages) ? web.fullMatchingImages : []).map(record).map(row => ({ url: row.url, matchType: "full_image_match" })));
-    sourceUrl = "https://cloud.google.com/vision/docs/detecting-web";
   } else {
     return createDefaultOsintBus().run(plan.adapterId, plan.input, {
       userId,

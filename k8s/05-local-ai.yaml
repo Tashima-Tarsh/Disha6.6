@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disha-local-ai
+  namespace: disha
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disha-local-ai
+  template:
+    metadata:
+      labels:
+        app: disha-local-ai
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          ports:
+            - containerPort: 11434
+              name: ollama-http
+          env:
+            - name: OLLAMA_KEEP_ALIVE
+              value: "24h"
+            - name: OLLAMA_HOST
+              value: "0.0.0.0:11434"
+          volumeMounts:
+            - name: model-storage
+              mountPath: /root/.ollama
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 8Gi
+            limits:
+              cpu: 8000m
+              memory: 24Gi
+          readinessProbe:
+            httpGet:
+              path: /api/tags
+              port: 11434
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /api/tags
+              port: 11434
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: disha-ai-models-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disha-local-ai
+  namespace: disha
+spec:
+  ports:
+    - port: 11434
+      targetPort: 11434
+      name: http
+  selector:
+    app: disha-local-ai

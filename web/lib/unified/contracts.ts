@@ -82,6 +82,7 @@ export const evidenceItemSchema = z.object({
   url: z.string().url().optional(),
   retrievedAt: z.string().datetime(),
   provenanceHash: z.string(),
+  fields: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const actionProposalSchema = z.object({
@@ -153,6 +154,7 @@ export type DishaSignal = z.infer<typeof dishaSignalSchema>;
 export type DishaLensResult = z.infer<typeof dishaLensResultSchema>;
 export type PolicyDecision = z.infer<typeof policyDecisionResultSchema>;
 export type EvidenceEvent = z.infer<typeof evidenceEventSchema>;
+export type EvidenceItem = z.infer<typeof evidenceItemSchema>;
 export type OpenDataRecord = z.infer<typeof openDataRecordSchema>;
 export type ControlledDataQuery = z.infer<typeof controlledDataQuerySchema>;
 export type LensName = z.infer<typeof lensNameSchema>;

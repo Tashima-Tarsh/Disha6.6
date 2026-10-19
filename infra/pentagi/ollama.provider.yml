@@ -1,0 +1,24 @@
+simple: &local
+  model: qwen2.5:3b
+  temperature: 0.2
+  top_p: 0.9
+  n: 1
+  max_tokens: 2048
+simple_json:
+  <<: *local
+  temperature: 0
+primary_agent: *local
+assistant: *local
+generator: *local
+refiner: *local
+reflector: *local
+adviser: *local
+searcher: *local
+enricher: *local
+coder: *local
+installer: *local
+pentester: *local
+memorist: *local
+reporter: *local
+summarizer: *local
+tool_call_fixer: *local

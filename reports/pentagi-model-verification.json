@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-15T09:03:10.234Z",
+  "base": "http://127.0.0.1:11434",
+  "checks": {
+    "model": {
+      "parameters": "3.1B",
+      "quantization": "Q4_K_M",
+      "pass": true
+    },
+    "toolCall": {
+      "pass": true,
+      "durationMs": 163507,
+      "function": "echo",
+      "value": 4
+    },
+    "embeddings": {
+      "pass": true,
+      "dimensions": 768
+    }
+  },
+  "pass": true
+}

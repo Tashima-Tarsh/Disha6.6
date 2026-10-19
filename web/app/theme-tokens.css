@@ -1,0 +1,79 @@
+@import "@xyflow/react/dist/style.css";
+
+:root {
+  /* Surface & Base Tokens - Deep Cyber Workstation */
+  --bg-primary: #060911;
+  --bg-secondary: #0b1120;
+  --bg-panel: rgba(15, 23, 42, 0.88);
+  --bg-panel-solid: #0d1527;
+  --bg-card: rgba(17, 24, 39, 0.85);
+  --bg-input: rgba(3, 7, 18, 0.85);
+
+  /* Typography Contrast Tokens */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #030712;
+
+  /* Accent & Prismatic Cyber Station Tokens */
+  --primary-blue: #0284c7;
+  --cyan: #00f0ff;
+  --violet: #a855f7;
+  --pink: #f43f5e;
+  --saffron: #f59e0b;
+  --india-green: #10b981;
+  --ashoka-blue: #38bdf8;
+
+  /* Glassmorphism & Shadow Architecture */
+  --border-glass: rgba(56, 189, 248, 0.25);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-rainbow: linear-gradient(135deg, rgba(0, 240, 255, 0.5), rgba(56, 189, 248, 0.5), rgba(168, 85, 247, 0.5), rgba(16, 185, 129, 0.5));
+  --glass-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+  --glass-shadow-hover: 0 16px 40px -4px rgba(0, 0, 0, 0.8), 0 8px 18px -2px rgba(56, 189, 248, 0.15);
+  --glass-inset: inset 0 1px 1px 0 rgba(255, 255, 255, 0.08);
+
+  /* Gradients */
+  --rainbow-gradient: linear-gradient(135deg, #00f0ff 0%, #38bdf8 38%, #a855f7 68%, #10b981 100%);
+  --rainbow-soft: linear-gradient(135deg, rgba(0, 240, 255, 0.15) 0%, rgba(56, 189, 248, 0.15) 35%, rgba(168, 85, 247, 0.15) 70%, rgba(16, 185, 129, 0.15) 100%);
+  --tiranga-ribbon: linear-gradient(90deg, #f59e0b 0%, rgba(245, 158, 11, 0.8) 25%, #ffffff 50%, rgba(16, 185, 129, 0.8) 75%, #10b981 100%);
+  --tiranga-glow: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(245, 158, 11, 0.08) 40%, rgba(16, 185, 129, 0.08) 80%, transparent 100%);
+
+  /* Animation Timings */
+  --transition-fast: 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbar for Cyber Workstation */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}

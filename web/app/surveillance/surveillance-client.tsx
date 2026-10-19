@@ -15,6 +15,7 @@ import {
   Flame,
   Globe2,
   Lock,
+  Play,
   Radio,
   Search,
   Server,
@@ -33,6 +34,7 @@ import type { OsintToolCatalogEntry } from "@/lib/unified/osint-tool-catalog";
 import { authFetchHeaders } from "@/lib/utils";
 import { GodsEyeHologramGlobe, type StrategicNode } from "@/components/visual/GodsEyeHologramGlobe";
 import styles from "./surveillance.module.css";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 
 type LogEntry = {
   id: string;
@@ -323,10 +325,11 @@ export function SurveillanceClient({
   const activeFormationData = VYUHA_FORMATIONS.find((f) => f.id === selectedFormation);
 
   return (
-    <main className={styles.container}>
+    <DishaCommandShell principal={{ email: "operator@disha.defense" }}>
+      <main className={styles.container}>
       <div className={styles.shell}>
         {/* Universal Top Navigation */}
-        <header className={styles.topNav}>
+        {false && <header className={styles.topNav}>
           <div className={styles.brandGroup}>
             <div className={styles.brandTitle}>
               <Eye size={20} color="#38bdf8" /> DISHA 6.6 GOD&apos;S EYE
@@ -350,7 +353,7 @@ export function SurveillanceClient({
               Live Intel
             </Link>
           </nav>
-        </header>
+        </header>}
 
         {/* Global HUD Metrics */}
         <div className={styles.hudMetrics}>
@@ -691,6 +694,39 @@ export function SurveillanceClient({
                       </span>
                     ))}
                   </div>
+
+                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255, 255, 255, 0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <button
+                      type="button"
+                      className={styles.btnAction}
+                      style={{ padding: "4px 10px", fontSize: 11, background: "rgba(57, 199, 215, 0.15)", border: "1px solid #39c7d7", color: "#39c7d7" }}
+                      onClick={() => {
+                        const target = ["passive_public", "active_recon"].includes(tool.risk) && tool.capabilities.includes("subdomains") ? "nic.in" : tool.capabilities.includes("identity") ? "satyanadella" : "gov.in";
+                        setQueryTarget(target);
+                        setActiveTab("search");
+                        void fetch(`/api/v1/surveillance/osint-search?q=${encodeURIComponent(target)}`)
+                          .then(r => r.json())
+                          .then(data => {
+                            if (data.runs) {
+                              setSearchResults(data.runs.map((r: { adapterId: string; status: string; evidenceCount: number; sample: string }) => ({
+                                engine: r.adapterId.toUpperCase().replace(/-/g, " "),
+                                status: r.status === "completed" || r.status === "success" ? "200 OK" : r.status.toUpperCase(),
+                                records: r.evidenceCount,
+                                sample: r.sample,
+                              })));
+                            }
+                          });
+                      }}
+                    >
+                      <Play size={10} style={{ marginRight: 4, display: "inline" }} />
+                      Execute in Backend
+                    </button>
+                    {tool.repository && (
+                      <a href={tool.repository} target="_blank" rel="noreferrer" style={{ color: "#7f93a7", fontSize: 10, display: "flex", alignItems: "center", gap: 3 }}>
+                        Source code <ExternalLink size={10} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -774,5 +810,6 @@ export function SurveillanceClient({
         )}
       </div>
     </main>
+    </DishaCommandShell>
   );
 }

@@ -115,7 +115,7 @@ class PostgresEvidenceLedgerStore implements EvidenceLedgerStore {
   }
 
   async clearForTests(): Promise<void> {
-    await this.pool.query("delete from evidence_events");
+    await this.pool.query("truncate table evidence_events cascade");
   }
 }
 

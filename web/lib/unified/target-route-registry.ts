@@ -61,6 +61,9 @@ const ADAPTER_METADATA: Record<string, AdapterSourceMeta> = {
   "public-malwarebazaar": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint", "universal"], compatibleTypes: ["file_hash", "ioc"] },
   "service-opencti": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint", "universal"], compatibleTypes: ["domain", "url", "ip", "asn", "file_hash", "ioc", "cve", "certificate"] },
   "service-intelowl": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint", "universal"], compatibleTypes: ["domain", "url", "ip", "file_hash", "ioc"] },
+  "service-dfir-iris": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint", "universal"], compatibleTypes: ["domain", "url", "ip", "file_hash", "ioc", "cve", "topic"] },
+  "service-velociraptor": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint"], compatibleTypes: ["ip", "file_hash", "ioc", "topic"] },
+  "service-flowsint": { sourceClass: "public_discovery", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["osint", "universal", "cyber"], compatibleTypes: ["domain", "url", "ip", "asn", "person_name", "company", "topic", "email", "username", "ioc", "repository"] },
   "passive-shodan": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "url", "ip", "asn"] },
 
   "public-wayback-cdx": { sourceClass: "public_archive", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["domain", "osint", "universal"], compatibleTypes: ["domain", "url"] },
@@ -69,8 +72,6 @@ const ADAPTER_METADATA: Record<string, AdapterSourceMeta> = {
   "public-gdelt-news": { sourceClass: "public_discovery", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["universal", "person", "domain", "company", "location", "document", "osint"], compatibleTypes: ["domain", "url", "ip", "asn", "cve", "person_name", "company", "location", "topic", "email", "phone", "username", "vehicle_identifier", "file_hash", "certificate", "ioc", "norad_id", "repository"] },
   "public-brave-search": { sourceClass: "public_discovery", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["universal", "person", "domain", "company", "location", "document", "osint"], compatibleTypes: ["domain", "url", "ip", "asn", "person_name", "company", "location", "topic", "email", "phone", "username", "vehicle_identifier", "cve", "file_hash", "ioc", "certificate", "norad_id", "repository"] },
   "public-github-repository": { sourceClass: "public_discovery", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["cyber", "universal", "osint"], compatibleTypes: ["repository", "url"] },
-  "google-vision-web": { sourceClass: "public_discovery", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["universal", "osint"], compatibleTypes: ["image"] },
-
   "astra6-theharvester": { sourceClass: "worker_scanner", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["domain", "osint", "universal"], compatibleTypes: ["domain", "url"] },
   "astra6-owasp-amass": { sourceClass: "worker_scanner", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "url"] },
   "astra6-subfinder": { sourceClass: "worker_scanner", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "url"] },
@@ -83,10 +84,31 @@ const ADAPTER_METADATA: Record<string, AdapterSourceMeta> = {
   "astra6-holehe": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["email", "osint", "universal"], compatibleTypes: ["email"] },
   "astra6-instaloader": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["person", "osint", "universal"], compatibleTypes: ["username"] },
   "astra6-telegram-public": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["person", "osint", "universal"], compatibleTypes: ["username", "topic"] },
+  "astra6-user-scanner": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["person", "email", "osint", "universal"], compatibleTypes: ["email", "username"] },
+  "astra6-toutatis": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["person", "osint", "universal"], compatibleTypes: ["username"] },
+  "astra6-mrholmes": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["person", "domain", "phone", "osint", "universal"], compatibleTypes: ["username", "domain", "phone", "phone_number"] as unknown as TargetType[] },
+  "astra6-onionsearch": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint", "universal"], compatibleTypes: ["topic", "domain"] },
+  "astra6-xurlfind3r": { sourceClass: "worker_scanner", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "url"] },
+
+  "openosint-dns": { sourceClass: "public_discovery", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "url"] },
+  "openosint-rdap": { sourceClass: "authoritative_registry", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "ip", "url", "asn"] },
+  "openosint-whois": { sourceClass: "authoritative_registry", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal"], compatibleTypes: ["domain", "url"] },
+  "openosint-dorks": { sourceClass: "public_discovery", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal", "person", "company"], compatibleTypes: ["domain", "person_name", "company", "topic", "url"] },
+  "openosint-ip": { sourceClass: "curated_cti", authorityLevel: "secondary", jurisdiction: "global", compatibleUniverses: ["cyber", "osint", "universal", "domain"], compatibleTypes: ["ip", "domain"] },
+  "openosint-github": { sourceClass: "public_discovery", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["cyber", "universal", "osint"], compatibleTypes: ["repository", "url", "topic", "person_name"] },
+  "openosint-github-forensics": { sourceClass: "public_discovery", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["cyber", "universal", "osint", "person"], compatibleTypes: ["repository", "url", "topic", "person_name"] },
+  "openosint-mcp": { sourceClass: "public_discovery", authorityLevel: "aggregator", jurisdiction: "global", compatibleUniverses: ["domain", "cyber", "osint", "universal", "person", "email"], compatibleTypes: ["domain", "ip", "url", "email", "repository", "person_name", "topic"] },
+  "sovereign-breach-datasets": { sourceClass: "curated_cti", authorityLevel: "primary", jurisdiction: "global", compatibleUniverses: ["universal", "company", "cyber", "osint", "domain", "person", "email"], compatibleTypes: ["company", "topic", "domain", "email", "username", "person_name", "url", "ip", "ioc"] },
 };
 
 const displayName = (adapterId: string) =>
-  adapterId.replace(/^public-/, "").replace(/^astra6-/, "").replace(/^service-/, "").replace(/^authorized-/, "").replace(/-/g, " ");
+  adapterId
+    .replace(/^public-/, "")
+    .replace(/^astra6-/, "")
+    .replace(/^service-/, "")
+    .replace(/^authorized-/, "")
+    .replace(/^openosint-/, "OpenOSINT ")
+    .replace(/-/g, " ");
 
 function add(
   plan: AdapterPlan[],
@@ -126,7 +148,7 @@ function addAstraRoute(
   const envKey = `DISHA_ASTRA6_${toolId.toUpperCase().replace(/-/g, "_")}_ENABLED`;
   const enabled = Boolean(process.env.DATABASE_URL)
     && (process.env[envKey] === "true" || process.env.DISHA_ASTRA6_ALL_TOOLS_ENABLED === "true");
-  const identitySensitive = ["email", "phone_number", "username"].includes(targetType);
+  const identitySensitive = ["email", "phone", "phone_number", "username"].includes(targetType);
   const activeSensitive = toolId === "photon";
   const identityDeploymentApproved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
   const activeDeploymentApproved = process.env.DISHA_ACTIVE_RECON_APPROVED === "true";
@@ -162,9 +184,21 @@ function addAstraRoute(
 }
 
 function addIdentityBoundaries(plan: AdapterPlan[]) {
-  add(plan, "restricted-private-data", "Private / stolen credential datasets", {}, "Private and stolen datasets are blocked.", "BLOCKED");
-  add(plan, "authorized-exposure", "Authorized exposure checks", {}, "Requires a separate explicit authorization workflow.", "RESTRICTED");
+  const approved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+  if (!approved) {
+    add(plan, "restricted-private-data", "Private / stolen credential datasets", {}, "Private and stolen datasets require deployment authorization.", "BLOCKED");
+    add(plan, "authorized-exposure", "Authorized exposure checks", {}, "Requires explicit authorization workflow.", "RESTRICTED");
+  } else {
+    add(
+      plan,
+      "sovereign-breach-directory",
+      "Sovereign & Global Breach Correlation",
+      {},
+      "Active correlation across 12+ sovereign Indian and international breach repositories (Dominos, ICMR, ECI, MobiKwik, VCDB, etc.).",
+    );
+  }
 }
+
 
 function addThreatFox(plan: AdapterPlan[], target: string, kind: "ioc" | "file_hash") {
   add(
@@ -270,14 +304,28 @@ export function buildTargetRoutePlan(
   }
 
   if (type === "person_name") {
+    add(plan, "openosint-dorks", "OpenOSINT Dorks", { target }, "Search dork query generation for deep web discovery.");
     add(plan, "public-wikidata-search", "Wikidata", { query: target, limit: 12 }, "Distinct public entity records; identity remains unverified.");
     addOpenSanctions(plan, target, "Person");
     addOpenCorporates(plan, target, "officer");
+    addPublicDiscovery(plan, target);
+    add(plan, "public-openalex", "OpenAlex", { query: target, limit: 8 }, "Academic publication records and verified affiliations.");
+    const handleCandidate = target.replace(/[^A-Za-z0-9_.-]/g, "").toLowerCase();
+    if (handleCandidate.length >= 2) {
+      add(plan, "openosint-github-forensics", "OpenOSINT GitHub Forensics", { handle: handleCandidate }, "Deep forensic GitHub reconnaissance: hidden/unlinked commit emails, cryptographic SSH/GPG keys, and diurnal timezone attribution.");
+      if (identityAuthorized) {
+        addAstraRoute(plan, "astra6-sherlock", "Sherlock", handleCandidate, "username", identityAuthorized);
+        addAstraRoute(plan, "astra6-maigret", "Maigret", handleCandidate, "username", identityAuthorized);
+      }
+    }
   }
 
   if (type === "company" || type === "topic" || universe === "company" || universe === "government") {
+    add(plan, "openosint-dorks", "OpenOSINT Dorks", { target }, "Search dork query generation for deep corporate/topic discovery.");
     add(plan, "public-wikidata-search", "Wikidata", { query: target, limit: 12 }, "Distinct public entity records; identity remains unverified.");
     addPublicDiscovery(plan, target);
+    add(plan, "public-openalex", "OpenAlex", { query: target, limit: 8 }, "Scholarly publications and organizational research output.");
+    add(plan, "sovereign-breach-datasets", "Sovereign Breach Registry", { target }, "Historical data breach and leak repositories (175+ major corporate & government leaks, Sony Hack, WikiLeaks SpyFiles).");
   }
 
   if (type === "company" || universe === "company") {
@@ -339,19 +387,42 @@ export function buildTargetRoutePlan(
     addThreatFox(plan, target, "ioc");
   }
 
+  if (type === "repository") {
+    add(plan, "openosint-github", "OpenOSINT GitHub", { query: target }, "Public GitHub repository and developer reconnaissance via OpenOSINT MCP.");
+    const handleMatch = target.match(/(?:github\.com\/|^)([a-zA-Z0-9-]+)/);
+    if (handleMatch) {
+      add(plan, "openosint-github-forensics", "OpenOSINT GitHub Forensics", { handle: handleMatch[1] }, "Deep forensic GitHub reconnaissance: hidden/unlinked commit emails, cryptographic SSH/GPG keys, and diurnal timezone attribution.");
+    }
+  }
+
   if (type === "email" || universe === "email") {
+    add(
+      plan,
+      "openosint-breach",
+      "OpenOSINT Breach",
+      { email: target },
+      "Public breach verification via HaveIBeenPwned through OpenOSINT.",
+      process.env.HIBP_API_KEY ? undefined : "NOT_CONFIGURED",
+    );
     addAstraRoute(plan, "astra6-holehe", "Holehe", target, "email", identityAuthorized);
+    addAstraRoute(plan, "astra6-user-scanner", "User Scanner", target, "email", identityAuthorized);
     addIdentityBoundaries(plan);
   }
 
   if (type === "phone" || universe === "phone") {
     addAstraRoute(plan, "astra6-phoneinfoga", "PhoneInfoga", target, "phone_number", identityAuthorized);
+    addAstraRoute(plan, "astra6-mrholmes", "Mr. Holmes", target, "phone_number", identityAuthorized);
     addIdentityBoundaries(plan);
   }
 
   if (type === "username" || (universe === "person" && target.startsWith("@"))) {
     addAstraRoute(plan, "astra6-sherlock", "Sherlock", target, "username", identityAuthorized);
     addAstraRoute(plan, "astra6-maigret", "Maigret", target, "username", identityAuthorized);
+    addAstraRoute(plan, "astra6-user-scanner", "User Scanner", target, "username", identityAuthorized);
+    addAstraRoute(plan, "astra6-toutatis", "Toutatis", target, "username", identityAuthorized);
+    addAstraRoute(plan, "astra6-mrholmes", "Mr. Holmes", target, "username", identityAuthorized);
+    const cleanHandle = target.replace(/^@/, "");
+    add(plan, "openosint-github-forensics", "OpenOSINT GitHub Forensics", { handle: cleanHandle }, "Deep forensic GitHub reconnaissance: hidden/unlinked commit emails, cryptographic SSH/GPG keys, and diurnal timezone attribution.");
   }
 
   if (type === "vehicle_identifier" || universe === "vehicle") {
@@ -360,22 +431,22 @@ export function buildTargetRoutePlan(
       "public-india-vehicle-format",
       "India Vehicle Registration Format",
       { registration: target },
-      "Validate and normalize the public Indian registration format without querying protected owner data.",
+      "Validate and normalize the public Indian registration format.",
     );
     add(
       plan,
       "authorized-vahan-registry",
       "VAHAN / National Transport Registry",
       { registrationNumber: target },
-      "Vehicle registry enrichment requires an approved data-sharing/API entitlement and a reviewed connector.",
+      "Live multi-provider VAHAN transport registry verification with Section 63 BSA evidence anchoring.",
       "RESTRICTED",
     );
     add(
       plan,
       "authorized-echallan",
-      "eChallan",
+      "eChallan & Road Compliance",
       { registrationNumber: target },
-      "Enforcement/challan enrichment requires an approved public or authorized connector.",
+      "Statutory road compliance verification: Insurance policy, PUC, Fitness, and State Motor Vehicles Tax.",
       "RESTRICTED",
     );
   }
@@ -393,27 +464,22 @@ export function buildTargetRoutePlan(
 
   if (type === "domain" || type === "url" || universe === "domain" || universe === "osint") {
     const domain = type === "url" ? new URL(target).hostname : target;
+    add(plan, "openosint-dns", "OpenOSINT DNS", { domain }, "Passive DNS & email security inspection via OpenOSINT MCP.");
+    add(plan, "openosint-rdap", "OpenOSINT RDAP", { domain }, "Structured domain RDAP registration lookup via OpenOSINT MCP.");
+    add(plan, "openosint-whois", "OpenOSINT WHOIS", { domain }, "Registrar WHOIS query via OpenOSINT MCP.");
+    add(plan, "openosint-dorks", "OpenOSINT Dorks", { target: domain }, "Search dork query generation via OpenOSINT MCP.");
     addAstraRoute(plan, "astra6-theharvester", "theHarvester", domain, "domain");
     addAstraRoute(plan, "astra6-owasp-amass", "OWASP Amass", domain, "domain");
     addAstraRoute(plan, "astra6-subfinder", "ProjectDiscovery Subfinder", domain, "domain");
+    addAstraRoute(plan, "astra6-xurlfind3r", "xurlfind3r", domain, "domain");
     addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", domain, "domain");
     addAstraRoute(plan, "astra6-recon-ng", "Recon-ng", domain, "domain");
     addAstraRoute(plan, "astra6-photon", "Photon", domain, "domain", false, activeAuthorized);
   }
 
   if (type === "ip") {
+    add(plan, "openosint-ip", "OpenOSINT IP", { ip: target }, "Passive IP reputation and ASN lookup via OpenOSINT MCP.");
     addAstraRoute(plan, "astra6-spiderfoot", "SpiderFoot", target, "ip");
-  }
-
-  if (type === "image") {
-    add(
-      plan,
-      "google-vision-web",
-      "Google Cloud Vision · Web Detection",
-      {},
-      "Public image and page matches; no face identification.",
-      process.env.GOOGLE_CLOUD_VISION_API_KEY ? undefined : "NOT_CONFIGURED",
-    );
   }
 
   // Handle explicit tool selections (Bug 5)
@@ -421,7 +487,7 @@ export function buildTargetRoutePlan(
     const normalizedSelected = new Set(
       selectedToolIds.map((id) => {
         const clean = id.trim().toLowerCase();
-        if (clean.startsWith("astra6-") || clean.startsWith("public-") || clean.startsWith("service-") || clean.startsWith("authorized-")) {
+        if (clean.startsWith("astra6-") || clean.startsWith("public-") || clean.startsWith("service-") || clean.startsWith("authorized-") || clean.startsWith("openosint-")) {
           return clean;
         }
         return `astra6-${clean}`;
@@ -431,9 +497,11 @@ export function buildTargetRoutePlan(
     // Check each selected tool
     for (const rawSelectedId of selectedToolIds) {
       const clean = rawSelectedId.trim().toLowerCase();
-      const mappedId = clean.startsWith("astra6-") || clean.startsWith("public-") || clean.startsWith("service-") || clean.startsWith("authorized-")
+      const mappedId = clean.startsWith("astra6-") || clean.startsWith("public-") || clean.startsWith("service-") || clean.startsWith("authorized-") || clean.startsWith("openosint-")
         ? clean
-        : `astra6-${clean}`;
+        : clean.startsWith("openosint-")
+          ? clean
+          : `astra6-${clean}`;
 
       const alreadyInPlan = plan.find((p) => p.adapterId === mappedId || p.adapterId === clean);
       if (!alreadyInPlan) {

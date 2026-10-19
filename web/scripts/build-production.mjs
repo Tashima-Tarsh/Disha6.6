@@ -1,10 +1,11 @@
-import fs from "node:fs/promises";
+﻿import fs from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const nextCli = require.resolve("next/dist/bin/next");
+const buildDirectory = process.env.DISHA_NEXT_DIST_DIR || ".next";
 
 const buildArgs = process.platform === "win32" ? ["build", "--webpack"] : ["build"];
 
@@ -25,7 +26,7 @@ child.on("exit", async (code, signal) => {
   try {
     const runtimeRoot = await resolveStandaloneRuntimeRoot();
     await copyIfExists(path.resolve("public"), path.join(runtimeRoot, "public"));
-    await copyIfExists(path.resolve(".next/static"), path.join(runtimeRoot, ".next/static"));
+    await copyIfExists(path.resolve(buildDirectory, "static"), path.join(runtimeRoot, buildDirectory, "static"));
     process.stdout.write(JSON.stringify({
       type: "standalone_assets",
       status: "ready",
@@ -40,8 +41,8 @@ child.on("exit", async (code, signal) => {
 
 async function resolveStandaloneRuntimeRoot() {
   const candidates = [
-    path.resolve(".next/standalone"),
-    path.resolve(".next/standalone/web"),
+    path.resolve(buildDirectory, "standalone"),
+    path.resolve(buildDirectory, "standalone/web"),
   ];
   for (const candidate of candidates) {
     try {

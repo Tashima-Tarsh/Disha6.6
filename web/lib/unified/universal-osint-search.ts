@@ -18,6 +18,9 @@ export type UniversalOsintQueryKind =
   | "email"
   | "phone"
   | "username"
+  | "flight_radar"
+  | "surveillance_camera"
+  | "defense_conflict"
   | "entity";
 
 export type UniversalOsintPlanItem = {
@@ -110,6 +113,18 @@ export function classifyUniversalOsintQuery(value: string): {
     return { kind: "phone", normalizedTarget: query.replace(/[\s().-]/g, "") };
   }
 
+  if (/\b(?:flight|aircraft|airplane|plane|transponder|icao|adsb|airspace)\b/i.test(query)) {
+    return { kind: "flight_radar", normalizedTarget: query };
+  }
+
+  if (/\b(?:camera|webcam|surveillance|insecam|cctv|stream|video stream|project eyes on)\b/i.test(query)) {
+    return { kind: "surveillance_camera", normalizedTarget: query };
+  }
+
+  if (/\b(?:defense|military|war|strike|conflict|air force|navy|naval|warship|frontline|acled|polyglobe|liveuamap)\b/i.test(query)) {
+    return { kind: "defense_conflict", normalizedTarget: query };
+  }
+
   return { kind: "entity", normalizedTarget: query };
 }
 
@@ -187,12 +202,40 @@ export function buildUniversalOsintPlan(value: string): UniversalOsintPlan {
       break;
     case "email":
     case "phone":
-    case "username":
-      blockedCapabilities.push(
-        "Cross-site identity enumeration is intentionally disabled in the default DISHA OSINT bus.",
-      );
+    case "username": {
+      const isApproved = process.env.DISHA_IDENTITY_ENUMERATION_APPROVED === "true";
+      if (!isApproved) {
+        blockedCapabilities.push(
+          "Cross-site identity enumeration requires lawful authorization approval (DISHA_IDENTITY_ENUMERATION_APPROVED).",
+        );
+        runs = [
+          { adapterId: "public-gdelt-news", input: { query: classified.normalizedTarget, maxRecords: 20 }, reason: "Search public reporting only." },
+        ];
+      } else {
+        runs = [
+          { adapterId: "public-wikidata-search", input: { query: classified.normalizedTarget, limit: 10 }, reason: "Knowledge base and public entity search." },
+          { adapterId: "public-openalex", input: { query: classified.normalizedTarget, limit: 10 }, reason: "Scholarly record search." },
+          { adapterId: "public-gdelt-news", input: { query: classified.normalizedTarget, maxRecords: 20 }, reason: "Public media reporting mentioning identity token." },
+        ];
+      }
+      break;
+    }
+    case "flight_radar":
       runs = [
-        { adapterId: "public-gdelt-news", input: { query: classified.normalizedTarget, maxRecords: 20 }, reason: "Search public reporting only; no cross-site account enumeration." },
+        { adapterId: "public-opensky-flight-radar", input: { query: classified.normalizedTarget, limit: 25 }, reason: "Query live transponder flight vectors and airborne traffic from OpenSky Network." },
+        { adapterId: "public-gdelt-news", input: { query: classified.normalizedTarget, maxRecords: 15 }, reason: "Find public reporting mentioning the aircraft or flight route." },
+      ];
+      break;
+    case "surveillance_camera":
+      runs = [
+        { adapterId: "astra6-project-eyes-on", input: { query: classified.normalizedTarget, mode: "STREAM" }, reason: "Reconnaissance of open IP cameras and video surveillance feeds via Project Eyes On." },
+        { adapterId: "defense-osint-matrix", input: { domain: "ground_surveillance", targetIdentifier: classified.normalizedTarget }, reason: "Triangulate optical and perimeter surveillance assets." },
+      ];
+      break;
+    case "defense_conflict":
+      runs = [
+        { adapterId: "defense-osint-matrix", input: { domain: "conflict", theatreOrRegion: classified.normalizedTarget }, reason: "Triangulate multi-domain defense intelligence across ACLED, Liveuamap, Polyglobe, and Sentinel Hub." },
+        { adapterId: "public-gdelt-news", input: { query: classified.normalizedTarget, maxRecords: 20 }, reason: "Find global news and conflict updates from GDELT." },
       ];
       break;
     case "entity":

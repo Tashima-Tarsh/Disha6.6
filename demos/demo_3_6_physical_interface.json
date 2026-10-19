@@ -1,7 +1,0 @@
-{
-  "input_text": "Edge device telemetry from an authorized machine state collector needs secure sensor-to-brain routing.",
-  "source_type": "sensor",
-  "source_links": [],
-  "requested_actions": ["monitor", "preserve_evidence"],
-  "authorized_environment": true
-}

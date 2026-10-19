@@ -266,4 +266,3 @@ export function safeSourceUrl(value: unknown): string | undefined {
     return undefined;
   }
 }
-

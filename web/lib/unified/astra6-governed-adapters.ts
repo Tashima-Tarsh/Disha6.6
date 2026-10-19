@@ -16,6 +16,11 @@ import {
   subfinderManifest,
   reconNgManifest,
   photonManifest,
+  userScannerManifest,
+  toutatisManifest,
+  mrHolmesManifest,
+  onionSearchManifest,
+  xurlfind3rManifest,
   validateCommandTarget,
   type DishaToolManifest,
 } from "./astra6-tool-manifest";
@@ -338,6 +343,11 @@ export const amassAdapter = createAstra6Adapter(amassManifest);
 export const subfinderAdapter = createAstra6Adapter(subfinderManifest);
 export const reconNgAdapter = createAstra6Adapter(reconNgManifest);
 export const photonAdapter = createAstra6Adapter(photonManifest);
+export const userScannerAdapter = createAstra6Adapter(userScannerManifest);
+export const toutatisAdapter = createAstra6Adapter(toutatisManifest);
+export const mrHolmesAdapter = createAstra6Adapter(mrHolmesManifest);
+export const onionSearchAdapter = createAstra6Adapter(onionSearchManifest);
+export const xurlfind3rAdapter = createAstra6Adapter(xurlfind3rManifest);
 
 export const astra6Adapters = [
   phoneInfogaAdapter,
@@ -352,4 +362,9 @@ export const astra6Adapters = [
   subfinderAdapter,
   reconNgAdapter,
   photonAdapter,
+  userScannerAdapter,
+  toutatisAdapter,
+  mrHolmesAdapter,
+  onionSearchAdapter,
+  xurlfind3rAdapter,
 ];

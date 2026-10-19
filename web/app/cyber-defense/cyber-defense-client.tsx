@@ -12,7 +12,7 @@ import {
   ExternalLink,
   CheckCircle,
 } from "lucide-react";
-import { DishaShellNav } from "@/components/shell/DishaShellNav";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 import styles from "./cyber-defense.module.css";
 
 type PrincipalView = { email: string; roles: string[] };
@@ -85,8 +85,8 @@ export function CyberDefenseClient({ principal }: { principal: PrincipalView }) 
   }
 
   return (
-    <div className={styles.shell}>
-      <DishaShellNav />
+    <DishaCommandShell principal={principal}>
+      <div className={styles.shell}>
 
       <main className={styles.main}>
         <header className={styles.hero}>
@@ -220,6 +220,7 @@ export function CyberDefenseClient({ principal }: { principal: PrincipalView }) 
           </section>
         </div>
       </main>
-    </div>
+      </div>
+    </DishaCommandShell>
   );
 }

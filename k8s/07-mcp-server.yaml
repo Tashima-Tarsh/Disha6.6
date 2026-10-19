@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disha-mcp-server
+  namespace: disha
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disha-mcp-server
+  template:
+    metadata:
+      labels:
+        app: disha-mcp-server
+    spec:
+      containers:
+        - name: mcp-server
+          image: disha-mcp-server:latest
+          ports:
+            - containerPort: 4000
+              name: mcp-http
+          env:
+            - name: PORT
+              value: "4000"
+            - name: DISHA_SRC_ROOT
+              value: "/workspace"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disha-mcp-server
+  namespace: disha
+spec:
+  ports:
+    - port: 4000
+      targetPort: 4000
+      name: mcp-http
+  selector:
+    app: disha-mcp-server

@@ -27,12 +27,14 @@ import {
 
 describe("ASTRA 6 tool manifest", () => {
   it("declares the governed production tool set", () => {
-    expect(astra6ToolManifests).toHaveLength(12);
+    expect(astra6ToolManifests).toHaveLength(17);
     const ids = astra6ToolManifests.map((m) => m.toolId).sort();
     expect(ids).toEqual([
       "holehe",
       "instaloader",
       "maigret",
+      "mrholmes",
+      "onionsearch",
       "owasp-amass",
       "phoneinfoga",
       "photon",
@@ -42,6 +44,9 @@ describe("ASTRA 6 tool manifest", () => {
       "subfinder",
       "telegram-public",
       "theharvester",
+      "toutatis",
+      "user-scanner",
+      "xurlfind3r",
     ]);
   });
 
@@ -88,7 +93,7 @@ describe("ASTRA 6 tool manifest", () => {
 
   it("produces a correct summary", () => {
     const summary = getAstra6Summary();
-    expect(summary.total).toBe(12);
+    expect(summary.total).toBe(17);
     expect(summary.byRuntime.python).toBeGreaterThan(0);
     expect(summary.byRuntime.go).toBeGreaterThan(0);
     expect(summary.targetTypes).toContain("domain");

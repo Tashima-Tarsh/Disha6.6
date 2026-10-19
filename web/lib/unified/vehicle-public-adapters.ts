@@ -12,16 +12,6 @@ export type VinDecodeOutput = {
   records: Array<Record<string, string | number | boolean | undefined>>;
 };
 
-export type IndiaVehicleFormatInput = { registration: string };
-export type IndiaVehicleFormatOutput = {
-  records: Array<{
-    registration: string;
-    statePrefix: string;
-    registrySystem: "VAHAN";
-    ownerDataQueried: false;
-    officialPortal: string;
-  }>;
-};
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
@@ -123,44 +113,100 @@ export function createNhtsaVinAdapter(
   };
 }
 
+import { parseIndianRegistration } from "../vehicle/validator";
+import { vehicleIntelligenceService } from "../../services/vehicle/vehicle-service";
+
+export type IndiaVehicleFormatInput = { registration: string };
+export type IndiaVehicleFormatOutput = {
+  records: Array<{
+    registration: string;
+    statePrefix: string;
+    registrySystem: "VAHAN";
+    ownerDataQueried: false;
+    officialPortal: string;
+  }>;
+};
+
 export function createIndiaVehicleFormatAdapter(): GovernedOsintAdapter<IndiaVehicleFormatInput, IndiaVehicleFormatOutput> {
   return {
     metadata: {
       id: "public-india-vehicle-format",
-      name: "India Vehicle Registration Format",
-      version: "1.0.0",
+      name: "India Vehicle Intelligence & VAHAN Gateway",
+      version: "6.6.0",
       capability: "vehicle_registration_validation",
       auth: "none",
-      legalUse: ["Registration format validation", "Jurisdiction routing", "Public-source vehicle research"],
-      blockedUse: ["Protected VAHAN owner-data extraction", "Registry authentication bypass", "Personal tracking"],
+      legalUse: ["Registration format validation", "Jurisdiction routing", "Statutory compliance verification", "Public-source vehicle research"],
+      blockedUse: ["Protected VAHAN owner-data extraction without lawful authority", "Registry authentication bypass", "Personal tracking"],
       rateLimitPerMinute: 60,
-      timeoutMs: 1_000,
-      maxRetries: 0,
+      timeoutMs: 5_000,
+      maxRetries: 1,
       executionClass: "passive_public",
       defaultEnabled: true,
       upstreamRepository: "https://parivahan.gov.in/",
     },
     async health() {
-      return { status: "healthy" as const, detail: "Local Indian registration validation available; no protected owner registry is queried." };
+      return { status: "healthy" as const, detail: "DISHA Indian Vehicle Intelligence Engine & Sovereign RTO Directory operational." };
     },
     async execute(input, context) {
       ensurePurpose(context);
-      const registration = normalizeIndianRegistration(input.registration);
-      const row = {
-        registration,
-        statePrefix: registration.slice(0, 2),
+      const parsedPlate = parseIndianRegistration(input.registration);
+      if (!parsedPlate.isValid) {
+        throw new Error(parsedPlate.error || "invalid_indian_vehicle_registration");
+      }
+
+      const lookupResult = await vehicleIntelligenceService.lookupVehicle(
+        {
+          registration_number: parsedPlate.normalized,
+          case_id: context.missionId,
+          purpose: context.purpose,
+        },
+        {
+          caseId: context.missionId,
+          investigatorId: context.userId,
+          purpose: context.purpose,
+          consentConfirmed: true,
+          signal: context.signal,
+        },
+      );
+
+      const v = lookupResult.vehicle;
+      const c = lookupResult.compliance;
+
+      const record = {
+        registration: parsedPlate.normalized,
+        statePrefix: parsedPlate.stateCode ?? "IN",
         registrySystem: "VAHAN" as const,
         ownerDataQueried: false as const,
         officialPortal: "https://parivahan.gov.in/",
       };
+
+      const summaryText = parsedPlate.format === "bharat_series"
+        ? `Bharat Series plate ${parsedPlate.normalized} resolved: National scope (BH, Series Year ${parsedPlate.bhYear ?? "N/A"}). Status: ${lookupResult.status}.`
+        : `Vehicle ${parsedPlate.normalized} resolved to ${parsedPlate.stateName || "State"} (${parsedPlate.rtoName || parsedPlate.rtoCode || "RTO"}). Status: ${lookupResult.status}. Source: ${lookupResult.source}.`;
+
       return {
-        data: { records: [row] },
+        data: { records: [record] },
         evidence: [buildAdapterEvidence({
-          sourceId: "india-vehicle-registration-format",
-          sourceName: "India vehicle registration format",
+          sourceId: lookupResult.evidence.sourceId,
+          sourceName: lookupResult.evidence.sourceName,
           sourceUrl: "https://parivahan.gov.in/",
-          summary: `Registration ${registration} matches the supported Indian registration format; state prefix ${row.statePrefix}. No protected owner data was queried.`,
+          summary: summaryText,
+          fields: {
+            registration: parsedPlate.normalized,
+            status: lookupResult.status,
+            rtoCode: parsedPlate.rtoCode,
+            state: parsedPlate.stateName,
+            manufacturer: v.manufacturer,
+            model: v.model,
+            provenanceHash: lookupResult.evidence.normalizedHashSha256,
+            compliance: {
+              insurance: c.insuranceStatus,
+              puc: c.pucStatus,
+              fitness: c.fitnessStatus,
+            },
+          },
         })],
+        warnings: lookupResult.warnings,
       };
     },
   };

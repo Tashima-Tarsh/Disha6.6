@@ -1,7 +1,0 @@
-{
-  "input_text": "Gap closure request: missing audit trail and delayed corrective action require Yudh assessment and Vyuha selection.",
-  "source_type": "audit_report",
-  "source_links": [],
-  "requested_actions": ["report", "preserve_evidence", "recover"],
-  "authorized_environment": true
-}

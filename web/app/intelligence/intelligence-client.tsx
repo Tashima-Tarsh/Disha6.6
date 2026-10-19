@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { authFetchHeaders } from "@/lib/utils";
 import styles from "./intelligence.module.css";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 
 type Change = {
   changeId: string;
@@ -157,7 +158,8 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
   }
 
   return (
-    <main className={styles.page}>
+    <DishaCommandShell principal={principal}>
+      <main className={styles.page}>
       <header className={styles.header}>
         <div>
           <div className={styles.eyebrow}><Activity size={16} /> CONTINUOUS INTELLIGENCE PLANE</div>
@@ -267,6 +269,7 @@ export function IntelligenceClient({ principal }: { principal: { email: string; 
         </section>
       </div>
     </main>
+    </DishaCommandShell>
   );
 }
 

@@ -1,0 +1,96 @@
+.globeWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.canvasContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.canvasContainer canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.prismaticGlow {
+  position: absolute;
+  inset: -15%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 153, 51, 0.08) 0%,
+    rgba(36, 107, 253, 0.12) 30%,
+    rgba(136, 97, 255, 0.08) 60%,
+    rgba(19, 143, 85, 0.05) 85%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(20px);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+/* Accessible Fallback when WebGL is unavailable */
+.fallbackGlobe {
+  position: relative;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #EDF4FF 70%, #CBD5E1 100%);
+  border: 2px solid rgba(36, 107, 253, 0.3);
+  box-shadow: 0 10px 30px rgba(23, 78, 166, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallbackRing1 {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px dashed #FF9933;
+  animation: spin 15s linear infinite;
+}
+
+.fallbackRing2 {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 1.5px solid #138F55;
+  animation: spinReverse 20s linear infinite;
+}
+
+.fallbackCore {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #174EA6;
+  box-shadow: 0 0 15px rgba(23, 78, 166, 0.5);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}

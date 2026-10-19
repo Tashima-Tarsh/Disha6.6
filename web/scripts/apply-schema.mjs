@@ -89,6 +89,18 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610030004_cyber_defense_attack_surface.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610030004_cyber_defense_attack_surface.down.sql"),
   },
+  {
+    version: "202610080001",
+    name: "forensic_case_evidence",
+    upPath: path.join(databaseRoot, "202610080001_forensic_case_evidence.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610080001_forensic_case_evidence.down.sql"),
+  },
+  {
+    version: "202610140001",
+    name: "vehicle_intelligence",
+    upPath: path.join(databaseRoot, "202610140001_vehicle_intelligence.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610140001_vehicle_intelligence.down.sql"),
+  },
 ];
 
 const requiredTables = [
@@ -152,6 +164,11 @@ const requiredTables = [
   "disha_threat_indicators",
   "disha_worker_jobs",
   "disha_worker_heartbeats",
+  "forensic_cases",
+  "forensic_evidence_packages",
+  "forensic_evidence_transformations",
+  "vehicle_verifications",
+  "vehicle_audit_log",
 ];
 
 const requiredIndexes = [
@@ -243,6 +260,10 @@ const requiredIndexes = [
   "disha_state_transitions_target_idx",
   "disha_canonical_contradictions_conflict_type_idx",
   "disha_canonical_corroborations_claim_idx",
+  "forensic_cases_status_idx",
+  "forensic_evidence_case_idx",
+  "forensic_evidence_hash_idx",
+  "forensic_transformations_evidence_idx",
 ];
 
 const requiredRlsTables = [
@@ -266,6 +287,9 @@ const requiredRlsTables = [
   "disha_state_transitions",
   "disha_canonical_contradictions",
   "disha_canonical_corroborations",
+  "forensic_cases",
+  "forensic_evidence_packages",
+  "forensic_evidence_transformations",
 ];
 
 const mode = process.argv.includes("--verify-only") ? "verify" : process.argv.includes("--rollback") ? "rollback" : "migrate";

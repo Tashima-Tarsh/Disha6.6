@@ -726,7 +726,9 @@ async function processNextJob() {
       throw new Error(authCheck.error);
     }
     const { binary, args, outputFile, cleanupPath } = buildToolCommand(job.tool_id, target);
-    const timeoutMs = Math.max(1_000, Math.min(Number(job.timeout_ms) || TOOL_DEFAULT_TIMEOUT_MS[job.tool_id] || 60_000, 240_000));
+    const defaultForTool = TOOL_DEFAULT_TIMEOUT_MS[job.tool_id] || 60_000;
+    const configuredTimeout = Number(job.timeout_ms) || defaultForTool;
+    const timeoutMs = Math.max(defaultForTool, Math.min(configuredTimeout, 240_000));
     const raw = await executeBinary(binary, args, timeoutMs, outputFile, cleanupPath);
     const parsed = parseToolResult(job.tool_id, raw, target);
     const durationMs = Date.now() - started;

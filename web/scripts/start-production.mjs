@@ -1,7 +1,38 @@
-import fs from "node:fs";
+﻿import fs from "node:fs";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import process from "node:process";
+
+loadEnvFiles();
+
+function loadEnvFiles() {
+  const envCandidates = [
+    path.resolve(".env.local"),
+    path.resolve(".env"),
+    path.resolve("../.env.local"),
+    path.resolve("../.env"),
+  ];
+  for (const candidate of envCandidates) {
+    if (fs.existsSync(candidate)) {
+      const content = fs.readFileSync(candidate, "utf8");
+      for (const line of content.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eqIdx = trimmed.indexOf("=");
+        if (eqIdx > 0) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          let val = trimmed.slice(eqIdx + 1).trim();
+          if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+            val = val.slice(1, -1);
+          }
+          if (process.env[key] === undefined) {
+            process.env[key] = val;
+          }
+        }
+      }
+    }
+  }
+}
 
 const runtimeEnv = { ...process.env, NODE_ENV: "production" };
 const cliPort = readPort(process.argv.slice(2));
@@ -51,9 +82,10 @@ child.on("exit", (code, signal) => {
 });
 
 function resolveStandaloneServer() {
+  const buildDirectory = process.env.DISHA_NEXT_DIST_DIR || ".next";
   const candidates = [
-    path.resolve(".next/standalone/server.js"),
-    path.resolve(".next/standalone/web/server.js"),
+    path.resolve(buildDirectory, "standalone/server.js"),
+    path.resolve(buildDirectory, "standalone/web/server.js"),
   ];
   const match = candidates.find((candidate) => fs.existsSync(candidate));
   if (!match) throw new Error("Next standalone server.js is missing; run npm run build first");

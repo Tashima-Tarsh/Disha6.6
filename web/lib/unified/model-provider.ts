@@ -182,10 +182,34 @@ async function callOpenAiCompatible(route: ModelRoute, payload: ProviderPayload,
     if (env.OPENAI_PROJECT) headers["OpenAI-Project"] = env.OPENAI_PROJECT;
     if (env.OPENAI_ORGANIZATION) headers["OpenAI-Organization"] = env.OPENAI_ORGANIZATION;
   }
-  const response = await fetch(`${route.baseUrl.replace(/\/$/, "")}/responses`, {
+
+  const isChatCompletions = route.protocol === "openai_chat_completions" || !route.baseUrl.endsWith("/responses");
+  const normalizedBase = route.baseUrl.replace(/\/$/, "");
+  const targetUrl = isChatCompletions
+    ? (normalizedBase.endsWith("/v1") ? `${normalizedBase}/chat/completions` : (normalizedBase.includes("/chat/completions") ? normalizedBase : `${normalizedBase}/chat/completions`))
+    : `${normalizedBase}/responses`;
+
+  const body = isChatCompletions
+    ? JSON.stringify({
+        model: payload.model,
+        messages: [
+          { role: "system", content: payload.system },
+          { role: "user", content: payload.user },
+        ],
+        max_tokens: route.maxOutputTokens,
+        temperature: 0.2,
+      })
+    : JSON.stringify({
+        model: payload.model,
+        instructions: payload.system,
+        input: payload.user,
+        store: false,
+      });
+
+  const response = await fetch(targetUrl, {
     method: "POST",
     headers,
-    body: JSON.stringify({ model: payload.model, instructions: payload.system, input: payload.user, store: false }),
+    body,
     signal: AbortSignal.timeout(timeoutMs),
   });
   return readProviderResponse(response, payload.provider);
@@ -203,8 +227,14 @@ async function readProviderResponse(response: Response, provider: Exclude<ModelP
     const content = (body as { content?: Array<{ type?: string; text?: string }> }).content ?? [];
     return content.filter((item) => item.type === "text" && item.text).map((item) => item.text).join("\n");
   }
+  // Standard OpenAI chat completions: choices[0].message.content
+  const chatChoiceContent = (body as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content;
+  if (typeof chatChoiceContent === "string") return chatChoiceContent;
+
+  // OpenAI /responses format: output_text
   const outputText = (body as { output_text?: unknown }).output_text;
   if (typeof outputText === "string") return outputText;
+
   return JSON.stringify(body);
 }
 

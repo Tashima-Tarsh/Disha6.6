@@ -48,39 +48,56 @@ export function IntelligenceGraph({
         {
           selector: "node",
           style: {
-            "background-color": "#2f7f6a",
-            "border-color": "#86bcae",
-            "border-width": 1,
-            color: "#dfe9e6",
+            "background-color": "#172535",
+            "border-color": "#39c7d7",
+            "border-width": 1.5,
+            color: "#dce7f0",
             label: "data(label)",
             "font-size": 9,
+            "font-family": "monospace",
             "text-wrap": "ellipsis",
-            "text-max-width": "84px",
+            "text-max-width": "90px",
             "text-valign": "bottom",
-            "text-margin-y": 8,
-            width: 18,
-            height: 18,
+            "text-margin-y": 6,
+            width: 20,
+            height: 20,
+          },
+        },
+        {
+          selector: "node[type = 'threat']",
+          style: {
+            "background-color": "#441820",
+            "border-color": "#c64a56",
+            "border-width": 2,
+          },
+        },
+        {
+          selector: "node[type = 'evidence']",
+          style: {
+            "background-color": "#3a2e18",
+            "border-color": "#d5a75b",
+            "border-width": 2,
           },
         },
         {
           selector: "node:selected",
           style: {
-            "background-color": "#d8b363",
-            "border-color": "#ffe2a6",
-            "border-width": 2,
-            width: 24,
-            height: 24,
+            "background-color": "#39c7d7",
+            "border-color": "#ffffff",
+            "border-width": 2.5,
+            width: 26,
+            height: 26,
           },
         },
         {
           selector: "edge",
           style: {
-            width: 1,
-            "line-color": "#36525b",
-            "target-arrow-color": "#55747a",
+            width: 1.2,
+            "line-color": "#24384d",
+            "target-arrow-color": "#39c7d7",
             "target-arrow-shape": "triangle",
             "curve-style": "bezier",
-            opacity: 0.72,
+            opacity: 0.75,
           },
         },
       ],
@@ -106,8 +123,5 @@ export function IntelligenceGraph({
     }
   }, [selectedEntityId]);
 
-  if (!entities.length) {
-    return <div className={styles.empty}>No persisted entity relationships are available in this workspace.</div>;
-  }
-  return <div className={styles.graph} ref={containerRef} aria-label="Evidence-linked entity graph" />;
+  return <div className={styles.container} ref={containerRef} />;
 }

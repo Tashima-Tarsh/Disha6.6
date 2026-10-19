@@ -24,7 +24,6 @@ flowchart TD
 - `disha/brain/`: central reasoning, graph, policy, evidence, memory, audit, monitoring, database, and FastAPI surfaces.
 - `web/`: hardened Next.js API surface for auth, audit, agent workflows, files, export, and sharing.
 - `src/`: TypeScript CLI/runtime hardening modules and MCP entrypoint.
-- `demos/`: JSON examples for the six DISHA versions.
 - `tests/`: focused tests for the graph spine.
 - `legacy/`, `disha/services/`, `disha/ai/`, and integrations: useful but not automatically production-trusted.
 

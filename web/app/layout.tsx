@@ -1,4 +1,5 @@
 import "maplibre-gl/dist/maplibre-gl.css";
+import "./theme-tokens.css";
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";

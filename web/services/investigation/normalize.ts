@@ -30,7 +30,6 @@ const arrayKeys: Record<string, string> = {
   "public-reliefweb": "reports",
   "public-brave-search": "records",
   "passive-shodan": "records",
-  "google-vision-web": "records",
   "public-nhtsa-vin": "records",
   "public-india-vehicle-format": "records",
   "public-threatfox": "records",
@@ -39,6 +38,15 @@ const arrayKeys: Record<string, string> = {
   "public-opencorporates": "records",
   "service-opencti": "records",
   "service-intelowl": "records",
+  "openosint-mcp": "records",
+  "openosint-dns": "records",
+  "openosint-rdap": "records",
+  "openosint-whois": "records",
+  "openosint-dorks": "records",
+  "openosint-ip": "records",
+  "openosint-github": "records",
+  "openosint-breach": "records",
+  "openosint-github-forensics": "evidenceItems",
 };
 
 function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<string, unknown>[] | undefined {
@@ -51,6 +59,13 @@ function astraRows(plan: AdapterPlan, data: Record<string, unknown>): Record<str
 
   if (["astra6-instaloader", "astra6-telegram-public"].includes(plan.adapterId)) {
     return Array.isArray(payload.records) ? payload.records.map(record) : [];
+  }
+
+  if (["astra6-mrholmes", "astra6-user-scanner"].includes(plan.adapterId)) {
+    if (Array.isArray(payload.records)) return payload.records.map(record);
+    if (Array.isArray(payload.found)) return payload.found.map(record);
+    if (Array.isArray(payload.results)) return payload.results.map(record);
+    return Object.keys(payload).length ? [payload] : [];
   }
 
   if (plan.adapterId === "astra6-phoneinfoga") {
@@ -118,6 +133,8 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
     const evidenceId = randomUUID();
     const providerRecordId =
       identifier(row.id)
+      ?? text(row.number)
+      ?? text(row.e164)
       ?? identifier(row.cveID)
       ?? text(row.noradCatId)
       ?? text(row.handle)
@@ -150,8 +167,18 @@ export function normalizeRecords(plan: AdapterPlan, result: AdapterExecutionResu
       ?? text(row.notBefore)
       ?? text(row.last_update);
 
+    const phoneSummary = (text(row.number) || text(row.e164))
+      ? `Phone ${text(row.number) ?? text(row.e164)} (${text(row.country) ?? "IN"}): Valid ${row.valid === false ? "No" : "Yes"}${text(row.carrier) ? ` · Carrier: ${text(row.carrier)}` : ""}${text(row.localFormat) ? ` · Format: ${text(row.localFormat)}` : ""}`
+      : undefined;
+
+    const entitySummary = (text(row.label) && text(row.description))
+      ? `${text(row.label)} · ${text(row.description)}`
+      : undefined;
+
     const summary =
       text(row.summary)
+      ?? phoneSummary
+      ?? entitySummary
       ?? text(row.title)
       ?? text(row.label)
       ?? text(row.description)

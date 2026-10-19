@@ -1,0 +1,192 @@
+.graphContainer {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -5px rgba(23, 78, 166, 0.06);
+}
+
+.graphToolbar {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  right: 14px;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  border-radius: 10px;
+  padding: 8px 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.toolbarTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #13274C;
+  text-transform: uppercase;
+}
+
+.shieldIcon {
+  color: #246BFD;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filterIcon {
+  color: #52627B;
+}
+
+.filterSelect {
+  font-size: 11px;
+  font-weight: 500;
+  color: #13274C;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 160ms ease;
+}
+
+.filterSelect:focus {
+  border-color: #246BFD;
+}
+
+.flowViewport {
+  width: 100%;
+  height: 100%;
+}
+
+/* Custom White-Glass Entity Node */
+.customNode {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border: 1.5px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 180px;
+  max-width: 240px;
+  box-shadow: 0 8px 24px -4px rgba(23, 78, 166, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.customNode:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 32px -4px rgba(23, 78, 166, 0.16), 0 4px 12px -1px rgba(0, 0, 0, 0.06);
+}
+
+.nodeSelected {
+  border-color: #246BFD !important;
+  box-shadow: 0 0 0 2px rgba(36, 107, 253, 0.25), 0 14px 32px -4px rgba(23, 78, 166, 0.16);
+}
+
+.nodeHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.iconCircle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nodeMeta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.nodeType {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.nodeLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #13274C;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nodeDetails {
+  font-size: 10px;
+  color: #52627B;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.nodeFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(226, 232, 240, 0.6);
+  font-size: 9px;
+}
+
+.sourceTag {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #52627B;
+  font-weight: 500;
+}
+
+.verifiedTag {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #138F55;
+  font-weight: 600;
+}
+
+.handle {
+  width: 7px !important;
+  height: 7px !important;
+  background: #246BFD !important;
+  border: 1.5px solid #FFFFFF !important;
+}
+
+.flowControls {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.flowMiniMap {
+  border-radius: 10px !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important;
+}

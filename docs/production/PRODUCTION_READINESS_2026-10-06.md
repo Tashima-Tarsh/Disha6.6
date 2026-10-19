@@ -20,13 +20,13 @@ The repository has one production web application: `web/`. Imported and legacy t
 These are architecture controls, not cosmetic backlog:
 
 - Protect `main` once a reliable runner is available. Do not require a check that the current GitHub-hosted runner cannot start.
-- GCP/GCE is the canonical live hosting target. Verify `/opt/disha/DEPLOYED_COMMIT` matches the intended release before declaring a rollout complete.
+- Local Docker on Windows is the active runtime target for this checkout. Verify `docker compose ps`, `/api/v1/health`, and OSINT smoke results before declaring a local rollout complete.
 - Disable or repair the repository Codespaces prebuild configuration separately if its independent failure notification is unwanted; it is not product CI.
 - Run the full container smoke suite on the exact release commit.
 - Exercise PostgreSQL backup and restore in the production environment.
 - Add SLOs, external health monitoring, and alert routing.
 - Keep production source parsers and dashboard-safe data feeds truthful: incomplete provider/parser coverage must remain partial/unconfigured rather than fabricated.
-- Review governed extension/runtime dependencies and egress policy for the production environment.
+- Review governed extension/runtime dependencies and egress policy for the local Docker environment.
 
 ## Deployment invariant
 

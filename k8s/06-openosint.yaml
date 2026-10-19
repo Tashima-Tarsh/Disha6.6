@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disha-openosint
+  namespace: disha
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disha-openosint
+  template:
+    metadata:
+      labels:
+        app: disha-openosint
+    spec:
+      containers:
+        - name: openosint
+          image: disha-openosint:latest
+          ports:
+            - containerPort: 8055
+              name: http
+          env:
+            - name: PORT
+              value: "8055"
+            - name: OPENOSINT_SERVICE_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: disha-config
+                  key: OPENOSINT_SERVICE_TOKEN
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8055
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8055
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disha-openosint
+  namespace: disha
+spec:
+  ports:
+    - port: 8055
+      targetPort: 8055
+      name: http
+  selector:
+    app: disha-openosint

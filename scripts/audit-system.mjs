@@ -50,9 +50,10 @@ if (fs.existsSync(".gitmodules")) {
 }
 
 // 5. Worker classes & Docker Compose
-console.info("\nDocker Compose services defined in infra/gcp/deploy-remote.sh:");
-const deployRemote = fs.readFileSync("infra/gcp/deploy-remote.sh", "utf8");
-const composeServices = [...deployRemote.matchAll(/^[ ]{2}([a-zA-Z0-9_\-]+):/gm)].map(m => m[1]);
+console.info("\nDocker Compose services defined in docker-compose.yml:");
+const composeFile = fs.readFileSync("docker-compose.yml", "utf8");
+const serviceBlock = composeFile.split(/\nvolumes:\s*\n/)[0] || composeFile;
+const composeServices = [...serviceBlock.matchAll(/^[ ]{2}([a-zA-Z0-9_\-]+):/gm)].map(m => m[1]);
 console.info("Services:", composeServices);
 
 // 6. CI Workflows

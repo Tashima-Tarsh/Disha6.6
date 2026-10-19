@@ -1,0 +1,1606 @@
+{
+  "generatedAt": "2026-10-08T18:39:29.095Z",
+  "safetyRule": "Metadata and documentation catalogue only. Do not collect or redistribute stolen personal, medical, biometric, financial or authentication data.",
+  "githubSearchLimits": {
+    "pagesPerOrder": 2,
+    "perPage": 25,
+    "authenticated": false,
+    "exhaustiveCoverageClaimed": false
+  },
+  "seedRepositories": [
+    "owasp-amass/amass",
+    "OpenCTI-Platform/opencti",
+    "volatilityfoundation/volatility",
+    "MISP/MISP",
+    "volatilityfoundation/volatility3",
+    "Velocidex/velociraptor",
+    "google/timesketch",
+    "sleuthkit/autopsy",
+    "moj-analytical-services/splink",
+    "dfir-iris/iris-web",
+    "vz-risk/VCDB",
+    "sleuthkit/autopsy_addon_modules",
+    "MISP/misp-modules",
+    "Velocidex/velociraptor-docs",
+    "volatilityfoundation/community3",
+    "MISP/misp-packer",
+    "owasp-amass/docs"
+  ],
+  "categories": [
+    {
+      "id": "icmr_healthcare_security",
+      "label": "ICMR and healthcare security research",
+      "queries": [
+        "\"ICMR\" cybersecurity",
+        "\"ICMR\" breach",
+        "\"healthcare\" \"data breach\" security",
+        "\"medical\" \"incident response\" forensics"
+      ]
+    },
+    {
+      "id": "aadhaar_identity_security",
+      "label": "Aadhaar and digital identity security",
+      "queries": [
+        "aadhaar security",
+        "aadhaar breach",
+        "\"digital identity\" security breach",
+        "\"identity\" \"data exposure\" osint"
+      ]
+    },
+    {
+      "id": "telecom_incidents",
+      "label": "Telecom incidents",
+      "queries": [
+        "telecom breach intelligence",
+        "\"telecom\" \"data breach\"",
+        "\"mobile operator\" cybersecurity incident"
+      ]
+    },
+    {
+      "id": "banking_financial_incidents",
+      "label": "Banking and financial cybersecurity incidents",
+      "queries": [
+        "banking breach intelligence",
+        "\"financial\" \"data breach\" cybersecurity",
+        "\"bank\" \"incident response\" forensics"
+      ]
+    },
+    {
+      "id": "government_data_exposures",
+      "label": "Government data exposures",
+      "queries": [
+        "\"government\" \"data exposure\"",
+        "\"public sector\" \"data breach\"",
+        "\"gov\" \"breach\" intelligence"
+      ]
+    },
+    {
+      "id": "corporate_breaches",
+      "label": "Corporate breaches",
+      "queries": [
+        "\"corporate\" \"data breach\"",
+        "\"breach\" \"incident report\"",
+        "\"security incident\" \"postmortem\""
+      ]
+    },
+    {
+      "id": "ransomware_intelligence",
+      "label": "Ransomware intelligence",
+      "queries": [
+        "ransomware intelligence",
+        "ransomware victims dataset",
+        "ransomware incident tracking"
+      ]
+    },
+    {
+      "id": "digital_forensic_tools",
+      "label": "Digital forensic tools",
+      "queries": [
+        "digital forensics tool",
+        "memory forensics volatility",
+        "dfir forensic evidence",
+        "forensic timeline tool"
+      ]
+    },
+    {
+      "id": "evidence_management",
+      "label": "Evidence management",
+      "queries": [
+        "digital evidence management",
+        "case management dfir",
+        "chain of custody forensic"
+      ]
+    },
+    {
+      "id": "incident_datasets",
+      "label": "Incident datasets",
+      "queries": [
+        "cyber incident dataset",
+        "data breach dataset",
+        "security incident records"
+      ]
+    },
+    {
+      "id": "record_provenance_validation",
+      "label": "Record provenance and validation",
+      "queries": [
+        "record linkage provenance",
+        "data provenance validation",
+        "evidence verification hash chain"
+      ]
+    }
+  ],
+  "totalRepositories": 17,
+  "catalogue": [
+    {
+      "githubRepositoryId": 140457254,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxNDA0NTcyNTQ=",
+      "fullName": "owasp-amass/amass",
+      "owner": "owasp-amass",
+      "name": "amass",
+      "htmlUrl": "https://github.com/owasp-amass/amass",
+      "cloneUrl": "https://github.com/owasp-amass/amass.git",
+      "description": "In-depth attack surface mapping and asset discovery",
+      "homepage": "https://owasp.org/www-project-amass/",
+      "stars": 15324,
+      "forks": 2197,
+      "openIssues": 243,
+      "createdAt": "2018-07-10T16:05:08Z",
+      "updatedAt": "2026-10-08T18:36:52Z",
+      "pushedAt": "2026-07-19T05:16:40Z",
+      "defaultBranch": "main",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "attack-surfaces",
+        "dns",
+        "enumeration",
+        "go",
+        "golang",
+        "information-gathering",
+        "maltego",
+        "network-security",
+        "osint",
+        "osint-reconnaissance",
+        "owasp",
+        "recon",
+        "subdomain"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:owasp-amass/amass"
+      ],
+      "latestCommitSha": "79299dce87b0085db0f2f4ef3e9c52cccb49f514",
+      "latestCommitUrl": "https://github.com/owasp-amass/amass/commit/79299dce87b0085db0f2f4ef3e9c52cccb49f514",
+      "readmeUrl": "https://github.com/owasp-amass/amass/blob/main/README.md",
+      "readmeBytes": 3429,
+      "readmeSignals": [
+        "installation",
+        "documentation"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v5.1.1",
+          "name": "v5.1.1",
+          "publishedAt": "2026-04-07T02:08:08Z",
+          "url": "https://github.com/owasp-amass/amass/releases/tag/v5.1.1"
+        },
+        {
+          "tagName": "v5.0.1",
+          "name": "v5.0.1",
+          "publishedAt": "2025-09-04T20:54:12Z",
+          "url": "https://github.com/owasp-amass/amass/releases/tag/v5.0.1"
+        },
+        {
+          "tagName": "v5.0.0",
+          "name": "v5.0.0",
+          "publishedAt": "2025-08-03T15:31:46Z",
+          "url": "https://github.com/owasp-amass/amass/releases/tag/v5.0.0"
+        },
+        {
+          "tagName": "v4.2.0",
+          "name": "v4.2.0",
+          "publishedAt": "2023-09-10T20:52:27Z",
+          "url": "https://github.com/owasp-amass/amass/releases/tag/v4.2.0"
+        },
+        {
+          "tagName": "v4.1.0",
+          "name": "v4.1.0",
+          "publishedAt": "2023-07-29T02:37:39Z",
+          "url": "https://github.com/owasp-amass/amass/releases/tag/v4.1.0"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Public attack-surface research",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 162200234,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxNjIyMDAyMzQ=",
+      "fullName": "OpenCTI-Platform/opencti",
+      "owner": "OpenCTI-Platform",
+      "name": "opencti",
+      "htmlUrl": "https://github.com/OpenCTI-Platform/opencti",
+      "cloneUrl": "https://github.com/OpenCTI-Platform/opencti.git",
+      "description": "Open Cyber Threat Intelligence Platform",
+      "homepage": "https://opencti.io",
+      "stars": 10111,
+      "forks": 1474,
+      "openIssues": 2212,
+      "createdAt": "2018-12-17T22:57:34Z",
+      "updatedAt": "2026-10-08T16:11:26Z",
+      "pushedAt": "2026-10-08T16:54:34Z",
+      "defaultBranch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "cti",
+        "cyber",
+        "cybersecurity",
+        "intelligence",
+        "osint",
+        "security",
+        "threat-intelligence"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:OpenCTI-Platform/opencti"
+      ],
+      "latestCommitSha": "07dc5f20ba48268c6afac25a614eacb9dcdcae0b",
+      "latestCommitUrl": "https://github.com/OpenCTI-Platform/opencti/commit/07dc5f20ba48268c6afac25a614eacb9dcdcae0b",
+      "readmeUrl": "https://github.com/OpenCTI-Platform/opencti/blob/master/README.md",
+      "readmeBytes": 7831,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "incident-documentation",
+        "threat-intelligence",
+        "dataset"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "7.260309.0-lts.8",
+          "name": "Version 7.260309.0-lts.8",
+          "publishedAt": "2026-10-07T13:44:39Z",
+          "url": "https://github.com/OpenCTI-Platform/opencti/releases/tag/7.260309.0-lts.8"
+        },
+        {
+          "tagName": "7.261002.0",
+          "name": "Version 7.261002.0",
+          "publishedAt": "2026-10-02T09:57:15Z",
+          "url": "https://github.com/OpenCTI-Platform/opencti/releases/tag/7.261002.0"
+        },
+        {
+          "tagName": "7.260930.0",
+          "name": "Version 7.260930.0",
+          "publishedAt": "2026-09-30T07:43:49Z",
+          "url": "https://github.com/OpenCTI-Platform/opencti/releases/tag/7.260930.0"
+        },
+        {
+          "tagName": "7.260811.0-lts.1",
+          "name": "Version 7.260811.0-lts.1",
+          "publishedAt": "2026-09-30T14:27:14Z",
+          "url": "https://github.com/OpenCTI-Platform/opencti/releases/tag/7.260811.0-lts.1"
+        },
+        {
+          "tagName": "7.260928.1",
+          "name": "Version 7.260928.1",
+          "publishedAt": "2026-09-28T15:25:26Z",
+          "url": "https://github.com/OpenCTI-Platform/opencti/releases/tag/7.260928.1"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Threat intelligence and incident records",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 19114225,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxOTExNDIyNQ==",
+      "fullName": "volatilityfoundation/volatility",
+      "owner": "volatilityfoundation",
+      "name": "volatility",
+      "htmlUrl": "https://github.com/volatilityfoundation/volatility",
+      "cloneUrl": "https://github.com/volatilityfoundation/volatility.git",
+      "description": "An advanced memory forensics framework",
+      "homepage": "http://volatilityfoundation.org/",
+      "stars": 8055,
+      "forks": 1345,
+      "openIssues": 221,
+      "createdAt": "2014-04-24T15:45:26Z",
+      "updatedAt": "2026-10-06T17:56:30Z",
+      "pushedAt": "2025-05-16T13:40:55Z",
+      "defaultBranch": "master",
+      "license": "GPL-2.0",
+      "archived": true,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "malware",
+        "memory",
+        "python",
+        "ram",
+        "volatility-framework"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:volatilityfoundation/volatility"
+      ],
+      "latestCommitSha": "328a178edeecaf8d2abf96618ecfcb14a7b0c860",
+      "latestCommitUrl": "https://github.com/volatilityfoundation/volatility/commit/328a178edeecaf8d2abf96618ecfcb14a7b0c860",
+      "readmeUrl": "https://github.com/volatilityfoundation/volatility/blob/master/README.txt",
+      "readmeBytes": 32164,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "forensic-tool",
+        "dataset"
+      ],
+      "releaseCountSampled": 1,
+      "latestReleases": [
+        {
+          "tagName": "2.6.1",
+          "name": "Volatility 2.6: December 2016 ",
+          "publishedAt": "2024-04-09T20:04:28Z",
+          "url": "https://github.com/volatilityfoundation/volatility/releases/tag/2.6.1"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 8077402,
+      "nodeId": "MDEwOlJlcG9zaXRvcnk4MDc3NDAy",
+      "fullName": "MISP/MISP",
+      "owner": "MISP",
+      "name": "MISP",
+      "htmlUrl": "https://github.com/MISP/MISP",
+      "cloneUrl": "https://github.com/MISP/MISP.git",
+      "description": "MISP (core software) - Open Source Threat Intelligence and Sharing Platform",
+      "homepage": "https://www.misp-project.org/",
+      "stars": 6583,
+      "forks": 1646,
+      "openIssues": 2947,
+      "createdAt": "2013-02-07T17:10:34Z",
+      "updatedAt": "2026-10-08T16:43:23Z",
+      "pushedAt": "2026-10-07T19:03:27Z",
+      "defaultBranch": "2.5",
+      "license": "AGPL-3.0",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "cti",
+        "cybersecurity",
+        "fraud-detection",
+        "fraud-management",
+        "fraud-prevention",
+        "information-exchange",
+        "information-security",
+        "information-sharing",
+        "intelligence",
+        "malware-analysis",
+        "misp",
+        "security",
+        "stix",
+        "threat-analysis",
+        "threat-hunting",
+        "threat-intel",
+        "threat-intelligence",
+        "threat-intelligence-platform",
+        "threat-sharing",
+        "threatintel"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:MISP/MISP"
+      ],
+      "latestCommitSha": "fb54b3e4a4ddd7ad7913fffd94284dd0e81b2120",
+      "latestCommitUrl": "https://github.com/MISP/MISP/commit/fb54b3e4a4ddd7ad7913fffd94284dd0e81b2120",
+      "readmeUrl": "https://github.com/MISP/MISP/blob/2.5/README.md",
+      "readmeBytes": 16625,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "incident-documentation",
+        "forensic-tool",
+        "threat-intelligence",
+        "dataset"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v2.5.48",
+          "name": "MISP 2.5.48 - AImageddon security roundup release",
+          "publishedAt": "2026-09-29T08:11:29Z",
+          "url": "https://github.com/MISP/MISP/releases/tag/v2.5.48"
+        },
+        {
+          "tagName": "v2.5.47",
+          "name": "MISP 2.5.47 released - a major security hardening round, the new database migration system with PostgreSQL support, AI-assisted analysis and Overmind moving forward",
+          "publishedAt": "2026-09-17T11:41:47Z",
+          "url": "https://github.com/MISP/MISP/releases/tag/v2.5.47"
+        },
+        {
+          "tagName": "v2.4.221",
+          "name": "MISP 2.4.221 security backport release",
+          "publishedAt": "2026-09-17T14:47:09Z",
+          "url": "https://github.com/MISP/MISP/releases/tag/v2.4.221"
+        },
+        {
+          "tagName": "v2.5.46",
+          "name": "MISP 2.5.46 released -  security hardening, major performance gains, knowledge-base updates and Overmind moving forward",
+          "publishedAt": "2026-09-10T08:04:11Z",
+          "url": "https://github.com/MISP/MISP/releases/tag/v2.5.46"
+        },
+        {
+          "tagName": "v2.5.45",
+          "name": "MISP v2.5.45 released - Overmind Everywhere, LDAP Reworked, Security Hardened and Many Fixes",
+          "publishedAt": "2026-08-25T13:53:44Z",
+          "url": "https://github.com/MISP/MISP/releases/tag/v2.5.45"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 16258388,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxNjI1ODM4OA==",
+      "fullName": "volatilityfoundation/volatility3",
+      "owner": "volatilityfoundation",
+      "name": "volatility3",
+      "htmlUrl": "https://github.com/volatilityfoundation/volatility3",
+      "cloneUrl": "https://github.com/volatilityfoundation/volatility3.git",
+      "description": "Volatility 3.0 development",
+      "homepage": "https://volatilityfoundation.org/",
+      "stars": 4465,
+      "forks": 715,
+      "openIssues": 141,
+      "createdAt": "2014-01-26T18:09:20Z",
+      "updatedAt": "2026-10-08T07:29:16Z",
+      "pushedAt": "2026-09-17T19:52:50Z",
+      "defaultBranch": "develop",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "digital-investigation",
+        "forensics",
+        "incident-response",
+        "malware",
+        "memory",
+        "python",
+        "ram",
+        "volatility",
+        "volatility-framework"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:volatilityfoundation/volatility3"
+      ],
+      "latestCommitSha": "3fcb731e0ba5b6c4e90f19445a10f9da2bba02a4",
+      "latestCommitUrl": "https://github.com/volatilityfoundation/volatility3/commit/3fcb731e0ba5b6c4e90f19445a10f9da2bba02a4",
+      "readmeUrl": "https://github.com/volatilityfoundation/volatility3/blob/develop/README.md",
+      "readmeBytes": 5752,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v2.28.2",
+          "name": "Volatility 3 2.28.2",
+          "publishedAt": "2026-09-17T19:47:09Z",
+          "url": "https://github.com/volatilityfoundation/volatility3/releases/tag/v2.28.2"
+        },
+        {
+          "tagName": "v2.28.0",
+          "name": "Volatility 3 2.28.0",
+          "publishedAt": "2026-04-30T19:57:16Z",
+          "url": "https://github.com/volatilityfoundation/volatility3/releases/tag/v2.28.0"
+        },
+        {
+          "tagName": "v2.27.0",
+          "name": "Volatility 3 2.27.0",
+          "publishedAt": "2026-01-29T21:51:57Z",
+          "url": "https://github.com/volatilityfoundation/volatility3/releases/tag/v2.27.0"
+        },
+        {
+          "tagName": "v2.26.2",
+          "name": "Volatility 3 2.26.2",
+          "publishedAt": "2025-09-25T20:51:37Z",
+          "url": "https://github.com/volatilityfoundation/volatility3/releases/tag/v2.26.2"
+        },
+        {
+          "tagName": "v2.26.0",
+          "name": "Volatility 3 2.26.0",
+          "publishedAt": "2025-05-16T13:24:53Z",
+          "url": "https://github.com/volatilityfoundation/volatility3/releases/tag/v2.26.0"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 126576769,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxMjY1NzY3Njk=",
+      "fullName": "Velocidex/velociraptor",
+      "owner": "Velocidex",
+      "name": "velociraptor",
+      "htmlUrl": "https://github.com/Velocidex/velociraptor",
+      "cloneUrl": "https://github.com/Velocidex/velociraptor.git",
+      "description": "Digging Deeper....",
+      "homepage": "https://docs.velociraptor.app/",
+      "stars": 4311,
+      "forks": 661,
+      "openIssues": 77,
+      "createdAt": "2018-03-24T07:39:32Z",
+      "updatedAt": "2026-10-08T13:52:13Z",
+      "pushedAt": "2026-10-07T11:34:46Z",
+      "defaultBranch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "digital-forensics",
+        "endpoint-discovery",
+        "endpoint-protection",
+        "endpoint-security",
+        "forensics-investigations",
+        "incident-response",
+        "inventory-management"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:Velocidex/velociraptor"
+      ],
+      "latestCommitSha": "fa9a5b4cd1a26f4a630f1ccdcb12713efc195af7",
+      "latestCommitUrl": "https://github.com/Velocidex/velociraptor/commit/fa9a5b4cd1a26f4a630f1ccdcb12713efc195af7",
+      "readmeUrl": "https://github.com/Velocidex/velociraptor/blob/master/README.md",
+      "readmeBytes": 6523,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v0.77.3",
+          "name": "Release 0.77.3",
+          "publishedAt": "2026-10-05T01:00:38Z",
+          "url": "https://github.com/Velocidex/velociraptor/releases/tag/v0.77.3"
+        },
+        {
+          "tagName": "v0.77.2",
+          "name": "Release 0.77.2",
+          "publishedAt": "2026-08-10T11:18:05Z",
+          "url": "https://github.com/Velocidex/velociraptor/releases/tag/v0.77.2"
+        },
+        {
+          "tagName": "v0.76.7",
+          "name": "Release 0.76.7",
+          "publishedAt": "2026-08-10T11:16:58Z",
+          "url": "https://github.com/Velocidex/velociraptor/releases/tag/v0.76.7"
+        },
+        {
+          "tagName": "v0.77.1",
+          "name": "Release 0.77.1",
+          "publishedAt": "2026-06-23T00:01:42Z",
+          "url": "https://github.com/Velocidex/velociraptor/releases/tag/v0.77.1"
+        },
+        {
+          "tagName": "v0.77.1-rc1",
+          "name": "Release 0.77.1-rc1",
+          "publishedAt": "2026-06-09T05:13:16Z",
+          "url": "https://github.com/Velocidex/velociraptor/releases/tag/v0.77.1-rc1"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 21009909,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkyMTAwOTkwOQ==",
+      "fullName": "google/timesketch",
+      "owner": "google",
+      "name": "timesketch",
+      "htmlUrl": "https://github.com/google/timesketch",
+      "cloneUrl": "https://github.com/google/timesketch.git",
+      "description": "Collaborative forensic timeline analysis",
+      "homepage": "",
+      "stars": 3431,
+      "forks": 669,
+      "openIssues": 231,
+      "createdAt": "2014-06-19T17:49:45Z",
+      "updatedAt": "2026-10-08T03:59:01Z",
+      "pushedAt": "2026-10-06T16:19:32Z",
+      "defaultBranch": "master",
+      "license": "Apache-2.0",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "analysis",
+        "dfir",
+        "forensics",
+        "security",
+        "timeline"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:google/timesketch"
+      ],
+      "latestCommitSha": "9252a2efe8126f6698a4c0d0072ed7746916228f",
+      "latestCommitUrl": "https://github.com/google/timesketch/commit/9252a2efe8126f6698a4c0d0072ed7746916228f",
+      "readmeUrl": "https://github.com/google/timesketch/blob/master/README.md",
+      "readmeBytes": 2282,
+      "readmeSignals": [
+        "installation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "20260630",
+          "name": "20260630",
+          "publishedAt": "2026-06-30T20:24:39Z",
+          "url": "https://github.com/google/timesketch/releases/tag/20260630"
+        },
+        {
+          "tagName": "20260617",
+          "name": "20260617",
+          "publishedAt": "2026-06-17T14:55:32Z",
+          "url": "https://github.com/google/timesketch/releases/tag/20260617"
+        },
+        {
+          "tagName": "20260611",
+          "name": "20260611",
+          "publishedAt": "2026-06-11T19:11:12Z",
+          "url": "https://github.com/google/timesketch/releases/tag/20260611"
+        },
+        {
+          "tagName": "20260326",
+          "name": "20260326",
+          "publishedAt": "2026-03-26T09:15:24Z",
+          "url": "https://github.com/google/timesketch/releases/tag/20260326"
+        },
+        {
+          "tagName": "20260311",
+          "name": "20260311",
+          "publishedAt": "2026-03-11T14:38:44Z",
+          "url": "https://github.com/google/timesketch/releases/tag/20260311"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 2516243,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkyNTE2MjQz",
+      "fullName": "sleuthkit/autopsy",
+      "owner": "sleuthkit",
+      "name": "autopsy",
+      "htmlUrl": "https://github.com/sleuthkit/autopsy",
+      "cloneUrl": "https://github.com/sleuthkit/autopsy.git",
+      "description": "Autopsy® is a digital forensics platform and graphical interface to The Sleuth Kit® and other digital forensics tools. It can be used by law enforcement, military, and corporate examiners to investigate what happened on a computer. You can even use it to recover photos from your camera's memory card. ",
+      "homepage": "http://www.sleuthkit.org/autopsy/",
+      "stars": 3368,
+      "forks": 700,
+      "openIssues": 406,
+      "createdAt": "2011-10-05T02:11:11Z",
+      "updatedAt": "2026-10-08T18:34:25Z",
+      "pushedAt": "2026-06-20T05:43:47Z",
+      "defaultBranch": "develop",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "forensics",
+        "java"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:sleuthkit/autopsy"
+      ],
+      "latestCommitSha": "cb3dacdcad67abe7cf863c74f10dcdb8e25a5c21",
+      "latestCommitUrl": "https://github.com/sleuthkit/autopsy/commit/cb3dacdcad67abe7cf863c74f10dcdb8e25a5c21",
+      "readmeUrl": "https://github.com/sleuthkit/autopsy/blob/develop/README.txt",
+      "readmeBytes": 5635,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "autopsy-4.23.1",
+          "name": "Autopsy 4.23.1",
+          "publishedAt": "2026-05-07T15:23:27Z",
+          "url": "https://github.com/sleuthkit/autopsy/releases/tag/autopsy-4.23.1"
+        },
+        {
+          "tagName": "autopsy-4.23.0",
+          "name": "Autopsy 4.23.0",
+          "publishedAt": "2026-04-15T18:09:37Z",
+          "url": "https://github.com/sleuthkit/autopsy/releases/tag/autopsy-4.23.0"
+        },
+        {
+          "tagName": "autopsy-4.22.1",
+          "name": "Autopsy 4.22.1",
+          "publishedAt": "2025-04-15T21:02:18Z",
+          "url": "https://github.com/sleuthkit/autopsy/releases/tag/autopsy-4.22.1"
+        },
+        {
+          "tagName": "autopsy-4.22.0",
+          "name": "Autopsy 4.22.0",
+          "publishedAt": "2025-03-11T20:18:37Z",
+          "url": "https://github.com/sleuthkit/autopsy/releases/tag/autopsy-4.22.0"
+        },
+        {
+          "tagName": "autopsy-4.21.0",
+          "name": "Autopsy 4.21.0",
+          "publishedAt": "2023-08-29T21:04:45Z",
+          "url": "https://github.com/sleuthkit/autopsy/releases/tag/autopsy-4.21.0"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 223420284,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkyMjM0MjAyODQ=",
+      "fullName": "moj-analytical-services/splink",
+      "owner": "moj-analytical-services",
+      "name": "splink",
+      "htmlUrl": "https://github.com/moj-analytical-services/splink",
+      "cloneUrl": "https://github.com/moj-analytical-services/splink.git",
+      "description": "Fast, accurate and scalable probabilistic data linkage with support for multiple SQL backends",
+      "homepage": "https://moj-analytical-services.github.io/splink/",
+      "stars": 2462,
+      "forks": 270,
+      "openIssues": 220,
+      "createdAt": "2019-11-22T14:27:33Z",
+      "updatedAt": "2026-10-08T09:58:17Z",
+      "pushedAt": "2026-10-06T14:36:01Z",
+      "defaultBranch": "master",
+      "license": "MIT",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "data-matching",
+        "data-science",
+        "deduplicate-data",
+        "deduplication",
+        "duckdb",
+        "em-algorithm",
+        "entity-resolution",
+        "fuzzy-matching",
+        "record-linkage",
+        "spark",
+        "uk-gov-data-science"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:moj-analytical-services/splink"
+      ],
+      "latestCommitSha": "68ced2a46105dca1df1f35b037a3edcdf87a60c7",
+      "latestCommitUrl": "https://github.com/moj-analytical-services/splink/commit/68ced2a46105dca1df1f35b037a3edcdf87a60c7",
+      "readmeUrl": "https://github.com/moj-analytical-services/splink/blob/master/README.md",
+      "readmeBytes": 10800,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "incident-documentation",
+        "dataset"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v5.0.0",
+          "name": "v5.0.0",
+          "publishedAt": "2026-09-18T09:39:42Z",
+          "url": "https://github.com/moj-analytical-services/splink/releases/tag/v5.0.0"
+        },
+        {
+          "tagName": "v4.0.17",
+          "name": "v4.0.17",
+          "publishedAt": "2026-09-03T12:53:35Z",
+          "url": "https://github.com/moj-analytical-services/splink/releases/tag/v4.0.17"
+        },
+        {
+          "tagName": "v5.0.0.dev4",
+          "name": "v5.0.0.dev4",
+          "publishedAt": "2026-07-01T09:40:41Z",
+          "url": "https://github.com/moj-analytical-services/splink/releases/tag/v5.0.0.dev4"
+        },
+        {
+          "tagName": "v5.0.0.dev3",
+          "name": "v5.0.0.dev3",
+          "publishedAt": "2026-04-05T18:44:00Z",
+          "url": "https://github.com/moj-analytical-services/splink/releases/tag/v5.0.0.dev3"
+        },
+        {
+          "tagName": "v5.0.0.dev2",
+          "name": "v5.0.0.dev2",
+          "publishedAt": "2026-03-13T12:41:41Z",
+          "url": "https://github.com/moj-analytical-services/splink/releases/tag/v5.0.0.dev2"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Incident documentation and dataset reference",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 440092871,
+      "nodeId": "R_kgDOGjtIxw",
+      "fullName": "dfir-iris/iris-web",
+      "owner": "dfir-iris",
+      "name": "iris-web",
+      "htmlUrl": "https://github.com/dfir-iris/iris-web",
+      "cloneUrl": "https://github.com/dfir-iris/iris-web.git",
+      "description": "Collaborative Incident Response platform",
+      "homepage": "",
+      "stars": 1581,
+      "forks": 331,
+      "openIssues": 437,
+      "createdAt": "2021-12-20T08:19:15Z",
+      "updatedAt": "2026-10-07T15:39:57Z",
+      "pushedAt": "2026-10-05T13:21:26Z",
+      "defaultBranch": "master",
+      "license": "LGPL-3.0",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "csirt-tooling",
+        "digital-forensics",
+        "digital-forensics-incident-response",
+        "forensic",
+        "forensic-analysis",
+        "forensic-tools",
+        "incident-response",
+        "python"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:dfir-iris/iris-web"
+      ],
+      "latestCommitSha": "37c5521ac009bd018a2fac7bc01d70735d130c6c",
+      "latestCommitUrl": "https://github.com/dfir-iris/iris-web/commit/37c5521ac009bd018a2fac7bc01d70735d130c6c",
+      "readmeUrl": "https://github.com/dfir-iris/iris-web/blob/master/README.md",
+      "readmeBytes": 6528,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "incident-documentation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v2.4.29",
+          "name": "v2.4.29",
+          "publishedAt": "2026-08-10T08:13:13Z",
+          "url": "https://github.com/dfir-iris/iris-web/releases/tag/v2.4.29"
+        },
+        {
+          "tagName": "v2.4.27",
+          "name": "v2.4.27",
+          "publishedAt": "2026-01-27T12:47:46Z",
+          "url": "https://github.com/dfir-iris/iris-web/releases/tag/v2.4.27"
+        },
+        {
+          "tagName": "v2.4.26",
+          "name": "v2.4.26",
+          "publishedAt": "2026-01-27T09:27:36Z",
+          "url": "https://github.com/dfir-iris/iris-web/releases/tag/v2.4.26"
+        },
+        {
+          "tagName": "v2.4.25",
+          "name": "v2.4.25",
+          "publishedAt": "2026-01-27T09:26:45Z",
+          "url": "https://github.com/dfir-iris/iris-web/releases/tag/v2.4.25"
+        },
+        {
+          "tagName": "v2.4.24",
+          "name": "v2.4.24",
+          "publishedAt": "2025-11-04T07:49:54Z",
+          "url": "https://github.com/dfir-iris/iris-web/releases/tag/v2.4.24"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 12255062,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxMjI1NTA2Mg==",
+      "fullName": "vz-risk/VCDB",
+      "owner": "vz-risk",
+      "name": "VCDB",
+      "htmlUrl": "https://github.com/vz-risk/VCDB",
+      "cloneUrl": "https://github.com/vz-risk/VCDB.git",
+      "description": "VERIS Community Database",
+      "homepage": "",
+      "stars": 673,
+      "forks": 207,
+      "openIssues": 15696,
+      "createdAt": "2013-08-20T21:48:27Z",
+      "updatedAt": "2026-09-30T16:43:52Z",
+      "pushedAt": "2026-09-30T16:45:54Z",
+      "defaultBranch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:vz-risk/VCDB"
+      ],
+      "latestCommitSha": "f6f98c00f66ab35f5b49977a5852ce94a5bb31d1",
+      "latestCommitUrl": "https://github.com/vz-risk/VCDB/commit/f6f98c00f66ab35f5b49977a5852ce94a5bb31d1",
+      "readmeUrl": "https://github.com/vz-risk/VCDB/blob/master/README.md",
+      "readmeBytes": 6681,
+      "readmeSignals": [
+        "documentation",
+        "incident-documentation",
+        "forensic-tool",
+        "dataset"
+      ],
+      "releaseCountSampled": 4,
+      "latestReleases": [
+        {
+          "tagName": "v2014-q4",
+          "name": "2014 Release 4",
+          "publishedAt": "2014-12-04T16:57:19Z",
+          "url": "https://github.com/vz-risk/VCDB/releases/tag/v2014-q4"
+        },
+        {
+          "tagName": "v2014-q2",
+          "name": "2014 2nd Quarter Release",
+          "publishedAt": "2014-05-30T14:02:40Z",
+          "url": "https://github.com/vz-risk/VCDB/releases/tag/v2014-q2"
+        },
+        {
+          "tagName": "v2014-q1",
+          "name": "2014 1st Quarter Release",
+          "publishedAt": "2014-02-27T12:40:59Z",
+          "url": "https://github.com/vz-risk/VCDB/releases/tag/v2014-q1"
+        },
+        {
+          "tagName": "v2013-q4",
+          "name": "2013 4th Quarter Release",
+          "publishedAt": "2013-12-12T21:27:23Z",
+          "url": "https://github.com/vz-risk/VCDB/releases/tag/v2013-q4"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "incident_documentation",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 131188218,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxMzExODgyMTg=",
+      "fullName": "sleuthkit/autopsy_addon_modules",
+      "owner": "sleuthkit",
+      "name": "autopsy_addon_modules",
+      "htmlUrl": "https://github.com/sleuthkit/autopsy_addon_modules",
+      "cloneUrl": "https://github.com/sleuthkit/autopsy_addon_modules.git",
+      "description": "Repo to store compiled modules or links to 3rd party add-on modules.",
+      "homepage": "",
+      "stars": 604,
+      "forks": 177,
+      "openIssues": 7,
+      "createdAt": "2018-04-26T17:17:48Z",
+      "updatedAt": "2026-10-07T08:44:53Z",
+      "pushedAt": "2024-11-08T21:36:34Z",
+      "defaultBranch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:sleuthkit/autopsy_addon_modules"
+      ],
+      "latestCommitSha": "38e9e5934bca90f68d3acf421ddef8910ffb9b4b",
+      "latestCommitUrl": "https://github.com/sleuthkit/autopsy_addon_modules/commit/38e9e5934bca90f68d3acf421ddef8910ffb9b4b",
+      "readmeUrl": "https://github.com/sleuthkit/autopsy_addon_modules/blob/master/README.md",
+      "readmeBytes": 2050,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 0,
+      "latestReleases": [],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 51930975,
+      "nodeId": "MDEwOlJlcG9zaXRvcnk1MTkzMDk3NQ==",
+      "fullName": "MISP/misp-modules",
+      "owner": "MISP",
+      "name": "misp-modules",
+      "htmlUrl": "https://github.com/MISP/misp-modules",
+      "cloneUrl": "https://github.com/MISP/misp-modules.git",
+      "description": "Modules for expansion services, enrichment, import and export in MISP and other tools.",
+      "homepage": "http://misp.github.io/misp-modules",
+      "stars": 377,
+      "forks": 285,
+      "openIssues": 226,
+      "createdAt": "2016-02-17T15:06:08Z",
+      "updatedAt": "2026-10-08T13:41:11Z",
+      "pushedAt": "2026-10-08T13:41:26Z",
+      "defaultBranch": "main",
+      "license": "AGPL-3.0",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "cti",
+        "domaintools",
+        "enrichment",
+        "expansion",
+        "misp",
+        "misp-modules",
+        "osint",
+        "passive-dns",
+        "passivetotal",
+        "threat-intelligence"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:MISP/misp-modules"
+      ],
+      "latestCommitSha": "80ec3d6e4a15d1c84597473228dbefe80c1fa474",
+      "latestCommitUrl": "https://github.com/MISP/misp-modules/commit/80ec3d6e4a15d1c84597473228dbefe80c1fa474",
+      "readmeUrl": "https://github.com/MISP/misp-modules/blob/main/README.md",
+      "readmeBytes": 31081,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "threat-intelligence",
+        "dataset"
+      ],
+      "releaseCountSampled": 5,
+      "latestReleases": [
+        {
+          "tagName": "v3.0.11",
+          "name": "misp-modules v3.0.11 released with many new modules and security fixes",
+          "publishedAt": "2026-10-08T13:41:36Z",
+          "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.11"
+        },
+        {
+          "tagName": "v3.0.10",
+          "name": "v3.0.10",
+          "publishedAt": "2026-09-08T12:09:38Z",
+          "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.10"
+        },
+        {
+          "tagName": "v3.0.9",
+          "name": "misp-modules v3.0.9 released",
+          "publishedAt": "2026-07-13T11:30:44Z",
+          "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.9"
+        },
+        {
+          "tagName": "v3.0.8",
+          "name": "v3.0.8",
+          "publishedAt": "2026-06-04T10:31:16Z",
+          "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.8"
+        },
+        {
+          "tagName": "v3.0.7",
+          "name": "v3.0.7",
+          "publishedAt": "2026-03-17T14:05:31Z",
+          "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.7"
+        }
+      ],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Threat intelligence and incident records",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 375566054,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzNzU1NjYwNTQ=",
+      "fullName": "Velocidex/velociraptor-docs",
+      "owner": "Velocidex",
+      "name": "velociraptor-docs",
+      "htmlUrl": "https://github.com/Velocidex/velociraptor-docs",
+      "cloneUrl": "https://github.com/Velocidex/velociraptor-docs.git",
+      "description": "Documentation site for Velociraptor",
+      "homepage": "",
+      "stars": 73,
+      "forks": 271,
+      "openIssues": 37,
+      "createdAt": "2021-06-10T04:10:07Z",
+      "updatedAt": "2026-10-08T11:15:46Z",
+      "pushedAt": "2026-10-08T11:18:35Z",
+      "defaultBranch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:Velocidex/velociraptor-docs"
+      ],
+      "latestCommitSha": "95588f0dadbe41fc4520dd68d801f0c65eedbacf",
+      "latestCommitUrl": "https://github.com/Velocidex/velociraptor-docs/commit/95588f0dadbe41fc4520dd68d801f0c65eedbacf",
+      "readmeUrl": "https://github.com/Velocidex/velociraptor-docs/blob/master/README.md",
+      "readmeBytes": 757,
+      "readmeSignals": [
+        "documentation",
+        "forensic-tool"
+      ],
+      "releaseCountSampled": 0,
+      "latestReleases": [],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 314035242,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkzMTQwMzUyNDI=",
+      "fullName": "volatilityfoundation/community3",
+      "owner": "volatilityfoundation",
+      "name": "community3",
+      "htmlUrl": "https://github.com/volatilityfoundation/community3",
+      "cloneUrl": "https://github.com/volatilityfoundation/community3.git",
+      "description": "Volatility3 plugins developed and maintained by the community",
+      "homepage": "",
+      "stars": 71,
+      "forks": 14,
+      "openIssues": 5,
+      "createdAt": "2020-11-18T19:21:57Z",
+      "updatedAt": "2026-09-29T22:47:03Z",
+      "pushedAt": "2023-03-19T16:01:59Z",
+      "defaultBranch": "master",
+      "license": "NOASSERTION",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:volatilityfoundation/community3"
+      ],
+      "latestCommitSha": "5ae4e232e14667277a0cc74848b87b634b4d8ad1",
+      "latestCommitUrl": "https://github.com/volatilityfoundation/community3/commit/5ae4e232e14667277a0cc74848b87b634b4d8ad1",
+      "readmeUrl": "https://github.com/volatilityfoundation/community3/blob/master/README.md",
+      "readmeBytes": 1009,
+      "readmeSignals": [
+        "documentation"
+      ],
+      "releaseCountSampled": 0,
+      "latestReleases": [],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Digital forensics and evidence verification",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 101165219,
+      "nodeId": "MDEwOlJlcG9zaXRvcnkxMDExNjUyMTk=",
+      "fullName": "MISP/misp-packer",
+      "owner": "MISP",
+      "name": "misp-packer",
+      "htmlUrl": "https://github.com/MISP/misp-packer",
+      "cloneUrl": "https://github.com/MISP/misp-packer.git",
+      "description": "Build Automated Machine Images for MISP",
+      "homepage": "",
+      "stars": 29,
+      "forks": 16,
+      "openIssues": 3,
+      "createdAt": "2017-08-23T09:54:27Z",
+      "updatedAt": "2025-08-23T10:24:10Z",
+      "pushedAt": "2023-06-09T11:22:38Z",
+      "defaultBranch": "18.04",
+      "license": "GPL-3.0",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "misp",
+        "parser",
+        "virtual-machine"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:MISP/misp-packer"
+      ],
+      "latestCommitSha": "572302c5d6f77dcdf2fa375184f76c8870142389",
+      "latestCommitUrl": "https://github.com/MISP/misp-packer/commit/572302c5d6f77dcdf2fa375184f76c8870142389",
+      "readmeUrl": "https://github.com/MISP/misp-packer/blob/18.04/README.md",
+      "readmeBytes": 2460,
+      "readmeSignals": [
+        "installation",
+        "documentation",
+        "threat-intelligence"
+      ],
+      "releaseCountSampled": 0,
+      "latestReleases": [],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Threat intelligence and incident records",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    },
+    {
+      "githubRepositoryId": 872717153,
+      "nodeId": "R_kgDONASbYQ",
+      "fullName": "owasp-amass/docs",
+      "owner": "owasp-amass",
+      "name": "docs",
+      "htmlUrl": "https://github.com/owasp-amass/docs",
+      "cloneUrl": "https://github.com/owasp-amass/docs.git",
+      "description": "Official Documentation for the OWASP Amass Project",
+      "homepage": "https://owasp-amass.github.io/docs/",
+      "stars": 5,
+      "forks": 5,
+      "openIssues": 1,
+      "createdAt": "2024-10-15T00:19:12Z",
+      "updatedAt": "2026-08-09T21:41:50Z",
+      "pushedAt": "2026-03-01T23:19:39Z",
+      "defaultBranch": "master",
+      "license": "Apache-2.0",
+      "archived": false,
+      "disabled": false,
+      "private": false,
+      "visibility": "public",
+      "topics": [
+        "attack-surface",
+        "attack-surface-management",
+        "digital-footprint",
+        "digital-footprint-analysis",
+        "digital-footprint-data",
+        "infosec",
+        "intelligence-gathering",
+        "intelligence-graph-collection",
+        "osint",
+        "recon",
+        "reconnaissance",
+        "security",
+        "vulnerabilities",
+        "vulnerability-management"
+      ],
+      "availabilityStatus": "available",
+      "sourceDiscovery": "seed",
+      "retrievalTimestamp": "2026-10-08T18:39:29.095Z",
+      "categories": [
+        "supplied_seed_repository"
+      ],
+      "discoverySources": [
+        "seed:owasp-amass/docs"
+      ],
+      "latestCommitSha": "2d4a94606941d71eb0fac3e5624316fe527a6539",
+      "latestCommitUrl": "https://github.com/owasp-amass/docs/commit/2d4a94606941d71eb0fac3e5624316fe527a6539",
+      "readmeUrl": "https://github.com/owasp-amass/docs/blob/master/README.md",
+      "readmeBytes": 6,
+      "readmeSignals": [
+        "documentation"
+      ],
+      "releaseCountSampled": 0,
+      "latestReleases": [],
+      "verifiedAvailabilityAt": "2026-10-08T18:39:29.095Z",
+      "repositoryClass": "analysis_tool",
+      "dishaUse": "Public attack-surface research",
+      "sensitiveDataPolicy": "Catalogue stores metadata and documentation links only; do not collect or redistribute stolen personal, medical, biometric, financial or authentication data."
+    }
+  ],
+  "errors": [
+    {
+      "stage": "search",
+      "detail": "telecom_incidents desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "telecom_incidents desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "telecom_incidents asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "telecom_incidents asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "telecom_incidents returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "banking_financial_incidents desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "banking_financial_incidents desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "banking_financial_incidents asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "banking_financial_incidents asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "banking_financial_incidents returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "government_data_exposures desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "government_data_exposures desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "government_data_exposures asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "government_data_exposures asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "government_data_exposures returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "corporate_breaches desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "corporate_breaches desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "corporate_breaches asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "corporate_breaches asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "corporate_breaches returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "ransomware_intelligence desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "ransomware_intelligence desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "ransomware_intelligence asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "ransomware_intelligence asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "ransomware_intelligence returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "digital_forensic_tools desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "digital_forensic_tools desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "digital_forensic_tools asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "digital_forensic_tools asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "digital_forensic_tools returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "evidence_management desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "evidence_management desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "evidence_management asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "evidence_management asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "evidence_management returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "incident_datasets desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "incident_datasets desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "incident_datasets asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "incident_datasets asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "incident_datasets returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "record_provenance_validation desc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "record_provenance_validation desc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "record_provenance_validation asc page 1 returned 403; remaining=0"
+    },
+    {
+      "stage": "search",
+      "detail": "record_provenance_validation asc page 2 returned 403; remaining=0"
+    },
+    {
+      "stage": "zero-star-search",
+      "detail": "record_provenance_validation returned 403; remaining=0"
+    }
+  ]
+}

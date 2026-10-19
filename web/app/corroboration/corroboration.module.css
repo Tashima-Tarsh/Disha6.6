@@ -1,49 +1,53 @@
 .shell {
-  background: #020711;
-  color: #e2e8f0;
-  min-height: 100vh;
+  background: #080c12;
+  color: #dce7f0;
+  min-height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: 24px 20px 60px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 }
 
 .hero {
-  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(57, 199, 215, 0.2);
+  padding-bottom: 20px;
 }
 
 .kicker {
-  color: #10b981;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  color: #35c78a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  font-family: var(--font-mono, monospace);
 }
 
 .title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  margin: 6px 0 8px;
-  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 4px 0 6px;
+  color: #dce7f0;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
-  color: #94a3b8;
-  font-size: 0.95rem;
+  color: #7f93a7;
+  font-size: 13px;
   margin: 0;
-  max-width: 760px;
+  max-width: 780px;
+  line-height: 1.5;
 }
 
 .workspaceGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 20px;
 }
 
 @media (max-width: 900px) {
@@ -53,27 +57,28 @@
 }
 
 .panel {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 12px;
-  padding: 24px;
+  background: #101823;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .panelHead {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #38bdf8;
+  color: #39c7d7;
 }
 
 .panelHead h2 {
-  font-size: 1.1rem;
+  font-size: 14px;
   font-weight: 700;
-  color: #ffffff;
+  color: #dce7f0;
   margin: 0;
+  letter-spacing: 0.02em;
 }
 
 .fieldGroup {
@@ -83,149 +88,107 @@
 }
 
 .fieldGroup label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7f93a7;
+  font-family: var(--font-mono, monospace);
 }
 
-.input, .textarea {
-  background: rgba(2, 6, 23, 0.8);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  border-radius: 8px;
-  padding: 10px 14px;
-  color: #ffffff;
-  font-family: monospace;
-  font-size: 0.85rem;
+.input,
+.textarea {
+  background: #172535;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #dce7f0;
+  font-size: 12px;
   outline: none;
+  font-family: var(--font-mono, monospace);
 }
 
-.input:focus, .textarea:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+.input:focus,
+.textarea:focus {
+  border-color: #39c7d7;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
 .evalBtn {
-  background: #0284c7;
-  border: none;
-  border-radius: 8px;
-  color: #ffffff;
+  background: #172535;
+  border: 1px solid rgba(57, 199, 215, 0.4);
+  color: #39c7d7;
+  padding: 9px 16px;
+  border-radius: 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
   font-weight: 700;
-  font-size: 0.88rem;
-  padding: 12px 20px;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
   justify-content: center;
-  gap: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: background 0.2s;
+  transition: all 0.15s ease;
 }
 
 .evalBtn:hover:not(:disabled) {
-  background: #0ea5e9;
+  background: #20354b;
+  border-color: #39c7d7;
 }
 
 .evalBtn:disabled {
-  background: #334155;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
-.errorBox {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 8px;
-  color: #f87171;
-  font-size: 0.82rem;
-  padding: 10px;
-}
-
-.scoreRow {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.scoreBox {
-  background: rgba(2, 6, 23, 0.6);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  border-radius: 8px;
+.resultCard {
+  background: #172535;
+  border: 1px solid rgba(57, 199, 215, 0.25);
+  border-radius: 6px;
   padding: 14px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.scoreNum {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.scoreLbl {
-  font-size: 0.72rem;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-
-.greenStatus {
-  color: #10b981;
-  font-size: 0.95rem;
-  font-weight: 800;
-}
-
-.amberStatus {
-  color: #f59e0b;
-  font-size: 0.95rem;
-  font-weight: 800;
-}
-
-.familyCluster {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.familyCluster h3 {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #38bdf8;
-  margin: 0;
-  text-transform: uppercase;
-}
-
-.familyList {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.familyItem {
-  background: rgba(2, 6, 23, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.12);
-  border-radius: 6px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.82rem;
-  color: #cbd5e1;
+.scoreBadge {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  background: rgba(53, 199, 138, 0.15);
+  color: #35c78a;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(53, 199, 138, 0.3);
+  width: fit-content;
+  font-weight: 700;
 }
 
-.checkIcon {
-  color: #10b981;
+.resultDetail {
+  font-size: 12px;
+  color: #dce7f0;
+  line-height: 1.4;
 }
 
-.emptyPlaceholder {
+.sourceBreakdown {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  color: #64748b;
-  gap: 12px;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.sourceItem {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #7f93a7;
+}
+
+.emptyState {
+  color: #7f93a7;
+  font-size: 12px;
+  font-style: italic;
+  padding: 20px 0;
   text-align: center;
 }

@@ -1,100 +1,126 @@
 .header {
-  align-items: center;
-  background: rgba(4, 15, 30, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-  display: flex;
-  height: 56px;
-  justify-content: space-between;
-  padding: 0 clamp(16px, 2vw, 32px);
   position: sticky;
   top: 0;
-  width: 100%;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #ddd4bf;
+  background: rgba(255, 252, 244, 0.96);
+  color: #20241f;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.brandGroup,
+.brandBadge,
+.navRail,
+.navItem,
+.securityMeta,
+.logoutBtn {
+  display: flex;
+  align-items: center;
 }
 
 .brandGroup {
-  align-items: center;
-  display: flex;
-  gap: 12px;
+  gap: 10px;
+  flex: 0 0 auto;
 }
 
 .brandBadge {
-  align-items: center;
-  background: rgba(14, 165, 233, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d6c6a2;
   border-radius: 6px;
-  display: inline-flex;
-  gap: 8px;
-  padding: 4px 10px;
-}
-
-.pulseDot {
-  background: #10b981;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #10b981;
-  height: 8px;
-  width: 8px;
+  background: #fffaf0;
 }
 
 .brandTitle {
-  color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  color: #181b19;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .brandSub {
-  color: #64748b;
-  font-size: 0.75rem;
-  font-weight: 500;
+  color: #6c725f;
+  font-size: 0.74rem;
+  font-weight: 750;
 }
 
 .navRail {
-  align-items: center;
-  display: flex;
-  gap: 4px;
+  gap: 5px;
   overflow-x: auto;
 }
 
 .navItem {
-  align-items: center;
-  border-radius: 6px;
-  color: #94a3b8;
-  display: inline-flex;
-  font-size: 0.8rem;
-  font-weight: 600;
   gap: 6px;
-  padding: 6px 12px;
+  min-height: 34px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #3c443d;
+  font-size: 0.78rem;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.navItem:hover {
-  background: rgba(30, 41, 59, 0.6);
-  color: #e2e8f0;
-}
-
+.navItem:hover,
 .navItemActive {
-  background: rgba(14, 165, 233, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #38bdf8;
+  border-color: #d9c692;
+  background: #fff4cf;
+  color: #181b19;
 }
 
 .securityMeta {
-  display: flex;
-  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
 .secTag {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(71, 85, 105, 0.4);
-  border-radius: 4px;
-  color: #94a3b8;
+  padding: 4px 8px;
+  border: 1px solid #d8c99f;
+  border-radius: 999px;
+  background: #fff6d8;
+  color: #705716;
   font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 3px 8px;
+  font-weight: 800;
+}
+
+.logoutBtn {
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d8cdb8;
+  border-radius: 7px;
+  background: #fbf7ed;
+  color: #6f3737;
+  cursor: pointer;
+}
+
+.logoutBtn:hover {
+  border-color: #c78c8c;
+  background: #fff0f0;
+}
+
+@media (max-width: 1024px) {
+  .brandSub,
+  .secTag {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .navRail {
+    order: 3;
+    width: 100%;
+  }
 }

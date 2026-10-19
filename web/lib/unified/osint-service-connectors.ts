@@ -1,12 +1,24 @@
+import net from "node:net";
+
 import {
   buildAdapterEvidence,
   type GovernedOsintAdapter,
 } from "./osint-adapter-bus";
+import { openosintClient } from "../server/openosint-mcp-client";
 
 type ServiceFetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
 
-export type OsintServiceConnectorId = "opencti" | "intelowl" | "spiderfoot" | "sherlock" | "maigret";
-export type OsintServiceConnectorFamily = "cti_platform" | "osint_engine" | "identity_enumeration";
+export type OsintServiceConnectorId =
+  | "opencti"
+  | "intelowl"
+  | "dfir-iris"
+  | "velociraptor"
+  | "flowsint"
+  | "spiderfoot"
+  | "sherlock"
+  | "maigret"
+  | "openosint";
+export type OsintServiceConnectorFamily = "cti_platform" | "osint_engine" | "identity_enumeration" | "case_forensics";
 export type OsintServiceConnectorState = "configured_live" | "needs_configuration" | "blocked_by_policy";
 
 export type OsintServiceConnectorDefinition = {
@@ -58,6 +70,19 @@ export type IntelOwlServiceOutput = {
   dataModel?: Record<string, unknown>;
 };
 
+export type LocalOsintPlatformInput = {
+  target?: string;
+  caseId?: string;
+};
+
+export type LocalOsintPlatformOutput = {
+  connectorId: OsintServiceConnectorId;
+  endpoint: string;
+  target?: string;
+  caseId?: string;
+  status: "reachable";
+};
+
 const connectorDefinitions: OsintServiceConnectorDefinition[] = [
   {
     id: "opencti",
@@ -82,6 +107,42 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
     liveCapabilities: ["configured enrichment-service probe", "allowlisted observable analysis", "bounded job report normalization"],
     blockedCapabilities: ["malware detonation by default", "unreviewed analyzer packs", "connector/playbook execution", "submission of private files without approval"],
     policy: "Live only when IntelOwl endpoint credentials and an explicit analyzer allowlist are configured. DISHA submits observables only to allowlisted analyzers and does not expose arbitrary connectors, playbooks, runtime configuration, or file submission.",
+  },
+  {
+    id: "dfir-iris",
+    name: "DFIR-IRIS",
+    family: "case_forensics",
+    upstream: "https://github.com/dfir-iris/iris-web",
+    license: "LGPL-3.0 / GPL-3.0 components; verify deployment package license before distribution",
+    executionState: "configured_live",
+    env: ["DFIR_IRIS_BASE_URL"],
+    liveCapabilities: ["local case-management platform reachability", "handoff to DFIR case workspace"],
+    blockedCapabilities: ["credential bypass", "case mutation without authenticated operator session", "bulk export of case evidence"],
+    policy: "DISHA treats DFIR-IRIS as a local case platform. The connector only proves reachability and provides an evidence-linked handoff; authenticated case actions stay inside IRIS.",
+  },
+  {
+    id: "velociraptor",
+    name: "Velociraptor",
+    family: "case_forensics",
+    upstream: "https://github.com/Velocidex/velociraptor",
+    license: "AGPL-3.0",
+    executionState: "configured_live",
+    env: ["VELOCIRAPTOR_BASE_URL"],
+    liveCapabilities: ["local endpoint-forensics console reachability", "handoff to approved Velociraptor workspace"],
+    blockedCapabilities: ["client collection launch", "endpoint interrogation", "artifact execution", "credential or file collection from endpoints"],
+    policy: "DISHA does not launch Velociraptor collections. This connector only verifies the local console is reachable and records a governed handoff.",
+  },
+  {
+    id: "flowsint",
+    name: "Flowsint",
+    family: "osint_engine",
+    upstream: "https://github.com/reconurge/flowsint",
+    license: "[VERIFY REQUIRED]",
+    executionState: "configured_live",
+    env: ["FLOWSINT_BASE_URL"],
+    liveCapabilities: ["local OSINT workflow platform reachability", "handoff to running Flowsint workspace"],
+    blockedCapabilities: ["unreviewed workflow execution", "scraping private services", "credentialed collection without approval"],
+    policy: "DISHA treats Flowsint as a local OSINT workflow platform. The connector verifies service reachability and hands off; arbitrary workflow execution is not exposed through DISHA.",
   },
   {
     id: "spiderfoot",
@@ -119,6 +180,31 @@ const connectorDefinitions: OsintServiceConnectorDefinition[] = [
     blockedCapabilities: ["cross-site username enumeration", "profile correlation", "personal account discovery"],
     policy: "Identity enumeration is not executable in the default DISHA service-connector runtime. ASTRA requires a separately authorized investigation.",
   },
+  {
+    id: "openosint",
+    name: "OpenOSINT",
+    family: "osint_engine",
+    upstream: "https://github.com/OpenOSINT/OpenOSINT",
+    license: "MIT",
+    executionState: "configured_live",
+    env: [],
+    liveCapabilities: [
+      "MCP server dynamic tool discovery",
+      "Passive DNS resolution",
+      "RDAP registration lookup",
+      "WHOIS registration lookup",
+      "Google dork query generation",
+      "Passive IP intelligence and reverse DNS",
+      "Public GitHub user and repository intelligence",
+      "Breach lookup via HIBP and leak databases (when key supplied)",
+    ],
+    blockedCapabilities: [
+      "Unbounded active network scans",
+      "Identity enumeration without ASTRA authorization",
+      "Web scraping in passive mode",
+    ],
+    policy: "DISHA connects to the official OpenOSINT MCP server. Passive public-source research is enabled by default; noisy/active tools require explicit investigation authorization.",
+  },
 ];
 
 function envConfigured(name: string): boolean {
@@ -140,7 +226,7 @@ export function listOsintServiceConnectors(): OsintServiceConnectorPosture[] {
       configured,
       missingEnv,
       canProbe: configured && definition.executionState === "configured_live",
-      canRunTargetSearch: configured && definition.executionState === "configured_live" && ["opencti", "intelowl"].includes(definition.id),
+      canRunTargetSearch: configured && definition.executionState === "configured_live" && ["opencti", "intelowl", "openosint"].includes(definition.id),
     };
   });
 }
@@ -152,7 +238,7 @@ export function getOsintServiceConnectorSummary() {
     configuredLive: connectors.filter((connector) => connector.executionState === "configured_live" && connector.configured).length,
     needsConfiguration: connectors.filter((connector) => connector.executionState === "configured_live" && !connector.configured).length,
     blockedByPolicy: connectors.filter((connector) => connector.executionState === "blocked_by_policy").length,
-    rule: "OpenCTI and IntelOwl are service-backed governed adapters when configured. OpenCTI is read-only; IntelOwl execution is limited to an explicit passive analyzer allowlist. Identity-oriented service connectors remain blocked outside ASTRA authorization.",
+    rule: "OpenCTI, IntelOwl, and OpenOSINT are service-backed governed adapters when configured. DFIR-IRIS, Velociraptor, and Flowsint are local platform handoffs with reachability checks only. Identity-oriented service connectors remain blocked outside ASTRA authorization.",
   };
 }
 
@@ -170,13 +256,87 @@ export async function probeOsintServiceConnector(
   }
   if (connectorId === "opencti") return probeOpenCti(fetcher);
   if (connectorId === "intelowl") return probeIntelOwl(fetcher);
+  if (connectorId === "dfir-iris") return probeReachableService(connectorId, "DFIR_IRIS_BASE_URL", fetcher);
+  if (connectorId === "velociraptor") return probeReachableService(connectorId, "VELOCIRAPTOR_BASE_URL", fetcher);
+  if (connectorId === "flowsint") return probeReachableService(connectorId, "FLOWSINT_BASE_URL", fetcher);
+  if (connectorId === "openosint") {
+    try {
+      const health = await openosintClient.checkHealth();
+      return {
+        connectorId,
+        status: health.healthy ? "ok" : "failed",
+        detail: `OpenOSINT MCP (${health.transport}): ${health.toolsAvailable} tools available. ${health.detail || ""}`.trim(),
+      };
+    } catch (err) {
+      return {
+        connectorId,
+        status: "failed",
+        detail: err instanceof Error ? err.message : String(err),
+      };
+    }
+  }
   return { connectorId, status: "blocked", detail: "Connector is not executable in the current DISHA runtime." };
 }
 
 export async function probeConfiguredOsintServices(fetcher: ServiceFetch = fetch): Promise<OsintServiceProbeResult[]> {
-  return Promise.all(["opencti", "intelowl", "spiderfoot", "sherlock", "maigret"].map((id) =>
+  return Promise.all(["opencti", "intelowl", "dfir-iris", "velociraptor", "flowsint", "spiderfoot", "sherlock", "maigret", "openosint"].map((id) =>
     probeOsintServiceConnector(id as OsintServiceConnectorId, fetcher),
   ));
+}
+
+export function createLocalOsintPlatformAdapter(
+  connectorId: Extract<OsintServiceConnectorId, "dfir-iris" | "velociraptor" | "flowsint">,
+  fetcher: ServiceFetch = fetch,
+): GovernedOsintAdapter<LocalOsintPlatformInput, LocalOsintPlatformOutput> {
+  const definition = connectorDefinitions.find((connector) => connector.id === connectorId);
+  if (!definition) throw new Error("unknown_local_osint_platform:" + connectorId);
+  const envName = definition.env[0]!;
+
+  return {
+    metadata: {
+      id: "service-" + connectorId,
+      name: definition.name + " local platform handoff",
+      version: "1.0.0",
+      capability: "local_osint_platform_handoff",
+      auth: "session",
+      legalUse: ["Authorized case work", "Defensive investigation handoff", "Local platform reachability check"],
+      blockedUse: definition.blockedCapabilities,
+      rateLimitPerMinute: 30,
+      timeoutMs: 6_000,
+      maxRetries: 0,
+      executionClass: "passive_public",
+      defaultEnabled: true,
+      upstreamRepository: definition.upstream,
+    },
+    async health() {
+      const posture = listOsintServiceConnectors().find((connector) => connector.id === connectorId);
+      if (!posture?.configured) return { status: "not_configured" as const, detail: envName + " is required" };
+      const probe = await probeReachableService(connectorId, envName, fetcher);
+      return probe.status === "ok"
+        ? { status: "healthy" as const, detail: probe.detail }
+        : { status: "degraded" as const, detail: probe.detail };
+    },
+    async execute(input) {
+      const endpoint = serviceOrigin(envName);
+      await probeReachableService(connectorId, envName, fetcher);
+      return {
+        data: {
+          connectorId,
+          endpoint,
+          ...(boundedOptionalText(input.target, 512) ? { target: boundedOptionalText(input.target, 512) } : {}),
+          ...(boundedOptionalText(input.caseId, 128) ? { caseId: boundedOptionalText(input.caseId, 128) } : {}),
+          status: "reachable",
+        },
+        evidence: [buildAdapterEvidence({
+          sourceId: connectorId,
+          sourceName: definition.name,
+          sourceUrl: endpoint,
+          summary: definition.name + " local platform is reachable. DISHA recorded a governed handoff; operator-authenticated actions remain in the platform UI/API.",
+        })],
+        warnings: ["This adapter does not execute platform workflows or collect evidence automatically."],
+      };
+    },
+  };
 }
 
 export function createOpenCtiServiceAdapter(
@@ -402,6 +562,62 @@ async function probeIntelOwl(fetcher: ServiceFetch): Promise<OsintServiceProbeRe
   };
 }
 
+async function probeReachableService(
+  connectorId: OsintServiceConnectorId,
+  envName: string,
+  fetcher: ServiceFetch,
+): Promise<OsintServiceProbeResult> {
+  const origin = serviceOrigin(envName);
+  try {
+    const response = await fetcher(origin, {
+      method: "GET",
+      redirect: "manual",
+      signal: AbortSignal.timeout(5_000),
+    });
+    await response.body?.cancel();
+    return {
+      connectorId,
+      status: "ok",
+      httpStatus: response.status,
+      detail: "Local service endpoint responded with HTTP " + response.status + ".",
+    };
+  } catch (error) {
+    if (await tcpReachable(origin)) {
+      return {
+        connectorId,
+        status: "ok",
+        detail: "Local service TCP endpoint is reachable; HTTP fetch failed: " + (error instanceof Error ? error.message : String(error)),
+      };
+    }
+    return {
+      connectorId,
+      status: "failed",
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+async function tcpReachable(rawUrl: string): Promise<boolean> {
+  try {
+    const url = new URL(rawUrl);
+    const port = Number(url.port || (url.protocol === "https:" ? 443 : 80));
+    if (!url.hostname || !Number.isInteger(port) || port <= 0 || port > 65535) return false;
+    return await new Promise<boolean>((resolve) => {
+      const socket = net.createConnection({ host: url.hostname, port, timeout: 3_000 }, () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.once("error", () => resolve(false));
+      socket.once("timeout", () => {
+        socket.destroy();
+        resolve(false);
+      });
+    });
+  } catch {
+    return false;
+  }
+}
+
 async function pollIntelOwlJob(
   jobId: number,
   headers: Record<string, string>,
@@ -460,6 +676,14 @@ function boundedText(value: unknown, maxLength: number, error: string): string {
   if (typeof value !== "string") throw new Error(error);
   const trimmed = value.trim();
   if (!trimmed || trimmed.length > maxLength || /[\u0000\r\n]/.test(trimmed)) throw new Error(error);
+  return trimmed;
+}
+
+function boundedOptionalText(value: unknown, maxLength: number): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > maxLength || /[\u0000\r\n]/.test(trimmed)) return undefined;
   return trimmed;
 }
 

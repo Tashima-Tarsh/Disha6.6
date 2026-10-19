@@ -119,7 +119,6 @@ services/
   ai-platform/
 legacy/
   fastapi-backend/
-  demos/
 docs/
   wiki/
   diagrams/

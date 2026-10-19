@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: disha
+  labels:
+    app.kubernetes.io/name: disha
+    app.kubernetes.io/part-of: disha-platform
+    environment: production

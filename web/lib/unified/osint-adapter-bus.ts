@@ -37,6 +37,7 @@ export type AdapterEvidence = {
   summary: string;
   retrievedAt: string;
   provenanceHash: string;
+  fields?: Record<string, unknown>;
 };
 
 export type AdapterExecutionResult<T> = {
@@ -97,8 +98,14 @@ export class OsintAdapterBus {
 
     const started = Date.now();
     const executionClass = adapter.metadata.executionClass ?? "passive_public";
-    if (["active_recon", "identity_enumeration", "prohibited"].includes(executionClass)) {
-      return this.result<TOutput>(adapterId, "failed", started, 0, [], [`Adapter execution class ${executionClass} is disabled on the default OSINT bus`], undefined, "execution_class_denied");
+    if (executionClass === "prohibited") {
+      return this.result<TOutput>(adapterId, "failed", started, 0, [], [`Adapter execution class prohibited is blocked on the OSINT bus`], undefined, "execution_class_denied");
+    }
+    if (executionClass === "active_recon" && !context.activeAuthorization) {
+      return this.result<TOutput>(adapterId, "failed", started, 0, [], [`Adapter execution class active_recon requires explicit activeAuthorization`], undefined, "execution_class_denied");
+    }
+    if (executionClass === "identity_enumeration" && !context.identityAuthorization) {
+      return this.result<TOutput>(adapterId, "failed", started, 0, [], [`Adapter execution class identity_enumeration requires explicit identityAuthorization`], undefined, "execution_class_denied");
     }
     if (adapter.metadata.defaultEnabled === false) {
       return this.result<TOutput>(adapterId, "failed", started, 0, [], ["Adapter is disabled by default"], undefined, "adapter_disabled");

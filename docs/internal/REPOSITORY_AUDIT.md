@@ -28,7 +28,6 @@ These areas are the current production spine:
 - `web/`
 - `src/`
 - `tests/test_disha_brain_graph.py`
-- `demos/`
 
 ## Stale Or High-Debt Surfaces
 
@@ -37,6 +36,7 @@ These areas contain useful ideas but should not be treated as production truth w
 - older AGI/elite-positioning docs that claim more than the verified implementation
 - duplicate web surfaces under `disha/apps/web/`
 - experimental AI model, physics, strategy, and service folders under `disha/ai/` and `disha/services/`
+- removed demo payload references in older documentation
 - legacy architecture reports that mention retired paths or broad AGI claims
 - placeholder smoke tests in service folders
 

@@ -16,7 +16,6 @@ This document records the production posture of the current DISHA Brain MVP. It 
 - Set `DISHA_BRAIN_API_TOKEN` for every environment that exposes protected Brain APIs.
 - Keep production CORS origins explicit. Do not use wildcard browser origins for deployed control planes.
 - Mount durable storage for the Brain SQLite path, or replace `SQLiteStore` with a managed store before using multi-instance deployments.
-- Treat `demos/` payloads as examples only. They are not external proof or official records.
 
 ## Runtime Boundaries
 

@@ -11,11 +11,49 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, "../..");
 const REGISTRY_PATH = path.join(ROOT_DIR, "data/osint/upstream-registry.json");
 
+const SUCCESS_STATUSES = new Set(["HEALTHY", "EXECUTABLE_VERIFIED", "SERVICE_VERIFIED"]);
+
+function optionalLower(value) {
+  return typeof value === "string" ? value.toLowerCase() : "";
+}
+
+function matchesToolId(entry, toolId) {
+  const normalized = String(toolId).toLowerCase();
+  return optionalLower(entry.toolId) === normalized
+    || optionalLower(entry.repo) === normalized
+    || optionalLower(entry.fullName) === normalized;
+}
+
+function normalizeExecutable(entry) {
+  const command = entry.workerCommand ? String(entry.workerCommand).trim().split(/\s+/)[0] : "";
+  if (command && command !== "npx" && command !== "python" && command !== "python3") return command;
+
+  const explicit = {
+    exiftool: "exiftool",
+    "detect-secrets": "detect-secrets",
+    gitleaks: "gitleaks",
+    trufflehog: "trufflehog",
+    sherlock: "sherlock",
+    maigret: "maigret",
+    holehe: "holehe",
+    phoneinfoga: "phoneinfoga",
+    amass: "amass",
+    subfinder: "subfinder",
+  };
+
+  return explicit[entry.toolId] || explicit[String(entry.repo || "").toLowerCase()] || String(entry.repo || entry.toolId).toLowerCase();
+}
+
+function chooseProbeArgs(binaryName) {
+  const versionFirst = new Set(["exiftool", "gitleaks", "trufflehog", "amass", "subfinder", "phoneinfoga"]);
+  return versionFirst.has(binaryName) ? ["--version"] : ["--help"];
+}
+
 export async function smokeTool(toolId) {
   const raw = await fs.readFile(REGISTRY_PATH, "utf8");
   const registry = JSON.parse(raw);
 
-  const entry = registry.find((e) => e.toolId === toolId || e.repo.toLowerCase() === toolId.toLowerCase());
+  const entry = registry.find((e) => matchesToolId(e, toolId));
   if (!entry) {
     throw new Error(`Tool not found in registry: ${toolId}`);
   }
@@ -23,13 +61,7 @@ export async function smokeTool(toolId) {
   const startTime = Date.now();
   console.info(`[Smoke Test] Probing tool: ${entry.name} (${entry.toolId})...`);
 
-  // Determine base command to test
-  let binaryName = null;
-  if (entry.workerCommand) {
-    binaryName = entry.workerCommand.split(/\s+/)[0];
-  } else {
-    binaryName = entry.repo.toLowerCase();
-  }
+  const binaryName = normalizeExecutable(entry);
 
   // Handle special cases
   if (entry.runtimeType === "gui-only" || entry.status === "GUI_ONLY") {
@@ -70,7 +102,7 @@ export async function smokeTool(toolId) {
 
   try {
     // Attempt running with --help or --version
-    const { stdout, stderr } = await execFileAsync(binaryName, ["--help"], {
+    const { stdout, stderr } = await execFileAsync(binaryName, chooseProbeArgs(binaryName), {
       timeout: 5000,
       windowsHide: true,
     });
@@ -82,8 +114,9 @@ export async function smokeTool(toolId) {
       success: true,
       latencyMs,
       outputSnippet,
+      command: binaryName,
     };
-    entry.status = "HEALTHY";
+    entry.status = SUCCESS_STATUSES.has(entry.status) ? entry.status : "HEALTHY";
     entry.healthStatus = "HEALTHY";
     entry.lastSmokeTested = new Date().toISOString();
     console.info(`[Smoke Test PASS] ${entry.name}: healthy (${latencyMs}ms)`);
@@ -98,6 +131,7 @@ export async function smokeTool(toolId) {
       success: false,
       latencyMs,
       error: errorMsg,
+      command: binaryName,
     };
     entry.status = isNotFound ? "UNCONFIGURED" : "DEGRADED";
     entry.healthStatus = isNotFound ? "UNCONFIGURED" : "DEGRADED";

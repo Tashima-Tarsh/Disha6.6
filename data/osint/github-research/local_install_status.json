@@ -1,0 +1,181 @@
+{
+  "generatedAt": "2026-10-09T03:58:00+05:30",
+  "workspaceRoot": "D:\\OSINT-UPSTREAM\\github-research",
+  "safetyRule": "Public repository metadata, documentation, tooling, and verified local smoke tests only. Do not collect, import, redistribute, or index stolen personal, medical, biometric, financial, authentication, or credential-dump data.",
+  "localhostOnly": true,
+  "summary": {
+    "totalRepositories": 18,
+    "cloned": 18,
+    "smokeTestedWorking": 7,
+    "runningServices": 3,
+    "referenceOnlyOrBlocked": 11
+  },
+  "services": [
+    {
+      "name": "Velociraptor",
+      "repository": "Velocidex/velociraptor",
+      "status": "RUNNING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\Velocidex__velociraptor",
+      "execution": "Docker Compose",
+      "urls": [
+        "https://127.0.0.1:32899/"
+      ],
+      "ports": {
+        "frontend": "127.0.0.1:32100->8000",
+        "gui": "127.0.0.1:32899->8889"
+      },
+      "smokeTest": "HTTPS GUI returned 401 Unauthorized, expected login wall.",
+      "credentials": {
+        "username": "admin",
+        "password": "disha-local-velociraptor-change-me"
+      },
+      "notes": "Local compose was changed to bind localhost only and avoid DISHA API port 8000."
+    },
+    {
+      "name": "DFIR-IRIS",
+      "repository": "dfir-iris/iris-web",
+      "status": "RUNNING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\dfir-iris__iris-web",
+      "execution": "Docker Compose",
+      "urls": [
+        "https://127.0.0.1:18443/"
+      ],
+      "ports": {
+        "https": "127.0.0.1:18443->18443"
+      },
+      "smokeTest": "HTTPS UI returned 200 OK.",
+      "credentials": {
+        "username": "administrator",
+        "password": "disha-local-iris-change-me"
+      },
+      "notes": "Local compose was changed to bind nginx to localhost only. Uses local self-signed certificate."
+    },
+    {
+      "name": "FlowSINT",
+      "repository": "reconurge/flowsint",
+      "status": "RUNNING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\reconurge__flowsint",
+      "execution": "Docker Compose production images",
+      "urls": [
+        "http://127.0.0.1:5173/"
+      ],
+      "ports": {
+        "ui": "127.0.0.1:5173->8080",
+        "api": "127.0.0.1:5001->5001",
+        "postgres": "127.0.0.1:5433->5432",
+        "redis": "127.0.0.1:6380->6379",
+        "neo4jHttp": "127.0.0.1:7474->7474",
+        "neo4jBolt": "127.0.0.1:7687->7687"
+      },
+      "smokeTest": "UI returned 200 OK at http://127.0.0.1:5173/ and API health returned 200 OK at http://127.0.0.1:5001/health.",
+      "credentials": {
+        "note": "No default account. Open http://127.0.0.1:5173/register and create the first local account."
+      },
+      "notes": "Fork is blocked until GitHub CLI is authenticated. Local production compose was changed to keep UI localhost-only and avoid DISHA Redis port 6379 by mapping host 6380 to container 6379."
+    }
+  ],
+  "tools": [
+    {
+      "repository": "owasp-amass/amass",
+      "status": "WORKING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\owasp-amass__amass",
+      "execution": "Docker image disha-research/amass:local",
+      "smokeTest": "docker run --rm disha-research/amass:local -version returned v5.1.1"
+    },
+    {
+      "repository": "volatilityfoundation/volatility3",
+      "status": "WORKING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\volatilityfoundation__volatility3",
+      "execution": "Python venv at D:\\OSINT-UPSTREAM\\github-research\\venvs\\volatility3",
+      "smokeTest": "vol.exe --help returned Volatility 3 Framework 2.28.2"
+    },
+    {
+      "repository": "moj-analytical-services/splink",
+      "status": "WORKING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\moj-analytical-services__splink",
+      "execution": "Python venv at D:\\OSINT-UPSTREAM\\github-research\\venvs\\splink",
+      "smokeTest": "import splink returned version 5.0.0"
+    },
+    {
+      "repository": "MISP/misp-modules",
+      "status": "WORKING",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\MISP__misp-modules",
+      "execution": "Python venv at D:\\OSINT-UPSTREAM\\github-research\\venvs\\misp-modules",
+      "smokeTest": "import misp_modules succeeded"
+    }
+  ],
+  "catalogueOnly": [
+    {
+      "repository": "OpenCTI-Platform/opencti",
+      "status": "CLONED_NOT_STARTED",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\OpenCTI-Platform__opencti",
+      "reason": "Large multi-service stack with Redis, Elasticsearch/OpenSearch and other ports that need a dedicated localhost port/resource plan before safe startup beside DISHA."
+    },
+    {
+      "repository": "MISP/MISP",
+      "status": "CLONED_NOT_STARTED",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\MISP__MISP",
+      "reason": "Heavy PHP/MariaDB threat-intelligence platform. The cloned repo is source/install documentation; a dedicated local deployment recipe is still required."
+    },
+    {
+      "repository": "google/timesketch",
+      "status": "CLONED_PARTIALLY_CONFIGURED",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\google__timesketch",
+      "reason": "Release compose config was edited for local ports, but required release ./etc config files were not present in the cloned release folder."
+    },
+    {
+      "repository": "sleuthkit/autopsy",
+      "status": "CLONED_BLOCKED_BY_PREREQUISITES",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\sleuthkit__autopsy",
+      "reason": "Autopsy is a desktop Java/NetBeans forensic GUI. Java and Maven were not available on PATH during verification."
+    },
+    {
+      "repository": "volatilityfoundation/volatility",
+      "status": "CLONED_REFERENCE_ONLY",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\volatilityfoundation__volatility",
+      "reason": "Legacy Volatility is Python 2 era; Volatility 3 is the working local runtime."
+    },
+    {
+      "repository": "vz-risk/VCDB",
+      "status": "CLONED_DATASET_REFERENCE",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\vz-risk__VCDB",
+      "reason": "Public incident dataset cloned for catalogue/reference use. No stolen personal records are imported into DISHA."
+    },
+    {
+      "repository": "sleuthkit/autopsy_addon_modules",
+      "status": "CLONED_REFERENCE_ONLY",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\sleuthkit__autopsy_addon_modules",
+      "reason": "Add-ons depend on Autopsy being installed."
+    },
+    {
+      "repository": "Velocidex/velociraptor-docs",
+      "status": "CLONED_DOCUMENTATION",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\Velocidex__velociraptor-docs",
+      "reason": "Documentation repository."
+    },
+    {
+      "repository": "volatilityfoundation/community3",
+      "status": "CLONED_REFERENCE_ONLY",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\volatilityfoundation__community3",
+      "reason": "Community plugins require per-plugin compatibility review before enabling."
+    },
+    {
+      "repository": "MISP/misp-packer",
+      "status": "CLONED_VM_BUILD_REFERENCE",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\MISP__misp-packer",
+      "reason": "VM image build recipes, not a direct local app runtime."
+    },
+    {
+      "repository": "owasp-amass/docs",
+      "status": "CLONED_DOCUMENTATION",
+      "localPath": "D:\\OSINT-UPSTREAM\\github-research\\repos\\owasp-amass__docs",
+      "reason": "Documentation repository for Amass."
+    }
+  ],
+  "blockedActions": [
+    {
+      "action": "Fork repositories into the user's GitHub account",
+      "reason": "GitHub CLI is installed but not authenticated on this machine. gh auth status reported no logged-in account."
+    }
+  ]
+}

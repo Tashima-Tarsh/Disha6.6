@@ -9,6 +9,24 @@ const REGISTRY_PATH = path.join(ROOT_DIR, "data/osint/upstream-registry.json");
 const REPORT_JSON_PATH = path.join(ROOT_DIR, "reports/osint-runtime-report.json");
 const REPORT_MD_PATH = path.join(ROOT_DIR, "reports/osint-runtime-report.md");
 
+function isReferenceOnly(tool) {
+  return ["dataset-only", "library-only", "gui-only", "documentation"].includes(tool.runtimeType)
+    || ["DATASET_ONLY", "DATASET_INTEGRATED", "LIBRARY_ONLY", "LIBRARY_INTEGRATED", "GUI_ONLY", "GUI_INTEGRATED", "REFERENCE_ONLY"].includes(tool.status);
+}
+
+function hasRunnablePass(tool) {
+  return Boolean(tool.lastSmokeTested && tool.smokeResult?.success === true && !isReferenceOnly(tool));
+}
+
+function runtimeEvidenceState(tool) {
+  if (hasRunnablePass(tool)) return "RUNNABLE_SMOKE_PASS";
+  if (isReferenceOnly(tool)) return "REFERENCE_ONLY";
+  if (tool.requiresAuth || tool.requiresApiKey || ["AUTH_REQUIRED", "CREDENTIAL_REQUIRED"].includes(tool.status)) return "AUTH_OR_KEY_REQUIRED";
+  if (tool.smokeResult?.success === false) return "SMOKE_FAILED";
+  if (!tool.lastSmokeTested || !tool.smokeResult) return "SMOKE_MISSING";
+  return "CATALOGUE_ONLY";
+}
+
 export async function generateReport() {
   console.info("Generating comprehensive OSINT runtime report...");
   const raw = await fs.readFile(REGISTRY_PATH, "utf8");
@@ -23,6 +41,7 @@ export async function generateReport() {
   const byStatus = {};
   const byHealth = {};
   const byForkStatus = {};
+  const byRuntimeEvidence = {};
 
   for (const tool of registry) {
     const r = tool.runtimeType || "unspecified";
@@ -39,7 +58,22 @@ export async function generateReport() {
 
     const f = tool.forkStatus || "FORK_PENDING";
     byForkStatus[f] = (byForkStatus[f] || 0) + 1;
+
+    const evidence = runtimeEvidenceState(tool);
+    byRuntimeEvidence[evidence] = (byRuntimeEvidence[evidence] || 0) + 1;
   }
+
+  const locallySmokeVerified = registry.filter((tool) => hasRunnablePass(tool)).length;
+  const claimsRequireRefresh = registry.filter(
+    (tool) =>
+      ["EXECUTABLE_VERIFIED", "SERVICE_VERIFIED"].includes(tool.status) &&
+      !hasRunnablePass(tool),
+  ).length;
+  const smokeFailed = byRuntimeEvidence.SMOKE_FAILED || 0;
+  const smokeMissing = byRuntimeEvidence.SMOKE_MISSING || 0;
+  const referenceOnly = byRuntimeEvidence.REFERENCE_ONLY || 0;
+  const authOrKeyRequired = byRuntimeEvidence.AUTH_OR_KEY_REQUIRED || 0;
+  const catalogueOnly = byRuntimeEvidence.CATALOGUE_ONLY || 0;
 
   const reportData = {
     generatedAt: reportDate,
@@ -50,6 +84,14 @@ export async function generateReport() {
       byStatus,
       byHealth,
       byForkStatus,
+      byRuntimeEvidence,
+      runnableSmokePassed: locallySmokeVerified,
+      smokeFailed,
+      smokeMissing,
+      referenceOnly,
+      authOrKeyRequired,
+      catalogueOnly,
+      verificationClaimsRequiringRefresh: claimsRequireRefresh,
     },
     tools: registry.map((t) => ({
       toolId: t.toolId,
@@ -68,6 +110,8 @@ export async function generateReport() {
       lastVerified: t.lastVerified,
       lastSmokeTested: t.lastSmokeTested,
       smokeResult: t.smokeResult,
+      runtimeEvidenceState: runtimeEvidenceState(t),
+      runnableVerified: hasRunnablePass(t),
     })),
   };
 
@@ -90,9 +134,24 @@ export async function generateReport() {
     "| Metric Category | Detail / Count |",
     "| :--- | :--- |",
     `| **Total Cataloged Upstreams** | **${total}** |`,
+    `| **Runnable Smoke Passed On This Machine** | **${locallySmokeVerified}** |`,
+    `| **Smoke Failed / Missing** | Failed: **${smokeFailed}**, Missing: **${smokeMissing}** |`,
+    `| **Reference/Auth/Catalogue Only** | Reference-only: **${referenceOnly}**, Auth/API-key required: **${authOrKeyRequired}**, Catalogue-only: **${catalogueOnly}** |`,
+    `| **Verification Claims Requiring Refresh** | **${claimsRequireRefresh}** |`,
     `| **Fork Status** | Verified Forks: **${byForkStatus["FORKED"] || 0}**, Pending: **${byForkStatus["FORK_PENDING"] || 0}** |`,
     `| **Health Classification** | Healthy: **${byHealth["HEALTHY"] || 0}**, Unconfigured: **${byHealth["UNCONFIGURED"] || 0}**, Reference Only: **${(byHealth["REFERENCE_ONLY"] || 0)}**, Degraded: **${byHealth["DEGRADED"] || 0}**, Unavailable: **${byHealth["UNAVAILABLE"] || 0}** |`,
     `| **Runtime Breakdown** | Python: **${byRuntime["python"] || 0}**, Go: **${byRuntime["go"] || 0}**, Node: **${byRuntime["node"] || 0}**, Rust: **${byRuntime["rust"] || 0}**, Docker: **${byRuntime["docker"] || 0}**, Reference/Other: **${(byRuntime["dataset-only"] || 0) + (byRuntime["gui-only"] || 0) + (byRuntime["library-only"] || 0) + (byRuntime["binary"] || 0)}** |`,
+    "",
+    "### Runtime Evidence Classification",
+    "",
+    "```",
+    Object.entries(byRuntimeEvidence)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => `${k.padEnd(24)} : ${v}`)
+      .join("\n"),
+    "```",
+    "",
+    "Runnable status means a tool produced a successful local/runtime smoke result in this environment. Catalogue presence, upstream metadata, forks, datasets, GUI references, and library references are not counted as runnable execution.",
     "",
     "### Runtime Distribution",
     "",
@@ -123,7 +182,8 @@ export async function generateReport() {
   const mandatoryTools = registry.filter((t) => t.isMandatoryChat);
   for (const m of mandatoryTools) {
     const forkDisplay = m.forkUrl ? `[Forked](${m.forkUrl})` : "Pending";
-    mdLines.push(`| **${m.name}** | ${m.category} | \`${m.runtimeType}\` | [${m.fullName}](${m.upstreamUrl}) | ${forkDisplay} | \`${m.executionClass}\` | \`${m.status}\` |`);
+    const localStatus = hasRunnablePass(m) ? "RUNNABLE_SMOKE_PASS" : runtimeEvidenceState(m);
+    mdLines.push(`| **${m.name}** | ${m.category} | \`${m.runtimeType}\` | [${m.fullName}](${m.upstreamUrl}) | ${forkDisplay} | \`${m.executionClass}\` | \`${m.status}\` / ${localStatus} |`);
   }
 
   mdLines.push("");
@@ -135,7 +195,8 @@ export async function generateReport() {
   mdLines.push("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |");
 
   for (const tool of registry.slice(0, 100)) {
-    mdLines.push(`| \`${tool.toolId}\` | ${tool.name} | ${tool.category} | \`${tool.runtimeType}\` | [GitHub](${tool.upstreamUrl}) | ${tool.license} | \`${tool.status}\` |`);
+    const localStatus = hasRunnablePass(tool) ? "RUNNABLE_SMOKE_PASS" : runtimeEvidenceState(tool);
+    mdLines.push(`| \`${tool.toolId}\` | ${tool.name} | ${tool.category} | \`${tool.runtimeType}\` | [GitHub](${tool.upstreamUrl}) | ${tool.license} | \`${tool.status}\` / ${localStatus} |`);
   }
 
   mdLines.push("");

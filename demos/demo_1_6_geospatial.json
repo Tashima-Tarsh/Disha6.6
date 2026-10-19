@@ -1,7 +1,0 @@
-{
-  "input_text": "Sensor report with coordinates indicates repeated movement near a restricted public-safety perimeter.",
-  "source_type": "sensor",
-  "source_links": [],
-  "requested_actions": ["report", "preserve_evidence", "alert"],
-  "authorized_environment": true
-}

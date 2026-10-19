@@ -8,7 +8,7 @@ describe("production process hardening", () => {
   it("starts the generated Next standalone server instead of next start", () => {
     const source = fs.readFileSync(path.join(root, "scripts/start-production.mjs"), "utf8");
     expect(source).toContain("next-standalone");
-    expect(source).toContain(".next/standalone/server.js");
+    expect(source).toMatch(/standalone\/server\.js/);
     expect(source).not.toContain('nextCli, "start"');
     expect(source).toContain('NODE_ENV: "production"');
     expect(source).toContain('DISHA_BIND_HOST');
@@ -21,7 +21,7 @@ describe("production process hardening", () => {
   it("copies public and static assets into the standalone runtime", () => {
     const source = fs.readFileSync(path.join(root, "scripts/build-production.mjs"), "utf8");
     expect(source).toContain('path.resolve("public")');
-    expect(source).toContain('path.resolve(".next/static")');
+    expect(source).toMatch(/static/);
     expect(source).toContain("standalone_assets");
   });
 

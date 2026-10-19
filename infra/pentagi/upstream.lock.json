@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/vxcontrol/pentagi.git",
+  "commit": "843dfeb4bfc809c09d1bc5022e567c602d8fc9dd",
+  "reviewedOn": "2026-10-15",
+  "version": "2.2.0-ce.h843dfeb",
+  "images": {
+    "pentagi": "vxcontrol/pentagi@sha256:0d58d71a6ac4128ec5c4e594952a516f08a3cb44c28f51feb68b09569e4d54f8",
+    "pgvector": "pgvector/pgvector@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a",
+    "scraper": "vxcontrol/scraper@sha256:4a3b0f179ab29003313167877ee2f6ab74c89f3fcb1ce108e648ca1ffadc51b7"
+  },
+  "inferenceModel": "qwen2.5:3b",
+  "embeddingModel": "nomic-embed-text",
+  "optionalStacks": {
+    "knowledgeGraph": "integrations/pentagi/upstream/docker-compose-graphiti.yml",
+    "llmTracing": "integrations/pentagi/upstream/docker-compose-langfuse.yml",
+    "monitoring": "integrations/pentagi/upstream/docker-compose-observability.yml"
+  }
+}

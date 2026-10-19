@@ -1,7 +1,0 @@
-{
-  "input_text": "Open data dataset about flood impact on bridge and road infrastructure requires resilience prioritisation.",
-  "source_type": "government_open_data",
-  "source_links": ["https://data.gov.in/"],
-  "requested_actions": ["report", "preserve_evidence"],
-  "authorized_environment": false
-}

@@ -12,7 +12,7 @@ import {
   UploadCloud,
   Hash,
 } from "lucide-react";
-import { DishaShellNav } from "@/components/shell/DishaShellNav";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 import type { DISHAEvidenceVaultArtifact } from "@/lib/unified/canonical/types";
 import styles from "./vault.module.css";
 
@@ -73,8 +73,8 @@ export function VaultClient({ principal }: { principal: PrincipalView }) {
   }
 
   return (
-    <div className={styles.shell}>
-      <DishaShellNav />
+    <DishaCommandShell principal={principal}>
+      <div className={styles.shell}>
 
       <main className={styles.main}>
         <header className={styles.hero}>
@@ -199,6 +199,7 @@ export function VaultClient({ principal }: { principal: PrincipalView }) {
           </section>
         </div>
       </main>
-    </div>
+      </div>
+    </DishaCommandShell>
   );
 }

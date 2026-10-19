@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { ACCESS_COOKIE_NAME, principalFromAccessToken } from "@/lib/server/auth";
 
 import { DashboardClient } from "../dashboard/dashboard-client";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 
 export const dynamic = "force-dynamic";
 
@@ -28,5 +29,5 @@ export default async function DashboardPage() {
     redirect("/login?mode=password&returnUrl=%2Foperations");
   }
 
-  return <DashboardClient principal={{ email: principal.email, roles: principal.roles }} />;
+  return <DishaCommandShell principal={{ email: principal.email, roles: principal.roles }}><DashboardClient principal={{ email: principal.email, roles: principal.roles }} /></DishaCommandShell>;
 }

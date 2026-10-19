@@ -7,6 +7,7 @@ import { listDynamicSourcePolicies, type DynamicSourcePolicy } from "@/lib/unifi
 import { modelRoutingStatus } from "@/lib/unified/model-router";
 import { embeddingRoutingStatus } from "@/lib/unified/embedding-provider";
 import { checkGovernedResearchRuntimeHealth } from "@/lib/extensions/research-runtime";
+import { getPentagiStatus } from "@/lib/server/pentagi";
 
 export async function GET(req: NextRequest) {
   return withContext(req, "agent:read", async (ctx) => {
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
       const client = await getRedisClient();
       if (client) { await client.ping(); redis = "ok"; }
     } catch { redis = "error"; }
-    const [routes, embedding, policies, research] = await Promise.all([modelRoutingStatus(), embeddingRoutingStatus(), listDynamicSourcePolicies(), checkGovernedResearchRuntimeHealth()]);
+    const [routes, embedding, policies, research, pentagi] = await Promise.all([modelRoutingStatus(), embeddingRoutingStatus(), listDynamicSourcePolicies(), checkGovernedResearchRuntimeHealth(), getPentagiStatus()]);
     const body = {
       generatedAt: new Date().toISOString(),
       database,
@@ -33,6 +34,7 @@ export async function GET(req: NextRequest) {
         nextDueAt: policies.filter((policy: DynamicSourcePolicy) => policy.enabled).map((policy: DynamicSourcePolicy) => policy.nextRunAt).sort()[0] ?? null,
       },
       researchRuntime: research,
+      pentagi,
     };
     return NextResponse.json(body, { headers: { "X-Request-ID": ctx.requestId } });
   });

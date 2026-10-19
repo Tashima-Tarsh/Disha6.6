@@ -119,6 +119,16 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.6-luna}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       DISHA_MODEL_ROUTES_JSON: ${DISHA_MODEL_ROUTES_JSON:-}
+      DISHA_MODEL_PROVIDER: ${DISHA_MODEL_PROVIDER:-ollama}
+      DISHA_MODEL_ROLE: ${DISHA_MODEL_ROLE:-analysis}
+      DISHA_MODEL_TIMEOUT_MS: ${DISHA_MODEL_TIMEOUT_MS:-20000}
+      DISHA_LOCAL_ONLY_MODE: ${DISHA_LOCAL_ONLY_MODE:-true}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://disha-local-ai:11434/v1}
+      OLLAMA_NATIVE_BASE_URL: ${OLLAMA_NATIVE_BASE_URL:-http://disha-local-ai:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+      OLLAMA_MAX_CONCURRENCY: ${OLLAMA_MAX_CONCURRENCY:-2}
+      PENTAGI_BASE_URL: ${PENTAGI_BASE_URL:-http://host.docker.internal:8443}
+      PENTAGI_PUBLIC_URL: ${PENTAGI_PUBLIC_URL:-http://127.0.0.1:8443}
       DISHA_EMBEDDING_PROVIDER: openai-compatible
       DISHA_EMBEDDING_BASE_URL: http://embeddings:8081/v1
       DISHA_EMBEDDING_MODEL: ${DISHA_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
@@ -131,6 +141,9 @@ services:
       INTELOWL_ANALYZERS_ALLOWLIST: ${INTELOWL_ANALYZERS_ALLOWLIST:-${INTELOWL_ANALYZERS:-}}
       INTELOWL_ANALYZERS: ${INTELOWL_ANALYZERS:-${INTELOWL_ANALYZERS_ALLOWLIST:-}}
       INTELOWL_JOB_TIMEOUT_MS: ${INTELOWL_JOB_TIMEOUT_MS:-15000}
+      DFIR_IRIS_BASE_URL: ${DFIR_IRIS_BASE_URL:-}
+      VELOCIRAPTOR_BASE_URL: ${VELOCIRAPTOR_BASE_URL:-}
+      FLOWSINT_BASE_URL: ${FLOWSINT_BASE_URL:-}
       DISHA_ASTRA6_ALL_TOOLS_ENABLED: ${DISHA_ASTRA6_ALL_TOOLS_ENABLED:-false}
       DISHA_ASTRA6_SHERLOCK_ENABLED: ${DISHA_ASTRA6_SHERLOCK_ENABLED:-false}
       DISHA_ASTRA6_MAIGRET_ENABLED: ${DISHA_ASTRA6_MAIGRET_ENABLED:-false}
@@ -149,6 +162,8 @@ services:
       TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
       TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
       TELEGRAM_SESSION: ${TELEGRAM_SESSION:-}
+      OPENOSINT_BASE_URL: ${OPENOSINT_BASE_URL:-http://openosint:8055}
+      OPENOSINT_SERVICE_TOKEN: ${OPENOSINT_SERVICE_TOKEN:-}
     depends_on:
       web-migrate:
         condition: service_completed_successfully
@@ -157,6 +172,8 @@ services:
       embeddings:
         condition: service_healthy
       disha-brain:
+        condition: service_healthy
+      disha-local-ai:
         condition: service_healthy
     ports:
       - "${DISHA_HTTP_PORT:-3000}:3000"
@@ -305,8 +322,51 @@ services:
     cap_drop:
       - ALL
 
+
+  openosint:
+    build:
+      context: .
+      dockerfile: infra/openosint/Dockerfile
+    image: ${DISHA_IMAGE_REGISTRY:-ghcr.io/tashima-tarsh}/disha-openosint:${DISHA_IMAGE_TAG:-latest}
+    environment:
+      PORT: 8055
+      OPENOSINT_SERVICE_TOKEN: ${OPENOSINT_SERVICE_TOKEN:?set-openosint-service-token}
+      SHODAN_API_KEY: ${SHODAN_API_KEY:-}
+      HIBP_API_KEY: ${HIBP_API_KEY:-}
+      ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
+      HUNTER_API_KEY: ${HUNTER_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8055/health').read(); print('ok')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  disha-local-ai:
+    image: ollama/ollama:latest
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
   disha_data:
   embedding_models:
+  ollama_models:

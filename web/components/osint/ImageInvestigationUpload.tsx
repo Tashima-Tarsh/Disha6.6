@@ -11,5 +11,5 @@ export function ImageInvestigationUpload({ busy, onUpload }: { busy: boolean; on
     if (!file) return;
     if (!["image/jpeg", "image/png"].includes(file.type) || file.size > 5 * 1024 * 1024) { setError("Choose a JPG or PNG up to 5 MB."); return; }
     setError(""); onUpload(file);
-  }} /><button type="button" onClick={() => input.current?.click()} disabled={busy}><ImagePlus size={17} /> Investigate an image</button><span>JPG / PNG · 5 MB · temporary upload</span><small>Configured image search may send the image to Google Cloud Vision for public web matches.</small>{error && <p role="alert">{error}</p>}</div>;
+  }} /><button type="button" onClick={() => input.current?.click()} disabled={busy}><ImagePlus size={17} /> Investigate an image</button><span>JPG / PNG · 5 MB · temporary upload</span><small>Local metadata and perceptual-hash analysis only. No cloud image provider is called.</small>{error && <p role="alert">{error}</p>}</div>;
 }

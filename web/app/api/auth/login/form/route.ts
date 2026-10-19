@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { audit } from "@/lib/server/audit";
 import { passwordLogin, setSessionCookies } from "@/lib/server/auth";
 import { setCsrfCookie } from "@/lib/server/csrf";
+import { getEnv } from "@/lib/server/env";
 import { assertPublicRequestGuards, errorResponse } from "@/lib/server/http";
 import { requestId } from "@/lib/server/security";
 
@@ -16,7 +17,8 @@ export async function POST(req: NextRequest) {
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
     const session = await passwordLogin(email, password);
-    const response = NextResponse.redirect(new URL(safeReturnUrl(form.get("returnUrl")), req.nextUrl.origin), 303);
+    const publicOrigin = getEnv().NEXT_PUBLIC_APP_URL ?? req.nextUrl.origin;
+    const response = NextResponse.redirect(new URL(safeReturnUrl(form.get("returnUrl")), publicOrigin), 303);
     setSessionCookies(response, session.accessToken, session.refreshToken);
     setCsrfCookie(response);
     await audit({

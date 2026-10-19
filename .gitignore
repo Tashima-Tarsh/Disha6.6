@@ -98,3 +98,26 @@ web/public/vendor/maplibre/
 /Caddyfile
 /DEPLOYED_COMMIT
 /CREDENTIALS.txt
+
+# PentAGI upstream checkout and local installation credentials
+/integrations/pentagi/upstream/
+/infra/pentagi/.env
+/infra/pentagi/credentials.local.xml
+/reports/pentagi-*.log
+
+# Isolated DISHA desktop release artifacts
+web/.next-desktop/
+
+# Local authentication tokens and cookies
+cookies.txt
+
+# Staging evaluations and scratch work
+/staging/
+/scratch/
+
+# Agent core symlink for python testing
+disha/ai/agent_core
+
+# Integrations external clones
+/integrations/
+

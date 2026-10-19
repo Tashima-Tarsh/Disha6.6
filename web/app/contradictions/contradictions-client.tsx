@@ -10,7 +10,7 @@ import {
   Clock,
   ArrowRight,
 } from "lucide-react";
-import { DishaShellNav } from "@/components/shell/DishaShellNav";
+import { DishaCommandShell } from "@/components/shell/DishaCommandShell";
 import type { DISHAContradiction } from "@/lib/unified/canonical/types";
 import styles from "./contradictions.module.css";
 
@@ -33,8 +33,8 @@ export function ContradictionsClient({ principal }: { principal: PrincipalView }
   }, []);
 
   return (
-    <div className={styles.shell}>
-      <DishaShellNav />
+    <DishaCommandShell principal={principal}>
+      <div className={styles.shell}>
 
       <main className={styles.main}>
         <header className={styles.hero}>
@@ -106,6 +106,7 @@ export function ContradictionsClient({ principal }: { principal: PrincipalView }
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </DishaCommandShell>
   );
 }

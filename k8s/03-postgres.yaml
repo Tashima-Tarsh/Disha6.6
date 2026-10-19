@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: disha-postgres
+  namespace: disha
+spec:
+  serviceName: disha-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disha-postgres
+  template:
+    metadata:
+      labels:
+        app: disha-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: pgvector/pgvector:pg16
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: disha
+            - name: POSTGRES_USER
+              value: disha
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: disha-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "disha", "-d", "disha"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "disha", "-d", "disha"]
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: disha-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disha-postgres
+  namespace: disha
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  selector:
+    app: disha-postgres
+  clusterIP: None

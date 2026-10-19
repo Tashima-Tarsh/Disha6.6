@@ -261,14 +261,22 @@ export function classifyUniversalTarget(input: string): TargetClassification {
   }
 
   if (/^[a-zA-Z0-9_.]{2,64}$/.test(trimmed)) {
+    const hasLetters = /[a-zA-Z]/.test(trimmed);
+    const hasDigits = /[0-9]/.test(trimmed);
+    const isAlphanumericHandle = hasLetters && hasDigits;
+
     return {
       rawInput: trimmed,
       normalizedValue: trimmed,
-      primaryType: "topic",
-      confidence: 0.4,
-      candidateTypes: ["topic", "person_name", "company", "location", "username"],
-      ambiguityWarning: "Natural language token without '@' is ambiguous across topic, person, organization, location, or handle.",
-      metadata: { token: trimmed, ambiguous: true },
+      primaryType: isAlphanumericHandle ? "username" : "topic",
+      confidence: isAlphanumericHandle ? 0.8 : 0.4,
+      candidateTypes: isAlphanumericHandle
+        ? ["username", "person_name", "topic"]
+        : ["topic", "person_name", "company", "location", "username"],
+      ambiguityWarning: isAlphanumericHandle
+        ? "Alphanumeric handle detected; cross-referencing public accounts and OSINT footprints."
+        : "Natural language token without '@' is ambiguous across topic, person, organization, location, or handle.",
+      metadata: { token: trimmed, ambiguous: !isAlphanumericHandle, isAlphanumericHandle },
     };
   }
 

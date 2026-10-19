@@ -23,6 +23,7 @@ A submodule being present here means its source is available to the DISHA checko
 | `recon-ng-marketplace/` | lanmaster53/recon-ng-marketplace | master | official module source pinned for the Recon-ng allowlist |
 | `Photon/` | s0md3v/Photon | master | ASTRA advanced worker; bounded same-site crawl with explicit authorization |
 | `awesome-osint/` | jivoi/awesome-osint | master | source/reference index |
+| `OpenOSINT/` | OpenOSINT/OpenOSINT | main | official AI-powered OSINT framework & MCP server (v2.34.0, MIT) integrated via DISHA MCP engine and internal bridge |
 
 ## Initialize
 
