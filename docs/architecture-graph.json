@@ -3,7 +3,7 @@
   "repository": "Tashima-Tarsh/Disha6.6",
   "treeSha": "4b7caad2612199a0870bc7b60396d93fc307f38a",
   "date": "2026-10-23",
-  "scope": "Evidence-backed subsample of 34 inspected files, not a complete architecture census",
+  "scope": "Incremental source-evidenced component subset from initial 34-file audit plus targeted Vyuha/cognitive/governed/AI-platform and OSINT runtime follow-up; not comprehensive or execution-verified.",
   "nodes": [
     {
       "id": "ui",
@@ -388,6 +388,470 @@
         390,
         -360
       ]
+    },
+    {
+      "id": "graphBrain",
+      "label": "Brain agentic graph",
+      "category": "engine",
+      "subsystem": "Brain Graph",
+      "source": "disha/brain/graph/graph.py",
+      "symbol": null,
+      "summary": "Executes a fixed intake/evidence/context/reasoning/action/Yudh/Vyuha/policy/approval/audit/memory sequence",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        185,
+        410,
+        -290
+      ]
+    },
+    {
+      "id": "yudhNode",
+      "label": "Yudh risk posture",
+      "category": "engine",
+      "subsystem": "Brain Graph",
+      "source": "disha/brain/graph/nodes/yudh_agent.py",
+      "symbol": null,
+      "summary": "Calls assess_yudh with risk score and evidence class",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        325,
+        545,
+        -250
+      ]
+    },
+    {
+      "id": "vyuhaNode",
+      "label": "Vyuha graph agent",
+      "category": "agent",
+      "subsystem": "Brain Graph",
+      "source": "disha/brain/graph/nodes/vyuha_agent.py",
+      "symbol": null,
+      "summary": "Calls the dynamic formation planner on graph state",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        460,
+        505,
+        -260
+      ]
+    },
+    {
+      "id": "vyuhaPlanner",
+      "label": "Dharma-Yudh planner",
+      "category": "engine",
+      "subsystem": "Brain Graph",
+      "source": "disha/brain/vyuha/dynamic.py",
+      "symbol": null,
+      "summary": "Scores formations, evidence and approval requirements",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        575,
+        395,
+        -270
+      ]
+    },
+    {
+      "id": "vyuhaForms",
+      "label": "12 Brain formations",
+      "category": "data",
+      "subsystem": "Brain Graph",
+      "source": "disha/brain/vyuha/formations.py",
+      "symbol": null,
+      "summary": "12 named formation records with triggers, allowed/forbidden actions, evidence and audit rules",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        740,
+        420,
+        -260
+      ]
+    },
+    {
+      "id": "policyGuard",
+      "label": "Policy guard node",
+      "category": "security",
+      "subsystem": "Brain Graph",
+      "source": "disha/brain/graph/nodes/policy_guard_agent.py",
+      "symbol": null,
+      "summary": "Checks requested actions and sets approval status",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        470,
+        295,
+        -270
+      ]
+    },
+    {
+      "id": "extRunner",
+      "label": "Governed extension runner",
+      "category": "engine",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/runner.ts",
+      "symbol": null,
+      "summary": "Iterates applicable extensions, validates analyses, emits evidence, enforces mission policy",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -540,
+        510,
+        -160
+      ]
+    },
+    {
+      "id": "extRegistry",
+      "label": "7 web extension registry",
+      "category": "integration",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/registry.ts",
+      "symbol": null,
+      "summary": "Imports/registers Vyuha, Brain, Cognitive, memory, honeypot, physics and surveillance adapters",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -395,
+        625,
+        -155
+      ]
+    },
+    {
+      "id": "extVyuha",
+      "label": "Vyuha web adapter",
+      "category": "security",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/vyuha-defense.ts",
+      "symbol": null,
+      "summary": "Defensive proposals only; Python action execution not enabled",
+      "status": "proposal-only",
+      "confidence": "verified-source",
+      "position": [
+        -170,
+        710,
+        -160
+      ]
+    },
+    {
+      "id": "extCog",
+      "label": "Cognitive web adapter",
+      "category": "agent",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/cognitive-engine.ts",
+      "symbol": null,
+      "summary": "Read-only cognitive phase analysis; explicitly does not execute Python 7-stage loop",
+      "status": "read-only",
+      "confidence": "verified-source",
+      "position": [
+        -45,
+        615,
+        -165
+      ]
+    },
+    {
+      "id": "extBrain",
+      "label": "DISHA Brain web adapter",
+      "category": "agent",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/disha-brain.ts",
+      "symbol": null,
+      "summary": "Read-only Brain analysis",
+      "status": "read-only",
+      "confidence": "verified-source",
+      "position": [
+        80,
+        715,
+        -170
+      ]
+    },
+    {
+      "id": "extMemory",
+      "label": "Memory/graph web adapter",
+      "category": "data",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/memory-graph.ts",
+      "symbol": null,
+      "summary": "Source-hash-based memory/graph enrichment",
+      "status": "read-only",
+      "confidence": "verified-source",
+      "position": [
+        205,
+        655,
+        -170
+      ]
+    },
+    {
+      "id": "extHoneypot",
+      "label": "Honeypot evidence adapter",
+      "category": "security",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/honeypot-evidence.ts",
+      "symbol": null,
+      "summary": "Policy-gated evidence intake from authorized owned environment",
+      "status": "evidence-only",
+      "confidence": "verified-source",
+      "position": [
+        330,
+        750,
+        -165
+      ]
+    },
+    {
+      "id": "extPhysics",
+      "label": "Physics/simulation adapter",
+      "category": "engine",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/physics-simulation.ts",
+      "symbol": null,
+      "summary": "Bounded advisory simulation plans",
+      "status": "advisory",
+      "confidence": "verified-source",
+      "position": [
+        460,
+        665,
+        -170
+      ]
+    },
+    {
+      "id": "extSurveillance",
+      "label": "Surveillance/OSINT adapter",
+      "category": "integration",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/surveillance-intelligence.ts",
+      "symbol": null,
+      "summary": "Governed public-source and authorized defensive intake",
+      "status": "governed",
+      "confidence": "verified-source",
+      "position": [
+        590,
+        730,
+        -175
+      ]
+    },
+    {
+      "id": "researchClient",
+      "label": "Governed research client",
+      "category": "integration",
+      "subsystem": "Governed Web",
+      "source": "web/lib/extensions/research-runtime.ts",
+      "symbol": null,
+      "summary": "Read-only HTTP client for the configured Brain governed analyze API",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -95,
+        495,
+        -115
+      ]
+    },
+    {
+      "id": "govRegistry",
+      "label": "Three Brain analyzers",
+      "category": "engine",
+      "subsystem": "Brain Governed",
+      "source": "disha/brain/governed/runtime.py",
+      "symbol": null,
+      "summary": "Registers Brain, Cognitive and Memory/Graph read-only analyzers",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        335,
+        140,
+        -420
+      ]
+    },
+    {
+      "id": "govCognitive",
+      "label": "Cognitive text analyzer",
+      "category": "agent",
+      "subsystem": "Brain Governed",
+      "source": "disha/brain/governed/cognitive_runtime.py",
+      "symbol": null,
+      "summary": "Read-only regex-based claim, uncertainty and negation analysis",
+      "status": "read-only",
+      "confidence": "verified-source",
+      "position": [
+        520,
+        185,
+        -405
+      ]
+    },
+    {
+      "id": "govBrain",
+      "label": "Read-only Brain analyzer",
+      "category": "agent",
+      "subsystem": "Brain Governed",
+      "source": "disha/brain/governed/brain_runtime.py",
+      "symbol": null,
+      "summary": "Runs bounded graph nodes without audit/memory mutation",
+      "status": "read-only",
+      "confidence": "verified-source",
+      "position": [
+        540,
+        80,
+        -460
+      ]
+    },
+    {
+      "id": "govMemory",
+      "label": "Read-only memory analyzer",
+      "category": "data",
+      "subsystem": "Brain Governed",
+      "source": "disha/brain/governed/memory_runtime.py",
+      "symbol": null,
+      "summary": "Source-bound entity projection and graph lookup",
+      "status": "read-only",
+      "confidence": "verified-source",
+      "position": [
+        600,
+        -15,
+        -420
+      ]
+    },
+    {
+      "id": "cognitiveLoop",
+      "label": "Seven-stage Python cognitive loop",
+      "category": "engine",
+      "subsystem": "Cognitive Loop",
+      "source": "disha/ai/core/cognitive_loop.py",
+      "symbol": null,
+      "summary": "perceive, attend, reason, deliberate, act, reflect and consolidate; separate from governed web adapter",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -610,
+        655,
+        -320
+      ]
+    },
+    {
+      "id": "vyuhaRules",
+      "label": "34 defensive YAML rules",
+      "category": "data",
+      "subsystem": "Vyuha Skill",
+      "source": "skills/vyuha-defense-engine/formation-rules/chakra-vyuha.yaml",
+      "symbol": null,
+      "summary": "34 named rule YAML files plus one template; scaffold action execution not established",
+      "status": "scaffold",
+      "confidence": "verified-source",
+      "position": [
+        -700,
+        -10,
+        -230
+      ]
+    },
+    {
+      "id": "aiPlatform",
+      "label": "AI platform FastAPI",
+      "category": "service",
+      "subsystem": "AI Platform",
+      "source": "disha/services/ai-platform/backend/app/main.py",
+      "symbol": null,
+      "summary": "Independent FastAPI app with its own API routers and OSINT streaming lifespan tasks",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -650,
+        -485,
+        -120
+      ]
+    },
+    {
+      "id": "aiOrchestrator",
+      "label": "AI agent orchestrator",
+      "category": "engine",
+      "subsystem": "AI Platform",
+      "source": "disha/services/ai-platform/backend/app/agents/orchestrator.py",
+      "symbol": null,
+      "summary": "Constructs eleven specialist agent objects",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -460,
+        -550,
+        -245
+      ]
+    },
+    {
+      "id": "agents11",
+      "label": "11 specialist AI agents",
+      "category": "agent",
+      "subsystem": "AI Platform",
+      "source": "disha/services/ai-platform/backend/app/agents/orchestrator.py",
+      "symbol": null,
+      "summary": "OSINT, Crypto, Detection, Graph, Reasoning, Legal, Education, Sentinel, National Intelligence, Physics, Growth",
+      "status": "constructed-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -260,
+        -615,
+        -260
+      ]
+    },
+    {
+      "id": "osintCatalog",
+      "label": "523 OSINT upstream entries",
+      "category": "data",
+      "subsystem": "OSINT Catalogue",
+      "source": "data/osint/upstream-registry.json",
+      "symbol": null,
+      "summary": "Catalogued upstream projects, not 523 runnable tools; 10 October report states 2 smoke passes",
+      "status": "catalogued-only",
+      "confidence": "verified-source",
+      "position": [
+        -615,
+        -100,
+        -360
+      ]
+    },
+    {
+      "id": "osintRuntime",
+      "label": "OSINT runtime registry service",
+      "category": "integration",
+      "subsystem": "OSINT Catalogue",
+      "source": "web/lib/unified/osint-runtime-service.ts",
+      "symbol": null,
+      "summary": "Loads upstream registry or generated manifests and computes runtime states",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -470,
+        -220,
+        -350
+      ]
+    },
+    {
+      "id": "osintToolsAPI",
+      "label": "OSINT tools API",
+      "category": "api",
+      "subsystem": "OSINT Catalogue",
+      "source": "web/app/api/v1/osint/tools/route.ts",
+      "symbol": null,
+      "summary": "Reads OSINT runtime service, filters and paginates records",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -300,
+        -275,
+        -365
+      ]
+    },
+    {
+      "id": "osintUI",
+      "label": "OSINT runtime matrix UI",
+      "category": "interface",
+      "subsystem": "OSINT Catalogue",
+      "source": "web/app/investigate/osint-runtime/osint-runtime-client.tsx",
+      "symbol": null,
+      "summary": "Fetches /api/v1/osint/tools and /health; search/filter UI",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -150,
+        -150,
+        -380
+      ]
     }
   ],
   "edges": [
@@ -652,6 +1116,314 @@
       "evidence": {
         "path": "web/lib/server/agent/workflow.ts",
         "lines": "1-4"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "context",
+      "to": "graphBrain",
+      "type": "constructs",
+      "mechanism": "DishaAgenticGraph() in AppContext",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-60"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "graphBrain",
+      "to": "yudhNode",
+      "type": "invokes",
+      "mechanism": "yudh_agent.run(state)",
+      "evidence": {
+        "path": "disha/brain/graph/graph.py",
+        "lines": "34-37"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "yudhNode",
+      "to": "vyuhaNode",
+      "type": "sequential-control",
+      "mechanism": "Yudh followed by Vyuha in invoke()",
+      "evidence": {
+        "path": "disha/brain/graph/graph.py",
+        "lines": "36-38"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "graphBrain",
+      "to": "vyuhaNode",
+      "type": "invokes",
+      "mechanism": "vyuha_agent.run(state)",
+      "evidence": {
+        "path": "disha/brain/graph/graph.py",
+        "lines": "36-38"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "vyuhaNode",
+      "to": "vyuhaPlanner",
+      "type": "calls",
+      "mechanism": "build_dharma_yudh_vyuha_plan(state)",
+      "evidence": {
+        "path": "disha/brain/graph/nodes/vyuha_agent.py",
+        "lines": "3-23"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "vyuhaPlanner",
+      "to": "vyuhaForms",
+      "type": "imports-uses",
+      "mechanism": "scores FORMATIONS records",
+      "evidence": {
+        "path": "disha/brain/vyuha/dynamic.py",
+        "lines": "7-52"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "graphBrain",
+      "to": "policyGuard",
+      "type": "invokes",
+      "mechanism": "policy_guard_agent.run(state)",
+      "evidence": {
+        "path": "disha/brain/graph/graph.py",
+        "lines": "37-40"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRunner",
+      "to": "extRegistry",
+      "type": "imports-calls",
+      "mechanism": "listGovernedExtensions()",
+      "evidence": {
+        "path": "web/lib/extensions/runner.ts",
+        "lines": "1-20"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extVyuha",
+      "type": "registers",
+      "mechanism": "vyuhaDefenseExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extCog",
+      "type": "registers",
+      "mechanism": "cognitiveEngineExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extBrain",
+      "type": "registers",
+      "mechanism": "dishaBrainExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extMemory",
+      "type": "registers",
+      "mechanism": "memoryGraphExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extHoneypot",
+      "type": "registers",
+      "mechanism": "honeypotEvidenceExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extPhysics",
+      "type": "registers",
+      "mechanism": "physicsSimulationExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extRegistry",
+      "to": "extSurveillance",
+      "type": "registers",
+      "mechanism": "surveillanceIntelligenceExtension",
+      "evidence": {
+        "path": "web/lib/extensions/registry.ts",
+        "lines": "1-22"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extCog",
+      "to": "researchClient",
+      "type": "calls",
+      "mechanism": "queryGovernedResearchRuntime(mission,'cognitive-engine')",
+      "evidence": {
+        "path": "web/lib/extensions/cognitive-engine.ts",
+        "lines": "10-45"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extBrain",
+      "to": "researchClient",
+      "type": "calls",
+      "mechanism": "queryGovernedResearchRuntime(mission,'disha-brain')",
+      "evidence": {
+        "path": "web/lib/extensions/disha-brain.ts",
+        "lines": "1-47"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "extMemory",
+      "to": "researchClient",
+      "type": "calls",
+      "mechanism": "queryGovernedResearchRuntime(mission,'memory-graph')",
+      "evidence": {
+        "path": "web/lib/extensions/memory-graph.ts",
+        "lines": "1-55"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "researchClient",
+      "to": "brainroutes",
+      "type": "http-post",
+      "mechanism": "Configured POST /api/v1/governed/analyze",
+      "evidence": {
+        "path": "web/lib/extensions/research-runtime.ts",
+        "lines": "84-109"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "brainroutes",
+      "to": "govRegistry",
+      "type": "invokes",
+      "mechanism": "governed_runtime.analyze(component,payload)",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "159-199"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "context",
+      "to": "govRegistry",
+      "type": "constructs",
+      "mechanism": "GovernedRuntimeRegistry(store)",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-59"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "govRegistry",
+      "to": "govCognitive",
+      "type": "registers",
+      "mechanism": "CognitiveEngineAnalyzer()",
+      "evidence": {
+        "path": "disha/brain/governed/runtime.py",
+        "lines": "12-20"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "govRegistry",
+      "to": "govBrain",
+      "type": "registers",
+      "mechanism": "DishaBrainAnalyzer()",
+      "evidence": {
+        "path": "disha/brain/governed/runtime.py",
+        "lines": "12-20"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "govRegistry",
+      "to": "govMemory",
+      "type": "registers",
+      "mechanism": "MemoryGraphAnalyzer(store)",
+      "evidence": {
+        "path": "disha/brain/governed/runtime.py",
+        "lines": "12-20"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "aiOrchestrator",
+      "to": "agents11",
+      "type": "constructs",
+      "mechanism": "Eleven specialist agent instances",
+      "evidence": {
+        "path": "disha/services/ai-platform/backend/app/agents/orchestrator.py",
+        "lines": "5-35"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "osintUI",
+      "to": "osintToolsAPI",
+      "type": "http-get",
+      "mechanism": "fetch /api/v1/osint/tools?limit=600",
+      "evidence": {
+        "path": "web/app/investigate/osint-runtime/osint-runtime-client.tsx",
+        "lines": "88-105"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "osintToolsAPI",
+      "to": "osintRuntime",
+      "type": "calls",
+      "mechanism": "loadOsintRuntimeRegistry()",
+      "evidence": {
+        "path": "web/app/api/v1/osint/tools/route.ts",
+        "lines": "1-60"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "osintRuntime",
+      "to": "osintCatalog",
+      "type": "reads",
+      "mechanism": "loadOsintRegistry() filesystem path",
+      "evidence": {
+        "path": "web/lib/unified/osint-runtime-service.ts",
+        "lines": "270-347"
       },
       "confidence": "verified"
     }

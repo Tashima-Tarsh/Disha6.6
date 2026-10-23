@@ -1,12 +1,13 @@
 # DISHA 6.6 — Evidence-oriented intelligence platform (source-grounded overview)
 
-> **Documentation status (23 October 2026):** This README is a source-evidenced architectural orientation, **not** an attestation that every feature is active, safe, or production-ready. The repository contains 5,757 tracked blobs; the associated audit inspected a defined sample of 34 source/configuration files, not the entire codebase. See [coverage](docs/repository-coverage.md) and [findings](docs/technical-audit.md). No application code was modified.
+> **Documentation status (23 October 2026):** This README is a source-evidenced architectural orientation, **not** an attestation that every feature is active, safe, or production-ready. The initial Git tree snapshot contained 5,757 blobs and only 34 files were content-reviewed in that pass. A subsequent targeted follow-up reviewed additional Vyuha, cognitive, agent, registry and runtime files; neither review is a complete-code certification. See [coverage](docs/repository-coverage.md) and [findings](docs/technical-audit.md). No application code was modified.
 
 DISHA 6.6 is a multi-surface repository with a **Next.js web application**, an independent **Python FastAPI brain service**, a separate **FastAPI OSINT service**, TypeScript/Python AI-related modules, MCP server implementations, integration collections, evidence-oriented components, and legacy code. These are **separate entry points and codebases**; being present does not establish that every feature is connected to the main product or deployed. This overview is based on source, manifests, and directory evidence rather than product claims.
 
 ## Contents
 
 - [System at a glance](#system-at-a-glance)
+- [Major source-verified subsystems](#major-source-verified-subsystems)
 - [Source-evidenced architecture](#source-evidenced-architecture)
 - [Applications and units](#applications-and-units)
 - [Technology](#technology)
@@ -28,6 +29,25 @@ DISHA 6.6 is a multi-surface repository with a **Next.js web application**, an i
 | MCP Explorer | `disha/services/mcp/src/server.ts`, `src/index.ts`, `src/http.ts` | MCP tools/resources/prompts with stdio and SSE entry points; HTTP `/mcp` explicitly returns 501 |
 | Root MCP entry point | `src/entrypoints/mcp.ts` | Separate implementation with unresolved import references in the tracked root `src/` tree |
 | Integration and legacy collections | `disha/services/integrations/`, `disha/legacy-root-src/` | Large source collections; runtime registration and ownership unverified |
+
+## Major source-verified subsystems
+
+**Disha6.6 contains significantly more than the standalone OSINT backend.** The [source-grounded major-subsystem map](docs/major-subsystems.md) traces the implementations and explains which components are actually wired together.
+
+| Subsystem | Code and verified evidence | Readiness distinction |
+| --- | --- | --- |
+| **Yudh/Vyuha doctrine and Brain graph** | [`disha/brain/graph/graph.py`](disha/brain/graph/graph.py), [`disha/brain/vyuha/`](disha/brain/vyuha/), [`disha/brain/yudh/`](disha/brain/yudh/) | Brain graph **invokes Yudh and Vyuha nodes**, then policy, approval and audit; **12 Brain Vyuha formations** |
+| **Vyuha defensive skill engine** | [`skills/vyuha-defense-engine/`](skills/vyuha-defense-engine/), [web extension](web/lib/extensions/vyuha-defense.ts) | **34 named YAML formation rules**, Python scaffold and web proposal-only governed adapter; live defensive execution is **not** established |
+| **Seven-stage Cognitive Engine** | [`disha/ai/core/cognitive_loop.py`](disha/ai/core/cognitive_loop.py) | `perceive → attend → reason → deliberate → act → reflect → consolidate` implemented as a Python sequence; running deployments unverified |
+| **Governed Cognitive analyzer** | [`disha/brain/governed/cognitive_runtime.py`](disha/brain/governed/cognitive_runtime.py), [web adapter](web/lib/extensions/cognitive-engine.ts) | Separate read-only text analyzer; the web adapter explicitly **does not run** the seven-stage loop |
+| **Governed extension suite** | [`web/lib/extensions/registry.ts`](web/lib/extensions/registry.ts) and [runner](web/lib/extensions/runner.ts) | **7 registered adapters**: Vyuha, DISHA Brain, Cognitive, Memory/Graph, Honeypot Evidence, Physics/Simulation, Surveillance/OSINT |
+| **Brain governed research runtime** | [`disha/brain/governed/runtime.py`](disha/brain/governed/runtime.py) | **3 registered analyzers** (Brain, Cognitive, Memory/Graph), distinct from the web's seven extensions |
+| **Multi-agent AI platform** | [`disha/services/ai-platform/backend/app/agents/orchestrator.py`](disha/services/ai-platform/backend/app/agents/orchestrator.py) | Separate AI-platform orchestrator constructs **11 specialist agents** in source; real service health unverified |
+| **OSINT upstream universe** | [upstream registry](data/osint/upstream-registry.json), [runtime report](reports/osint-runtime-report.md) | **523 catalogued upstream repositories** in the **10 Oct 2026** historical report — not 523 working integrations |
+| **Standalone OSINT FastAPI** | [`backend/app.py`](backend/app.py) | **36 `@collector` declarations**; a different inventory from the 523 upstream repositories |
+| **ASTRA6, NYAYA, memory/graph, simulation and cyber services** | [`web/lib/unified/`](web/lib/unified/), [`disha/brain/`](disha/brain/), [`disha/ai/`](disha/ai/), [`disha/services/cyber/`](disha/services/cyber/) | Code exists; integration, production scope and actual execution remain subject to further verification |
+
+The [10 October 2026 OSINT runtime report](reports/osint-runtime-report.md) recorded **2 runnable smoke passes out of 523 catalogued upstreams**; **483 failed**, **3 lacked a smoke result**, **25 were reference-only**, and **10 required credentials**. This is an archived snapshot, **not today's live health status**.
 
 ### Repository census
 
@@ -104,6 +124,7 @@ This repository handles potentially sensitive identity and investigation data. S
 ## Documentation index
 
 **Start here**
+- [Vyuha, Cognitive Engine, Brain, governed extensions and other major subsystems](docs/major-subsystems.md)
 - [Architecture overview](docs/architecture-overview.md)
 - [Repository coverage](docs/repository-coverage.md) and [all-path manifest (7,550 entries)](docs/repository-manifest.json)
 - [Source evidence index](docs/source-evidence-index.md)
