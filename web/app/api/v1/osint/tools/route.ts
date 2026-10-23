@@ -40,7 +40,10 @@ export async function GET(req: NextRequest) {
     let backendTools: any[] = [];
     try {
       const res = await fetch(`${BACKEND}/tools`, { signal: req.signal });
-      backendTools = (await res.json()) ?? [];
+      if (res.ok) {
+        const parsed: unknown = await res.json();
+        backendTools = Array.isArray(parsed) ? parsed : [];
+      }
     } catch { backendTools = []; }
 
     const registry = await loadOsintRuntimeRegistry();
@@ -87,13 +90,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Only verified runtime evidence qualifies as runnable; a static tool ID allowlist is insufficient.
+    if (runnableOnly) filtered = filtered.filter((t: OsintToolRecord) => Boolean(t.lastSmokeTested && t.smokeResult?.success === true));
     const total = filtered.length;
     const paginated = filtered.slice(offset, offset + limit).map((t: OsintToolRecord) => {
       const isRunnable = RUNNABLE_TOOL_IDS.has(t.toolId.toLowerCase());
-      const backendMatch = backendTools.find((b: any) =>
-        b.name.toLowerCase().includes(t.toolId.toLowerCase()) ||
-        t.toolId.toLowerCase().includes(b.name.toLowerCase().replace(/ /g, ""))
-      );
+      const backendMatch = backendTools.find((b: unknown) => {
+        if (!b || typeof b !== "object") return false;
+        const candidate = b as { id?: unknown; name?: unknown };
+        const identifier = typeof candidate.id === "string" ? candidate.id : candidate.name;
+        return typeof identifier === "string" && identifier.toLowerCase() === t.toolId.toLowerCase();
+      }) as { id?: string; name?: string; category?: string; inputs?: unknown } | undefined;
+      const verifiedExecution = Boolean(t.lastSmokeTested && t.smokeResult?.success === true)
+        && !["DATASET_ONLY", "LIBRARY_ONLY", "GUI_ONLY", "REFERENCE_ONLY", "POLICY_RESTRICTED"].includes(t.status);
       let runtimeState = t.status || "CATALOGED";
       if (t.healthStatus === "REST_HEALTHY" || t.healthStatus === "STREAM_HEALTHY") {
         runtimeState = "HEALTHY";
@@ -104,13 +113,13 @@ export async function GET(req: NextRequest) {
       } else if (t.status === "UNCONFIGURED" && !isRunnable) {
         runtimeState = "CATALOGED";
       }
-      if (backendMatch) runtimeState = "HEALTHY (backend live)";
+      // A backend collector advertisement is discovery, not a health check or smoke pass.
 
       return {
         ...t,
-        selectable: isRunnable || Boolean(backendMatch),
+        selectable: verifiedExecution && isRunnable,
         runtimeState,
-        backendCollector: backendMatch ? { name: backendMatch.name, category: backendMatch.category, inputs: backendMatch.inputs } : null,
+        backendCollector: backendMatch ? { name: backendMatch.name, category: backendMatch.category, inputs: backendMatch.inputs, status: "ADVERTISED_UNVERIFIED" } : null,
       };
     });
 
