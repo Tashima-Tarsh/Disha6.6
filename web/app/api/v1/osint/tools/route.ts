@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { withContext } from "@/lib/unified/api";
 import { loadOsintRuntimeRegistry, type OsintToolRecord } from "@/lib/unified/osint-runtime-service";
 
+const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+
 export const dynamic = "force-dynamic";
 
 const RUNNABLE_TOOL_IDS = new Set([
@@ -13,12 +15,14 @@ const RUNNABLE_TOOL_IDS = new Set([
   "wayback", "common-crawl", "gdelt", "brave-search", "github-repository",
   "india-vehicle-format", "vahan-registry", "echallan", "certificate-transparency",
   "openosint", "openosint-dns", "openosint-rdap", "openosint-whois", "openosint-dorks", "openosint-ip", "openosint-github", "openosint-breach",
+  "xposedornot", "hibp", "gravatar", "github", "gitlab", "reddit", "keybase",
+  "hackernews", "npm", "dockerhub", "pypi", "telegram",
 ]);
 
 const UNIVERSE_COMPATIBLE_TOOLS: Record<string, string[]> = {
   domain: ["theharvester", "owasp-amass", "amass", "subfinder", "spiderfoot", "recon-ng", "photon", "shodan", "dns-google", "rdap", "certificate-transparency", "wayback", "common-crawl", "gdelt", "brave-search", "openosint", "openosint-dns", "openosint-rdap", "openosint-whois", "openosint-dorks"],
   person: ["sherlock", "maigret", "opensanctions", "opencorporates", "wikidata", "gdelt", "brave-search", "instaloader", "telegram-public", "openosint-dorks", "openosint-github"],
-  email: ["holehe", "gdelt", "brave-search", "openosint-breach"],
+  email: ["holehe", "gdelt", "brave-search", "openosint-breach", "xposedornot", "gravatar"],
   phone: ["phoneinfoga", "gdelt", "brave-search"],
   company: ["opencorporates", "opensanctions", "sec-edgar", "wikidata", "gdelt", "brave-search"],
   location: ["reliefweb", "wikidata", "gdelt", "brave-search"],
@@ -32,6 +36,13 @@ const UNIVERSE_COMPATIBLE_TOOLS: Record<string, string[]> = {
 
 export async function GET(req: NextRequest) {
   return withContext(req, "agent:read", async (ctx) => {
+    // Merge the Disha runtime registry with the live FastAPI backend collector registry.
+    let backendTools: any[] = [];
+    try {
+      const res = await fetch(`${BACKEND}/tools`, { signal: req.signal });
+      backendTools = (await res.json()) ?? [];
+    } catch { backendTools = []; }
+
     const registry = await loadOsintRuntimeRegistry();
     const url = new URL(req.url);
 
@@ -79,6 +90,10 @@ export async function GET(req: NextRequest) {
     const total = filtered.length;
     const paginated = filtered.slice(offset, offset + limit).map((t: OsintToolRecord) => {
       const isRunnable = RUNNABLE_TOOL_IDS.has(t.toolId.toLowerCase());
+      const backendMatch = backendTools.find((b: any) =>
+        b.name.toLowerCase().includes(t.toolId.toLowerCase()) ||
+        t.toolId.toLowerCase().includes(b.name.toLowerCase().replace(/ /g, ""))
+      );
       let runtimeState = t.status || "CATALOGED";
       if (t.healthStatus === "REST_HEALTHY" || t.healthStatus === "STREAM_HEALTHY") {
         runtimeState = "HEALTHY";
@@ -89,11 +104,13 @@ export async function GET(req: NextRequest) {
       } else if (t.status === "UNCONFIGURED" && !isRunnable) {
         runtimeState = "CATALOGED";
       }
+      if (backendMatch) runtimeState = "HEALTHY (backend live)";
 
       return {
         ...t,
-        selectable: isRunnable,
+        selectable: isRunnable || Boolean(backendMatch),
         runtimeState,
+        backendCollector: backendMatch ? { name: backendMatch.name, category: backendMatch.category, inputs: backendMatch.inputs } : null,
       };
     });
 
@@ -102,7 +119,8 @@ export async function GET(req: NextRequest) {
       limit,
       offset,
       tools: paginated,
-      truthfulInvariant: "Real Data or No Data. Missing tools render with UNCONFIGURED, DEGRADED, or REFERENCE_ONLY.",
+      backendCollectors: backendTools,
+      truthfulInvariant: "Real Data or No Data. Missing tools render with UNCONFIGURED, DEGRADED, or REFERENCE_ONLY. Backend live collectors return real data.",
     }, {
       headers: {
         "X-Request-ID": ctx.requestId,
