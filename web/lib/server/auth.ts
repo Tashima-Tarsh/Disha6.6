@@ -23,7 +23,11 @@ interface TokenPayload {
 }
 
 export function authSigningSecret(): string {
-  return getEnv().DISHA_JWT_SECRET ?? "development-only-secret-change-me-32bytes";
+  const secret = getEnv().DISHA_JWT_SECRET;
+  if (!secret) {
+    throw new Error("DISHA_JWT_SECRET must be set; no fallback secret is allowed");
+  }
+  return secret;
 }
 
 function cookieOptions(maxAge: number) {
@@ -161,7 +165,8 @@ export async function passwordLogin(email: string, password: string, persistent 
   const normalizedEmail = email.trim().toLowerCase();
 
   if (env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt") {
-    const expected = env.DISHA_DEV_PASSWORD ?? "change-me-in-env";
+    const expected = env.DISHA_DEV_PASSWORD;
+    if (!expected) throw new Error("DISHA_DEV_PASSWORD must be set for dev-jwt auth");
     if (password !== expected) throw Object.assign(new Error("Invalid credentials"), { status: 401 });
     const devAdmins = new Set(
       (env.DISHA_DEV_ADMIN_EMAILS ?? "")

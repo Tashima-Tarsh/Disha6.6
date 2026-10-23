@@ -83,9 +83,9 @@ export function getEnv(): RuntimeEnv {
     if (process.env.NODE_ENV === "production") throw e;
     console.warn("[env] Strict env validation failed, using dev fallbacks:", e);
     cachedEnv = {
-      DISHA_AUTH_MODE: "dev-jwt",
-      DISHA_JWT_SECRET: "dev-jwt-secret-for-local-testing-32bytes-long-enough",
-      DISHA_DEV_PASSWORD: "devpassword1234",
+      DISHA_AUTH_MODE: "password",
+      DISHA_JWT_SECRET: undefined,
+      DISHA_DEV_PASSWORD: undefined,
       DISHA_DEV_ADMIN_EMAILS: undefined,
       DISHA_OIDC_ISSUER: undefined,
       DISHA_OIDC_CLIENT_ID: undefined,

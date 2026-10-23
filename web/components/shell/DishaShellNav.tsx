@@ -14,6 +14,7 @@ import {
   Shield,
   ShieldAlert,
   Wrench,
+  Globe,
 } from "lucide-react";
 import styles from "./disha-shell-nav.module.css";
 
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/intelligence", label: "Intelligence", icon: Brain },
   { href: "/cyber-defense", label: "Cyber Defense", icon: ShieldAlert },
   { href: "/surveillance", label: "Surveillance / Geo", icon: Activity },
+  { href: "/osint", label: "OSINT Surveillance", icon: Globe },
   { href: "/corroboration", label: "Corroboration", icon: GitCompare },
   { href: "/contradictions", label: "Contradictions", icon: Flame },
   { href: "/vault", label: "Evidence Vault", icon: Lock },
