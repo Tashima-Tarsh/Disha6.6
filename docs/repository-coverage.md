@@ -5,7 +5,7 @@
 **Tree object:** `4b7caad2612199a0870bc7b60396d93fc307f38a` (GitHub returned `truncated: false`).  
 **Method:** GitHub tracked-tree enumeration + individual source reads; no builds, tests, dependency installation, deployments, network calls to project services, or migrations.
 
-## Census and counting rules
+[Full tracked-path manifest](repository-manifest.json) — a path and extension-based coverage register for all 7,550 returned Git tree entries; its category labels are tentative and do not prove first-party ownership.\n\n## Census and counting rules
 
 | Metric | Count |
 | --- | ---: |
