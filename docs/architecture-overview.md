@@ -1,6 +1,6 @@
 # Architecture overview (source-grounded, partial coverage)
 
-> **Scope:** Traced entry points only. See [coverage](repository-coverage.md). The directed graph avoids describing file presence as runtime execution.
+> **Scope:** Traced entry points only, expanded with a subsequent targeted review of Yudh/Vyuha, Cognitive Engine, seven governed web extensions, three Brain analyzers, eleven AI-platform agents constructed in source, and the OSINT upstream catalogue. See [coverage](repository-coverage.md) and the [supplemental major-subsystem map](major-subsystems.md). The directed graph avoids describing file presence as runtime execution.
 
 ## Verified request paths
 
@@ -33,6 +33,10 @@ flowchart LR
     SSE[disha/services/mcp/src/http.ts] -->|createServer| MS
     SSE -->|/mcp responds 501| GAP[Unimplemented Streamable HTTP wrapper]
 ```
+
+## Supplementary architecture map
+
+The initial diagrams above focus on OSINT and Brain API paths. The additional source-grounded subsystem overview — including the **actual Brain Yudh/Vyuha invocation sequence**, three separate cognitive surfaces, web extension registration and multi-agent platform — is documented in [Major subsystems](major-subsystems.md). The [interactive 3D viewer](architecture-3d.html) and [machine-readable graph](architecture-graph.json) now include 53 component nodes with 52 individually referenced source relationships. These counts represent an **inspected subset**, not every module in the repository.
 
 ## Important boundaries
 
