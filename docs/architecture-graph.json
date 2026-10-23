@@ -3,7 +3,7 @@
   "repository": "Tashima-Tarsh/Disha6.6",
   "treeSha": "4b7caad2612199a0870bc7b60396d93fc307f38a",
   "date": "2026-10-23",
-  "scope": "Evidence-backed subsample of 34 inspected files, not a complete architecture census",
+  "scope": "Incremental source-evidenced component subset from initial 34-file audit plus targeted Vyuha/cognitive/governed/AI-platform and OSINT runtime follow-up; not comprehensive or execution-verified.",
   "nodes": [
     {
       "id": "ui",
