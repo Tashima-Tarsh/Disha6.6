@@ -103,14 +103,32 @@ This repository handles potentially sensitive identity and investigation data. S
 
 ## Documentation index
 
+**Start here**
 - [Architecture overview](docs/architecture-overview.md)
-- [Repository coverage and census](docs/repository-coverage.md)
+- [Repository coverage](docs/repository-coverage.md) and [all-path manifest (7,550 entries)](docs/repository-manifest.json)
+- [Source evidence index](docs/source-evidence-index.md)
 - [Evidence-based system-unit inventory](docs/complete-unit-inventory.md)
-- [Frontend/backend and execution flows](docs/data-and-execution-flows.md)
-- [AI and MCP boundaries](docs/ai-agent-architecture.md)
-- [Security architecture and static audit](docs/technical-audit.md)
-- [Machine-readable architecture graph](docs/architecture-graph.json)
-- [Offline interactive 3D diagram](docs/architecture-3d.html)
-- [Original README before the audit](docs/archive/README.before-source-audit-2026-10-23.md)
+- [Offline interactive 3D diagram](docs/architecture-3d.html) and [machine-readable graph](docs/architecture-graph.json)
 
-Other pre-existing repository documentation remains unchanged. [License](LICENSE).
+**Engineering reference**
+- [Frontend architecture](docs/frontend-architecture.md)
+- [Backend architecture](docs/backend-architecture.md)
+- [AI and agent boundaries](docs/ai-agent-architecture.md)
+- [Tools and integrations](docs/tools-and-integrations.md)
+- [Data and execution flows](docs/data-and-execution-flows.md)
+- [Security architecture](docs/security-architecture.md)
+- [Static technical audit](docs/technical-audit.md)
+
+**Ten diagrams**
+- [System overview](docs/diagrams/system-overview.md)
+- [Component dependencies](docs/diagrams/component-dependencies.md)
+- [Frontend/backend](docs/diagrams/frontend-backend.md)
+- [Agent orchestration](docs/diagrams/agent-orchestration.md)
+- [Data flow](docs/diagrams/data-flow.md)
+- [Integrations](docs/diagrams/integrations.md)
+- [Database](docs/diagrams/database-architecture.md)
+- [Runtime/deployment (unverified)](docs/diagrams/runtime-deployment.md)
+- [Security boundaries](docs/diagrams/security-boundaries.md)
+- [Execution sequence](docs/diagrams/execution-sequence.md)
+
+The former README is [preserved verbatim](docs/archive/README.before-source-audit-2026-10-23.md). The pre-existing [implementation gap matrix](docs/implementation-gap-matrix.md) and other repository documentation remain unchanged. [License](LICENSE).
