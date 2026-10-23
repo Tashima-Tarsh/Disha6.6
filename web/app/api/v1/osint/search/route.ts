@@ -5,7 +5,7 @@ import { withContext } from "@/lib/unified/api";
 import { createDefaultOsintBus } from "@/lib/unified/osint-default-bus";
 import { runUniversalOsintSearch, sanitizeUniversalQuery } from "@/lib/unified/universal-osint-search";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+const BACKEND = process.env.DISHA_OSINT_BACKEND_URL ?? process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +33,14 @@ export async function GET(req: NextRequest) {
       bus.health(),
       (async () => {
         try {
-          const res = await fetch(`${BACKEND}/tools`, { signal: req.signal });
-          return await res.json();
+          const res = await fetch(`${BACKEND}/tools`, {
+            signal: AbortSignal.any([req.signal, AbortSignal.timeout(5000)]),
+            redirect: "error",
+            cache: "no-store",
+          });
+          if (!res.ok) return [];
+          const parsed: unknown = await res.json();
+          return Array.isArray(parsed) ? parsed : [];
         } catch { return []; }
       })(),
     ]);
@@ -46,8 +52,8 @@ export async function GET(req: NextRequest) {
       search = { results: [], adapters: [] };
     }
 
-    // Enrich search results with live backend collector output when the bus
-    // returns no live observations.
+    // Backend /tools returns capability advertisements, NOT lookup results.
+    // Never label them as runnable or treat them as evidence of a completed search.
     const liveResults: any[] = [];
     if (Array.isArray(backendTools)) {
       for (const t of backendTools) {
@@ -55,8 +61,8 @@ export async function GET(req: NextRequest) {
           tool: t.name,
           category: t.category,
           inputs: t.inputs,
-          status: "runnable",
-          note: "Execute via POST /api/v1/osint/run with this adapterId",
+          status: "advertised_unverified",
+          note: "Capability advertisement only. Execution requires a permitted registered adapter and runtime verification.",
         });
       }
     }
