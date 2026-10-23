@@ -1,0 +1,659 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "Tashima-Tarsh/Disha6.6",
+  "treeSha": "4b7caad2612199a0870bc7b60396d93fc307f38a",
+  "date": "2026-10-23",
+  "scope": "Evidence-backed subsample of 34 inspected files, not a complete architecture census",
+  "nodes": [
+    {
+      "id": "ui",
+      "label": "OSINT web UI",
+      "category": "interface",
+      "subsystem": "Web",
+      "source": "web/app/osint/page.tsx",
+      "symbol": null,
+      "summary": "client fetch; source UI; runtime untested",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -460,
+        90,
+        110
+      ]
+    },
+    {
+      "id": "pscan",
+      "label": "Scan proxy",
+      "category": "api",
+      "subsystem": "Web",
+      "source": "web/app/api/osint/scan/route.ts",
+      "symbol": null,
+      "summary": "HTTP SSE forwarding",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -240,
+        180,
+        90
+      ]
+    },
+    {
+      "id": "presolve",
+      "label": "Resolve proxy",
+      "category": "api",
+      "subsystem": "Web",
+      "source": "web/app/api/osint/resolve/route.ts",
+      "symbol": null,
+      "summary": "HTTP identity resolution",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -240,
+        70,
+        90
+      ]
+    },
+    {
+      "id": "pload",
+      "label": "Data load proxy",
+      "category": "api",
+      "subsystem": "Web",
+      "source": "web/app/api/osint/data/load/route.ts",
+      "symbol": null,
+      "summary": "HTTP load; sensitive boundary",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -240,
+        -40,
+        90
+      ]
+    },
+    {
+      "id": "ptools",
+      "label": "Tool-list proxy",
+      "category": "api",
+      "subsystem": "Web",
+      "source": "web/app/api/osint/tools/route.ts",
+      "symbol": null,
+      "summary": "HTTP registry lookup",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -240,
+        -150,
+        90
+      ]
+    },
+    {
+      "id": "pvyuh",
+      "label": "Formation proxy",
+      "category": "api",
+      "subsystem": "Web",
+      "source": "web/app/api/osint/vyuh/activate/route.ts",
+      "symbol": null,
+      "summary": "HTTP activation",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -240,
+        -260,
+        90
+      ]
+    },
+    {
+      "id": "osint",
+      "label": "Standalone OSINT API",
+      "category": "service",
+      "subsystem": "OSINT",
+      "source": "backend/app.py",
+      "symbol": null,
+      "summary": "FastAPI entry point",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -5,
+        0,
+        30
+      ]
+    },
+    {
+      "id": "collect",
+      "label": "Collector registry (36)",
+      "category": "engine",
+      "subsystem": "OSINT",
+      "source": "backend/app.py",
+      "symbol": null,
+      "summary": "36 source registrations; not live verification",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        220,
+        210,
+        10
+      ]
+    },
+    {
+      "id": "graph",
+      "label": "OSINT SQLite graph",
+      "category": "data",
+      "subsystem": "OSINT",
+      "source": "backend/app.py",
+      "symbol": null,
+      "summary": "Local entity graph and CSV loader",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        240,
+        -40,
+        -90
+      ]
+    },
+    {
+      "id": "vyuh",
+      "label": "Formation handlers",
+      "category": "engine",
+      "subsystem": "OSINT",
+      "source": "backend/app.py",
+      "symbol": null,
+      "summary": "Formation APIs",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        220,
+        -230,
+        10
+      ]
+    },
+    {
+      "id": "webbrain",
+      "label": "Brain HTTP client",
+      "category": "integration",
+      "subsystem": "Web",
+      "source": "web/lib/server/brain-client.ts",
+      "symbol": null,
+      "summary": "Bearer authorization helper",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -310,
+        270,
+        -170
+      ]
+    },
+    {
+      "id": "brainapp",
+      "label": "Brain FastAPI",
+      "category": "service",
+      "subsystem": "Brain",
+      "source": "disha/brain/app.py",
+      "symbol": null,
+      "summary": "Separate Python app",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        0,
+        330,
+        -160
+      ]
+    },
+    {
+      "id": "brainroutes",
+      "label": "Brain router",
+      "category": "api",
+      "subsystem": "Brain",
+      "source": "disha/brain/api/routes.py",
+      "symbol": null,
+      "summary": "18 API decorators, import context",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        200,
+        310,
+        -160
+      ]
+    },
+    {
+      "id": "context",
+      "label": "AppContext",
+      "category": "engine",
+      "subsystem": "Brain",
+      "source": "disha/brain/api/routes.py",
+      "symbol": null,
+      "summary": "Constructs brain components",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        400,
+        260,
+        -160
+      ]
+    },
+    {
+      "id": "reason",
+      "label": "Heuristic reasoning",
+      "category": "agent",
+      "subsystem": "Brain",
+      "source": "disha/brain/brain/reasoning.py",
+      "symbol": null,
+      "summary": "Deterministic, not provider-backed",
+      "status": "heuristic",
+      "confidence": "verified-source",
+      "position": [
+        610,
+        360,
+        -185
+      ]
+    },
+    {
+      "id": "store",
+      "label": "Brain SQLiteStore",
+      "category": "data",
+      "subsystem": "Brain",
+      "source": "disha/brain/database/store.py",
+      "symbol": null,
+      "summary": "Brain memory, events, graph, cache",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        600,
+        210,
+        -265
+      ]
+    },
+    {
+      "id": "policy",
+      "label": "Brain SecurityPolicy",
+      "category": "security",
+      "subsystem": "Brain",
+      "source": "disha/brain/security/policy.py",
+      "symbol": null,
+      "summary": "Command risk and path policy",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        600,
+        70,
+        -200
+      ]
+    },
+    {
+      "id": "executor",
+      "label": "Brain Executor",
+      "category": "engine",
+      "subsystem": "Brain",
+      "source": "disha/brain/brain/executor.py",
+      "symbol": null,
+      "summary": "Policy-aware operation executor",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        600,
+        -65,
+        -200
+      ]
+    },
+    {
+      "id": "mcpstdio",
+      "label": "Explorer STDIO",
+      "category": "interface",
+      "subsystem": "MCP",
+      "source": "disha/services/mcp/src/index.ts",
+      "symbol": null,
+      "summary": "Local MCP transport",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -200,
+        -390,
+        -150
+      ]
+    },
+    {
+      "id": "mcpsse",
+      "label": "Explorer SSE HTTP",
+      "category": "interface",
+      "subsystem": "MCP",
+      "source": "disha/services/mcp/src/http.ts",
+      "symbol": null,
+      "summary": "SSE; /mcp returns 501",
+      "status": "partial",
+      "confidence": "verified-source",
+      "position": [
+        0,
+        -390,
+        -150
+      ]
+    },
+    {
+      "id": "mcpserver",
+      "label": "Explorer MCP handlers",
+      "category": "integration",
+      "subsystem": "MCP",
+      "source": "disha/services/mcp/src/server.ts",
+      "symbol": null,
+      "summary": "Tool/resource/prompt handlers",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        215,
+        -390,
+        -150
+      ]
+    },
+    {
+      "id": "rootmcp",
+      "label": "Alternate root MCP",
+      "category": "integration",
+      "subsystem": "Legacy/Unverified",
+      "source": "src/entrypoints/mcp.ts",
+      "symbol": null,
+      "summary": "Imports appear unresolved; execution unverified",
+      "status": "unverified",
+      "confidence": "unverified",
+      "position": [
+        -440,
+        -350,
+        -260
+      ]
+    },
+    {
+      "id": "workflow",
+      "label": "Web workflow executor",
+      "category": "engine",
+      "subsystem": "Untraced",
+      "source": "web/lib/server/agent/workflow.ts",
+      "symbol": null,
+      "summary": "Source present; route reachability not traced",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -430,
+        330,
+        -300
+      ]
+    },
+    {
+      "id": "modelgateway",
+      "label": "Model call helper",
+      "category": "integration",
+      "subsystem": "Untraced",
+      "source": "web/lib/server/openai.ts",
+      "symbol": null,
+      "summary": "Imported by workflow; not run",
+      "status": "implemented-in-source",
+      "confidence": "verified-source",
+      "position": [
+        -210,
+        390,
+        -360
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "ui",
+      "to": "pscan",
+      "type": "calls",
+      "mechanism": "fetch /api/osint/scan",
+      "evidence": {
+        "path": "web/app/osint/page.tsx",
+        "lines": "41-51"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "ui",
+      "to": "presolve",
+      "type": "calls",
+      "mechanism": "fetch /api/osint/resolve",
+      "evidence": {
+        "path": "web/app/osint/page.tsx",
+        "lines": "98-108"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "ui",
+      "to": "pload",
+      "type": "calls",
+      "mechanism": "fetch /api/osint/data/load",
+      "evidence": {
+        "path": "web/app/osint/page.tsx",
+        "lines": "114-123"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "ui",
+      "to": "pvyuh",
+      "type": "calls",
+      "mechanism": "fetch /api/osint/vyuh/activate",
+      "evidence": {
+        "path": "web/app/osint/page.tsx",
+        "lines": "128-137"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "pscan",
+      "to": "osint",
+      "type": "http-post",
+      "mechanism": "POST /scan",
+      "evidence": {
+        "path": "web/app/api/osint/scan/route.ts",
+        "lines": "8-15"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "presolve",
+      "to": "osint",
+      "type": "http-post",
+      "mechanism": "POST /api/v1/resolve",
+      "evidence": {
+        "path": "web/app/api/osint/resolve/route.ts",
+        "lines": "8-16"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "pload",
+      "to": "osint",
+      "type": "http-post",
+      "mechanism": "POST /api/v1/data/load",
+      "evidence": {
+        "path": "web/app/api/osint/data/load/route.ts",
+        "lines": "7-17"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "ptools",
+      "to": "osint",
+      "type": "http-get",
+      "mechanism": "GET /tools",
+      "evidence": {
+        "path": "web/app/api/osint/tools/route.ts",
+        "lines": "8-13"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "pvyuh",
+      "to": "osint",
+      "type": "http-post",
+      "mechanism": "POST /api/v1/vyuh/activate",
+      "evidence": {
+        "path": "web/app/api/osint/vyuh/activate/route.ts",
+        "lines": "8-16"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "osint",
+      "to": "collect",
+      "type": "dispatches",
+      "mechanism": "plan(v), POOL.submit",
+      "evidence": {
+        "path": "backend/app.py",
+        "lines": "781-795"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "osint",
+      "to": "graph",
+      "type": "reads-writes",
+      "mechanism": "sg_connect, sg_resolve, load_all",
+      "evidence": {
+        "path": "backend/app.py",
+        "lines": "700-850"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "osint",
+      "to": "vyuh",
+      "type": "registers",
+      "mechanism": "@app formation handlers",
+      "evidence": {
+        "path": "backend/app.py",
+        "lines": "453-465"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "webbrain",
+      "to": "brainroutes",
+      "type": "calls",
+      "mechanism": "brainFetch with bearer authorization (destination based on configured DISHA_BRAIN_URL)",
+      "evidence": {
+        "path": "web/lib/server/brain-client.ts",
+        "lines": "3-16"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "brainapp",
+      "to": "brainroutes",
+      "type": "registers",
+      "mechanism": "app.include_router(router)",
+      "evidence": {
+        "path": "disha/brain/app.py",
+        "lines": "5-25"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "brainroutes",
+      "to": "context",
+      "type": "constructs",
+      "mechanism": "context = AppContext()",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-79"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "context",
+      "to": "reason",
+      "type": "constructs",
+      "mechanism": "ReasoningBrain()",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-53"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "context",
+      "to": "store",
+      "type": "constructs",
+      "mechanism": "SQLiteStore()",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-52"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "context",
+      "to": "policy",
+      "type": "constructs",
+      "mechanism": "SecurityPolicy()",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-52"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "context",
+      "to": "executor",
+      "type": "constructs",
+      "mechanism": "Executor(store, policy)",
+      "evidence": {
+        "path": "disha/brain/api/routes.py",
+        "lines": "43-55"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "executor",
+      "to": "store",
+      "type": "depends-on",
+      "mechanism": "constructor SQLiteStore",
+      "evidence": {
+        "path": "disha/brain/brain/executor.py",
+        "lines": "6-18"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "executor",
+      "to": "policy",
+      "type": "depends-on",
+      "mechanism": "constructor SecurityPolicy",
+      "evidence": {
+        "path": "disha/brain/brain/executor.py",
+        "lines": "6-18"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "mcpstdio",
+      "to": "mcpserver",
+      "type": "constructs",
+      "mechanism": "createServer()",
+      "evidence": {
+        "path": "disha/services/mcp/src/index.ts",
+        "lines": "1-12"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "mcpsse",
+      "to": "mcpserver",
+      "type": "constructs",
+      "mechanism": "createServer()",
+      "evidence": {
+        "path": "disha/services/mcp/src/http.ts",
+        "lines": "1-19"
+      },
+      "confidence": "verified"
+    },
+    {
+      "from": "workflow",
+      "to": "modelgateway",
+      "type": "calls",
+      "mechanism": "imports callOpenAiResponses",
+      "evidence": {
+        "path": "web/lib/server/agent/workflow.ts",
+        "lines": "1-4"
+      },
+      "confidence": "verified"
+    }
+  ]
+}
