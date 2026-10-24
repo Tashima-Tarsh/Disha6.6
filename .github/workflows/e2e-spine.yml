@@ -1,0 +1,57 @@
+name: E2E Constitutional Spine
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-spine-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-spine:
+    name: Offline smoke + API TestClient
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt httpx
+
+      - name: Offline spine smoke
+        run: python spine_smoke.py
+
+      - name: E2E API spine (auth, policy, PII display, tools)
+        env:
+          DISHA_OSINT_API_KEY: ci-test-key
+        run: python e2e_api_spine.py
+
+  node-ledger:
+    name: Mission → VERIFIED → chain integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: E2E ledger chain
+        run: node scripts/e2e-ledger-chain.mjs
