@@ -1,4 +1,4 @@
-# Production gaps — DISHA 6.6 (24 Oct 2026)
+# Production gaps — DISHA 6.6 (25 Oct 2026)
 
 Honest checklist. “Complete working” for the **executable OSINT surface** ≠ claiming a 532-tool fleet.
 
@@ -13,12 +13,13 @@ Honest checklist. “Complete working” for the **executable OSINT surface** �
 | Postgres fail-closed | Production requires DATABASE_URL |
 | Privacy split | `inputsDisplay` (UI PII) vs `inputsRedacted` (logs/evidence) |
 | Offline spine smoke | `python backend/spine_smoke.py` |
+| **E2E CI** | `.github/workflows/e2e-spine.yml` — smoke + API TestClient + ledger chain |
 
 ## Gaps blocking production certification
 
-### P0 — must close before real ops
+### P0 — remaining
 
-1. **E2E CI** — automated: create mission → scan → ledger events → human review → `verifyIntegrity`.
+1. ~~**E2E CI**~~ — **Done** (`e2e-spine.yml`: smoke, API auth/policy/PII, mission→VERIFIED→integrity)
 2. **Secrets management** — no API keys in git; rotate `DISHA_*_API_KEY`; vault or cloud secret manager.
 3. **Rate limits / abuse** — scan endpoints can be used to probe third parties; quota per principal.
 4. **Audit log of UI access** — who viewed `inputsDisplay` PII (screen) must be logged separately from evidence.
@@ -27,7 +28,7 @@ Honest checklist. “Complete working” for the **executable OSINT surface** �
 ### P1 — operational completeness
 
 6. **Shell tool install path** — document/install holehe, sherlock, maigret, phoneinfoga or drop from “ready” claims.
-7. **Upstream catalog honesty** — if a 500+ discovery list exists, UI must label each entry: ready / not_installed / catalog_only.
+7. **Upstream catalog honesty** — UI labels: ready / not_installed / catalog_only.
 8. **Durable evidence retention** — backups, retention policy, export for third-party verify.
 9. **Observability** — structured logs (redacted), metrics, health that fails if DB down.
 10. **Auth model** — real IdP (OIDC) instead of shared Bearer for multi-user ops.
@@ -49,16 +50,16 @@ Honest checklist. “Complete working” for the **executable OSINT surface** �
 
 ## Privacy rules implemented
 
-| Channel | Secrets | Identity PII (aadhaar, pan, epic, phone, email, name) |
-|---------|---------|------------------------------------------------------|
+| Channel | Secrets | Identity PII |
+|---------|---------|--------------|
 | On-screen API `inputsDisplay` | Redacted | **Visible** (authorized operator) |
 | Logs / print / evidence | Redacted | **Redacted** |
-| Aadhaar in *result* payload | — | Last-4 only (still) |
 
 ## Minimum production bar
 
-- [ ] `spine_smoke.py` green in CI  
-- [ ] Postgres required; integrity verify green after sample mission  
+- [x] `spine_smoke.py` green in CI  
+- [x] Ledger chain OBSERVED → human VERIFIED → integrity in CI  
+- [ ] Postgres required; full live stack integrity after sample mission  
 - [ ] No shared key in repo; TLS termination  
 - [ ] UI uses `inputsDisplay` only behind auth; never logs it  
 - [ ] `/tools` shown to operators so “not_installed” is never sold as live  
