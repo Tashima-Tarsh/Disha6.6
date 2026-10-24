@@ -1,6 +1,8 @@
 /**
  * Thin Constitutional API
- * Uses Postgres when DATABASE_URL + pool are available, otherwise in-memory.
+ *
+ * Production: DATABASE_URL required for durable ledger; missing `pg` fails startup.
+ * Reviewer identity is taken from authenticated context, never trusted from the body alone.
  */
 
 import { createServer, IncomingMessage, ServerResponse } from "http";
@@ -16,18 +18,28 @@ import { githubRepoAdapter } from "@disha/adapter-github-repo";
 
 const PORT = Number(process.env.PORT || 8787);
 const API_KEY = process.env.DISHA_API_KEY;
+const NODE_ENV = process.env.NODE_ENV || "development";
+const REQUIRE_POSTGRES = process.env.DISHA_REQUIRE_POSTGRES === "1" || NODE_ENV === "production";
 
-// Optional Postgres: set DATABASE_URL and install `pg`, then pass pool into createOrchestrator
 let pool: any = undefined;
 if (process.env.DATABASE_URL) {
   try {
-    // Dynamic require so the package stays optional at build time
     const { Pool } = require("pg");
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     console.log("Using PostgresEvidenceStore");
-  } catch {
-    console.warn("DATABASE_URL set but `pg` not available — falling back to in-memory store");
+  } catch (e: any) {
+    const msg = `DATABASE_URL is set but Postgres client failed: ${e?.message ?? e}`;
+    if (REQUIRE_POSTGRES) {
+      console.error("FATAL (fail-closed):", msg);
+      process.exit(1);
+    }
+    console.warn(msg, "— falling back to in-memory store (non-production only)");
   }
+} else if (REQUIRE_POSTGRES) {
+  console.error(
+    "FATAL (fail-closed): NODE_ENV=production or DISHA_REQUIRE_POSTGRES=1 requires DATABASE_URL"
+  );
+  process.exit(1);
 }
 
 const orch = createOrchestrator(pool ? { pool } : {});
@@ -61,6 +73,33 @@ function requireAuth(req: IncomingMessage, res: ServerResponse): boolean {
   return true;
 }
 
+/**
+ * Resolve the acting principal from authenticated request context.
+ * Body-supplied actor is ignored for authorization (may only supply displayName).
+ */
+function principalFromRequest(req: IncomingMessage, body?: any): {
+  type: "human" | "system" | "adapter" | "agent";
+  id: string;
+  displayName?: string;
+} {
+  const hdrId = (req.headers["x-disha-actor-id"] as string | undefined)?.trim();
+  const hdrType = (req.headers["x-disha-actor-type"] as string | undefined)?.trim();
+  const hdrName = (req.headers["x-disha-actor-name"] as string | undefined)?.trim();
+
+  // Authenticated API key implies a service principal unless explicit human headers are set.
+  const id = hdrId || "api-key-principal";
+  const type =
+    hdrType === "human" || hdrType === "system" || hdrType === "adapter" || hdrType === "agent"
+      ? hdrType
+      : ("human" as const);
+
+  return {
+    type,
+    id,
+    displayName: hdrName || body?.actor?.displayName,
+  };
+}
+
 async function readBody(req: IncomingMessage): Promise<any> {
   const chunks: Buffer[] = [];
   for await (const chunk of req) chunks.push(chunk as Buffer);
@@ -78,6 +117,7 @@ const server = createServer(async (req, res) => {
       status: "ok",
       constitutional: true,
       store: pool ? "postgres" : "memory",
+      failClosed: REQUIRE_POSTGRES,
       adapters: orch.bus.list().map((r) => r.adapter.id),
       authRequired: true,
       configured: Boolean(API_KEY),
@@ -89,7 +129,7 @@ const server = createServer(async (req, res) => {
   try {
     if (path === "/v1/missions" && method === "POST") {
       const body = await readBody(req);
-      const actor = body.actor || { type: "human", id: "api-user" };
+      const actor = principalFromRequest(req, body);
       const mission = orch.createMission(body.title || "Untitled", actor, body.description);
       if (body.activate) orch.activateMission(mission.id, actor);
       return json(res, 201, mission);
@@ -98,14 +138,14 @@ const server = createServer(async (req, res) => {
     if (path.match(/^\/v1\/missions\/[^/]+\/activate$/) && method === "POST") {
       const id = path.split("/")[3];
       const body = await readBody(req);
-      const actor = body.actor || { type: "human", id: "api-user" };
+      const actor = principalFromRequest(req, body);
       return json(res, 200, orch.activateMission(id, actor));
     }
 
     if (path.match(/^\/v1\/missions\/[^/]+\/run$/) && method === "POST") {
       const id = path.split("/")[3];
       const body = await readBody(req);
-      const actor = body.actor || { type: "human", id: "api-user" };
+      const actor = principalFromRequest(req, body);
       const result = await orch.runAdapters({
         missionId: id,
         adapterIds: body.adapterIds || [],
@@ -129,7 +169,18 @@ const server = createServer(async (req, res) => {
     if (path.match(/^\/v1\/reviews\/[^/]+$/) && method === "POST") {
       const id = path.split("/")[3];
       const body = await readBody(req);
-      const actor = body.actor || { type: "human", id: "api-user" };
+      // Critical: never accept body.actor as the reviewer of record.
+      const actor = principalFromRequest(req, body);
+      if (body.actor?.id && body.actor.id !== actor.id) {
+        return json(res, 403, {
+          error: "Caller-supplied reviewer identity is not accepted; use X-Disha-Actor-Id header",
+        });
+      }
+      if (actor.type !== "human" && body.decision === "elevate_verified") {
+        return json(res, 403, {
+          error: "Only a human principal may elevate evidence to VERIFIED",
+        });
+      }
       return json(res, 200, await orch.review(id, body.decision, actor, body.notes));
     }
 
