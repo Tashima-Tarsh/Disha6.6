@@ -3,7 +3,6 @@
  * E2E constitutional ledger path (no external deps beyond Node crypto).
  *
  * Mission → OBSERVED append → human elevate VERIFIED → verifyIntegrity
- * Mirrors packages/evidence-ledger hash rules enough to prove chain discipline.
  *
  * Run: node scripts/e2e-ledger-chain.mjs
  */
@@ -93,7 +92,6 @@ const system = { type: "system", id: "ci-runner" };
 const human = { type: "human", id: "reviewer-ci", displayName: "CI Reviewer" };
 const ledger = new MemoryLedger();
 
-// 1) Observation (adapter)
 const observed = ledger.append({
   actor: { type: "adapter", id: "osint:india-pan" },
   type: "observation",
@@ -107,7 +105,6 @@ const observed = ledger.append({
 if (observed.verification !== "OBSERVED") errors.push("observation not OBSERVED");
 if (observed.previousHash !== "0") errors.push("first previousHash must be 0");
 
-// 2) Only human may elevate to VERIFIED
 const approval = ledger.append({
   actor: human,
   type: "approval",
@@ -128,14 +125,12 @@ const approval = ledger.append({
 
 if (approval.actor.type !== "human") errors.push("VERIFIED must be human actor");
 if (approval.verification !== "VERIFIED") errors.push("approval not VERIFIED");
-if (approval.previousHash !== observed.hash) errors.append?.("chain link broken") || (approval.previousHash !== observed.hash && errors.push("chain link broken"));
+if (approval.previousHash !== observed.hash) errors.push("chain link broken");
 
-// 3) Integrity
 const integrity = ledger.verifyChain(missionId);
 if (!integrity.valid) errors.push(`verifyChain failed: ${JSON.stringify(integrity)}`);
 if (integrity.eventCount !== 2) errors.push(`expected 2 events got ${integrity.eventCount}`);
 
-// 4) Tamper detection
 const ledger2 = new MemoryLedger();
 ledger2.append({
   actor: system,
@@ -146,7 +141,7 @@ ledger2.append({
   policyContext: { policyId: "t", decision: "allow", reasons: [] },
   missionId: "tamper",
 });
-ledger2.events[0].payload = { ok: 2 }; // mutate after hash
+ledger2.events[0].payload = { ok: 2 };
 const bad = ledger2.verifyChain("tamper");
 if (bad.valid) errors.push("tamper should invalidate chain");
 
