@@ -11,6 +11,7 @@ IMPORTANT:
 - Hashing here uses a simplified payload structure so the Node ledger must
   re-hash on ingest (ledger.append recomputes previousHash + hash).
 - Within a single call, previousHash is chained so a batch is locally ordered.
+- Sensitive inputs (passwords, Aadhaar, PAN, EPIC, tokens) are redacted.
 """
 from __future__ import annotations
 
@@ -18,7 +19,12 @@ import hashlib
 import json
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
+
+SENSITIVE_KEYS: Set[str] = {
+    "password", "passwd", "secret", "token", "api_key", "apikey",
+    "aadhaar", "pan", "epic",
+}
 
 
 def _ulid_like() -> str:
@@ -39,6 +45,13 @@ def _hash_event(event_id: str, previous_hash: str, timestamp: str, payload: Any)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+def _redact(inputs: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        k: ("[REDACTED]" if k.lower() in SENSITIVE_KEYS else v)
+        for k, v in inputs.items()
+    }
+
+
 def observations_to_evidence_events(
     *,
     results: Dict[str, Any],
@@ -48,22 +61,19 @@ def observations_to_evidence_events(
 ) -> List[Dict[str, Any]]:
     """Convert collector results into EvidenceEvent-shaped dicts (OBSERVED).
 
-    Sensitive input values (e.g. password) are redacted from stored inputs.
+    Sensitive input values are redacted from stored inputs.
     """
     events: List[Dict[str, Any]] = []
     ts = datetime.now(timezone.utc).isoformat()
     prev = "0"
-
-    # Redact secrets from the inputs snapshot stored on evidence.
-    safe_inputs = {
-        k: ("[REDACTED]" if k.lower() in ("password", "passwd", "secret", "token", "api_key") else v)
-        for k, v in inputs.items()
-    }
+    safe_inputs = _redact(inputs)
 
     for name, value in results.items():
         if value is None:
             continue
         if isinstance(value, str) and value.startswith("ERR "):
+            continue
+        if isinstance(value, dict) and value.get("status") == "denied_by_policy":
             continue
         eid = _ulid_like()
         payload = {"collector": name, "inputs": safe_inputs, "result": value}
