@@ -1,0 +1,13 @@
+{
+  "name": "@disha/orchestrator",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@disha/contracts": "workspace:*",
+    "@disha/adapter-bus": "workspace:*",
+    "@disha/evidence-ledger": "workspace:*",
+    "@disha/mission": "workspace:*",
+    "@disha/review": "workspace:*"
+  }
+}
