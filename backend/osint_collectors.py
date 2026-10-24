@@ -5,6 +5,11 @@ Policy (Article V):
 - Collectors are tagged with risk: "passive" | "active_network".
 - plan() excludes active_network unless allow_active=True.
 - Callers (app.scan, vyuha) must pass an explicit allow before any active probe runs.
+
+Privacy:
+- Secrets (password, token, api_key) are NEVER returned to UI or logs in cleartext.
+- Identity PII may be shown on-screen to authorized operators (inputsDisplay).
+- Logs / evidence / print paths use redact_for_log() only.
 """
 from __future__ import annotations
 
@@ -31,19 +36,29 @@ POOL = ThreadPoolExecutor(max_workers=16)
 FETCH_POOL = ThreadPoolExecutor(max_workers=16, thread_name_prefix="fetch")
 REGISTRY: List[dict] = []
 
-# Fields that must never be echoed in API responses or evidence payloads.
-SENSITIVE_INPUT_KEYS: Set[str] = {
+# Secrets — never cleartext in UI, logs, or evidence.
+SECRET_KEYS: Set[str] = {
     "password", "passwd", "secret", "token", "api_key", "apikey",
-    "aadhaar", "pan", "epic",  # Indian identifiers — store only if mission policy allows
+}
+# Identity PII — redacted in logs/evidence; may appear in authorized UI display.
+PII_KEYS: Set[str] = {
+    "aadhaar", "pan", "epic", "phone", "email", "name",
+}
+
+# Shell binaries mapped for install hints.
+SHELL_BINARIES = {
+    "Holehe": "holehe",
+    "Sherlock": "sherlock",
+    "Maigret": "maigret",
+    "PhoneInfoga": "phoneinfoga",
 }
 
 
-def collector(name, inputs, category, unmasked=False, risk="passive"):
+def collector(name, inputs, category, unmasked=False, risk="passive", kind="network"):
     """Register a collector.
 
-    risk:
-      passive — public lookups, validators, no outbound probe of arbitrary targets
-      active_network — opens sockets / hits arbitrary hosts (port scan, HTTP headers, etc.)
+    kind: network | shell | local | live
+    risk: passive | active_network
     """
     def deco(fn):
         REGISTRY.append(
@@ -54,24 +69,41 @@ def collector(name, inputs, category, unmasked=False, risk="passive"):
                 fn=fn,
                 unmasked=unmasked,
                 risk=risk,
+                kind=kind,
             )
         )
         return fn
     return deco
 
 
-def redact_inputs(v: Dict[str, Any]) -> Dict[str, Any]:
-    """Return a copy of inputs with sensitive keys redacted."""
+def redact_for_log(v: Dict[str, Any]) -> Dict[str, Any]:
+    """Redact secrets + PII for logs, print, and evidence payloads."""
     out: Dict[str, Any] = {}
     for k, val in v.items():
-        if k.lower() in SENSITIVE_INPUT_KEYS:
+        lk = k.lower()
+        if lk in SECRET_KEYS or lk in PII_KEYS:
             out[k] = "[REDACTED]"
         else:
             out[k] = val
     return out
 
 
-# ======================== FETCH HELPERS ========================
+def redact_inputs(v: Dict[str, Any]) -> Dict[str, Any]:
+    """Alias for log/evidence redaction (backward compatible)."""
+    return redact_for_log(v)
+
+
+def inputs_for_display(v: Dict[str, Any]) -> Dict[str, Any]:
+    """UI-facing inputs: secrets redacted, identity PII visible to operator."""
+    out: Dict[str, Any] = {}
+    for k, val in v.items():
+        if k.lower() in SECRET_KEYS:
+            out[k] = "[REDACTED]"
+        else:
+            out[k] = val
+    return out
+
+
 def _get(url, headers=None):
     h = dict(UA); h.update(headers or {})
     def _do():
@@ -99,34 +131,86 @@ def _exists(url):
 
 
 def run_tool(cmd, timeout=300):
-    if not shutil.which(cmd[0]):
-        return None
+    """Run external CLI; structured result when missing."""
+    binary = cmd[0]
+    if not shutil.which(binary):
+        return {
+            "status": "not_installed",
+            "binary": binary,
+            "actionable": False,
+            "installHint": f"Install `{binary}` on PATH to enable this collector",
+        }
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        return ((p.stdout or "") + (p.stderr or "")).strip()[:20000] or "(no output)"
+        out = ((p.stdout or "") + (p.stderr or "")).strip()[:20000] or "(no output)"
+        return {
+            "status": "ok" if p.returncode == 0 else "error",
+            "binary": binary,
+            "actionable": True,
+            "exitCode": p.returncode,
+            "output": out,
+        }
     except Exception as e:
-        return f"ERR {e}"
+        return {
+            "status": "error",
+            "binary": binary,
+            "actionable": True,
+            "error": str(e),
+        }
 
 
 def safe(c, v):
     try:
         return c["fn"](v)
     except Exception as e:
-        return f"ERR {e}"
+        return {"status": "error", "error": str(e), "collector": c.get("name")}
 
 
 def plan(v, allow_active: bool = False) -> List[dict]:
-    """Select collectors whose declared inputs intersect provided keys.
-
-    Active-network collectors (port scan, arbitrary HTTP headers, etc.) are
-    excluded unless allow_active is True. This is the mandatory policy boundary
-    before any network probe is dispatched.
-    """
     provided = {k for k, val in v.items() if val}
     chosen = [c for c in REGISTRY if set(c["inputs"]) & provided]
     if not allow_active:
         chosen = [c for c in chosen if c.get("risk", "passive") != "active_network"]
     return chosen
+
+
+def collector_runtime_status(c: dict) -> Dict[str, Any]:
+    """Whether this collector can execute on this host right now."""
+    name = c["name"]
+    kind = c.get("kind", "network")
+    risk = c.get("risk", "passive")
+    base = {
+        "name": name,
+        "inputs": c["inputs"],
+        "category": c["category"],
+        "risk": risk,
+        "kind": kind,
+    }
+    if name in SHELL_BINARIES:
+        binary = SHELL_BINARIES[name]
+        installed = bool(shutil.which(binary))
+        return {
+            **base,
+            "executable": installed,
+            "actionable": installed,
+            "binary": binary,
+            "status": "ready" if installed else "not_installed",
+            "installHint": None if installed else f"pip/npm install or place `{binary}` on PATH",
+        }
+    if kind == "local":
+        return {**base, "executable": True, "actionable": True, "status": "ready"}
+    # network / live — executable code is present; depends on network at run time
+    return {
+        **base,
+        "executable": True,
+        "actionable": True,
+        "status": "ready",
+        "note": "Requires outbound network at runtime",
+    }
+
+
+def list_tools_status() -> List[Dict[str, Any]]:
+    return [collector_runtime_status(c) for c in REGISTRY]
 
 
 def policy_deny_message(collector_name: str) -> Dict[str, Any]:
@@ -138,7 +222,6 @@ def policy_deny_message(collector_name: str) -> Dict[str, Any]:
     }
 
 
-# ======================== IDENTIFIER NORMALIZERS ========================
 _D = [[0,1,2,3,4,5,6,7,8,9],[1,2,3,4,0,6,7,8,9,5],[2,3,4,0,1,7,8,9,5,6],
       [3,4,0,1,2,8,9,5,6,7],[4,0,1,2,3,9,5,6,7,8],[5,9,8,7,6,0,4,3,2,1],
       [6,5,9,8,7,1,0,4,3,2],[7,6,5,9,8,2,1,0,4,3],[8,7,6,5,9,3,2,1,0,4],
@@ -209,8 +292,7 @@ SERIES = {
 }
 
 
-# ======================== BREACH COLLECTORS ========================
-@collector("XposedOrNot breach", ["email"], "breach", unmasked=True)
+@collector("XposedOrNot breach", ["email"], "breach", unmasked=True, kind="network")
 def c_xon(v):
     d = _json(f"https://api.xposedornot.com/v1/breach-analytics?email={v['email']}")
     b = (d.get("ExposedBreaches") or {}).get("breaches_details") or []
@@ -220,7 +302,7 @@ def c_xon(v):
         for x in b]} or d
 
 
-@collector("Pwned Password (HIBP)", ["password"], "breach", unmasked=True)
+@collector("Pwned Password (HIBP)", ["password"], "breach", unmasked=True, kind="network")
 def c_pwn(v):
     h = hashlib.sha1(v["password"].encode()).hexdigest().upper()
     body, status = _get(f"https://api.pwnedpasswords.com/range/{h[:5]}")
@@ -233,75 +315,72 @@ def c_pwn(v):
     return {"seen": 0, "verdict": "clean"}
 
 
-@collector("emailrep.io", ["email"], "breach")
+@collector("emailrep.io", ["email"], "breach", kind="network")
 def c_emailrep(v):
     return _json(f"https://emailrep.io/{v['email']}")
 
 
-# ======================== ACCOUNT COLLECTORS ========================
-@collector("Gravatar", ["email"], "accounts")
+@collector("Gravatar", ["email"], "accounts", kind="network")
 def c_grav(v):
     h = hashlib.md5(v["email"].strip().lower().encode()).hexdigest()
     return {"exists": _exists(f"https://www.gravatar.com/avatar/{h}?d=404"),
             "url": f"https://www.gravatar.com/avatar/{h}"}
 
 
-@collector("GitHub", ["username"], "accounts")
+@collector("GitHub", ["username"], "accounts", kind="network")
 def c_gh(v): return _json(f"https://api.github.com/users/{v['username']}")
 
 
-@collector("GitLab", ["username"], "accounts")
+@collector("GitLab", ["username"], "accounts", kind="network")
 def c_gl(v): return _json(f"https://gitlab.com/api/v4/users?username={v['username']}")
 
 
-@collector("Reddit", ["username"], "accounts")
+@collector("Reddit", ["username"], "accounts", kind="network")
 def c_rd(v): return _json(f"https://www.reddit.com/user/{v['username']}/about.json")
 
 
-@collector("Keybase", ["username"], "accounts")
+@collector("Keybase", ["username"], "accounts", kind="network")
 def c_kb(v): return _json(f"https://keybase.io/_/api/1.0/user/lookup.json?username={v['username']}")
 
 
-@collector("HackerNews", ["username"], "accounts")
+@collector("HackerNews", ["username"], "accounts", kind="network")
 def c_hn(v): return _json(f"https://hn.algolia.com/api/v1/search?tags=author_{v['username']}&hitsPerPage=5")
 
 
-@collector("npm", ["username"], "accounts")
+@collector("npm", ["username"], "accounts", kind="network")
 def c_npm(v): return _json(f"https://registry.npmjs.org/-/v1/search?text=maintainer:{v['username']}&size=5")
 
 
-@collector("DockerHub", ["username"], "accounts")
+@collector("DockerHub", ["username"], "accounts", kind="network")
 def c_dh(v): return _json(f"https://hub.docker.com/v2/users/{v['username']}/")
 
 
-@collector("PyPI", ["username"], "accounts")
+@collector("PyPI", ["username"], "accounts", kind="network")
 def c_pypi(v): return {"exists": _exists(f"https://pypi.org/user/{v['username']}/")}
 
 
-@collector("Telegram", ["username"], "accounts")
+@collector("Telegram", ["username"], "accounts", kind="network")
 def c_tg(v): return {"exists": _exists(f"https://t.me/{v['username']}"),
                      "url": f"https://t.me/{v['username']}"}
 
 
-# ======================== SHELL TOOLS ========================
-@collector("Holehe", ["email"], "accounts")
+@collector("Holehe", ["email"], "accounts", kind="shell")
 def s_holehe(v): return run_tool(["holehe", v["email"], "--no-color"])
 
 
-@collector("Sherlock", ["username"], "accounts")
+@collector("Sherlock", ["username"], "accounts", kind="shell")
 def s_sherlock(v): return run_tool(["sherlock", v["username"], "--print-found", "--timeout", "5"])
 
 
-@collector("Maigret", ["username"], "accounts")
+@collector("Maigret", ["username"], "accounts", kind="shell")
 def s_maigret(v): return run_tool(["maigret", v["username"], "--no-color", "--top-sites", "300"])
 
 
-@collector("PhoneInfoga", ["phone"], "phone")
+@collector("PhoneInfoga", ["phone"], "phone", kind="shell")
 def s_phone(v): return run_tool(["phoneinfoga", "scan", "-n", v["phone"]])
 
 
-# ======================== IDENTITY ========================
-@collector("Username candidates", ["name"], "identity")
+@collector("Username candidates", ["name"], "identity", kind="local")
 def c_perms(v):
     p = [x.lower() for x in v["name"].split() if x]
     if len(p) < 2: return p
@@ -310,8 +389,7 @@ def c_perms(v):
                    l + f, f + l + "1", f + l + "01", l + fi})
 
 
-# ======================== INDIA ========================
-@collector("India: mobile carrier+circle", ["phone"], "india")
+@collector("India: mobile carrier+circle", ["phone"], "india", kind="local")
 def c_india_phone(v):
     d = norm_phone(v["phone"])
     series = SERIES.get(d[:4]) if d and len(d) >= 4 else None
@@ -320,7 +398,7 @@ def c_india_phone(v):
             "note": "prefix-based pre-MNP hint. Confirm via TRAI / tafcop."}
 
 
-@collector("India: vehicle RC parse", ["vehicle"], "india")
+@collector("India: vehicle RC parse", ["vehicle"], "india", kind="local")
 def c_india_vehicle(v):
     n = norm_vehicle(v["vehicle"])
     if not n: return {"valid": False, "raw": v["vehicle"]}
@@ -331,42 +409,41 @@ def c_india_vehicle(v):
             "upstream": "https://parivahan.gov.in/rcdlstatus/"}
 
 
-@collector("India: EPIC validator", ["epic"], "india")
+@collector("India: EPIC validator", ["epic"], "india", kind="local")
 def c_india_epic(v):
     v2 = norm_epic(v["epic"])
     return {"valid": bool(v2), "normalized": v2 or v["epic"].upper().replace(" ", "").replace("-", "")}
 
 
-@collector("India: PAN validator", ["pan"], "india")
+@collector("India: PAN validator", ["pan"], "india", kind="local")
 def c_india_pan(v):
     v2 = norm_pan(v["pan"])
     return {"valid": bool(v2), "normalized": v2 or v["pan"].upper().strip()}
 
 
-@collector("India: Aadhaar validator (Verhoeff)", ["aadhaar"], "india")
+@collector("India: Aadhaar validator (Verhoeff)", ["aadhaar"], "india", kind="local")
 def c_india_aadhaar(v):
     d = norm_aadhaar(v["aadhaar"])
     raw = re.sub(r"\D", "", v["aadhaar"])
-    # Do not return full Aadhaar in the result payload.
+    # Results still avoid full Aadhaar in stored observation; UI inputsDisplay may show query.
     return {
         "valid": bool(d),
         "normalized_last4": (d or raw)[-4:] if (d or raw) else None,
-        "note": "full Aadhaar not returned; Verhoeff check only",
+        "note": "result payload holds last4 only; operator screen may show full query via inputsDisplay",
     }
 
 
-@collector("India: breach corpus reference", ["name", "phone", "email"], "india", unmasked=True)
+@collector("India: breach corpus reference", ["name", "phone", "email"], "india", unmasked=True, kind="local")
 def c_india_breach(v):
     return {"breaches": load_india_breaches()}
 
 
-# ======================== LIVE SURVEILLANCE ========================
-@collector("Live: flights over India", ["live"], "live")
+@collector("Live: flights over India", ["live"], "live", kind="live")
 def c_flights(v):
     return _json("https://opensky-network.org/api/states/all?lamin=6.5&lomin=68&lamax=37.5&lomax=97.5")
 
 
-@collector("Live: earthquakes India", ["live"], "live")
+@collector("Live: earthquakes India", ["live"], "live", kind="live")
 def c_quakes(v):
     d = _json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson")
     return [f for f in d.get("features", [])
@@ -374,43 +451,40 @@ def c_quakes(v):
             and 68 < f["geometry"]["coordinates"][0] < 97]
 
 
-@collector("Live: active satellites", ["live"], "live")
+@collector("Live: active satellites", ["live"], "live", kind="live")
 def c_sat(v):
     b, _ = _get("https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle")
     return b[:4000]
 
 
-@collector("Live: GDELT India news", ["live", "keyword"], "live")
+@collector("Live: GDELT India news", ["live", "keyword"], "live", kind="live")
 def c_gdelt(v):
     q = v.get("keyword") or "India"
     return _json(f"https://api.gdeltproject.org/api/v2/doc/doc?query={q}&format=json&maxrecords=20")
 
 
-# ======================== IP / INFRA (passive public APIs) ========================
-@collector("IP lookup (ipapi.co)", ["ip"], "infra")
+@collector("IP lookup (ipapi.co)", ["ip"], "infra", kind="network")
 def c_ip(v): return _json(f"https://ipapi.co/{v['ip']}/json/")
 
 
-@collector("IP lookup (ipinfo.io)", ["ip"], "infra")
+@collector("IP lookup (ipinfo.io)", ["ip"], "infra", kind="network")
 def c_ipinfo(v): return _json(f"https://ipinfo.io/{v['ip']}/json")
 
 
-@collector("crt.sh certs", ["domain"], "infra")
+@collector("crt.sh certs", ["domain"], "infra", kind="network")
 def c_crt(v): return _json(f"https://crt.sh/?q=%25.{v['domain']}&output=json")
 
 
-@collector("Wayback availability", ["domain"], "infra")
+@collector("Wayback availability", ["domain"], "infra", kind="network")
 def c_wb(v): return _json(f"http://archive.org/wayback/available?url={v['domain']}")
 
 
-# ======================== ACTIVE NETWORK (policy-gated) ========================
-@collector("Subdomain enum (crt.sh)", ["domain"], "offensive", risk="passive")
+@collector("Subdomain enum (crt.sh)", ["domain"], "offensive", risk="passive", kind="network")
 def c_off_crt(v):
-    # Public CT log — treat as passive.
     return _json(f"https://crt.sh/?q=%25.{v['domain']}&output=json")
 
 
-@collector("DNS lookup", ["domain"], "offensive", risk="active_network")
+@collector("DNS lookup", ["domain"], "offensive", risk="active_network", kind="network")
 def c_off_dns(v):
     try:
         return {"domain": v["domain"], "a": socket.gethostbyname_ex(v["domain"])[2]}
@@ -418,7 +492,7 @@ def c_off_dns(v):
         return {"domain": v["domain"], "error": str(e)}
 
 
-@collector("HTTP headers", ["domain"], "offensive", risk="active_network")
+@collector("HTTP headers", ["domain"], "offensive", risk="active_network", kind="network")
 def c_off_headers(v):
     try:
         b, code = _get(f"http://{v['domain']}", headers={"User-Agent": "DISHA/2.0"})
@@ -427,7 +501,7 @@ def c_off_headers(v):
         return {"domain": v["domain"], "error": str(e)}
 
 
-@collector("Port scan (common)", ["ip"], "offensive", risk="active_network")
+@collector("Port scan (common)", ["ip"], "offensive", risk="active_network", kind="network")
 def c_off_ports(v):
     ip = v["ip"]
     common = [21,22,23,25,53,80,110,135,139,143,443,445,993,995,1433,3306,3389,5432,5900,6379,8080,8443,27017]
