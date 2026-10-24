@@ -54,9 +54,15 @@ class SecurityPolicy:
         return RiskLevel.low, DecisionAction.allow, ["Read-only or low-risk request"]
 
     def ensure_workspace_path(self, raw_path: str) -> Path:
+        """
+        Constitutional path containment.
+        Uses proper relative resolution — never string prefix matching.
+        """
         candidate = (self.workspace_root / raw_path).resolve()
-        if not str(candidate).startswith(str(self.workspace_root)):
-            raise PermissionError("Path escapes allowed workspace root")
+        try:
+            candidate.relative_to(self.workspace_root)
+        except ValueError:
+            raise PermissionError("Path escapes allowed workspace root") from None
         return candidate
 
     def authorize_module_action(
