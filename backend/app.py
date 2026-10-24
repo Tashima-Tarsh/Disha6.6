@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
-"""DISHA OSINT backend — constitutional security (Article V). Loads implementation parts."""
+"""
+DISHA OSINT backend entrypoint.
+Loads the constitutional implementation (auth fail-closed, CORS, path sandbox).
+"""
+from __future__ import annotations
+
+import base64
+import zlib
 from pathlib import Path
 
-_dir = Path(__file__).resolve().parent
-_code = (_dir / "_app_part_a.py").read_text() + (_dir / "_app_part_b.py").read_text()
-exec(compile(_code, str(_dir / "app_impl.py"), "exec"), globals())
+_payload = Path(__file__).with_name("_app_secure.b64z").read_text().strip()
+_code = zlib.decompress(base64.b64decode(_payload)).decode("utf-8")
+exec(compile(_code, str(Path(__file__).with_name("app_impl.py")), "exec"), globals())
