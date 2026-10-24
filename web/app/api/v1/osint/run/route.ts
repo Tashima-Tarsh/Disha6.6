@@ -15,6 +15,7 @@ const requestSchema = z.object({
   adapterId: z.string().min(1).max(128),
   purpose: z.string().min(3).max(1000),
   input: z.record(z.string(), z.unknown()).default({}),
+  allowActive: z.boolean().optional().default(false),
 });
 
 // Map Disha adapter target types to FastAPI backend collector inputs.
@@ -73,7 +74,6 @@ function adaptInput(adapterId: string, input: Record<string, unknown>): Record<s
       pick("password"); pick("target");
       break;
     default:
-      // Best effort: forward common fields.
       pick("target"); pick("q"); pick("email"); pick("username"); pick("phone");
       pick("domain"); pick("ip"); pick("vehicle"); pick("password");
       break;
@@ -93,9 +93,6 @@ export async function POST(req: NextRequest) {
     const body = requestSchema.parse(await req.json());
     const input = validateContinuousOsintInput(body.adapterId, body.input);
 
-    // Run the governed bus for policy/evidence, but execute against the live
-    // FastAPI backend so the tool actually returns data instead of
-    // "not_configured" / "blocked_by_policy".
     const bus = createDefaultOsintBus({
       policyCheck: (metadata) => {
         const executionClass = metadata.executionClass ?? "passive_public";
@@ -107,6 +104,7 @@ export async function POST(req: NextRequest) {
     const adapted = adaptInput(body.adapterId, input);
 
     let backendResult: unknown = null;
+    let backendPayload: Record<string, unknown> | null = null;
     let backendError: string | null = null;
     let httpStatus = 200;
 
@@ -117,7 +115,11 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${OSINT_API_KEY}`,
         },
-        body: JSON.stringify({ ...adapted, missionId: body.missionId }),
+        body: JSON.stringify({
+          ...adapted,
+          missionId: body.missionId,
+          allowActive: body.allowActive === true,
+        }),
         signal: req.signal,
       });
 
@@ -131,9 +133,8 @@ export async function POST(req: NextRequest) {
             : `Backend returned HTTP ${res.status}: ${errBody.slice(0, 500)}`;
         backendResult = null;
       } else {
-        // Backend /scan returns a single JSON object (not SSE).
-        const json = await res.json();
-        // Prefer structured results; fall back to whole payload.
+        const json = (await res.json()) as Record<string, unknown>;
+        backendPayload = json;
         backendResult = json?.results ?? json;
       }
     } catch (e: any) {
@@ -144,36 +145,104 @@ export async function POST(req: NextRequest) {
     const busHealth = await bus.health();
     const matched = busHealth.find((h) => h.id === body.adapterId || h.id === `astra6-${body.adapterId}`);
 
+    const deniedByPolicy = Array.isArray(backendPayload?.deniedByPolicy)
+      ? backendPayload!.deniedByPolicy
+      : [];
+
     const result = {
       runId: `disha-${Date.now()}`,
       adapterId: body.adapterId,
-      target: adapted.target ?? adapted.email ?? adapted.username ?? adapted.phone ?? adapted.domain ?? adapted.ip ?? adapted.vehicle ?? adapted.password ?? null,
+      target:
+        adapted.target ??
+        adapted.email ??
+        adapted.username ??
+        adapted.phone ??
+        adapted.domain ??
+        adapted.ip ??
+        adapted.vehicle ??
+        null,
       targetType: input.targetType ?? "unknown",
       dispatchStatus: backendError ? "failed" : "completed",
       workerRuntime: "disha-osint-one-fastapi",
       cliCommand: matched?.cliCommand ?? null,
       estimatedTimeoutMs: matched?.timeoutMs ?? 30000,
       policyApprovalRequired: false,
+      allowActive: body.allowActive === true,
+      deniedByPolicy,
       backendError,
       result: backendResult,
-      evidence: matched && !backendError ? [{
-        sourceId: matched.id,
-        sourceName: matched.name,
-        sourceUrl: matched.upstreamRepository ?? "https://github.com/Tashima-Tarsh/Disha6.6",
-        summary: `${matched.name} executed against target via DISHA OSINT-ONE backend.`,
-        retrievedAt: new Date().toISOString(),
-        provenanceHash: hashValue({ adapter: body.adapterId, target: adapted.target, ts: Date.now() }),
-      }] : [],
+      evidence:
+        matched && !backendError
+          ? [
+              {
+                sourceId: matched.id,
+                sourceName: matched.name,
+                sourceUrl: matched.upstreamRepository ?? "https://github.com/Tashima-Tarsh/Disha6.6",
+                summary: `${matched.name} executed against target via DISHA OSINT-ONE backend.`,
+                retrievedAt: new Date().toISOString(),
+                provenanceHash: hashValue({
+                  adapter: body.adapterId,
+                  target: adapted.target,
+                  ts: Date.now(),
+                }),
+              },
+            ]
+          : [],
       warnings: backendError ? [backendError] : [],
+      ledgerEventIds: [] as string[],
     };
 
-    await appendEvidenceEvent({
+    // Authoritative chain: web Evidence Ledger (not Python proposal hashes).
+    const parent = await appendEvidenceEvent({
       missionId: body.missionId,
       actor: ctx.principal.userId,
       action: "governed_osint_adapter_executed",
-      input: { adapterId: body.adapterId, purpose: body.purpose, inputHash: hashValue(input) },
-      output: result,
+      input: {
+        adapterId: body.adapterId,
+        purpose: body.purpose,
+        inputHash: hashValue(input),
+        allowActive: body.allowActive === true,
+      },
+      output: {
+        dispatchStatus: result.dispatchStatus,
+        runId: result.runId,
+        collectorCount:
+          backendResult && typeof backendResult === "object"
+            ? Object.keys(backendResult as object).length
+            : 0,
+        deniedCount: Array.isArray(deniedByPolicy) ? deniedByPolicy.length : 0,
+        backendError: backendError,
+      },
     });
+    result.ledgerEventIds.push(parent.eventId);
+
+    if (backendResult && typeof backendResult === "object" && !backendError) {
+      for (const [collectorName, collectorResult] of Object.entries(
+        backendResult as Record<string, unknown>,
+      )) {
+        const child = await appendEvidenceEvent({
+          missionId: body.missionId,
+          actor: `osint:${collectorName}`,
+          action: "osint_observation",
+          parentEventId: parent.eventId,
+          input: {
+            collector: collectorName,
+            adapterId: body.adapterId,
+            purpose: body.purpose,
+          },
+          output: {
+            resultHash: hashValue(collectorResult),
+            verification: "OBSERVED",
+            // Size-capped summary only — full payload stays in backend; chain uses hashes.
+            summary:
+              typeof collectorResult === "object" && collectorResult !== null
+                ? Object.keys(collectorResult as object).slice(0, 12)
+                : typeof collectorResult,
+          },
+        });
+        result.ledgerEventIds.push(child.eventId);
+      }
+    }
 
     return NextResponse.json(result, {
       status: backendError ? (httpStatus >= 400 && httpStatus < 600 ? httpStatus : 400) : 200,
