@@ -1,35 +1,39 @@
-# Backend Security Wiring — COMPLETE
+# Backend Security Wiring
 
-**Status**: Applied on branch `backend-security-wiring`
+## Quick apply (recommended)
 
-## What was done
+From the repository root:
 
-`backend/app.py` now loads a constitutionally secured implementation that includes:
+```bash
+python scripts/apply_backend_security.py
+```
 
-1. **Fail-closed authentication** — `Depends(require_api_key)` on:
-   - `POST /scan`
-   - `POST /api/v1/data/load`
-   - `POST /api/v1/resolve`
-   - `GET /api/v1/graph/stats`
-   - `GET /api/v1/vyuh/formations`
-   - `POST /api/v1/vyuh/activate`
+This rewrites `backend/app.py` in place to:
 
-2. **Restricted CORS** via `apply_security(app)` (origins from `DISHA_ALLOWED_ORIGINS`)
+1. **Fail-closed authentication** on sensitive routes
+2. **Restricted CORS** via `apply_security(app)`
+3. **Path sandbox** on `/api/v1/data/load`
+4. Remove "Zero API key required" claim
 
-3. **Path sandbox** on `/api/v1/data/load` using `ensure_inside_workspace` / `ensure_directory_inside_workspace`
+## Protected routes
 
-4. Module docstring no longer claims "Zero API key required"
+- `POST /scan`
+- `POST /api/v1/data/load`
+- `POST /api/v1/resolve`
+- `GET /api/v1/graph/stats`
+- `GET /api/v1/vyuh/formations`
+- `POST /api/v1/vyuh/activate`
 
-## Required environment
+## Environment
 
 ```bash
 export DISHA_OSINT_API_KEY="$(openssl rand -hex 32)"
 export DISHA_ALLOWED_ORIGINS="http://localhost:3000"
-export DISHA_DATA_ROOT="/absolute/path/to/allowed/data"   # optional
+export DISHA_DATA_ROOT="/absolute/path/to/allowed/data"  # optional
 ```
 
-Without `DISHA_OSINT_API_KEY`, sensitive routes return **503** (refuse to operate open).
+Without `DISHA_OSINT_API_KEY`, sensitive routes return **503**.
 
-## Implementation note
+## Dependencies
 
-The secured source is stored compressed in `_app_secure.b64z` and loaded by `app.py` at import time. This preserves a single-module runtime while fitting tooling limits.
+Requires `backend/secure_bootstrap.py` (already on main).
