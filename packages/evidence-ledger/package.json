@@ -1,0 +1,20 @@
+{
+  "name": "@disha/evidence-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/ledger.ts",
+  "types": "./src/ledger.ts",
+  "exports": {
+    ".": "./src/ledger.ts",
+    "./hash": "./src/hash.ts",
+    "./types": "./src/types.ts"
+  },
+  "dependencies": {
+    "@disha/contracts": "workspace:*",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}
