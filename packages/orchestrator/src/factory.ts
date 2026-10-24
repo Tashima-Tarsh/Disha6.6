@@ -1,7 +1,12 @@
 /**
  * Factory that builds a ConstitutionalOrchestrator with the correct store.
- * - If DATABASE_URL is set → PostgresEvidenceStore
- * - Otherwise → InMemoryEvidenceStore (dev / demo)
+ *
+ * Production (fail-closed):
+ *   - Caller must pass a live Postgres pool when durable evidence is required.
+ *   - packages/api refuses to start in production without DATABASE_URL + pg.
+ *
+ * Development:
+ *   - createOrchestrator() with no options → InMemoryEvidenceStore.
  */
 
 import { ConstitutionalOrchestrator } from "./orchestrator";
@@ -9,20 +14,12 @@ import { EvidenceLedger, InMemoryEvidenceStore, PostgresEvidenceStore } from "@d
 import type { PostgresPool } from "@disha/evidence-ledger";
 
 export interface CreateOrchestratorOptions {
-  /** Optional pre-built pg Pool (or compatible). If omitted and DATABASE_URL is set, caller must supply pool. */
+  /** Live pg Pool (or compatible). Required for production durable ledger. */
   pool?: PostgresPool;
+  /** If true and pool is missing, throw instead of using memory. */
+  requirePostgres?: boolean;
 }
 
-/**
- * Create an orchestrator.
- *
- * Production:
- *   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
- *   const orch = createOrchestrator({ pool });
- *
- * Development:
- *   const orch = createOrchestrator(); // in-memory
- */
 export function createOrchestrator(options: CreateOrchestratorOptions = {}): ConstitutionalOrchestrator {
   if (options.pool) {
     const store = new PostgresEvidenceStore(options.pool);
@@ -30,6 +27,12 @@ export function createOrchestrator(options: CreateOrchestratorOptions = {}): Con
     return new ConstitutionalOrchestrator({ ledger });
   }
 
-  // Default: in-memory (safe for tests and local demos)
+  if (options.requirePostgres) {
+    throw new Error(
+      "createOrchestrator: requirePostgres=true but no pool supplied. Fail-closed: refusing in-memory ledger."
+    );
+  }
+
+  // Default: in-memory (tests and local demos only)
   return new ConstitutionalOrchestrator();
 }
