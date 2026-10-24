@@ -31,6 +31,10 @@ export class ReviewQueue {
     return item;
   }
 
+  getById(reviewItemId: string): ReviewItem | undefined {
+    return this.items.get(reviewItemId);
+  }
+
   listPending(missionId?: string): ReviewItem[] {
     let all = Array.from(this.items.values()).filter((i) => i.status === "pending");
     if (missionId) all = all.filter((i) => i.missionId === missionId);
@@ -47,6 +51,10 @@ export class ReviewQueue {
     actor: Actor,
     notes?: string
   ): { newVerification: VerificationState; action: ReviewAction } {
+    if (actor.type !== "human" && decision === "elevate_verified") {
+      throw new Error("Only a human actor may elevate evidence to VERIFIED");
+    }
+
     const item = this.items.get(reviewItemId);
     if (!item) throw new Error(`Review item not found: ${reviewItemId}`);
     if (item.status !== "pending") throw new Error("Review item already completed");
