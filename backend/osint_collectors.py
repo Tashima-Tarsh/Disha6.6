@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""OSINT collector registry — pure functions, no HTTP surface."""
+"""OSINT collector registry — pure functions, no HTTP surface.
+
+Policy (Article V):
+- Collectors are tagged with risk: "passive" | "active_network".
+- plan() excludes active_network unless allow_active=True.
+- Callers (app.scan, vyuha) must pass an explicit allow before any active probe runs.
+"""
 from __future__ import annotations
 
 import hashlib
@@ -12,7 +18,7 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -25,12 +31,44 @@ POOL = ThreadPoolExecutor(max_workers=16)
 FETCH_POOL = ThreadPoolExecutor(max_workers=16, thread_name_prefix="fetch")
 REGISTRY: List[dict] = []
 
+# Fields that must never be echoed in API responses or evidence payloads.
+SENSITIVE_INPUT_KEYS: Set[str] = {
+    "password", "passwd", "secret", "token", "api_key", "apikey",
+    "aadhaar", "pan", "epic",  # Indian identifiers — store only if mission policy allows
+}
 
-def collector(name, inputs, category, unmasked=False):
+
+def collector(name, inputs, category, unmasked=False, risk="passive"):
+    """Register a collector.
+
+    risk:
+      passive — public lookups, validators, no outbound probe of arbitrary targets
+      active_network — opens sockets / hits arbitrary hosts (port scan, HTTP headers, etc.)
+    """
     def deco(fn):
-        REGISTRY.append(dict(name=name, inputs=inputs, category=category, fn=fn, unmasked=unmasked))
+        REGISTRY.append(
+            dict(
+                name=name,
+                inputs=inputs,
+                category=category,
+                fn=fn,
+                unmasked=unmasked,
+                risk=risk,
+            )
+        )
         return fn
     return deco
+
+
+def redact_inputs(v: Dict[str, Any]) -> Dict[str, Any]:
+    """Return a copy of inputs with sensitive keys redacted."""
+    out: Dict[str, Any] = {}
+    for k, val in v.items():
+        if k.lower() in SENSITIVE_INPUT_KEYS:
+            out[k] = "[REDACTED]"
+        else:
+            out[k] = val
+    return out
 
 
 # ======================== FETCH HELPERS ========================
@@ -77,9 +115,27 @@ def safe(c, v):
         return f"ERR {e}"
 
 
-def plan(v):
+def plan(v, allow_active: bool = False) -> List[dict]:
+    """Select collectors whose declared inputs intersect provided keys.
+
+    Active-network collectors (port scan, arbitrary HTTP headers, etc.) are
+    excluded unless allow_active is True. This is the mandatory policy boundary
+    before any network probe is dispatched.
+    """
     provided = {k for k, val in v.items() if val}
-    return [c for c in REGISTRY if set(c["inputs"]) & provided]
+    chosen = [c for c in REGISTRY if set(c["inputs"]) & provided]
+    if not allow_active:
+        chosen = [c for c in chosen if c.get("risk", "passive") != "active_network"]
+    return chosen
+
+
+def policy_deny_message(collector_name: str) -> Dict[str, Any]:
+    return {
+        "status": "denied_by_policy",
+        "collector": collector_name,
+        "reason": "active_network collectors require allowActive=true on the scan request",
+        "policyId": "osint-active-probe-gate",
+    }
 
 
 # ======================== IDENTIFIER NORMALIZERS ========================
@@ -291,7 +347,12 @@ def c_india_pan(v):
 def c_india_aadhaar(v):
     d = norm_aadhaar(v["aadhaar"])
     raw = re.sub(r"\D", "", v["aadhaar"])
-    return {"valid": bool(d), "normalized": d or raw}
+    # Do not return full Aadhaar in the result payload.
+    return {
+        "valid": bool(d),
+        "normalized_last4": (d or raw)[-4:] if (d or raw) else None,
+        "note": "full Aadhaar not returned; Verhoeff check only",
+    }
 
 
 @collector("India: breach corpus reference", ["name", "phone", "email"], "india", unmasked=True)
@@ -325,7 +386,7 @@ def c_gdelt(v):
     return _json(f"https://api.gdeltproject.org/api/v2/doc/doc?query={q}&format=json&maxrecords=20")
 
 
-# ======================== IP / INFRA ========================
+# ======================== IP / INFRA (passive public APIs) ========================
 @collector("IP lookup (ipapi.co)", ["ip"], "infra")
 def c_ip(v): return _json(f"https://ipapi.co/{v['ip']}/json/")
 
@@ -342,12 +403,14 @@ def c_crt(v): return _json(f"https://crt.sh/?q=%25.{v['domain']}&output=json")
 def c_wb(v): return _json(f"http://archive.org/wayback/available?url={v['domain']}")
 
 
-# ======================== OFFENSIVE CYBER TOOLS ========================
-@collector("Subdomain enum (crt.sh)", ["domain"], "offensive")
-def c_off_crt(v): return _json(f"https://crt.sh/?q=%25.{v['domain']}&output=json")
+# ======================== ACTIVE NETWORK (policy-gated) ========================
+@collector("Subdomain enum (crt.sh)", ["domain"], "offensive", risk="passive")
+def c_off_crt(v):
+    # Public CT log — treat as passive.
+    return _json(f"https://crt.sh/?q=%25.{v['domain']}&output=json")
 
 
-@collector("DNS lookup", ["domain"], "offensive")
+@collector("DNS lookup", ["domain"], "offensive", risk="active_network")
 def c_off_dns(v):
     try:
         return {"domain": v["domain"], "a": socket.gethostbyname_ex(v["domain"])[2]}
@@ -355,7 +418,7 @@ def c_off_dns(v):
         return {"domain": v["domain"], "error": str(e)}
 
 
-@collector("HTTP headers", ["domain"], "offensive")
+@collector("HTTP headers", ["domain"], "offensive", risk="active_network")
 def c_off_headers(v):
     try:
         b, code = _get(f"http://{v['domain']}", headers={"User-Agent": "DISHA/2.0"})
@@ -364,7 +427,7 @@ def c_off_headers(v):
         return {"domain": v["domain"], "error": str(e)}
 
 
-@collector("Port scan (common)", ["ip"], "offensive")
+@collector("Port scan (common)", ["ip"], "offensive", risk="active_network")
 def c_off_ports(v):
     ip = v["ip"]
     common = [21,22,23,25,53,80,110,135,139,143,443,445,993,995,1433,3306,3389,5432,5900,6379,8080,8443,27017]
