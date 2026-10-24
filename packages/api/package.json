@@ -12,7 +12,13 @@
     "@disha/adapter-dns": "workspace:*",
     "@disha/adapter-wayback": "workspace:*",
     "@disha/adapter-crtsh": "workspace:*",
-    "@disha/adapter-ip-lookup": "workspace:*"
+    "@disha/adapter-ip-lookup": "workspace:*",
+    "@disha/adapter-http-headers": "workspace:*",
+    "@disha/adapter-rdap-domain": "workspace:*",
+    "@disha/adapter-github-repo": "workspace:*"
+  },
+  "optionalDependencies": {
+    "pg": "^8.13.0"
   },
   "devDependencies": {
     "tsx": "^4.0.0",

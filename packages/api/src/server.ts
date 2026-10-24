@@ -1,27 +1,48 @@
 /**
  * Thin Constitutional API
- *
- * Exposes the Orchestrator over HTTP.
- * All routes that touch intelligence go through the constitutional loop.
+ * Uses Postgres when DATABASE_URL + pool are available, otherwise in-memory.
  */
 
 import { createServer, IncomingMessage, ServerResponse } from "http";
-import { ConstitutionalOrchestrator } from "@disha/orchestrator";
+import { createOrchestrator } from "@disha/orchestrator";
 import { githubUserAdapter } from "@disha/adapter-github-user";
 import { dnsAdapter } from "@disha/adapter-dns";
 import { waybackAdapter } from "@disha/adapter-wayback";
 import { crtshAdapter } from "@disha/adapter-crtsh";
 import { ipLookupAdapter } from "@disha/adapter-ip-lookup";
+import { httpHeadersAdapter } from "@disha/adapter-http-headers";
+import { rdapDomainAdapter } from "@disha/adapter-rdap-domain";
+import { githubRepoAdapter } from "@disha/adapter-github-repo";
 
 const PORT = Number(process.env.PORT || 8787);
 const API_KEY = process.env.DISHA_API_KEY;
 
-const orch = new ConstitutionalOrchestrator();
-orch.registerAdapter(githubUserAdapter);
-orch.registerAdapter(dnsAdapter);
-orch.registerAdapter(waybackAdapter);
-orch.registerAdapter(crtshAdapter);
-orch.registerAdapter(ipLookupAdapter);
+// Optional Postgres: set DATABASE_URL and install `pg`, then pass pool into createOrchestrator
+let pool: any = undefined;
+if (process.env.DATABASE_URL) {
+  try {
+    // Dynamic require so the package stays optional at build time
+    const { Pool } = require("pg");
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    console.log("Using PostgresEvidenceStore");
+  } catch {
+    console.warn("DATABASE_URL set but `pg` not available — falling back to in-memory store");
+  }
+}
+
+const orch = createOrchestrator(pool ? { pool } : {});
+
+const adapters = [
+  githubUserAdapter,
+  dnsAdapter,
+  waybackAdapter,
+  crtshAdapter,
+  ipLookupAdapter,
+  httpHeadersAdapter,
+  rdapDomainAdapter,
+  githubRepoAdapter,
+];
+adapters.forEach((a) => orch.registerAdapter(a));
 
 function json(res: ServerResponse, status: number, body: unknown) {
   res.writeHead(status, { "Content-Type": "application/json" });
@@ -33,8 +54,7 @@ function requireAuth(req: IncomingMessage, res: ServerResponse): boolean {
     json(res, 503, { error: "DISHA_API_KEY not configured. Refusing to operate open." });
     return false;
   }
-  const auth = req.headers.authorization;
-  if (auth !== `Bearer ${API_KEY}`) {
+  if (req.headers.authorization !== `Bearer ${API_KEY}`) {
     json(res, 401, { error: "Unauthorized" });
     return false;
   }
@@ -53,11 +73,11 @@ const server = createServer(async (req, res) => {
   const path = url.pathname;
   const method = req.method || "GET";
 
-  // Health is open
   if (path === "/health" && method === "GET") {
     return json(res, 200, {
       status: "ok",
       constitutional: true,
+      store: pool ? "postgres" : "memory",
       adapters: orch.bus.list().map((r) => r.adapter.id),
       authRequired: true,
       configured: Boolean(API_KEY),
@@ -67,7 +87,6 @@ const server = createServer(async (req, res) => {
   if (!requireAuth(req, res)) return;
 
   try {
-    // Create mission
     if (path === "/v1/missions" && method === "POST") {
       const body = await readBody(req);
       const actor = body.actor || { type: "human", id: "api-user" };
@@ -76,16 +95,13 @@ const server = createServer(async (req, res) => {
       return json(res, 201, mission);
     }
 
-    // Activate mission
     if (path.match(/^\/v1\/missions\/[^/]+\/activate$/) && method === "POST") {
       const id = path.split("/")[3];
       const body = await readBody(req);
       const actor = body.actor || { type: "human", id: "api-user" };
-      const mission = orch.activateMission(id, actor);
-      return json(res, 200, mission);
+      return json(res, 200, orch.activateMission(id, actor));
     }
 
-    // Run adapters
     if (path.match(/^\/v1\/missions\/[^/]+\/run$/) && method === "POST") {
       const id = path.split("/")[3];
       const body = await readBody(req);
@@ -105,29 +121,23 @@ const server = createServer(async (req, res) => {
       });
     }
 
-    // List pending reviews
     if (path === "/v1/reviews" && method === "GET") {
       const missionId = url.searchParams.get("missionId") || undefined;
       return json(res, 200, { items: orch.reviews.listPending(missionId) });
     }
 
-    // Submit review decision
     if (path.match(/^\/v1\/reviews\/[^/]+$/) && method === "POST") {
       const id = path.split("/")[3];
       const body = await readBody(req);
       const actor = body.actor || { type: "human", id: "api-user" };
-      const result = await orch.review(id, body.decision, actor, body.notes);
-      return json(res, 200, result);
+      return json(res, 200, await orch.review(id, body.decision, actor, body.notes));
     }
 
-    // Integrity check
     if (path === "/v1/integrity" && method === "GET") {
       const missionId = url.searchParams.get("missionId") || undefined;
-      const result = await orch.verifyIntegrity(missionId);
-      return json(res, 200, result);
+      return json(res, 200, await orch.verifyIntegrity(missionId));
     }
 
-    // List adapters
     if (path === "/v1/adapters" && method === "GET") {
       return json(res, 200, {
         adapters: orch.bus.list().map((r) => ({
@@ -147,6 +157,6 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Disha Constitutional API listening on :${PORT}`);
-  if (!API_KEY) console.warn("WARNING: DISHA_API_KEY not set. All routes except /health will return 503.");
+  console.log(`Disha Constitutional API on :${PORT} (store=${pool ? "postgres" : "memory"})`);
+  if (!API_KEY) console.warn("WARNING: DISHA_API_KEY not set. Authenticated routes return 503.");
 });
