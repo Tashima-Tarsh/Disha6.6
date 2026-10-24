@@ -49,3 +49,52 @@ def collector(name, inputs, category, unmasked=False):
         REGISTRY.append(dict(name=name, inputs=inputs, category=category, fn=fn, unmasked=unmasked))
         return fn
     return deco
+
+
+# ======================== FETCH HELPERS ========================
+def _get(url, headers=None):
+    h = dict(UA); h.update(headers or {})
+    def _do():
+        with urlopen(Request(url, headers=h), timeout=T) as r:
+            return r.read().decode("utf-8", "replace"), r.status
+    try:
+        fut = FETCH_POOL.submit(_do)
+        return fut.result(timeout=T)
+    except HTTPError as e:
+        return (e.read().decode("utf-8", "replace") if e.fp else ""), e.code
+    except URLError as e:
+        return f"ERR {e.reason}", 0
+    except Exception as e:
+        return f"ERR {e}", 0
+
+
+def _json(url):
+    b, _ = _get(url)
+    try: return json.loads(b)
+    except Exception: return {"_raw": b}
+
+
+def _exists(url):
+    return _get(url)[1] == 200
+
+
+def run_tool(cmd, timeout=300):
+    if not shutil.which(cmd[0]):
+        return None
+    try:
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return ((p.stdout or "") + (p.stderr or "")).strip()[:20000] or "(no output)"
+    except Exception as e:
+        return f"ERR {e}"
+
+
+def safe(c, v):
+    try:
+        return c["fn"](v)
+    except Exception as e:
+        return f"ERR {e}"
+
+
+def plan(v):
+    provided = {k for k, val in v.items() if val}
+    return [c for c in REGISTRY if set(c["inputs"]) & provided]
