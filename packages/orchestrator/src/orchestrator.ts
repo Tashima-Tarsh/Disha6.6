@@ -131,23 +131,22 @@ export class ConstitutionalOrchestrator {
     actor: Actor,
     notes?: string
   ): Promise<{ newVerification: VerificationState; evidenceId: string }> {
-    // Capture the item *before* decide() marks it completed (listPending filters it out).
-    const pending = this.reviews.listPending();
-    const item = pending.find((i) => i.id === reviewItemId);
+    const item = this.reviews.getById(reviewItemId);
     if (!item) {
-      // Fall back: try any known item if the queue exposes it later; for now fail closed.
-      throw new Error(`Review item not found or already completed: ${reviewItemId}`);
+      throw new Error(`Review item not found: ${reviewItemId}`);
+    }
+    if (item.status !== "pending") {
+      throw new Error(`Review item already completed: ${reviewItemId}`);
     }
     const originalEvidenceId = item.evidenceId;
 
-    const { newVerification, action } = this.reviews.decide(
+    const { newVerification } = this.reviews.decide(
       reviewItemId,
       decision,
       actor,
       notes
     );
 
-    // Record the review decision as an EvidenceEvent linked to the original finding.
     await this.ledger.append({
       actor,
       type: decision === "elevate_verified" ? "approval" : decision === "reject" ? "rejection" : "policy_decision",
