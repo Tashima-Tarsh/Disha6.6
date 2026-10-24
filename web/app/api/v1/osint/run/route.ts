@@ -8,6 +8,7 @@ import { hashValue } from "@/lib/unified/hash";
 import { createDefaultOsintBus } from "@/lib/unified/osint-default-bus";
 
 const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+const OSINT_API_KEY = process.env.DISHA_OSINT_API_KEY || process.env.OSINT_API_KEY;
 
 const requestSchema = z.object({
   missionId: z.string().min(1).max(128),
@@ -82,6 +83,13 @@ function adaptInput(adapterId: string, input: Record<string, unknown>): Record<s
 
 export async function POST(req: NextRequest) {
   return withContext(req, "agent:run", async (ctx) => {
+    if (!OSINT_API_KEY) {
+      return NextResponse.json(
+        { error: "OSINT backend is not configured with DISHA_OSINT_API_KEY" },
+        { status: 503, headers: { "X-Request-ID": ctx.requestId } }
+      );
+    }
+
     const body = requestSchema.parse(await req.json());
     const input = validateContinuousOsintInput(body.adapterId, body.input);
 
@@ -100,39 +108,37 @@ export async function POST(req: NextRequest) {
 
     let backendResult: unknown = null;
     let backendError: string | null = null;
+    let httpStatus = 200;
+
     try {
       const res = await fetch(`${BACKEND}/scan`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(adapted),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OSINT_API_KEY}`,
+        },
+        body: JSON.stringify({ ...adapted, missionId: body.missionId }),
         signal: req.signal,
       });
-      // Collect the SSE stream into a single result object keyed by collector name.
-      const collected: Record<string, unknown> = {};
-      if (res.body) {
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buf = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buf += decoder.decode(value, { stream: true });
-          const parts = buf.split("\n\n");
-          buf = parts.pop()!;
-          for (const part of parts) {
-            if (!part.startsWith("data: ")) continue;
-            try {
-              const d = JSON.parse(part.slice(6));
-              if (d.done) continue;
-              if (d.meta) continue;
-              collected[d.name] = d.result;
-            } catch {}
-          }
-        }
+
+      httpStatus = res.status;
+
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        backendError =
+          res.status === 401
+            ? "Backend authentication failed (missing or invalid Bearer token)"
+            : `Backend returned HTTP ${res.status}: ${errBody.slice(0, 500)}`;
+        backendResult = null;
+      } else {
+        // Backend /scan returns a single JSON object (not SSE).
+        const json = await res.json();
+        // Prefer structured results; fall back to whole payload.
+        backendResult = json?.results ?? json;
       }
-      backendResult = collected;
     } catch (e: any) {
       backendError = e?.message ?? String(e);
+      httpStatus = 502;
     }
 
     const busHealth = await bus.health();
@@ -150,7 +156,7 @@ export async function POST(req: NextRequest) {
       policyApprovalRequired: false,
       backendError,
       result: backendResult,
-      evidence: matched ? [{
+      evidence: matched && !backendError ? [{
         sourceId: matched.id,
         sourceName: matched.name,
         sourceUrl: matched.upstreamRepository ?? "https://github.com/Tashima-Tarsh/Disha6.6",
@@ -170,7 +176,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(result, {
-      status: backendError ? 400 : 200,
+      status: backendError ? (httpStatus >= 400 && httpStatus < 600 ? httpStatus : 400) : 200,
       headers: { "X-Request-ID": ctx.requestId },
     });
   });

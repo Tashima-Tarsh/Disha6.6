@@ -30,27 +30,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Backend authentication failed" }, { status: 502 });
     }
 
-    const reader = res.body?.getReader();
-    if (!reader) return NextResponse.json({ error: "no stream" }, { status: 502 });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return NextResponse.json(
+        { error: `Backend returned HTTP ${res.status}`, detail: text.slice(0, 500) },
+        { status: 502 }
+      );
+    }
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          controller.enqueue(value);
-        }
-        controller.close();
-      },
-    });
-
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-store",
-        Connection: "keep-alive",
-      },
-    });
+    // Backend returns a single JSON object (not SSE).
+    const data = await res.json();
+    return NextResponse.json(data);
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? String(e) }, { status: 502 });
   }

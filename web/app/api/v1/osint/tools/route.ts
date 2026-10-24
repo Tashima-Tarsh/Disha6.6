@@ -40,8 +40,18 @@ export async function GET(req: NextRequest) {
     let backendTools: any[] = [];
     try {
       const res = await fetch(`${BACKEND}/tools`, { signal: req.signal });
-      backendTools = (await res.json()) ?? [];
-    } catch { backendTools = []; }
+      if (res.ok) {
+        const payload = await res.json();
+        // Backend returns { collectors: [...] }, not a bare array.
+        backendTools = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.collectors)
+            ? payload.collectors
+            : [];
+      }
+    } catch {
+      backendTools = [];
+    }
 
     const registry = await loadOsintRuntimeRegistry();
     const url = new URL(req.url);

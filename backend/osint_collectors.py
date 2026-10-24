@@ -100,32 +100,32 @@ def verhoeff(num):
 
 
 def norm_phone(v):
-    d = re.sub(r"\\D", "", v)
+    d = re.sub(r"\D", "", v)
     if d.startswith("+91"): d = d[3:]
     elif d.startswith("91") and len(d) == 12: d = d[2:]
     elif d.startswith("0") and len(d) == 11: d = d[1:]
-    return d if re.fullmatch(r"[6-9]\\d{9}", d) else None
+    return d if re.fullmatch(r"[6-9]\d{9}", d) else None
 
 
 def norm_aadhaar(v):
-    d = re.sub(r"\\D", "", v)
-    return d if re.fullmatch(r"\\d{12}", d) and verhoeff(d) else None
+    d = re.sub(r"\D", "", v)
+    return d if re.fullmatch(r"\d{12}", d) and verhoeff(d) else None
 
 
 def norm_pan(v):
     v = v.upper().strip()
-    return v if re.fullmatch(r"[A-Z]{5}\\d{4}[A-Z]", v) else None
+    return v if re.fullmatch(r"[A-Z]{5}\d{4}[A-Z]", v) else None
 
 
 def norm_epic(v):
     v = v.upper().replace(" ", "").replace("-", "")
-    return v if re.fullmatch(r"[A-Z]{3}\\d{7}", v) else None
+    return v if re.fullmatch(r"[A-Z]{3}\d{7}", v) else None
 
 
 def norm_vehicle(v):
     n = re.sub(r"[^A-Za-z0-9]", "", v).upper()
-    if re.fullmatch(r"\\d{2}BH\\d{4}[A-Z]{1,2}", n): return n
-    m = re.fullmatch(r"([A-Z]{2})(\\d{1,2})([A-Z]{1,3})(\\d{4})", n)
+    if re.fullmatch(r"\d{2}BH\d{4}[A-Z]{1,2}", n): return n
+    m = re.fullmatch(r"([A-Z]{2})(\d{1,2})([A-Z]{1,3})(\d{4})", n)
     return f"{m.group(1)}{int(m.group(2)):02d}{m.group(3)}{m.group(4)}" if m else None
 
 
@@ -167,7 +167,9 @@ def c_xon(v):
 @collector("Pwned Password (HIBP)", ["password"], "breach", unmasked=True)
 def c_pwn(v):
     h = hashlib.sha1(v["password"].encode()).hexdigest().upper()
-    body, _ = _get(f"https://api.pwnedpasswords.com/range/{h[:5]}")
+    body, status = _get(f"https://api.pwnedpasswords.com/range/{h[:5]}")
+    if status == 0 or (isinstance(body, str) and body.startswith("ERR ")):
+        return {"seen": None, "verdict": "unknown", "error": "upstream request failed"}
     for line in body.splitlines():
         p = line.split(":")
         if len(p) == 2 and p[0].strip() == h[5:]:
@@ -275,20 +277,21 @@ def c_india_vehicle(v):
 
 @collector("India: EPIC validator", ["epic"], "india")
 def c_india_epic(v):
-    v2 = v["epic"].upper().replace(" ", "").replace("-", "")
-    return {"valid": bool(re.fullmatch(r"[A-Z]{3}[0-9]{7}", v2)), "normalized": v2}
+    v2 = norm_epic(v["epic"])
+    return {"valid": bool(v2), "normalized": v2 or v["epic"].upper().replace(" ", "").replace("-", "")}
 
 
 @collector("India: PAN validator", ["pan"], "india")
 def c_india_pan(v):
-    v2 = v["pan"].upper().strip()
-    return {"valid": bool(re.fullmatch(r"[A-Z]{5}[0-9]{4}[A-Z]", v2)), "normalized": v2}
+    v2 = norm_pan(v["pan"])
+    return {"valid": bool(v2), "normalized": v2 or v["pan"].upper().strip()}
 
 
 @collector("India: Aadhaar validator (Verhoeff)", ["aadhaar"], "india")
 def c_india_aadhaar(v):
-    d = re.sub(r"\\D", "", v["aadhaar"])
-    return {"valid": bool(len(d) == 12 and verhoeff(d)), "normalized": d}
+    d = norm_aadhaar(v["aadhaar"])
+    raw = re.sub(r"\D", "", v["aadhaar"])
+    return {"valid": bool(d), "normalized": d or raw}
 
 
 @collector("India: breach corpus reference", ["name", "phone", "email"], "india", unmasked=True)
