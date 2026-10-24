@@ -7,7 +7,6 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  // Constitutional requirement: do not forward unauthenticated requests to a sensitive backend
   if (!OSINT_API_KEY) {
     return NextResponse.json(
       { error: "OSINT backend is not configured with DISHA_OSINT_API_KEY" },
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
       signal: AbortSignal.timeout(120000),
     });
 
-    if (!res.ok && res.status === 401) {
+    if (res.status === 401) {
       return NextResponse.json({ error: "Backend authentication failed" }, { status: 502 });
     }
 
