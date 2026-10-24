@@ -54,10 +54,7 @@ class SecurityPolicy:
         return RiskLevel.low, DecisionAction.allow, ["Read-only or low-risk request"]
 
     def ensure_workspace_path(self, raw_path: str) -> Path:
-        """
-        Constitutional path containment.
-        Uses proper relative resolution — never string prefix matching.
-        """
+        """Constitutional path containment — uses relative_to, never string prefix."""
         candidate = (self.workspace_root / raw_path).resolve()
         try:
             candidate.relative_to(self.workspace_root)
