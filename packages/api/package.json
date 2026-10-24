@@ -1,0 +1,21 @@
+{
+  "name": "@disha/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/server.ts",
+  "scripts": {
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@disha/orchestrator": "workspace:*",
+    "@disha/adapter-github-user": "workspace:*",
+    "@disha/adapter-dns": "workspace:*",
+    "@disha/adapter-wayback": "workspace:*",
+    "@disha/adapter-crtsh": "workspace:*",
+    "@disha/adapter-ip-lookup": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "@types/node": "^22.0.0"
+  }
+}
