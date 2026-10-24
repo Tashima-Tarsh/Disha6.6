@@ -7,6 +7,7 @@ DISHA 6.6 — OSINT Backend (Constitutionally secured)
 - Vyuha formations: PROPOSAL-ONLY (no autonomous high-risk execution)
 - Evidence bridge: scan results → EvidenceEvent JSON for the Ledger
 - Fail-closed auth, restricted CORS, path sandbox
+- Mandatory policy gate: active_network collectors need allowActive=true
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from secure_bootstrap import (
     apply_security,
@@ -24,7 +25,7 @@ from secure_bootstrap import (
     ensure_inside_workspace,
     require_api_key,
 )
-from osint_collectors import REGISTRY, safe, plan
+from osint_collectors import REGISTRY, safe, plan, redact_inputs
 from osint_graph import (
     DB_PATH,
     sg_connect,
@@ -61,6 +62,11 @@ class ScanInput(BaseModel):
     keyword: Optional[str] = None
     live: Optional[bool] = None
     missionId: Optional[str] = None
+    # Explicit opt-in for active network probes (port scan, arbitrary HTTP headers, DNS sockets).
+    allowActive: bool = Field(
+        default=False,
+        description="Must be true to run active_network collectors (port scan, etc.). Default false.",
+    )
 
 
 @app.get("/")
@@ -73,6 +79,11 @@ def root():
         "vyuhaFormations": len(VYUH_FORMATIONS),
         "vyuhaMode": "proposal_only",
         "evidenceBridge": True,
+        "policy": {
+            "activeNetworkDefault": "deny",
+            "allowActiveField": "allowActive",
+            "note": "active_network collectors (port scan, HTTP headers, DNS) require allowActive=true",
+        },
     }
 
 
@@ -80,7 +91,12 @@ def root():
 def tools():
     return {
         "collectors": [
-            {"name": c["name"], "inputs": c["inputs"], "category": c["category"]}
+            {
+                "name": c["name"],
+                "inputs": c["inputs"],
+                "category": c["category"],
+                "risk": c.get("risk", "passive"),
+            }
             for c in REGISTRY
         ]
     }
@@ -90,17 +106,33 @@ def tools():
 async def scan(payload: ScanInput):
     v = payload.model_dump(exclude_none=True)
     mission_id = v.pop("missionId", None)
-    chosen = plan(v)
+    allow_active = bool(v.pop("allowActive", False))
+
+    chosen = plan(v, allow_active=allow_active)
+    denied = []
+    if not allow_active:
+        # Report what would have run but was blocked by policy.
+        would = plan(v, allow_active=True)
+        denied = [
+            {"name": c["name"], "risk": c.get("risk"), "reason": "allowActive required"}
+            for c in would
+            if c.get("risk") == "active_network"
+        ]
+
     results: Dict[str, Any] = {}
     for c in chosen:
         results[c["name"]] = safe(c, v)
+
     evidence_events = observations_to_evidence_events(
         results=results, inputs=v, mission_id=mission_id
     )
+
     return {
-        "inputs": v,
+        "inputs": redact_inputs(v),
         "ran": len(results),
         "results": results,
+        "deniedByPolicy": denied,
+        "allowActive": allow_active,
         "evidenceEvents": evidence_events,
         "evidenceCount": len(evidence_events),
         "missionId": mission_id,
@@ -192,8 +224,9 @@ def vyuh_formations():
 def vyuh_activate(payload: dict):
     """Proposal-only: runs only mapped collectors and returns a proposal + evidence."""
     formation_id = payload.get("formation_id")
-    inputs = payload.get("inputs", {})
+    inputs = payload.get("inputs", {}) or {}
     mission_id = payload.get("missionId")
+    allow_active = bool(payload.get("allowActive", False))
     if formation_id not in VYUH_FORMATIONS:
         return JSONResponse({"error": "unknown formation"}, status_code=400)
     formation = VYUH_FORMATIONS[formation_id]
@@ -210,12 +243,19 @@ def vyuh_activate(payload: dict):
         if not match:
             results[coll_name] = {"status": "not_installed"}
             continue
+        if match.get("risk") == "active_network" and not allow_active:
+            results[reg_name] = {
+                "status": "denied_by_policy",
+                "reason": "active_network requires allowActive=true",
+            }
+            continue
         results[reg_name] = safe(match, inputs)
     evidence_events = observations_to_evidence_events(
         results={
             k: v
             for k, v in results.items()
-            if not isinstance(v, dict) or v.get("status") not in ("proposal", "not_installed")
+            if not isinstance(v, dict)
+            or v.get("status") not in ("proposal", "not_installed", "denied_by_policy")
         },
         inputs=inputs,
         mission_id=mission_id,
@@ -227,11 +267,13 @@ def vyuh_activate(payload: dict):
         "name": formation.get("name"),
         "purpose": formation.get("purpose"),
         "results": results,
+        "allowActive": allow_active,
         "evidenceEvents": evidence_events,
         "evidenceCount": len(evidence_events),
         "constitutional": {
             "highRisk": "blocked",
             "verification": "OBSERVED only — human review required for VERIFIED",
+            "activeNetworkDefault": "deny",
         },
     }
 
