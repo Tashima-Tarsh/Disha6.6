@@ -123,6 +123,7 @@ export class ConstitutionalOrchestrator {
   /**
    * Human review decision.
    * This is the ONLY path that can produce a VERIFIED finding.
+   * Returns the original evidence event ID (not the review-item ID).
    */
   async review(
     reviewItemId: string,
@@ -130,6 +131,15 @@ export class ConstitutionalOrchestrator {
     actor: Actor,
     notes?: string
   ): Promise<{ newVerification: VerificationState; evidenceId: string }> {
+    // Capture the item *before* decide() marks it completed (listPending filters it out).
+    const pending = this.reviews.listPending();
+    const item = pending.find((i) => i.id === reviewItemId);
+    if (!item) {
+      // Fall back: try any known item if the queue exposes it later; for now fail closed.
+      throw new Error(`Review item not found or already completed: ${reviewItemId}`);
+    }
+    const originalEvidenceId = item.evidenceId;
+
     const { newVerification, action } = this.reviews.decide(
       reviewItemId,
       decision,
@@ -137,28 +147,27 @@ export class ConstitutionalOrchestrator {
       notes
     );
 
-    // Record the review decision itself as an EvidenceEvent
-    const item = this.reviews.listPending().find((i) => i.id === reviewItemId) 
-      // item is already completed; we need the evidenceId from the action context
-      // For simplicity we return what the review produced.
-      ;
-
-    // In a full implementation we would look up the original evidenceId
-    // and append a policy_decision / approval event linked to it.
+    // Record the review decision as an EvidenceEvent linked to the original finding.
     await this.ledger.append({
       actor,
       type: decision === "elevate_verified" ? "approval" : decision === "reject" ? "rejection" : "policy_decision",
-      payload: { reviewItemId, decision, notes },
-      sources: [],
+      payload: {
+        reviewItemId,
+        decision,
+        notes,
+        linkedEvidenceId: originalEvidenceId,
+      },
+      sources: [{ adapterId: "human-review", retrievedAt: new Date().toISOString() }],
       verification: newVerification,
       policyContext: {
         policyId: "human-review",
         decision: decision === "elevate_verified" ? "allow" : decision === "reject" ? "deny" : "ask",
         reasons: notes ? [notes] : [`Human review: ${decision}`],
       },
+      missionId: item.missionId,
     });
 
-    return { newVerification, evidenceId: reviewItemId };
+    return { newVerification, evidenceId: originalEvidenceId };
   }
 
   /** Verify the hash chain for a mission (or entire ledger) */
