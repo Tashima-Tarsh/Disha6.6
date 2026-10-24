@@ -1,0 +1,10 @@
+{
+  "name": "@disha/adapter-ip-lookup",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@disha/contracts": "workspace:*",
+    "ulid": "^2.3.0"
+  }
+}
