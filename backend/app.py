@@ -4,10 +4,10 @@ DISHA 6.6 — OSINT Backend (Constitutionally secured)
 
 - Full collector registry (osint_collectors)
 - Identity graph (osint_graph)
-- Vyuha formations: PROPOSAL-ONLY (no autonomous high-risk execution)
-- Evidence bridge: scan results → EvidenceEvent JSON for the Ledger
-- Fail-closed auth, restricted CORS, path sandbox
-- Mandatory policy gate: active_network collectors need allowActive=true
+- Vyuha formations: PROPOSAL-ONLY
+- Evidence bridge: scan → EvidenceEvent JSON (PII redacted in ledger proposals)
+- UI responses: inputsDisplay keeps identity PII; secrets always redacted
+- /tools and /tools/status: executable + actionable flags per collector
 """
 from __future__ import annotations
 
@@ -25,7 +25,14 @@ from secure_bootstrap import (
     ensure_inside_workspace,
     require_api_key,
 )
-from osint_collectors import REGISTRY, safe, plan, redact_inputs
+from osint_collectors import (
+    REGISTRY,
+    safe,
+    plan,
+    redact_for_log,
+    inputs_for_display,
+    list_tools_status,
+)
 from osint_graph import (
     DB_PATH,
     sg_connect,
@@ -62,43 +69,65 @@ class ScanInput(BaseModel):
     keyword: Optional[str] = None
     live: Optional[bool] = None
     missionId: Optional[str] = None
-    # Explicit opt-in for active network probes (port scan, arbitrary HTTP headers, DNS sockets).
     allowActive: bool = Field(
         default=False,
-        description="Must be true to run active_network collectors (port scan, etc.). Default false.",
+        description="Must be true to run active_network collectors. Default false.",
     )
 
 
 @app.get("/")
 def root():
+    status = list_tools_status()
+    ready = sum(1 for t in status if t.get("status") == "ready")
     return {
         "service": "DISHA 6.6 OSINT",
         "constitutional": True,
         "auth": "Bearer DISHA_OSINT_API_KEY required on sensitive routes",
         "collectors": len(REGISTRY),
+        "collectorsReady": ready,
         "vyuhaFormations": len(VYUH_FORMATIONS),
         "vyuhaMode": "proposal_only",
         "evidenceBridge": True,
+        "privacy": {
+            "inputsDisplay": "identity PII visible to authorized UI; secrets always [REDACTED]",
+            "inputsRedacted": "logs, print, evidence payloads",
+        },
         "policy": {
             "activeNetworkDefault": "deny",
             "allowActiveField": "allowActive",
-            "note": "active_network collectors (port scan, HTTP headers, DNS) require allowActive=true",
         },
     }
 
 
 @app.get("/tools")
 def tools():
+    """Catalog of collectors with executable/actionable status."""
+    status = list_tools_status()
     return {
-        "collectors": [
-            {
-                "name": c["name"],
-                "inputs": c["inputs"],
-                "category": c["category"],
-                "risk": c.get("risk", "passive"),
-            }
-            for c in REGISTRY
-        ]
+        "collectors": status,
+        "summary": {
+            "total": len(status),
+            "ready": sum(1 for t in status if t.get("status") == "ready"),
+            "not_installed": sum(1 for t in status if t.get("status") == "not_installed"),
+        },
+        "note": (
+            "This is the executable OSINT surface (~36). "
+            "A larger upstream discovery catalog is not the same as a runnable fleet."
+        ),
+    }
+
+
+@app.get("/tools/status", dependencies=[Depends(require_api_key)])
+def tools_status():
+    status = list_tools_status()
+    return {
+        "collectors": status,
+        "summary": {
+            "total": len(status),
+            "ready": sum(1 for t in status if t.get("status") == "ready"),
+            "not_installed": sum(1 for t in status if t.get("status") == "not_installed"),
+            "shell": [t for t in status if t.get("kind") == "shell"],
+        },
     }
 
 
@@ -111,7 +140,6 @@ async def scan(payload: ScanInput):
     chosen = plan(v, allow_active=allow_active)
     denied = []
     if not allow_active:
-        # Report what would have run but was blocked by policy.
         would = plan(v, allow_active=True)
         denied = [
             {"name": c["name"], "risk": c.get("risk"), "reason": "allowActive required"}
@@ -123,12 +151,18 @@ async def scan(payload: ScanInput):
     for c in chosen:
         results[c["name"]] = safe(c, v)
 
+    # Evidence always uses log-redacted inputs (PII + secrets).
     evidence_events = observations_to_evidence_events(
         results=results, inputs=v, mission_id=mission_id
     )
 
     return {
-        "inputs": redact_inputs(v),
+        # On-screen / operator UI: identity PII visible; secrets hidden.
+        "inputsDisplay": inputs_for_display(v),
+        # Logs / print / export: full redaction of PII + secrets.
+        "inputsRedacted": redact_for_log(v),
+        # Backward-compatible alias of redacted (safe default for old clients).
+        "inputs": redact_for_log(v),
         "ran": len(results),
         "results": results,
         "deniedByPolicy": denied,
@@ -215,14 +249,13 @@ def resolve_one(payload: dict):
 def vyuh_formations():
     return {
         "mode": "proposal_only",
-        "note": "Vyuha is advisory under the Constitution. Activation never executes high-risk actions autonomously.",
+        "note": "Vyuha is advisory under the Constitution.",
         "formations": VYUH_FORMATIONS,
     }
 
 
 @app.post("/api/v1/vyuh/activate", dependencies=[Depends(require_api_key)])
 def vyuh_activate(payload: dict):
-    """Proposal-only: runs only mapped collectors and returns a proposal + evidence."""
     formation_id = payload.get("formation_id")
     inputs = payload.get("inputs", {}) or {}
     mission_id = payload.get("missionId")
@@ -267,6 +300,8 @@ def vyuh_activate(payload: dict):
         "name": formation.get("name"),
         "purpose": formation.get("purpose"),
         "results": results,
+        "inputsDisplay": inputs_for_display(inputs),
+        "inputsRedacted": redact_for_log(inputs),
         "allowActive": allow_active,
         "evidenceEvents": evidence_events,
         "evidenceCount": len(evidence_events),
