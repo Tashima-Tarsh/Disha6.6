@@ -15233,7 +15233,7 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-07T04:58:41.591Z",
-    "lastSmokeTested": "2026-10-25T14:58:44.386Z",
+    "lastSmokeTested": "2026-10-25T17:36:38.900Z",
     "smokeResult": {
       "success": false,
       "latencyMs": 0,
@@ -17452,7 +17452,7 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-07T04:58:47.803Z",
-    "lastSmokeTested": "2026-10-25T14:58:44.338Z",
+    "lastSmokeTested": "2026-10-25T17:36:38.869Z",
     "smokeResult": {
       "success": false,
       "latencyMs": 1,

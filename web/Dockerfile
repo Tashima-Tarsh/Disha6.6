@@ -24,6 +24,7 @@ COPY --from=builder --chown=nextjs:nextjs /app/${NEXT_BUILD_DIR}/standalone ./
 COPY --from=builder --chown=nextjs:nextjs /app/${NEXT_BUILD_DIR}/static ./${NEXT_BUILD_DIR}/static
 COPY --chown=nextjs:nextjs database ./database
 COPY --chown=nextjs:nextjs data ./data
+COPY --chown=nextjs:nextjs .agents ./.agents
 COPY --chown=nextjs:nextjs scripts ./scripts
 
 USER nextjs

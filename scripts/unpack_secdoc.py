@@ -37,3 +37,4 @@ if os.path.exists(sec_dir):
                 print(f"Extracted and configured secdoc-{stem}")
             except Exception as e:
                 print(f"Error extracting {f}: {e}")
+

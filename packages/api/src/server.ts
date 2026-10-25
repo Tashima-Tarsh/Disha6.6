@@ -6,6 +6,7 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from "http";
+import crypto from "node:crypto";
 import { createOrchestrator } from "@disha/orchestrator";
 import { githubUserAdapter } from "@disha/adapter-github-user";
 import { dnsAdapter } from "@disha/adapter-dns";
@@ -73,30 +74,77 @@ function requireAuth(req: IncomingMessage, res: ServerResponse): boolean {
   return true;
 }
 
+function verifyHumanReviewerAssertion(token: string): { valid: boolean; userId?: string; role?: string } {
+  try {
+    const secret = process.env.DISHA_REVIEWER_SECRET || process.env.DISHA_JWT_SECRET;
+    if (!secret) return { valid: false };
+
+    // Support both standard header.payload.signature and HMAC-SHA256 assertion
+    const parts = token.split(".");
+    if (parts.length === 3) {
+      const [headerB64, payloadB64, sigB64] = parts;
+      const expectedSig = crypto
+        .createHmac("sha256", secret)
+        .update(`${headerB64}.${payloadB64}`)
+        .digest("base64url");
+      if (sigB64 !== expectedSig) return { valid: false };
+
+      const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString("utf8"));
+      if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return { valid: false };
+      if (payload.typ !== "human_reviewer" && payload.typ !== "access") return { valid: false };
+      const roles = Array.isArray(payload.roles) ? payload.roles : [payload.role];
+      const isReviewerOrAdmin = roles.includes("reviewer") || roles.includes("admin") || roles.includes("operator");
+      if (!isReviewerOrAdmin) return { valid: false };
+
+      return { valid: true, userId: payload.sub || payload.userId, role: roles[0] };
+    }
+  } catch {
+    return { valid: false };
+  }
+  return { valid: false };
+}
+
 /**
  * Resolve the acting principal from authenticated request context.
- * Body-supplied actor is ignored for authorization (may only supply displayName).
+ * Service API keys resolve as 'system' principal.
+ * Human principal requires cryptographically verified X-Disha-Reviewer-Token.
  */
 function principalFromRequest(req: IncomingMessage, body?: any): {
   type: "human" | "system" | "adapter" | "agent";
   id: string;
   displayName?: string;
+  reviewerRole?: string;
 } {
   const hdrId = (req.headers["x-disha-actor-id"] as string | undefined)?.trim();
   const hdrType = (req.headers["x-disha-actor-type"] as string | undefined)?.trim();
   const hdrName = (req.headers["x-disha-actor-name"] as string | undefined)?.trim();
+  const reviewerToken = (req.headers["x-disha-reviewer-token"] as string | undefined)?.trim();
 
-  // Authenticated API key implies a service principal unless explicit human headers are set.
-  const id = hdrId || "api-key-principal";
-  const type =
-    hdrType === "human" || hdrType === "system" || hdrType === "adapter" || hdrType === "agent"
-      ? hdrType
-      : ("human" as const);
+  // If caller asserts human identity, require cryptographic verification
+  if (hdrType === "human" || reviewerToken) {
+    if (reviewerToken) {
+      const verification = verifyHumanReviewerAssertion(reviewerToken);
+      if (verification.valid) {
+        return {
+          type: "human",
+          id: verification.userId || hdrId || "verified-human-reviewer",
+          displayName: hdrName || body?.actor?.displayName || "Verified Human Reviewer",
+          reviewerRole: verification.role,
+        };
+      }
+    }
+    // API-key caller without valid human assertion token cannot claim human identity
+  }
+
+  // Adapter or agent if explicitly indicated in authenticated context
+  let resolvedType: "system" | "adapter" | "agent" = "system";
+  if (hdrType === "adapter") resolvedType = "adapter";
+  else if (hdrType === "agent") resolvedType = "agent";
 
   return {
-    type,
-    id,
-    displayName: hdrName || body?.actor?.displayName,
+    type: resolvedType,
+    id: hdrId || "api-key-system-principal",
+    displayName: hdrName || body?.actor?.displayName || "System Service Caller",
   };
 }
 
@@ -178,7 +226,8 @@ const server = createServer(async (req, res) => {
       }
       if (actor.type !== "human" && body.decision === "elevate_verified") {
         return json(res, 403, {
-          error: "Only a human principal may elevate evidence to VERIFIED",
+          error:
+            "Only an independently verified human reviewer (via cryptographic X-Disha-Reviewer-Token) may elevate evidence to VERIFIED. Service API keys cannot attest human reviewer identity.",
         });
       }
       return json(res, 200, await orch.review(id, body.decision, actor, body.notes));

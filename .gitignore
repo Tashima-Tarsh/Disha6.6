@@ -24,7 +24,8 @@ __pycache__/
 .dev.vars
 **/.dev.vars
 
-# OS files
+# Web build artifacts & bundled assets
+web/.agents/
 .DS_Store
 Thumbs.db
 

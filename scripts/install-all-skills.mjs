@@ -420,3 +420,4 @@ installStandardRepoSkills("vercel_skills", "vercel", "design-frontend");
 installStandardRepoSkills("orchestra_ai_research", "orch", "ai-research");
 
 console.info("✓ All skill sources successfully copied and normalized.");
+

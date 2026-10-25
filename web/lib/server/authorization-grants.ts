@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import type { Principal, Role } from "./types";
-import { signJson } from "./crypto";
+import { signJson, verifySignedJson } from "./crypto";
 import { authSigningSecret } from "./auth";
 import type { UniversalToolDefinition } from "../osint/universal-execution-service";
 import { validateTargetAgainstAssetInventory, type AssessmentTier } from "./asset-inventory";
@@ -188,15 +188,21 @@ export function issueAuthorizationGrant(params: {
     exp: Math.floor((now + ttlMs) / 1000),
   };
 
-  let signature: string | undefined;
-  try {
-    signature = signJson(grantPayload, authSigningSecret());
-  } catch {
-    signature = crypto
-      .createHmac("sha256", "disha-grant-key")
-      .update(JSON.stringify(grantPayload))
-      .digest("hex");
+  function getGrantSecret(): string {
+    try {
+      return authSigningSecret();
+    } catch {
+      const envSecret = process.env.DISHA_JWT_SECRET || process.env.DISHA_GRANT_SECRET;
+      if (envSecret) return envSecret;
+      if (process.env.NODE_ENV !== "production") {
+        return "disha-development-secret-minimum-32-chars-long";
+      }
+      throw new Error("FATAL: DISHA_JWT_SECRET is required to sign or verify authorization grants in production");
+    }
   }
+
+  const secret = getGrantSecret();
+  const signature = signJson(grantPayload, secret);
 
   const grant: AuthorizationGrant = {
     grantId,
@@ -248,6 +254,25 @@ export function issueAuthorizationGrant(params: {
   return grant;
 }
 
+export function verifyGrantSignature(grant: AuthorizationGrant): boolean {
+  if (!grant.signature) return false;
+  try {
+    let secret: string;
+    try {
+      secret = authSigningSecret();
+    } catch {
+      secret =
+        process.env.DISHA_JWT_SECRET ||
+        process.env.DISHA_GRANT_SECRET ||
+        "disha-development-secret-minimum-32-chars-long";
+    }
+    const payload = verifySignedJson(grant.signature, secret);
+    return payload.grantId === grant.grantId && payload.scope === grant.scope;
+  } catch {
+    return false;
+  }
+}
+
 export function getAuthorizationGrant(grantId: string): AuthorizationGrant | null {
   const grant = grantStore.get(grantId);
   if (!grant) return null;
@@ -257,7 +282,66 @@ export function getAuthorizationGrant(grantId: string): AuthorizationGrant | nul
     persistGrantsToDisk();
     return null;
   }
+
+  // Cryptographic signature check — reject tampered grants
+  if (!verifyGrantSignature(grant)) {
+    console.warn(`[authorization-grants] Signature verification failed for grant '${grantId}'. Rejecting.`);
+    return null;
+  }
+
   return grant;
+}
+
+export function verifyAuthorizationGrant(params: {
+  grantId: string;
+  caller?: Principal;
+  requiredScope: AuthorizationScope;
+  target?: string;
+  toolId?: string;
+}): { authorized: boolean; reason?: string; grant?: AuthorizationGrant } {
+  const grant = getAuthorizationGrant(params.grantId);
+  if (!grant) {
+    return {
+      authorized: false,
+      reason: `INVALID_GRANT: Grant '${params.grantId}' does not exist, signature verification failed, expired, or was revoked.`,
+    };
+  }
+
+  // Cross-user reuse check: Caller must match grantedTo unless caller is admin
+  if (params.caller && grant.grantedTo !== params.caller.userId && !params.caller.roles.includes("admin")) {
+    return {
+      authorized: false,
+      reason: `CROSS_USER_GRANT_REUSE_BLOCKED: Grant was issued to '${grant.grantedTo}', but requested by '${params.caller.userId}'.`,
+    };
+  }
+
+  // Scope check
+  if (grant.scope !== params.requiredScope && grant.scope !== "high_risk_execution") {
+    return {
+      authorized: false,
+      reason: `SCOPE_MISMATCH: Grant authorizes scope '${grant.scope}', but '${params.requiredScope}' is required.`,
+    };
+  }
+
+  // Tool check
+  if (params.toolId && grant.toolId && grant.toolId !== "*" && grant.toolId.toLowerCase() !== params.toolId.toLowerCase()) {
+    return {
+      authorized: false,
+      reason: `GRANT_TOOL_MISMATCH: Grant '${params.grantId}' authorizes tool '${grant.toolId}', but was invoked with '${params.toolId}'.`,
+    };
+  }
+
+  // Target pattern check
+  if (params.target && grant.targetPattern && grant.targetPattern !== "*") {
+    if (!isTargetMatchingPattern(params.target, grant.targetPattern)) {
+      return {
+        authorized: false,
+        reason: `OUT_OF_SCOPE_TARGET: Target '${params.target}' does not match authorized pattern '${grant.targetPattern}'.`,
+      };
+    }
+  }
+
+  return { authorized: true, grant };
 }
 
 export function revokeAuthorizationGrant(grantId: string, principal: Principal): boolean {

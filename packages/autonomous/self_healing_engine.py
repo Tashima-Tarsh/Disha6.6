@@ -6,10 +6,35 @@ Lifecycle: DETECT -> DIAGNOSE -> REPRODUCE -> PLAN FIX -> CREATE PATCH -> TEST -
 from __future__ import annotations
 
 import os
+import shlex
 import shutil
 import subprocess
 import time
 from typing import Any, Dict
+
+ALLOWED_RUNNERS = {"npm", "npx", "pytest", "python", "python3", "node", "vitest", "jest"}
+
+def _safe_run(cmd_str: str, timeout: int = 30) -> subprocess.CompletedProcess:
+    """Executes an allowlisted command safely without a shell."""
+    # Check for shell metacharacters
+    for ch in [";", "&", "|", "`", "$", ">", "<", "\n", "\r"]:
+        if ch in cmd_str:
+            raise ValueError(f"Prohibited shell metacharacter '{ch}' in command: {cmd_str}")
+
+    argv = shlex.split(cmd_str)
+    if not argv:
+        raise ValueError("Empty command string")
+
+    executable = os.path.basename(argv[0]).lower()
+    if executable.endswith(".exe"):
+        executable = executable[:-4]
+
+    if executable not in ALLOWED_RUNNERS:
+        raise ValueError(
+            f"Command executable '{argv[0]}' not in safe allowlist: {sorted(list(ALLOWED_RUNNERS))}"
+        )
+
+    return subprocess.run(argv, shell=False, capture_output=True, text=True, timeout=timeout)
 
 
 class SelfHealingEngine:
@@ -43,9 +68,16 @@ class SelfHealingEngine:
         }
 
         # 2. REPRODUCE
-        p_repro = subprocess.run(
-            repro_cmd, shell=True, capture_output=True, text=True, timeout=30
-        )
+        try:
+            p_repro = _safe_run(repro_cmd, timeout=30)
+        except Exception as e:
+            trace["phases"]["reproduce"] = {
+                "status": "COMMAND_PROHIBITED",
+                "error": str(e),
+            }
+            trace["status"] = "PROHIBITED"
+            return trace
+
         if p_repro.returncode == 0:
             trace["phases"]["reproduce"] = {
                 "status": "NOT_REPRODUCED",
@@ -82,9 +114,24 @@ class SelfHealingEngine:
         }
 
         # 5. TEST
-        p_test = subprocess.run(
-            test_cmd, shell=True, capture_output=True, text=True, timeout=60
-        )
+        try:
+            p_test = _safe_run(test_cmd, timeout=60)
+        except Exception as e:
+            # Revert and report error
+            shutil.copyfile(backup_path, target_file)
+            if os.path.exists(backup_path):
+                os.remove(backup_path)
+            trace["phases"]["test"] = {
+                "status": "COMMAND_PROHIBITED",
+                "error": str(e),
+            }
+            trace["phases"]["rollback"] = {
+                "status": "ROLLED_BACK",
+                "reason": "Test command prohibited by security policy",
+            }
+            trace["status"] = "FAILED_SECURITY_POLICY"
+            return trace
+
         if p_test.returncode == 0:
             trace["phases"]["test"] = {
                 "status": "TEST_PASSED",

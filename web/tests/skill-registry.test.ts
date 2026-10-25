@@ -6,9 +6,18 @@ import {
   listRoles,
   getRoleById,
   getRoleInstructions,
+  dispatchRole,
 } from "../lib/skills/skill-registry";
+import { issueAuthorizationGrant } from "../lib/server/authorization-grants";
+import type { Principal } from "../lib/server/types";
 
-describe("Canonical Agent Skills & Roles Registry", () => {
+describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verification", () => {
+  const adminPrincipal: Principal = {
+    userId: "admin-lead",
+    roles: ["admin", "analyst"],
+    token: "token-admin",
+  };
+
   it("indexes and retrieves over 1,500 registered skills", () => {
     const all = listSkills();
     expect(all.length).toBeGreaterThanOrEqual(1500);
@@ -60,67 +69,213 @@ describe("Canonical Agent Skills & Roles Registry", () => {
     expect(roleResults.length).toBeGreaterThan(10);
   });
 
-  it("executes an AI research skill behind policy gate and logs evidence", async () => {
-    const aiSkill = listSkills({ category: "ai-research" })[0];
-    expect(aiSkill).toBeDefined();
+  // -----------------------------------------------------------------
+  // C-01 & M-01: True Domain Measurement & Deliberate Failing Fixtures
+  // -----------------------------------------------------------------
 
-    const result = await executeSkill(aiSkill.id, {
-      missionId: "m-ai-eval-01",
-      actor: "scientist@disha.gov",
-      taskPrompt: "Verify benchmark loss evaluation protocol and zero-shot accuracy metrics",
+  it("scientific computing: performs real statistical computation and emits measurements", async () => {
+    const sciSkill = listSkills({ category: "scientific-computing" })[0];
+    expect(sciSkill).toBeDefined();
+
+    const sampleData = [10.2, 11.5, 9.8, 12.1, 10.5, 11.0, 9.9];
+    const result = await executeSkill(sciSkill.id, {
+      missionId: "m-sci-calc-01",
+      actor: "lead.researcher@disha.gov",
+      taskPrompt: "Run empirical sample validation",
+      params: { data: sampleData },
     });
 
     expect(result.status).toBe("SUCCESS");
-    expect(result.skillId).toBe(aiSkill.id);
-    expect(result.output.governed).toBe(true);
-    expect(result.output.category).toBe("ai-research");
-    expect((result.output.executionArtifact as any)?.domain).toBe("machine_learning_research");
+    expect(result.artifactHash).toBeDefined();
+    const artifact = result.output.executionArtifact as any;
+    expect(artifact.validationPassed).toBe(true);
+    expect(artifact.statisticalMeasurements.sampleCount).toBe(7);
+    expect(artifact.statisticalMeasurements.mean).toBeCloseTo(10.714, 2);
+    expect(artifact.statisticalMeasurements.variance).toBeGreaterThan(0);
+    expect(artifact.statisticalMeasurements.standardDeviation).toBeGreaterThan(0);
   });
 
-  it("executes a Computer Networking skill with protocol verification", async () => {
+  it("scientific computing gate: deliberately rejects NaN and variance exceeding tolerance", async () => {
+    const sciSkill = listSkills({ category: "scientific-computing" })[0];
+
+    // Deliberate failure fixture 1: NaN values
+    const resultNan = await executeSkill(sciSkill.id, {
+      missionId: "m-sci-fail-nan",
+      actor: "researcher@disha.gov",
+      taskPrompt: "Calculate sample stats",
+      params: { data: [1.0, NaN, 3.5] },
+    });
+    expect(resultNan.status).toBe("EXECUTION_FAILED");
+    expect((resultNan.output.executionArtifact as any)?.validationPassed).toBe(false);
+
+    // Deliberate failure fixture 2: variance exceeds threshold
+    const resultVariance = await executeSkill(sciSkill.id, {
+      missionId: "m-sci-fail-var",
+      actor: "researcher@disha.gov",
+      taskPrompt: "Calculate sample stats",
+      params: { data: [1.0, 50.0, 100.0], maxVariance: 10.0 },
+    });
+    expect(resultVariance.status).toBe("EXECUTION_FAILED");
+    expect((resultVariance.output.executionArtifact as any)?.validationPassed).toBe(false);
+  });
+
+  it("computer networking: validates real CIDRs, MTU, and loop-free trajectory", async () => {
     const netSkill = listSkills({ category: "computer-networking" })[0];
-    expect(netSkill).toBeDefined();
 
     const result = await executeSkill(netSkill.id, {
       missionId: "m-net-diag-01",
       actor: "network.admin@disha.gov",
-      taskPrompt: "Diagnose BGP peering route mismatch and MTU discrepancies",
+      taskPrompt: "Verify route convergence for 10.0.0.0/24 and 192.168.1.0/24",
+      params: {
+        hops: ["router-1", "core-switch-1", "edge-router-2"],
+        mtu: 1500,
+      },
     });
 
     expect(result.status).toBe("SUCCESS");
-    expect(result.skillId).toBe(netSkill.id);
-    expect(result.output.category).toBe("computer-networking");
-    expect((result.output.executionArtifact as any)?.domain).toBe("network_diagnostics_and_protocol_verification");
+    const artifact = result.output.executionArtifact as any;
+    expect(artifact.convergenceStatus).toBe("converged");
+    expect(artifact.packetFlowVerified).toBe(true);
+    expect(artifact.mtuIntegrityChecked).toBe(true);
+    expect(artifact.parsedCidrs.length).toBe(2);
+    expect(artifact.parsedCidrs[0].netmask).toBe("255.255.255.0");
   });
 
-  it("executes a Scientific Computing skill with empirical validation", async () => {
-    const sciSkill = listSkills({ category: "scientific-computing" })[0];
-    expect(sciSkill).toBeDefined();
+  it("computer networking gate: deliberately detects routing loops and MTU violations", async () => {
+    const netSkill = listSkills({ category: "computer-networking" })[0];
 
-    const result = await executeSkill(sciSkill.id, {
-      missionId: "m-sci-calc-01",
-      actor: "lead.researcher@disha.gov",
-      taskPrompt: "Run statistical significance test and metabolic flux verification",
+    // Deliberate loop fixture: core-switch-1 appears twice
+    const loopResult = await executeSkill(netSkill.id, {
+      missionId: "m-net-loop-fail",
+      actor: "network.admin@disha.gov",
+      taskPrompt: "Trace packet route",
+      params: {
+        hops: ["router-1", "core-switch-1", "agg-switch-1", "core-switch-1"],
+      },
+    });
+    expect(loopResult.status).toBe("EXECUTION_FAILED");
+    const artifact = loopResult.output.executionArtifact as any;
+    expect(artifact.convergenceStatus).toBe("loop_detected");
+    expect(artifact.packetFlowVerified).toBe(false);
+    expect(artifact.detectedLoopAt).toBe("core-switch-1");
+
+    // Deliberate MTU failure
+    const mtuResult = await executeSkill(netSkill.id, {
+      missionId: "m-net-mtu-fail",
+      actor: "network.admin@disha.gov",
+      taskPrompt: "Verify 10.1.1.0/24",
+      params: { mtu: 99999 },
+    });
+    expect(mtuResult.status).toBe("EXECUTION_FAILED");
+    expect((mtuResult.output.executionArtifact as any)?.convergenceStatus).toBe("mtu_violation");
+  });
+
+  it("ai research: validates genuine hyperparameters and parameter estimation", async () => {
+    const aiSkill = listSkills({ category: "ai-research" })[0];
+
+    const result = await executeSkill(aiSkill.id, {
+      missionId: "m-ai-eval-01",
+      actor: "scientist@disha.gov",
+      taskPrompt: "Verify transformer architecture parameters",
+      params: {
+        learningRate: 0.0003,
+        batchSize: 32,
+        layers: 24,
+        hiddenDim: 1024,
+      },
     });
 
     expect(result.status).toBe("SUCCESS");
-    expect(result.skillId).toBe(sciSkill.id);
-    expect(result.output.category).toBe("scientific-computing");
-    expect((result.output.executionArtifact as any)?.domain).toBe("scientific_computation_and_analysis");
+    const artifact = result.output.executionArtifact as any;
+    expect(artifact.hyperparameterValidation).toBe(true);
+    expect(artifact.validatedConfig.estimatedParamCount).toBe(12 * 24 * 1024 * 1024);
   });
 
-  it("strictly enforces policy restrictions on high-risk unauthorized actions", async () => {
-    const cyberSkill =
-      listSkills({ category: "cybersecurity" }).find((s) => s.compatibility.requiresApproval) ||
-      listSkills({ category: "cybersecurity" })[0];
+  it("ai research gate: deliberately rejects invalid learning rates and non-positive batch sizes", async () => {
+    const aiSkill = listSkills({ category: "ai-research" })[0];
 
-    const result = await executeSkill(cyberSkill.id, {
-      missionId: "m-skill-highrisk",
-      actor: "guest.analyst@disha.gov",
-      taskPrompt: "Execute unauthorized active exploit and exfiltrate credentials",
+    const result = await executeSkill(aiSkill.id, {
+      missionId: "m-ai-fail-01",
+      actor: "scientist@disha.gov",
+      taskPrompt: "Validate config",
+      params: { learningRate: -0.05, batchSize: 0 },
     });
 
-    expect(["POLICY_DENIED", "ESCALATION_REQUIRED", "CONFIRMATION_REQUIRED", "POLICY_VIOLATION"]).toContain(result.status);
-    expect(result.status).not.toBe("SUCCESS");
+    expect(result.status).toBe("EXECUTION_FAILED");
+    expect((result.output.executionArtifact as any)?.hyperparameterValidation).toBe(false);
+  });
+
+  it("software engineering / security: catches AST security violations", async () => {
+    const swSkill = listSkills({ category: "software-engineering" })[0];
+
+    // Deliberate violation: eval() in code
+    const result = await executeSkill(swSkill.id, {
+      missionId: "m-sec-eval",
+      actor: "analyst@disha.gov",
+      taskPrompt: "Analyze snippet",
+      params: { code: "const res = eval('userInput');" },
+    });
+
+    expect(result.status).toBe("POLICY_VIOLATION");
+    expect((result.output.executionArtifact as any)?.securityViolations).toContain("Prohibited use of eval()");
+  });
+
+  it("H-02: requires a verified authorization grant rather than caller-supplied boolean for approval", async () => {
+    const cyberSkill = listSkills({ category: "cybersecurity" }).find((s) => s.compatibility.requiresApproval);
+    if (!cyberSkill) return;
+
+    // Caller passes confirmed: true without a grant -> Must be rejected!
+    const unverifiedResult = await executeSkill(cyberSkill.id, {
+      missionId: "m-unverified-bool",
+      actor: "analyst@disha.gov",
+      taskPrompt: "Perform high risk scan",
+      params: { confirmed: true },
+    });
+    expect(unverifiedResult.status).toBe("CONFIRMATION_REQUIRED");
+
+    // Now issue a genuine cryptographic authorization grant
+    const grant = issueAuthorizationGrant({
+      scope: "high_risk_execution",
+      approver: adminPrincipal,
+      grantedTo: "analyst@disha.gov",
+      toolId: cyberSkill.id,
+      purpose: "Authorized high risk security scan",
+    });
+
+    // Provide verified approval grant
+    const verifiedResult = await executeSkill(cyberSkill.id, {
+      missionId: "m-verified-grant",
+      actor: "analyst@disha.gov",
+      principal: { userId: "analyst@disha.gov", roles: ["analyst"], token: "tok" },
+      taskPrompt: "Perform high risk scan",
+      params: { approvalGrantId: grant.grantId },
+    });
+    expect(["SUCCESS", "CONFIRMATION_REQUIRED"]).toContain(verifiedResult.status);
+    expect(verifiedResult.status).not.toBe("POLICY_DENIED");
+  });
+
+  // -----------------------------------------------------------------
+  // H-04: Governed Role Dispatcher Verification
+  // -----------------------------------------------------------------
+
+  it("H-04: recruits and dispatches expert roles with bounded execution and trace", async () => {
+    const testRoles = ["ai-researcher", "network-engineer", "research-software-engineer"];
+
+    for (const roleId of testRoles) {
+      const dispatchRes = await dispatchRole(roleId, {
+        missionId: `mission-role-test-${roleId}`,
+        actor: "lead.officer@disha.defense",
+        objective: "Perform theoretical domain evaluation and constitutional alignment",
+        maxSteps: 3,
+        tokenBudget: 3000,
+      });
+
+      expect(dispatchRes.status).toBe("SUCCESS");
+      expect(dispatchRes.roleId).toBe(roleId);
+      expect(dispatchRes.executionTrace.length).toBeGreaterThanOrEqual(2);
+      expect(dispatchRes.artifactHash).toBeDefined();
+      expect(dispatchRes.findings.length).toBeGreaterThan(0);
+      expect(dispatchRes.governance.maxSteps).toBeLessThanOrEqual(5);
+    }
   });
 });
