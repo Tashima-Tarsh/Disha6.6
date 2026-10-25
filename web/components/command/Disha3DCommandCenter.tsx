@@ -1073,11 +1073,13 @@ export function Disha3DCommandCenter({
     return null;
   }, [searchPrompt]);
 
-  // If active investigation completes or updates, auto-switch to Evidence or Overview
+  // Keep a user's chosen tab; switch from Overview only when evidence arrives.
   useEffect(() => {
-    if (active && active.evidence.length > 0 && activeResultTab === "Overview") {
-      setActiveResultTab("Intelligence Summary");
-    }
+    if (!active?.evidence.length) return;
+    const timer = window.setTimeout(() => {
+      setActiveResultTab((tab) => tab === "Overview" ? "Intelligence Summary" : tab);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [active?.evidence.length]);
 
   const handleSubmitSearch = (e: React.FormEvent) => {
