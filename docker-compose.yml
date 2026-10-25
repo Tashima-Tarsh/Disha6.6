@@ -15,7 +15,7 @@ services:
     ports: ["5001:5001"]
     restart: unless-stopped
   postgres:
-    image: postgis/postgis
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: osint
       POSTGRES_PASSWORD: osint
