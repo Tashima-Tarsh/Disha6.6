@@ -28,3 +28,24 @@ services:
     command: serve
     ports: ["8080:8080"]
     restart: unless-stopped
+
+  web-migrate:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    command: ["node", "scripts/apply-schema.mjs"]
+    environment:
+      - DATABASE_URL=postgresql://osint:osint@postgres:5432/osint
+    depends_on:
+      postgres:
+        condition: service_started
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports: ["3000:3000"]
+    restart: unless-stopped
+    depends_on:
+      web-migrate:
+        condition: service_completed_successfully

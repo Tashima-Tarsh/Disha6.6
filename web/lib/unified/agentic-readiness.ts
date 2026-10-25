@@ -61,8 +61,37 @@ export type AgenticReadinessReport = {
 const commonPolicyBoundary = "All use must pass through policy-gate.ts after lens analysis and before action.";
 const commonEvidenceBoundary = "Every result must include evidence items and mission events in evidence-ledger.ts.";
 
+function evaluateSkillReadiness(
+  def: Omit<AgentSkillDefinition, "status" | "readinessScore"> & { hasActiveTests?: boolean },
+): AgentSkillDefinition {
+  const hasContract = Boolean(def.inputContract?.trim() && def.outputContract?.trim());
+  const hasPolicyBoundary = Boolean(def.policyBoundary && def.policyBoundary.length >= 10);
+  const hasEvidenceBoundary = Boolean(def.evidenceBoundary && def.evidenceBoundary.length >= 10);
+  const hasNoBlockers = def.blockers.length === 0;
+
+  // Operational criteria weightings (25% each)
+  let score = 0;
+  if (hasContract) score += 0.25;
+  if (hasPolicyBoundary) score += 0.25;
+  if (hasEvidenceBoundary) score += 0.25;
+  if (hasNoBlockers) score += 0.25;
+
+  let status: AgentSkillStatus = "ready";
+  if (def.blockers.some((b) => /denied|blocked|forbidden/i.test(b))) {
+    status = "blocked";
+  } else if (!hasNoBlockers || score < 1.0) {
+    status = "partial";
+  }
+
+  return {
+    ...def,
+    status,
+    readinessScore: Number(score.toFixed(2)),
+  };
+}
+
 export function listAgentSkills(): AgentSkillDefinition[] {
-  return [
+  const rawSkills: Array<Omit<AgentSkillDefinition, "status" | "readinessScore">> = [
     {
       id: "governed-extension-layer",
       title: "Governed Extension Layer",
@@ -73,8 +102,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Every extension result is re-evaluated by policy-gate.ts before it is returned.",
       evidenceBoundary: "Every extension request, policy decision, and result is appended to evidence-ledger.ts.",
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.82,
       blockers: [],
     },
     {
@@ -88,8 +115,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "No execution; proposals pass through the policy gate and deny offensive or unauthorized action.",
       evidenceBoundary: "Vyuha source constraints, policy action ids, proposed actions, and extension result are ledger-recorded.",
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.8,
       blockers: [],
     },
     {
@@ -102,8 +127,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: commonPolicyBoundary,
       evidenceBoundary: "Records user_command_received and signal_normalized events.",
       learningMode: "none",
-      status: "ready",
-      readinessScore: 0.9,
       blockers: [],
     },
     {
@@ -116,8 +139,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Open source only; controlled data remains deny-by-default.",
       evidenceBoundary: "Connector responses carry provenanceHash, source metadata, and probe events.",
       learningMode: "supervised_connector",
-      status: "partial",
-      readinessScore: 0.78,
       blockers: ["Dataset-specific parsers and scheduled update monitors must be added per source."],
     },
     {
@@ -131,8 +152,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Offensive cyber language is denied; actions are defensive only.",
       evidenceBoundary: commonEvidenceBoundary,
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.84,
       blockers: [],
     },
     {
@@ -146,8 +165,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "No operational targeting or harmful tactical instruction.",
       evidenceBoundary: commonEvidenceBoundary,
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.78,
       blockers: [],
     },
     {
@@ -161,8 +178,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "No quantum advantage claim without benchmark.",
       evidenceBoundary: commonEvidenceBoundary,
       learningMode: "blocked",
-      status: "partial",
-      readinessScore: 0.55,
       blockers: ["Python quantum engines require controlled internal service adapter before direct execution."],
     },
     {
@@ -176,8 +191,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "No invented coordinates, district facts, or sensitive facility exposure.",
       evidenceBoundary: commonEvidenceBoundary,
       learningMode: "supervised_connector",
-      status: "ready",
-      readinessScore: 0.8,
       blockers: [],
     },
     {
@@ -191,8 +204,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Unsupported government/legal claims are [VERIFY REQUIRED].",
       evidenceBoundary: commonEvidenceBoundary,
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.86,
       blockers: [],
     },
     {
@@ -206,8 +217,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Planning proposes actions only; policy gate decides execution state.",
       evidenceBoundary: commonEvidenceBoundary,
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.82,
       blockers: [],
     },
     {
@@ -220,8 +229,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "No silent learning from controlled data, personal data, or unverified claims.",
       evidenceBoundary: "Learning input must reference evidence event ids and source provenance.",
       learningMode: "evidence_memory",
-      status: "partial",
-      readinessScore: 0.68,
       blockers: ["Durable memory store adapter requires retention policy, export, and production database persistence."],
     },
     {
@@ -234,8 +241,6 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Claude cannot bypass policy, controlled connectors, or evidence ledger.",
       evidenceBoundary: "Every Claude-driven mission remains a normal DISHA mission with event hashes.",
       learningMode: "evidence_memory",
-      status: "partial",
-      readinessScore: 0.74,
       blockers: ["Production provider keys, rate limits, and prompt-injection regression tests must be configured per deployment."],
     },
     {
@@ -248,11 +253,11 @@ export function listAgentSkills(): AgentSkillDefinition[] {
       policyBoundary: "Provider execution is skipped when policy denies the mission.",
       evidenceBoundary: "Model output is appended to the mission evidence chain before learning memory is recorded.",
       learningMode: "evidence_memory",
-      status: "ready",
-      readinessScore: 0.82,
       blockers: [],
     },
   ];
+
+  return rawSkills.map(evaluateSkillReadiness);
 }
 
 export function getAgenticReadinessReport(): AgenticReadinessReport {

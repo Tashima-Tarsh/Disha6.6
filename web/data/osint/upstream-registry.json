@@ -728,7 +728,7 @@
       "general"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "54a798831d2266a3ca61ce68a7acb80b81160d57",
@@ -743,14 +743,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:07.882Z",
-    "lastSmokeTested": "2026-10-15T03:27:23.469Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:07.882Z"
@@ -1295,19 +1291,15 @@
     "runtimeType": "gui-only",
     "license": "Apache-2.0 [VERIFY REQUIRED]",
     "executionClass": "passive_public",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "description": "Desktop digital-forensics platform. Not container-executed by DISHA; use as a local operator workstation tool.",
     "localClonePath": "D:/OSINT-UPSTREAM/github-research/repos/sleuthkit__autopsy",
     "localCloneObservedAt": "2026-10-09T06:03:51.903Z",
     "isLocallyPresent": true,
-    "lastVerified": "2026-10-09T06:03:51.903Z",
-    "smokeResult": {
-      "success": true,
-      "message": "GUI-only web tool verified catalog link",
-      "outputSnippet": "https://github.com/sleuthkit/autopsy"
-    },
-    "lastSmokeTested": "2026-10-15T03:27:24.568Z"
+    "lastVerified": null,
+    "smokeResult": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "autopsy-addon-modules",
@@ -1318,19 +1310,15 @@
     "runtimeType": "library-only",
     "license": "Apache-2.0 [VERIFY REQUIRED]",
     "executionClass": "passive_public",
-    "status": "LIBRARY_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "description": "Autopsy add-on module collection; depends on an operator-managed Autopsy installation.",
     "localClonePath": "D:/OSINT-UPSTREAM/github-research/repos/sleuthkit__autopsy_addon_modules",
     "localCloneObservedAt": "2026-10-09T06:03:51.903Z",
     "isLocallyPresent": true,
-    "lastVerified": "2026-10-09T06:03:51.903Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/sleuthkit/autopsy_addon_modules"
-    },
-    "lastSmokeTested": "2026-10-15T03:27:24.619Z"
+    "lastVerified": null,
+    "smokeResult": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "bbot",
@@ -2191,7 +2179,7 @@
       "url"
     ],
     "runtimeType": "dataset-only",
-    "status": "DATASET_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "d33cfa5da4a294d63a73ef96f0ee1fa90d892741",
@@ -2206,14 +2194,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:12.778Z",
-    "lastSmokeTested": "2026-10-15T03:27:25.468Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Dataset verified repository reference",
-      "outputSnippet": "https://github.com/brightdata/brightdata-mcp"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:12.778Z"
@@ -2727,7 +2711,7 @@
       "url"
     ],
     "runtimeType": "dataset-only",
-    "status": "DATASET_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "13d920413448c026b52ac74efee0f1eb39dd81ff",
@@ -2742,14 +2726,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:03.471Z",
-    "lastSmokeTested": "2026-10-15T03:27:26.225Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Dataset verified repository reference",
-      "outputSnippet": "https://github.com/elementalsouls/Claude-OSINT"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:03.471Z"
@@ -3760,7 +3740,7 @@
       "file hash"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "e05f986934cab234a952e457bcfbb72fed693bcc",
@@ -3775,14 +3755,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:03.882Z",
-    "lastSmokeTested": "2026-10-15T03:27:27.802Z",
-    "smokeResult": {
-      "success": true,
-      "message": "GUI-only web tool verified catalog link",
-      "outputSnippet": "https://github.com/7onez/cti-expert"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:03.882Z"
@@ -6861,7 +6837,7 @@
       "image"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "3307b77220bb35a5a5a931dcb75e2422fdf6b134",
@@ -6876,14 +6852,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:07.759Z",
-    "lastSmokeTested": "2026-10-15T03:27:32.047Z",
-    "smokeResult": {
-      "success": true,
-      "message": "GUI-only web tool verified catalog link",
-      "outputSnippet": "https://github.com/zuocharles/geolocation-skill"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:07.759Z"
@@ -8285,7 +8257,7 @@
       "url"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "6fbf0bc8d5c71830d62543a308d8744606c43d7c",
@@ -8300,14 +8272,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:08.953Z",
-    "lastSmokeTested": "2026-10-15T03:27:33.816Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/yaklang/hack-skills"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:08.953Z"
@@ -11276,7 +11244,7 @@
       "domain"
     ],
     "runtimeType": "dataset-only",
-    "status": "DATASET_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "30c380908b4f9afd0931d3d83f85884844831846",
@@ -11291,14 +11259,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:41.950Z",
-    "lastSmokeTested": "2026-10-15T03:27:36.637Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Dataset verified repository reference",
-      "outputSnippet": "https://github.com/blechschmidt/massdns"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:41.950Z"
@@ -12662,7 +12626,7 @@
       "document"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "1d8920fddb49aa6ad4b0ad4548c3047a4d0e22ce",
@@ -12677,14 +12641,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:03.082Z",
-    "lastSmokeTested": "2026-10-15T03:27:38.063Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/teng-lin/notebooklm-py"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:03.082Z"
@@ -13596,7 +13556,7 @@
       "general"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "3f5dfa442ea768e2f2965a4249e3dcf3948e3c9b",
@@ -13611,14 +13571,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T05:03:40.468Z",
-    "lastSmokeTested": "2026-10-15T03:27:39.104Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/OpenOSINT/OpenOSINT"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T05:03:40.468Z"
@@ -13821,7 +13777,7 @@
       "bounding box"
     ],
     "runtimeType": "python",
-    "status": "HEALTHY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": "c4af9c9e5aba25fc6ee0852b54a91b8a7c02f76b",
     "upstreamSha": "c4af9c9e5aba25fc6ee0852b54a91b8a7c02f76b",
@@ -13836,15 +13792,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z",
-    "smokeResult": {
-      "success": true,
-      "latencyMs": 28,
-      "message": "OpenSky Network API client ready",
-      "outputSnippet": "OpenSky Network API flight intelligence client for DISHA 6.6"
-    },
-    "healthStatus": "HEALTHY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "passive_public",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-15T13:17:08.648Z"
@@ -14002,7 +13953,7 @@
       "domain"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "97ed9f00d4393b5f136a930b040c5848d4baefef",
@@ -14017,14 +13968,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:04.457Z",
-    "lastSmokeTested": "2026-10-15T03:27:39.533Z",
-    "smokeResult": {
-      "success": true,
-      "message": "GUI-only web tool verified catalog link",
-      "outputSnippet": "https://github.com/dkyazzentwatwa/osint-ai"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:04.457Z"
@@ -14091,7 +14038,7 @@
       "general"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "a744e613d7ded0aaa854896feb2a1069de34d2f8",
@@ -14106,14 +14053,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:48.095Z",
-    "lastSmokeTested": "2026-10-15T03:27:39.599Z",
-    "smokeResult": {
-      "success": true,
-      "message": "GUI-only web tool verified catalog link",
-      "outputSnippet": "https://github.com/lockfale/OSINT-Framework"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:48.095Z"
@@ -14137,7 +14080,7 @@
       "image"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "4a9f97ff846cd33722279bcbb5a0ca2b983a53a3",
@@ -14152,14 +14095,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:05.217Z",
-    "lastSmokeTested": "2026-10-15T03:27:39.626Z",
-    "smokeResult": {
-      "success": true,
-      "message": "GUI-only web tool verified catalog link",
-      "outputSnippet": "https://github.com/reichaves/osint-investigation"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:05.217Z"
@@ -15148,7 +15087,7 @@
       "url"
     ],
     "runtimeType": "dataset-only",
-    "status": "DATASET_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "395d1fc56995f89b4bcda09447ef67180708281d",
@@ -15163,14 +15102,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:08.996Z",
-    "lastSmokeTested": "2026-10-15T03:27:40.645Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Dataset verified repository reference",
-      "outputSnippet": "https://github.com/0xSteph/pentest-ai"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:08.996Z"
@@ -15597,7 +15532,7 @@
       "dork query"
     ],
     "runtimeType": "python",
-    "status": "HEALTHY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": "bdfe9cbea14e0687b96c8aebb2c4ce24a7c88b07",
     "upstreamSha": "bdfe9cbea14e0687b96c8aebb2c4ce24a7c88b07",
@@ -15612,15 +15547,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z",
-    "smokeResult": {
-      "success": true,
-      "latencyMs": 38,
-      "message": "Project Eyes On v4.0 verification engine ready",
-      "outputSnippet": "Project Eyes On - public IP camera reconnaissance (educational use only)"
-    },
-    "healthStatus": "HEALTHY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "passive_public",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-15T13:17:08.648Z"
@@ -16848,7 +16778,7 @@
       "dataset"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "92ace75ac21efe19a620434e0ca4e356081fe807",
@@ -16863,14 +16793,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:02.848Z",
-    "lastSmokeTested": "2026-10-15T03:27:42.255Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/K-Dense-AI/scientific-agent-skills"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:02.848Z"
@@ -18411,7 +18337,7 @@
       "url"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "fdd179582b6b1f9e43c3d18ad27917cf2e66631e",
@@ -18426,14 +18352,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:25.757Z",
-    "lastSmokeTested": "2026-10-15T03:27:44.761Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/browserbase/stagehand"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:25.757Z"
@@ -20011,7 +19933,7 @@
       "url"
     ],
     "runtimeType": "library-only",
-    "status": "LIBRARY_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "d21b6c94982cec09c88ae9c0e98f4e3865de7148",
@@ -20026,14 +19948,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:59:39.196Z",
-    "lastSmokeTested": "2026-10-15T03:27:48.443Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/Encod3d-Sec/TORCH"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:59:39.196Z"
@@ -21023,19 +20941,15 @@
     "runtimeType": "dataset-only",
     "license": "CC-BY-SA-4.0 [VERIFY REQUIRED]",
     "executionClass": "passive_public",
-    "status": "DATASET_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "description": "Public breach incident dataset clone available locally for reference/correlation workflows.",
     "localClonePath": "D:/OSINT-UPSTREAM/github-research/repos/vz-risk__vcdb",
     "localCloneObservedAt": "2026-10-09T06:03:51.903Z",
     "isLocallyPresent": true,
-    "lastVerified": "2026-10-09T06:03:51.903Z",
-    "lastSmokeTested": "2026-10-15T03:27:50.739Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Dataset verified repository reference",
-      "outputSnippet": "https://github.com/vz-risk/VCDB"
-    }
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null
   },
   {
     "toolId": "velociraptor",
@@ -21421,19 +21335,15 @@
     "runtimeType": "library-only",
     "license": "[VERIFY REQUIRED]",
     "executionClass": "passive_public",
-    "status": "LIBRARY_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "description": "Volatility 3 community plugin collection; requires analyst-supplied memory evidence and a reviewed Volatility execution profile.",
     "localClonePath": "D:/OSINT-UPSTREAM/github-research/repos/volatilityfoundation__community3",
     "localCloneObservedAt": "2026-10-09T06:03:51.903Z",
     "isLocallyPresent": true,
-    "lastVerified": "2026-10-09T06:03:51.903Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Library reference verified",
-      "outputSnippet": "https://github.com/volatilityfoundation/community3"
-    },
-    "lastSmokeTested": "2026-10-15T03:27:51.649Z"
+    "lastVerified": null,
+    "smokeResult": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "volatility2",
@@ -22166,7 +22076,7 @@
       "username"
     ],
     "runtimeType": "dataset-only",
-    "status": "DATASET_ONLY",
+    "status": "UNCONFIGURED",
     "defaultBranch": "main",
     "pinnedSha": null,
     "upstreamSha": "062bcfe48df79fa618e96edc79dc9673f3fe5643",
@@ -22181,14 +22091,10 @@
     "requiresAuth": false,
     "requiresApiKey": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-07T04:58:48.725Z",
-    "lastSmokeTested": "2026-10-15T03:27:53.118Z",
-    "smokeResult": {
-      "success": true,
-      "message": "Dataset verified repository reference",
-      "outputSnippet": "https://github.com/WebBreacher/WhatsMyName"
-    },
-    "healthStatus": "REFERENCE_ONLY",
+    "lastVerified": null,
+    "lastSmokeTested": null,
+    "smokeResult": null,
+    "healthStatus": "UNCONFIGURED",
     "executionClass": "catalog_only",
     "upstreamStatus": "VERIFIED",
     "upstreamVerifiedAt": "2026-10-07T04:58:48.725Z"
@@ -23158,19 +23064,15 @@
       "military type"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Custom Public",
     "stars": 1200,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "ADS-B Exchange live unfiltered tracker verified",
-      "outputSnippet": "https://globe.adsbexchange.com/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23181,8 +23083,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "marinetraffic",
@@ -23205,19 +23107,15 @@
       "IMO number"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Commercial Free Tier",
     "stars": 950,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "MarineTraffic global AIS verified",
-      "outputSnippet": "https://www.marinetraffic.com/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23228,8 +23126,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "global-fishing-watch",
@@ -23252,19 +23150,15 @@
       "AIS event gap"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "CC-BY-SA-4.0",
     "stars": 840,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "Global Fishing Watch dark vessel tracking verified",
-      "outputSnippet": "https://globalfishingwatch.org/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23275,8 +23169,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "sentinel-hub",
@@ -23299,19 +23193,15 @@
       "spectral band index"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Copernicus Open Access",
     "stars": 1420,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "Copernicus Sentinel-2 EO Browser verified",
-      "outputSnippet": "https://apps.sentinel-hub.com/eo-browser/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23322,8 +23212,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "liveuamap",
@@ -23346,19 +23236,15 @@
       "timeframe"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Custom Public",
     "stars": 2100,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "Liveuamap global conflict map verified",
-      "outputSnippet": "https://liveuamap.com/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23369,8 +23255,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "polyglobe",
@@ -23392,19 +23278,15 @@
       "intelligence layers"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Public Web Dashboard",
     "stars": 650,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "Polyglobe 3D situational awareness dashboard verified",
-      "outputSnippet": "https://pizzint.watch/polyglobe"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23415,8 +23297,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "flightradar24",
@@ -23439,19 +23321,15 @@
       "aircraft registration"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Commercial Free Tier",
     "stars": 3100,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "Flightradar24 global air traffic monitor verified",
-      "outputSnippet": "https://www.flightradar24.com/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23462,8 +23340,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "google-earth-pro",
@@ -23486,19 +23364,15 @@
       "geospatial placemark"
     ],
     "runtimeType": "gui-only",
-    "status": "GUI_ONLY",
-    "healthStatus": "REFERENCE_ONLY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "Freeware",
     "stars": 4500,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "Google Earth Pro change detection verified",
-      "outputSnippet": "https://earth.google.com/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23509,8 +23383,8 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   },
   {
     "toolId": "acled",
@@ -23534,19 +23408,15 @@
       "date range"
     ],
     "runtimeType": "dataset-only",
-    "status": "DATASET_INTEGRATED",
-    "healthStatus": "HEALTHY",
+    "status": "UNCONFIGURED",
+    "healthStatus": "UNCONFIGURED",
     "license": "CC BY-NC 4.0 / Research Free",
     "stars": 1850,
     "workerCommand": null,
     "workerRuntime": null,
     "requiresAuth": false,
     "requiresApiKey": false,
-    "smokeResult": {
-      "success": true,
-      "message": "ACLED armed conflict dataset verified and active",
-      "outputSnippet": "https://acleddata.com/"
-    },
+    "smokeResult": null,
     "executionClass": "passive_public",
     "defaultBranch": "main",
     "pinnedSha": null,
@@ -23557,7 +23427,7 @@
     "forkStatus": "FORK_PENDING",
     "isArchived": false,
     "apiKeys": [],
-    "lastVerified": "2026-10-15T13:17:08.648Z",
-    "lastSmokeTested": "2026-10-15T13:17:08.648Z"
+    "lastVerified": null,
+    "lastSmokeTested": null
   }
 ]

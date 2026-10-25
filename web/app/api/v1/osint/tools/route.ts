@@ -6,43 +6,83 @@ const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000"
 
 export const dynamic = "force-dynamic";
 
-const RUNNABLE_TOOL_IDS = new Set([
-  "theharvester", "owasp-amass", "amass", "subfinder", "spiderfoot", "sherlock", "maigret",
-  "holehe", "phoneinfoga", "recon-ng", "photon", "instaloader", "telegram-public",
-  "opencti", "intelowl", "shodan", "dns-google", "rdap", "cisa-kev", "nvd-cve", "epss",
-  "sec-edgar", "noaa-space-weather", "ripestat-whois", "celestrak-gp", "opensanctions",
-  "opencorporates", "wikidata", "openalex", "reliefweb", "threatfox", "malwarebazaar",
-  "wayback", "common-crawl", "gdelt", "brave-search", "github-repository",
-  "india-vehicle-format", "vahan-registry", "echallan", "certificate-transparency",
-  "openosint", "openosint-dns", "openosint-rdap", "openosint-whois", "openosint-dorks", "openosint-ip", "openosint-github", "openosint-breach",
-  "xposedornot", "hibp", "gravatar", "github", "gitlab", "reddit", "keybase",
-  "hackernews", "npm", "dockerhub", "pypi", "telegram",
+// Canonical mapping between upstream toolId and backend collector exact name
+const CANONICAL_BACKEND_MAP: Record<string, string> = {
+  "xposedornot": "XposedOrNot breach",
+  "hibp": "Pwned Password (HIBP)",
+  "emailrep": "emailrep.io",
+  "gravatar": "Gravatar",
+  "github": "GitHub",
+  "gitlab": "GitLab",
+  "reddit": "Reddit",
+  "keybase": "Keybase",
+  "hackernews": "HackerNews",
+  "npm": "npm",
+  "dockerhub": "DockerHub",
+  "pypi": "PyPI",
+  "telegram": "Telegram",
+  "holehe": "Holehe",
+  "sherlock": "Sherlock",
+  "maigret": "Maigret",
+  "phoneinfoga": "PhoneInfoga",
+  "username-candidates": "Username candidates",
+  "india-phone": "India: mobile carrier+circle",
+  "india-vehicle-format": "India: vehicle RC parse",
+  "vahan-registry": "India: vehicle RC parse",
+  "echallan": "India: vehicle RC parse",
+  "india-epic": "India: EPIC validator",
+  "india-pan": "India: PAN validator",
+  "india-aadhaar": "India: Aadhaar validator (Verhoeff)",
+  "india-breach": "India: breach corpus reference",
+  "flights-india": "Live: flights over India",
+  "earthquakes-india": "Live: earthquakes India",
+  "active-satellites": "Live: active satellites",
+  "gdelt-india": "Live: GDELT India news",
+  "ip-lookup": "IP lookup (ipapi.co)",
+  "ipinfo": "IP lookup (ipinfo.io)",
+  "crtsh": "crt.sh certs",
+  "wayback": "Wayback availability",
+  "subdomain-enum": "Subdomain enum (crt.sh)",
+  "dns-lookup": "DNS lookup",
+  "http-headers": "HTTP headers",
+  "port-scan": "Port scan (common)",
+};
+
+// Built-in verified in-process TypeScript adapters in packages/adapters
+const VERIFIED_BUILTIN_ADAPTERS = new Set([
+  "crtsh",
+  "dns",
+  "dns-lookup",
+  "github-repo",
+  "github-user",
+  "http-headers",
+  "ip-lookup",
+  "rdap-domain",
+  "rdap",
+  "wayback",
 ]);
 
 const UNIVERSE_COMPATIBLE_TOOLS: Record<string, string[]> = {
-  domain: ["theharvester", "owasp-amass", "amass", "subfinder", "spiderfoot", "recon-ng", "photon", "shodan", "dns-google", "rdap", "certificate-transparency", "wayback", "common-crawl", "gdelt", "brave-search", "openosint", "openosint-dns", "openosint-rdap", "openosint-whois", "openosint-dorks"],
-  person: ["sherlock", "maigret", "opensanctions", "opencorporates", "wikidata", "gdelt", "brave-search", "instaloader", "telegram-public", "openosint-dorks", "openosint-github"],
-  email: ["holehe", "gdelt", "brave-search", "openosint-breach", "xposedornot", "gravatar"],
-  phone: ["phoneinfoga", "gdelt", "brave-search"],
-  company: ["opencorporates", "opensanctions", "sec-edgar", "wikidata", "gdelt", "brave-search"],
-  location: ["reliefweb", "wikidata", "gdelt", "brave-search"],
+  domain: ["theharvester", "owasp-amass", "amass", "subfinder", "spiderfoot", "recon-ng", "photon", "shodan", "dns-lookup", "rdap", "crtsh", "wayback", "openosint"],
+  person: ["sherlock", "maigret", "opensanctions", "opencorporates", "wikidata", "gdelt", "gravatar", "username-candidates"],
+  email: ["holehe", "xposedornot", "gravatar", "emailrep"],
+  phone: ["phoneinfoga", "india-phone"],
+  company: ["opencorporates", "opensanctions", "sec-edgar", "wikidata"],
   vehicle: ["india-vehicle-format", "vahan-registry", "echallan"],
-  cyber: ["cisa-kev", "nvd-cve", "epss", "threatfox", "malwarebazaar", "opencti", "intelowl", "shodan", "owasp-amass", "subfinder", "openosint", "openosint-ip", "openosint-dns", "openosint-rdap"],
-  government: ["cisa-kev", "nvd-cve", "sec-edgar", "noaa-space-weather", "india-vehicle-format", "vahan-registry", "echallan", "opensanctions", "wikidata"],
-  document: ["openalex", "wikidata", "gdelt", "brave-search"],
-  osint: Array.from(RUNNABLE_TOOL_IDS),
-  universal: Array.from(RUNNABLE_TOOL_IDS),
+  cyber: ["cisa-kev", "nvd-cve", "epss", "threatfox", "malwarebazaar", "opencti", "shodan", "owasp-amass", "subfinder"],
 };
 
 export async function GET(req: NextRequest) {
   return withContext(req, "agent:read", async (ctx) => {
-    // Merge the Disha runtime registry with the live FastAPI backend collector registry.
+    // Probe the live FastAPI backend collector registry
     let backendTools: any[] = [];
     try {
-      const res = await fetch(`${BACKEND}/tools`, { signal: req.signal });
+      const res = await fetch(`${BACKEND}/tools`, {
+        signal: req.signal,
+        next: { revalidate: 0 },
+      });
       if (res.ok) {
         const payload = await res.json();
-        // Backend returns { collectors: [...] }, not a bare array.
         backendTools = Array.isArray(payload)
           ? payload
           : Array.isArray(payload?.collectors)
@@ -67,12 +107,8 @@ export async function GET(req: NextRequest) {
 
     let filtered = registry;
 
-    if (runnableOnly) {
-      filtered = filtered.filter((t: OsintToolRecord) => RUNNABLE_TOOL_IDS.has(t.toolId.toLowerCase()));
-    }
-
     if (universe && UNIVERSE_COMPATIBLE_TOOLS[universe]) {
-      const allowed = new Set(UNIVERSE_COMPATIBLE_TOOLS[universe].map(id => id.toLowerCase()));
+      const allowed = new Set(UNIVERSE_COMPATIBLE_TOOLS[universe].map((id) => id.toLowerCase()));
       filtered = filtered.filter((t: OsintToolRecord) => allowed.has(t.toolId.toLowerCase()));
     }
 
@@ -98,39 +134,80 @@ export async function GET(req: NextRequest) {
     }
 
     const total = filtered.length;
+
+    // Truthful runtime resolution without heuristic assumptions
     const paginated = filtered.slice(offset, offset + limit).map((t: OsintToolRecord) => {
-      const isRunnable = RUNNABLE_TOOL_IDS.has(t.toolId.toLowerCase());
-      const backendMatch = backendTools.find((b: any) =>
-        b.name.toLowerCase().includes(t.toolId.toLowerCase()) ||
-        t.toolId.toLowerCase().includes(b.name.toLowerCase().replace(/ /g, ""))
-      );
-      let runtimeState = t.status || "CATALOGED";
-      if (t.healthStatus === "REST_HEALTHY" || t.healthStatus === "STREAM_HEALTHY") {
-        runtimeState = "HEALTHY";
+      const toolIdLower = t.toolId.toLowerCase();
+      const expectedBackendName = CANONICAL_BACKEND_MAP[toolIdLower];
+
+      let backendMatch: any = null;
+      if (expectedBackendName) {
+        backendMatch = backendTools.find((b: any) => b.name === expectedBackendName);
+      } else {
+        // Strict exact match only
+        backendMatch = backendTools.find((b: any) =>
+          b.name.toLowerCase() === toolIdLower ||
+          b.name.toLowerCase() === t.name.toLowerCase()
+        );
+      }
+
+      let runtimeState: string = "CATALOGED";
+      let selectable = false;
+      let installHint: string | null = null;
+
+      if (backendMatch) {
+        if (backendMatch.status === "ready" && backendMatch.executable) {
+          runtimeState = "HEALTHY (backend live)";
+          selectable = true;
+        } else if (backendMatch.status === "not_installed" || !backendMatch.executable) {
+          runtimeState = "NOT_INSTALLED";
+          selectable = false;
+          installHint = backendMatch.installHint || `Binary required for ${backendMatch.name}`;
+        } else {
+          runtimeState = backendMatch.status || "DEGRADED";
+          selectable = false;
+        }
+      } else if (VERIFIED_BUILTIN_ADAPTERS.has(toolIdLower)) {
+        runtimeState = "ADAPTER_READY";
+        selectable = true;
+      } else if (t.requiresApiKey && Array.isArray(t.apiKeys) && t.apiKeys.length > 0) {
+        const hasKey = t.apiKeys.some((k: string) => Boolean(process.env[k]));
+        if (hasKey) {
+          runtimeState = "CONFIGURED";
+          selectable = true;
+        } else {
+          runtimeState = "AUTH_REQUIRED";
+          selectable = false;
+          installHint = `API key required: ${t.apiKeys.join(", ")}`;
+        }
       } else if (t.status === "CONFIGURED_LIVE" || t.status === "INSTALLED") {
         runtimeState = "CONFIGURED";
-      } else if (t.status === "AUTH_REQUIRED") {
-        runtimeState = "AUTH_REQUIRED";
-      } else if (t.status === "UNCONFIGURED" && !isRunnable) {
-        runtimeState = "CATALOGED";
+        selectable = true;
+      } else {
+        runtimeState = t.status || "CATALOGED";
+        selectable = false;
       }
-      if (backendMatch) runtimeState = "HEALTHY (backend live)";
 
       return {
         ...t,
-        selectable: isRunnable || Boolean(backendMatch),
+        selectable,
         runtimeState,
-        backendCollector: backendMatch ? { name: backendMatch.name, category: backendMatch.category, inputs: backendMatch.inputs } : null,
+        installHint,
+        backendCollector: backendMatch
+          ? { name: backendMatch.name, category: backendMatch.category, inputs: backendMatch.inputs, status: backendMatch.status }
+          : null,
       };
     });
+
+    const finalTools = runnableOnly ? paginated.filter((t) => t.selectable) : paginated;
 
     return NextResponse.json({
       total,
       limit,
       offset,
-      tools: paginated,
+      tools: finalTools,
       backendCollectors: backendTools,
-      truthfulInvariant: "Real Data or No Data. Missing tools render with UNCONFIGURED, DEGRADED, or REFERENCE_ONLY. Backend live collectors return real data.",
+      truthfulInvariant: "Real Data or No Data. Missing tools render with UNCONFIGURED, DEGRADED, or NOT_INSTALLED. Backend live collectors return real data.",
     }, {
       headers: {
         "X-Request-ID": ctx.requestId,

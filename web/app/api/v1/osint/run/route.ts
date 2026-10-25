@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
     }
 
     const busHealth = await bus.health();
-    const matched = busHealth.find((h) => h.id === body.adapterId || h.id === `astra6-${body.adapterId}`);
+    const matched = bus.list().find((a) => a.id === body.adapterId || a.id === `astra6-${body.adapterId}`);
 
     const deniedByPolicy = Array.isArray(backendPayload?.deniedByPolicy)
       ? backendPayload!.deniedByPolicy
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
       targetType: input.targetType ?? "unknown",
       dispatchStatus: backendError ? "failed" : "completed",
       workerRuntime: "disha-osint-one-fastapi",
-      cliCommand: matched?.cliCommand ?? null,
+      cliCommand: (matched as any)?.cliCommand ?? null,
       estimatedTimeoutMs: matched?.timeoutMs ?? 30000,
       policyApprovalRequired: false,
       allowActive: body.allowActive === true,

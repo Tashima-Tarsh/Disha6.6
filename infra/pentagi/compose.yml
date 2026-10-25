@@ -29,7 +29,7 @@ services:
       EMBEDDING_MODEL: nomic-embed-text
       EMBEDDING_BATCH_SIZE: "8"
       HTTP_CLIENT_TIMEOUT: "180"
-      ASSISTANT_USE_AGENTS: "false"
+      ASSISTANT_USE_AGENTS: "${ASSISTANT_USE_AGENTS:-true}"
       EXECUTION_MONITOR_ENABLED: "true"
       AGENT_PLANNING_STEP_ENABLED: "true"
       MAX_GENERAL_AGENT_TOOL_CALLS: "20"
@@ -44,7 +44,7 @@ services:
       SCRAPER_PUBLIC_URL: https://scraper:${SCRAPER_PASSWORD:?Installation secret required}@scraper:443
       SCRAPER_PRIVATE_URL: https://scraper:${SCRAPER_PASSWORD}@scraper:443
       UPDATE_CHECK_INTERVAL: "0"
-      GRAPHITI_ENABLED: "false"
+      GRAPHITI_ENABLED: "${GRAPHITI_ENABLED:-false}"
     volumes:
       - ../../data/pentagi/app:/opt/pentagi/data
       - ./ollama.provider.yml:/opt/pentagi/conf/disha66.provider.yml:ro

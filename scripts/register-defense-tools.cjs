@@ -22,8 +22,8 @@ const eyesData = {
   categories: ['Media', 'Surveillance', 'Video', 'Reconnaissance'],
   targetInputs: ['country code', 'stream format', 'dork query'],
   runtimeType: 'python',
-  status: 'HEALTHY',
-  healthStatus: 'HEALTHY',
+  status: 'UNCONFIGURED',
+  healthStatus: 'UNKNOWN',
   defaultBranch: 'main',
   pinnedSha: 'bdfe9cbea14e0687b96c8aebb2c4ce24a7c88b07',
   upstreamSha: 'bdfe9cbea14e0687b96c8aebb2c4ce24a7c88b07',
@@ -39,14 +39,9 @@ const eyesData = {
   requiresAuth: false,
   requiresApiKey: false,
   apiKeys: [],
-  lastVerified: now,
-  lastSmokeTested: now,
-  smokeResult: {
-    success: true,
-    latencyMs: 38,
-    message: 'Project Eyes On v4.0 verification engine ready',
-    outputSnippet: 'Project Eyes On - public IP camera reconnaissance (educational use only)'
-  },
+  lastVerified: null,
+  lastSmokeTested: null,
+  smokeResult: null,
   executionClass: 'passive_public'
 };
 
@@ -70,8 +65,8 @@ const openskyData = {
   categories: ['Geolocation', 'Aerospace', 'Air Traffic'],
   targetInputs: ['aircraft id', 'icao24', 'bounding box'],
   runtimeType: 'python',
-  status: 'HEALTHY',
-  healthStatus: 'HEALTHY',
+  status: 'UNCONFIGURED',
+  healthStatus: 'UNKNOWN',
   defaultBranch: 'main',
   pinnedSha: 'c4af9c9e5aba25fc6ee0852b54a91b8a7c02f76b',
   upstreamSha: 'c4af9c9e5aba25fc6ee0852b54a91b8a7c02f76b',
@@ -87,14 +82,9 @@ const openskyData = {
   requiresAuth: false,
   requiresApiKey: false,
   apiKeys: [],
-  lastVerified: now,
-  lastSmokeTested: now,
-  smokeResult: {
-    success: true,
-    latencyMs: 28,
-    message: 'OpenSky Network API client ready',
-    outputSnippet: 'OpenSky Network API flight intelligence client for DISHA 6.6'
-  },
+  lastVerified: null,
+  lastSmokeTested: null,
+  smokeResult: null,
   executionClass: 'passive_public'
 };
 
@@ -126,7 +116,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'ADS-B Exchange live unfiltered tracker verified', outputSnippet: 'https://globe.adsbexchange.com/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -149,7 +139,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'MarineTraffic global AIS verified', outputSnippet: 'https://www.marinetraffic.com/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -172,7 +162,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'Global Fishing Watch dark vessel tracking verified', outputSnippet: 'https://globalfishingwatch.org/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -195,7 +185,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'Copernicus Sentinel-2 EO Browser verified', outputSnippet: 'https://apps.sentinel-hub.com/eo-browser/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -218,7 +208,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'Liveuamap global conflict map verified', outputSnippet: 'https://liveuamap.com/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -241,7 +231,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'Polyglobe 3D situational awareness dashboard verified', outputSnippet: 'https://pizzint.watch/polyglobe' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -264,7 +254,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'Flightradar24 global air traffic monitor verified', outputSnippet: 'https://www.flightradar24.com/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -287,7 +277,7 @@ const defenseTools = [
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'Google Earth Pro change detection verified', outputSnippet: 'https://earth.google.com/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   },
   {
@@ -303,14 +293,14 @@ const defenseTools = [
     targetInputs: ['country', 'event type', 'actor name', 'date range'],
     runtimeType: 'dataset-only',
     status: 'DATASET_INTEGRATED',
-    healthStatus: 'HEALTHY',
+    healthStatus: 'UNKNOWN',
     license: 'CC BY-NC 4.0 / Research Free',
     stars: 1850,
     workerCommand: null,
     workerRuntime: null,
     requiresAuth: false,
     requiresApiKey: false,
-    smokeResult: { success: true, message: 'ACLED armed conflict dataset verified and active', outputSnippet: 'https://acleddata.com/' },
+    smokeResult: null,
     executionClass: 'passive_public'
   }
 ];
@@ -328,8 +318,8 @@ for (const tool of defenseTools) {
     forkStatus: 'FORK_PENDING',
     isArchived: false,
     apiKeys: [],
-    lastVerified: now,
-    lastSmokeTested: now,
+    lastVerified: null,
+    lastSmokeTested: null,
   };
 
   if (existingIdx >= 0) {

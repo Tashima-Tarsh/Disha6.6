@@ -15,17 +15,20 @@ import {
   ShieldAlert,
   Wrench,
   Globe,
+  Sparkles,
+  LayoutDashboard,
 } from "lucide-react";
 import styles from "./disha-shell-nav.module.css";
 
 const NAV_ITEMS = [
+  { href: "/workbench", label: "Mission Workbench", icon: LayoutDashboard },
+  { href: "/skills", label: "Skills Explorer", icon: Sparkles },
+  { href: "/self-healing", label: "Self-Healing", icon: Wrench },
   { href: "/investigate", label: "Unified Investigation", icon: Search },
-  { href: "/investigate/osint-runtime", label: "OSINT Tools", icon: Wrench },
+  { href: "/investigate/osint-runtime", label: "OSINT Tools", icon: Globe },
   { href: "/intelligence", label: "Intelligence", icon: Brain },
   { href: "/cyber-defense", label: "Cyber Defense", icon: ShieldAlert },
   { href: "/surveillance", label: "Surveillance / Geo", icon: Activity },
-  { href: "/osint", label: "OSINT Surveillance", icon: Globe },
-  { href: "/corroboration", label: "Corroboration", icon: GitCompare },
   { href: "/contradictions", label: "Contradictions", icon: Flame },
   { href: "/vault", label: "Evidence Vault", icon: Lock },
   { href: "/system", label: "System", icon: Cpu },

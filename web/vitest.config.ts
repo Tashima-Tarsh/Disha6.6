@@ -9,6 +9,7 @@ export default defineConfig({
     env: {
       NODE_ENV: "test",
       DISHA_DEV_PASSWORD: "devpassword1234",
+      DISHA_JWT_SECRET: "test-secret-at-least-32-characters-long-disha-jwt-key",
     },
   },
 });

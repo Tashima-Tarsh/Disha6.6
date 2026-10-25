@@ -3,6 +3,10 @@ node_modules/
 **/node_modules/
 dist/
 *.tsbuildinfo
+.playwright-browsers/
+**/.playwright-browsers/
+test-results/
+**/test-results/
 
 # Python
 __pycache__/

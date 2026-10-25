@@ -24,6 +24,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { authFetchHeaders } from "@/lib/utils";
+import { MissionFlowGraph } from "@/components/workbench/MissionFlowGraph";
 import styles from "./workbench.module.css";
 
 type Sensitivity = "public" | "internal" | "controlled" | "classified";
@@ -774,7 +775,17 @@ export function DishaWorkbench({ principal }: { principal: PrincipalView }) {
             </section>
 
             <section id="memory-graph" className={styles.panel}>
-              <PanelTitle icon={<Network size={18} />} title="Memory / Graph Insights" label="When available" />
+              <PanelTitle icon={<Network size={18} />} title="Mission Flow & Execution DAG" label="Interactive React Flow" />
+              <div className="mb-4">
+                <MissionFlowGraph
+                  missionId={mission?.missionId || "current-intake"}
+                  intent={mission?.signal.context.intent || missionText}
+                  lenses={mission?.selectedLenses || ["governance", "cyber"]}
+                  policyDecision={(mission?.policyDecision.decision as "ALLOW" | "DENY" | "ESCALATE") || "ALLOW"}
+                  agents={["mission-commander", "cognitive-analyst", "evidence-verification"]}
+                  evidenceCount={evidence.length}
+                />
+              </div>
               {memoryGraph ? <MemoryGraphPanel extension={memoryGraph} /> : <EmptyState text="Memory/Graph runs when the mission asks for context, provenance, source hashes, or graph reasoning." />}
             </section>
           </section>

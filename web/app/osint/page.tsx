@@ -4,13 +4,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import {
   Scan, Search, User, Phone, Mail, CreditCard, Globe, ShieldAlert,
   Lock, MapPin, Activity, Network, Database, BarChart3, Wifi, Eye,
-  AlertTriangle, Zap, Shell, Terminal, Cube, Layers, Waves
+  AlertTriangle, Zap, Shell, Terminal, Box, Layers, Waves
 } from "lucide-react";
 
 const ICONS: Record<string, any> = {
   Scan, Search, User, Phone, Mail, CreditCard, Globe, ShieldAlert,
   Lock, MapPin, Activity, Network, Database, BarChart3, Wifi, Eye,
-  AlertTriangle, Zap, Shell, Terminal, Cube, Layers, Waves
+  AlertTriangle, Zap, Shell, Terminal, Box, Layers, Waves
 };
 
 export default function OsintPage() {
@@ -138,7 +138,7 @@ export default function OsintPage() {
 
   const pretty = (v: any) => (typeof v === "string" ? v : JSON.stringify(v, null, 2));
 
-  const fieldGroups: Record<string, { label: string; icon: string; placeholder: string }> = {
+  const fieldGroups: Record<string, { label: string; icon: string; placeholder: string; type?: string }> = {
     name: { label: "Name", icon: "User", placeholder: "Rahul Sharma" },
     username: { label: "Username", icon: "User", placeholder: "rahulsharma" },
     email: { label: "Email", icon: "Mail", placeholder: "you@example.com" },
@@ -299,12 +299,12 @@ export default function OsintPage() {
                 <div className="rounded-xl border border-[#334155] bg-[#0b1121] p-4">
                   <div className="text-[10px] text-[#64748b] uppercase">Graph Stats</div>
                   <div className="text-lg font-bold">{graphStats.identifiers?.toLocaleString() ?? 0}</div>
-                  <div className="text-xs text-[#64748b"]>identifiers · {graphStats.edges?.toLocaleString() ?? 0} edges · {graphStats.sources ?? 0} sources</div>
+                  <div className="text-xs text-[#64748b]">identifiers · {graphStats.edges?.toLocaleString() ?? 0} edges · {graphStats.sources ?? 0} sources</div>
                 </div>
                 <div className="rounded-xl border border-[#334155] bg-[#0b1121] p-4">
                   <div className="text-[10px] text-[#64748b] uppercase">Collector Registry</div>
                   <div className="text-lg font-bold">{results.length}</div>
-                  <div className="text-xs text-[#64748b"]>results this session</div>
+                  <div className="text-xs text-[#64748b]">results this session</div>
                 </div>
               </div>
             )}

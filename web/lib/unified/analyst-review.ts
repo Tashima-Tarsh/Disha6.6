@@ -1,6 +1,7 @@
 import { getDbPool } from "../server/db";
 import { hashValue } from "./hash";
 import { emitRuntimeEvent } from "./runtime-event-bus";
+import { appendEvidenceEvent } from "./evidence-ledger";
 
 export type AnalystReviewKind = "entity_resolution" | "intelligence_change" | "hypothesis" | "source_quality";
 export type AnalystReviewStatus = "open" | "in_review" | "resolved" | "dismissed";
@@ -104,6 +105,11 @@ export async function updateAnalystReview(reviewId: string, input: {
   resolution?: string;
   assignedTo?: string;
 }): Promise<AnalystReviewItem | null> {
+  const actor = input.actor?.trim();
+  if (!actor || actor.length < 3) {
+    throw new Error("Unauthorized review update: Valid reviewer actor identity is required");
+  }
+
   const now = new Date().toISOString();
   const pool = getDbPool();
   if (!pool) {
@@ -116,12 +122,26 @@ export async function updateAnalystReview(reviewId: string, input: {
       resolution: input.resolution ?? current.resolution,
       resolvedAt: ["resolved", "dismissed"].includes(input.status) ? now : undefined,
       updatedAt: now,
-      payload: { ...current.payload, lastActor: input.actor },
+      payload: { ...current.payload, lastActor: actor },
     };
     const { provenanceHash: _oldHash, ...withoutHash } = updatedBase;
     const updated = { ...withoutHash, provenanceHash: hashValue(withoutHash) } as AnalystReviewItem;
     memoryReviews.set(reviewId, updated);
-    await emitRuntimeEvent("analyst.review_updated", { reviewId, status: input.status, actor: input.actor }, reviewId);
+    
+    // Cryptographically record reviewer action in Evidence Ledger
+    try {
+      await appendEvidenceEvent({
+        missionId: current.changeId || reviewId,
+        actor,
+        action: `analyst_review_${input.status}`,
+        input: { reviewId, previousStatus: current.status, newStatus: input.status, assignedTo: input.assignedTo },
+        output: { resolution: input.resolution, provenanceHash: updated.provenanceHash },
+      });
+    } catch {
+      // Non-blocking in dev memory mode if missionId format is synthetic
+    }
+
+    await emitRuntimeEvent("analyst.review_updated", { reviewId, status: input.status, actor }, reviewId);
     return updated;
   }
   const client = await pool.connect();
@@ -132,18 +152,32 @@ export async function updateAnalystReview(reviewId: string, input: {
          resolved_at=case when $2 in ('resolved','dismissed') then $5 else null end, updated_at=$5,
          payload=payload || jsonb_build_object('lastActor',$6)
        where review_id=$1 returning *`,
-      [reviewId, input.status, input.assignedTo ?? null, input.resolution ?? null, now, input.actor],
+      [reviewId, input.status, input.assignedTo ?? null, input.resolution ?? null, now, actor],
     );
     if (!result.rowCount) { await client.query("rollback"); return null; }
-    const actionBase = { reviewId, actor: input.actor, status: input.status, resolution: input.resolution, assignedTo: input.assignedTo, createdAt: now };
+    const actionBase = { reviewId, actor, status: input.status, resolution: input.resolution, assignedTo: input.assignedTo, createdAt: now };
     const actionHash = hashValue(actionBase);
     await client.query(
       `insert into analyst_review_actions (action_id,review_id,actor,status,resolution,assigned_to,action_hash,created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [`action-${actionHash.slice(0, 24)}`, reviewId, input.actor, input.status, input.resolution ?? null, input.assignedTo ?? null, actionHash, now],
+      [`action-${actionHash.slice(0, 24)}`, reviewId, actor, input.status, input.resolution ?? null, input.assignedTo ?? null, actionHash, now],
     );
+
+    // Cryptographically record reviewer action in Evidence Ledger
+    try {
+      await appendEvidenceEvent({
+        missionId: String(result.rows[0].change_id || reviewId),
+        actor,
+        action: `analyst_review_${input.status}`,
+        input: { reviewId, newStatus: input.status, assignedTo: input.assignedTo },
+        output: { resolution: input.resolution, actionHash },
+      });
+    } catch {
+      // Handled
+    }
+
     await client.query("commit");
     const item = rowToReview(result.rows[0] as Record<string, unknown>);
-    await emitRuntimeEvent("analyst.review_updated", { reviewId, status: input.status, actor: input.actor }, reviewId);
+    await emitRuntimeEvent("analyst.review_updated", { reviewId, status: input.status, actor }, reviewId);
     return item;
   } catch (error) {
     await client.query("rollback");
