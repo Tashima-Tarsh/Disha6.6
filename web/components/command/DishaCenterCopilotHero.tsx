@@ -90,6 +90,7 @@ export function DishaCenterCopilotHero({
             role: m.sender === "user" ? "user" : "assistant",
             content: m.content,
           })),
+        }),
         credentials: "same-origin",
       });
 
