@@ -134,8 +134,9 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
 
     expect(result.status).toBe("SUCCESS");
     const artifact = result.output.executionArtifact as any;
-    expect(artifact.convergenceStatus).toBe("converged");
-    expect(artifact.packetFlowVerified).toBe(true);
+    expect(artifact.convergenceStatus).toBe("not_measured");
+    expect(artifact.offlineValidationPassed).toBe(true);
+    expect(artifact.packetFlowVerified).toBe(false);
     expect(artifact.mtuIntegrityChecked).toBe(true);
     expect(artifact.parsedCidrs.length).toBe(2);
     expect(artifact.parsedCidrs[0].netmask).toBe("255.255.255.0");
@@ -270,7 +271,8 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
         tokenBudget: 3000,
       });
 
-      expect(dispatchRes.status).toBe("SUCCESS");
+      expect(dispatchRes.status).toBe("NOT_EXECUTED");
+      expect(dispatchRes.summary).toContain("no model");
       expect(dispatchRes.roleId).toBe(roleId);
       expect(dispatchRes.executionTrace.length).toBeGreaterThanOrEqual(2);
       expect(dispatchRes.artifactHash).toBeDefined();
