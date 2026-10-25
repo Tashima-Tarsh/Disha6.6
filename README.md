@@ -192,24 +192,14 @@ Trigger → Authenticate & scope → Evaluate policy → Build typed mission DAG
 
 For the intended job state machine, capability manifests, retries, worker isolation, approval nodes, failure handling and n8n callbacks, see [Orchestration Architecture](docs/ORCHESTRATION_ARCHITECTURE.md).
 
----
-
-## Governed n8n skill orchestration (new, bounded)
-
-The web API now accepts authenticated, sequential skill workflows at
-`POST /api/v1/workflows/n8n/skills`. An importable n8n template is available
-from `GET /api/v1/workflows/n8n/schemas` (field `governedSkillWorkflow`).
-
-A registry entry or expert prompt is **not** proof of runtime capability.
-The 1,806 indexed skill records and 503 role instruction personas have different
-execution maturity. Unsupported instruction-only capabilities report
-`NOT_EXECUTED`; no packet capture, model training, or domain verification is
-implied merely by loading a skill. Workflows stop on a denied, unsupported, failed,
-or unevidenced step, and final results are ledger-recorded.
-
-See [Governed Skill Orchestration](docs/GOVERNED_SKILL_ORCHESTRATION.md) for the
-architecture, request example, n8n credentials setup, authorization boundaries and
-remaining integration milestones.
+**Implemented in the governed-skill bridge:** `POST /api/v1/workflows/n8n/skills`
+accepts up to eight authenticated, evidence-logged sequential registered-skill steps
+and stops on denied, unsupported, failed, or unevidenced work. Authenticated
+`GET /api/v1/skills/readiness` reports offline-limited versus instruction-only
+skills; `GET /api/v1/workflows/n8n/schemas` exports an importable workflow.
+A catalogued skill is not proof of an operational specialist executor.
+See [Governed Skill Orchestration](docs/GOVERNED_SKILL_ORCHESTRATION.md) for
+credentials, contracts, limitations and integration tests.
 
 ---
 
