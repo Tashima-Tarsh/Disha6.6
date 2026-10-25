@@ -5,8 +5,10 @@ import { withContext } from "@/lib/unified/api";
 import { appendEvidenceEvent } from "@/lib/unified/evidence-ledger";
 import { hashValue } from "@/lib/unified/hash";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
-const OSINT_API_KEY = process.env.DISHA_OSINT_API_KEY || process.env.OSINT_API_KEY;
+import { getOsintBackendUrl, getOsintApiKey } from "@/lib/server/osint-backend-client";
+
+const BACKEND = getOsintBackendUrl();
+const OSINT_API_KEY = getOsintApiKey();
 
 const bodySchema = z.object({
   missionId: z.string().min(1).max(128),

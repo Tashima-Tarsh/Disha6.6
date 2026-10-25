@@ -86,10 +86,32 @@ export type ToolExecutionInput = {
   confirmed?: boolean;
 };
 
+export type ToolStandardStatus =
+  | "COMPLETED_WITH_FINDINGS"
+  | "COMPLETED_NO_FINDINGS"
+  | "PARTIAL"
+  | "FAILED"
+  | "TIMEOUT"
+  | "AUTH_REQUIRED"
+  | "NOT_INSTALLED"
+  | "BLOCKED_BY_POLICY"
+  | "UPSTREAM_UNAVAILABLE";
+
+export type ToolExecutionStatus =
+  | "completed"
+  | "partial"
+  | "failed"
+  | "blocked_by_policy"
+  | "unconfigured"
+  | "auth_required"
+  | "reference_only"
+  | ToolStandardStatus;
+
 export type ToolExecutionResult = {
   toolId: string;
   runId: string;
-  status: "completed" | "partial" | "failed" | "blocked_by_policy" | "unconfigured" | "auth_required" | "reference_only";
+  status: ToolExecutionStatus;
+  standardStatus: ToolStandardStatus;
   executionMethod: ExecutionMethod;
   workerType: WorkerType;
   durationMs: number;
@@ -163,6 +185,258 @@ function findExecutableOnPath(binary: string): boolean {
     }
   }
   return false;
+}
+
+export interface ToolExecutionRecipe {
+  executable: string;
+  buildArgs: (target: string, options?: Record<string, string>) => string[];
+  supportedInputTypes: string[];
+  parseOutput: (stdout: string, stderr: string, target: string) => {
+    findingsCount: number;
+    parsedData: unknown;
+    warnings: string[];
+  };
+}
+
+export const TOOL_RECIPES: Record<string, ToolExecutionRecipe> = {
+  subfinder: {
+    executable: "subfinder",
+    buildArgs: (target) => ["-d", target, "-silent", "-json"],
+    supportedInputTypes: ["domain"],
+    parseOutput: (stdout) => {
+      const lines = stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const subdomains = new Set<string>();
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed.host) subdomains.add(parsed.host);
+        } catch {
+          if (line.includes(".")) subdomains.add(line);
+        }
+      }
+      return {
+        findingsCount: subdomains.size,
+        parsedData: { subdomains: Array.from(subdomains) },
+        warnings: [],
+      };
+    },
+  },
+  amass: {
+    executable: "amass",
+    buildArgs: (target) => ["enum", "-passive", "-d", target, "-json", "-"],
+    supportedInputTypes: ["domain"],
+    parseOutput: (stdout) => {
+      const lines = stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const names = new Set<string>();
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed.name) names.add(parsed.name);
+        } catch {
+          if (line.includes(".")) names.add(line);
+        }
+      }
+      return {
+        findingsCount: names.size,
+        parsedData: { discoveredDomains: Array.from(names) },
+        warnings: [],
+      };
+    },
+  },
+  sherlock: {
+    executable: "sherlock",
+    buildArgs: (target) => [target, "--print-found", "--timeout", "10", "--json", "-"],
+    supportedInputTypes: ["username"],
+    parseOutput: (stdout) => {
+      try {
+        const parsed = JSON.parse(stdout);
+        const keys = Object.keys(parsed);
+        return {
+          findingsCount: keys.length,
+          parsedData: parsed,
+          warnings: [],
+        };
+      } catch {
+        const found = stdout
+          .split(/\r?\n/)
+          .filter((l) => l.includes("http://") || l.includes("https://"));
+        return {
+          findingsCount: found.length,
+          parsedData: { profiles: found },
+          warnings: [],
+        };
+      }
+    },
+  },
+  maigret: {
+    executable: "maigret",
+    buildArgs: (target) => [target, "--json", "simple", "--timeout", "10"],
+    supportedInputTypes: ["username"],
+    parseOutput: (stdout) => {
+      try {
+        const parsed = JSON.parse(stdout);
+        const count = Array.isArray(parsed)
+          ? parsed.length
+          : typeof parsed === "object" && parsed !== null
+            ? Object.keys(parsed).length
+            : 0;
+        return {
+          findingsCount: count,
+          parsedData: parsed,
+          warnings: [],
+        };
+      } catch {
+        const found = stdout
+          .split(/\r?\n/)
+          .filter((l) => l.includes("[+]") || l.includes("http"));
+        return {
+          findingsCount: found.length,
+          parsedData: { matches: found },
+          warnings: [],
+        };
+      }
+    },
+  },
+  holehe: {
+    executable: "holehe",
+    buildArgs: (target) => [target, "--only-used", "--no-color"],
+    supportedInputTypes: ["email"],
+    parseOutput: (stdout) => {
+      const found = stdout
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter((l) => l.startsWith("[+]"));
+      return {
+        findingsCount: found.length,
+        parsedData: { registeredSites: found.map((l) => l.replace(/^\[\+\]\s*/, "").trim()) },
+        warnings: [],
+      };
+    },
+  },
+  phoneinfoga: {
+    executable: "phoneinfoga",
+    buildArgs: (target) => ["scan", "-n", target, "-o", "json"],
+    supportedInputTypes: ["phone"],
+    parseOutput: (stdout) => {
+      try {
+        const parsed = JSON.parse(stdout);
+        const valid = parsed?.valid === true || (parsed?.numverify && parsed.numverify.valid);
+        return {
+          findingsCount: valid ? 1 : 0,
+          parsedData: parsed,
+          warnings: [],
+        };
+      } catch {
+        return {
+          findingsCount: stdout.toLowerCase().includes("valid: true") ? 1 : 0,
+          parsedData: { raw: stdout },
+          warnings: [],
+        };
+      }
+    },
+  },
+  theharvester: {
+    executable: "theHarvester",
+    buildArgs: (target) => ["-d", target, "-b", "all"],
+    supportedInputTypes: ["domain"],
+    parseOutput: (stdout) => {
+      const emails = stdout.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+      const hosts = stdout.match(/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/g) || [];
+      const unique = Array.from(new Set([...emails, ...hosts]));
+      return {
+        findingsCount: unique.length,
+        parsedData: { harvestedItems: unique },
+        warnings: [],
+      };
+    },
+  },
+  spiderfoot: {
+    executable: "sf",
+    buildArgs: (target) => ["-s", target, "-u", "public", "-q"],
+    supportedInputTypes: ["domain", "ip", "email", "username"],
+    parseOutput: (stdout) => {
+      const lines = stdout.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
+      return {
+        findingsCount: lines.length,
+        parsedData: { alerts: lines.slice(0, 100) },
+        warnings: [],
+      };
+    },
+  },
+  photon: {
+    executable: "photon",
+    buildArgs: (target) => ["-u", target.startsWith("http") ? target : `https://${target}`, "--dns", "--wayback"],
+    supportedInputTypes: ["url", "domain"],
+    parseOutput: (stdout) => {
+      const endpoints = stdout.match(/https?:\/\/[^\s"'<>]+/g) || [];
+      const unique = Array.from(new Set(endpoints));
+      return {
+        findingsCount: unique.length,
+        parsedData: { discoveredEndpoints: unique },
+        warnings: [],
+      };
+    },
+  },
+  nuclei: {
+    executable: "nuclei",
+    buildArgs: (target) => ["-u", target, "-silent", "-jsonl"],
+    supportedInputTypes: ["domain", "url", "ip"],
+    parseOutput: (stdout) => {
+      const lines = stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const findings: unknown[] = [];
+      for (const line of lines) {
+        try {
+          findings.push(JSON.parse(line));
+        } catch {
+          // ignore
+        }
+      }
+      return {
+        findingsCount: findings.length,
+        parsedData: { vulnerabilities: findings },
+        warnings: [],
+      };
+    },
+  },
+};
+
+function parseGenericOutput(
+  stdout: string,
+  stderr: string
+): { findingsCount: number; parsedData: unknown; warnings: string[] } {
+  const text = (stdout || stderr || "").trim();
+  if (!text) {
+    return { findingsCount: 0, parsedData: { rawOutput: "" }, warnings: [] };
+  }
+
+  try {
+    const json = JSON.parse(text);
+    if (Array.isArray(json)) {
+      return { findingsCount: json.length, parsedData: json, warnings: [] };
+    }
+    if (typeof json === "object" && json !== null) {
+      const count = Object.keys(json).length;
+      return { findingsCount: count, parsedData: json, warnings: [] };
+    }
+    return { findingsCount: 1, parsedData: json, warnings: [] };
+  } catch {
+    const lines = text
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(
+        (l) =>
+          l.length > 0 &&
+          !l.startsWith("---") &&
+          !l.startsWith("===") &&
+          !l.toLowerCase().includes("copyright")
+      );
+
+    return {
+      findingsCount: lines.length,
+      parsedData: { rawOutput: text.slice(0, 2000), lineCount: lines.length },
+      warnings: [],
+    };
+  }
 }
 
 const EXECUTION_LOG_PATH = path.resolve(process.cwd(), "../data/osint/execution-history.json");
@@ -266,6 +540,7 @@ export class UniversalOsintExecutionService {
         toolId,
         runId,
         status: "unconfigured",
+        standardStatus: "NOT_INSTALLED",
         executionMethod: "reference_only",
         workerType: "framework",
         durationMs: 0,
@@ -287,6 +562,7 @@ export class UniversalOsintExecutionService {
         toolId,
         runId,
         status: "blocked_by_policy",
+        standardStatus: "BLOCKED_BY_POLICY",
         executionMethod: def.executionMethod,
         workerType: def.workerType,
         durationMs: Date.now() - started,
@@ -307,6 +583,7 @@ export class UniversalOsintExecutionService {
           toolId,
           runId,
           status: "blocked_by_policy",
+          standardStatus: "BLOCKED_BY_POLICY",
           executionMethod: def.executionMethod,
           workerType: def.workerType,
           durationMs: Date.now() - started,
@@ -327,6 +604,7 @@ export class UniversalOsintExecutionService {
           toolId,
           runId,
           status: "blocked_by_policy",
+          standardStatus: "BLOCKED_BY_POLICY",
           executionMethod: def.executionMethod,
           workerType: def.workerType,
           durationMs: Date.now() - started,
@@ -388,10 +666,18 @@ export class UniversalOsintExecutionService {
           ? 1
           : 0;
 
+      const standardStatus: ToolStandardStatus =
+        busResult.status === "completed"
+          ? findingsCount > 0
+            ? "COMPLETED_WITH_FINDINGS"
+            : "COMPLETED_NO_FINDINGS"
+          : "PARTIAL";
+
       return {
         toolId: def.toolId,
         runId,
         status: busResult.status === "completed" ? "completed" : "partial",
+        standardStatus,
         executionMethod: def.executionMethod,
         workerType: def.workerType,
         durationMs: Date.now() - started,
@@ -408,6 +694,7 @@ export class UniversalOsintExecutionService {
         toolId: def.toolId,
         runId,
         status: "failed",
+        standardStatus: "FAILED",
         executionMethod: def.executionMethod,
         workerType: def.workerType,
         durationMs: Date.now() - started,
@@ -451,6 +738,7 @@ export class UniversalOsintExecutionService {
         toolId: def.toolId,
         runId,
         status: "unconfigured",
+        standardStatus: "NOT_INSTALLED",
         executionMethod: "dataset_query",
         workerType: def.workerType,
         durationMs: Date.now() - started,
@@ -552,10 +840,14 @@ export class UniversalOsintExecutionService {
       ? evidenceList[0].provenanceHash
       : hashValue({ toolId: def.toolId, target, matchCount: matches.length });
 
+    const standardStatus: ToolStandardStatus =
+      matches.length > 0 ? "COMPLETED_WITH_FINDINGS" : "COMPLETED_NO_FINDINGS";
+
     return {
       toolId: def.toolId,
       runId,
       status: "completed",
+      standardStatus,
       executionMethod: "dataset_query",
       workerType: def.workerType,
       durationMs: Date.now() - started,
@@ -587,6 +879,7 @@ export class UniversalOsintExecutionService {
       toolId: def.toolId,
       runId,
       status: "reference_only",
+      standardStatus: "COMPLETED_NO_FINDINGS",
       executionMethod: "gui_view",
       workerType: def.workerType,
       durationMs: Date.now() - started,
@@ -617,6 +910,7 @@ export class UniversalOsintExecutionService {
       toolId: def.toolId,
       runId,
       status: "reference_only",
+      standardStatus: "COMPLETED_NO_FINDINGS",
       executionMethod: "reference_only",
       workerType: def.workerType,
       durationMs: Date.now() - started,
@@ -640,7 +934,8 @@ export class UniversalOsintExecutionService {
     runId: string,
     started: number,
   ): Promise<ToolExecutionResult> {
-    const binary = extractTargetBinary(def);
+    const recipe = TOOL_RECIPES[def.toolId.toLowerCase()];
+    const binary = recipe ? recipe.executable : extractTargetBinary(def);
 
     // Honest upfront binary existence check without throwing exceptions
     if (!findExecutableOnPath(binary)) {
@@ -648,6 +943,7 @@ export class UniversalOsintExecutionService {
         toolId: def.toolId,
         runId,
         status: "unconfigured",
+        standardStatus: "NOT_INSTALLED",
         executionMethod: "cli_subprocess",
         workerType: def.workerType,
         durationMs: Date.now() - started,
@@ -661,59 +957,67 @@ export class UniversalOsintExecutionService {
     }
 
     try {
-      const args = [target];
+      const args = recipe ? recipe.buildArgs(target, input.options) : [target];
       const { stdout, stderr } = await execFileAsync(binary, args, {
         timeout: def.timeoutMs,
         windowsHide: true,
       });
 
-      const outputText = (stdout || stderr || "").trim();
-      let parsedData: unknown = outputText;
-      let findingsCount = 1;
+      const parsed = recipe
+        ? recipe.parseOutput(stdout, stderr, target)
+        : parseGenericOutput(stdout, stderr);
 
-      try {
-        parsedData = JSON.parse(outputText);
-        if (Array.isArray(parsedData)) findingsCount = parsedData.length;
-        else if (typeof parsedData === "object" && parsedData !== null) findingsCount = Object.keys(parsedData).length;
-      } catch {
-        parsedData = { rawOutput: outputText.slice(0, 1000) };
+      const findingsCount = parsed.findingsCount;
+      const evidenceList: AdapterEvidence[] = [];
+
+      if (findingsCount > 0) {
+        evidenceList.push(
+          buildAdapterEvidence({
+            sourceId: `cli:${def.toolId}`,
+            sourceName: def.name,
+            sourceUrl: def.upstream,
+            summary: `Executed ${def.name} against target '${target}'. Output parsed with ${findingsCount} finding(s).`,
+            fields: { binary, target, findingsCount },
+          })
+        );
       }
 
-      const evidence = buildAdapterEvidence({
-        sourceId: `cli:${def.toolId}`,
-        sourceName: def.name,
-        sourceUrl: def.upstream,
-        summary: `Executed ${def.name} against target '${target}'. Output parsed with ${findingsCount} finding(s).`,
-        fields: { binary, target, findingsCount },
-      });
+      const standardStatus: ToolStandardStatus =
+        findingsCount > 0 ? "COMPLETED_WITH_FINDINGS" : "COMPLETED_NO_FINDINGS";
 
       return {
         toolId: def.toolId,
         runId,
         status: "completed",
+        standardStatus,
         executionMethod: "cli_subprocess",
         workerType: def.workerType,
         durationMs: Date.now() - started,
-        data: parsedData,
+        data: parsed.parsedData,
         findingsCount,
-        evidence: [evidence],
-        warnings: [],
-        provenanceHash: evidence.provenanceHash,
+        evidence: evidenceList,
+        warnings: parsed.warnings,
+        provenanceHash: evidenceList.length > 0
+          ? evidenceList[0].provenanceHash
+          : hashValue({ toolId: def.toolId, target, findingsCount: 0 }),
         executedAt: new Date().toISOString(),
       };
     } catch (err: unknown) {
-      const errorObj = err as { code?: string; message?: string };
+      const errorObj = err as { code?: string; message?: string; killed?: boolean };
+      const isTimeout = errorObj.killed === true || errorObj.code === "ETIMEDOUT";
+
       return {
         toolId: def.toolId,
         runId,
         status: "failed",
+        standardStatus: isTimeout ? "TIMEOUT" : "FAILED",
         executionMethod: "cli_subprocess",
         workerType: def.workerType,
         durationMs: Date.now() - started,
         findingsCount: 0,
         evidence: [],
         warnings: [`Process error: ${errorObj.message || String(err)}`],
-        error: "PROCESS_EXECUTION_ERROR",
+        error: isTimeout ? "TIMEOUT" : "PROCESS_EXECUTION_ERROR",
         provenanceHash: hashValue({ toolId: def.toolId, target, error: errorObj.message || "error" }),
         executedAt: new Date().toISOString(),
       };

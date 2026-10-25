@@ -5,7 +5,9 @@ import { withContext } from "@/lib/unified/api";
 import { createDefaultOsintBus } from "@/lib/unified/osint-default-bus";
 import { runUniversalOsintSearch, sanitizeUniversalQuery } from "@/lib/unified/universal-osint-search";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+import { getOsintBackendUrl } from "@/lib/server/osint-backend-client";
+
+const BACKEND = getOsintBackendUrl();
 
 export const dynamic = "force-dynamic";
 

@@ -1,4 +1,14 @@
-﻿FROM node:22-alpine AS runner
+# syntax=docker/dockerfile:1
+FROM node:22-alpine AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
+RUN apk add --no-cache libc6-compat
+COPY package.json package-lock.json ./
+RUN npm ci --prefer-offline --no-audit
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
 ARG NEXT_BUILD_DIR=.next
 WORKDIR /app
 ENV NODE_ENV=production \
@@ -10,8 +20,8 @@ RUN addgroup --system --gid 1001 nextjs \
   && adduser --system --uid 1001 nextjs
 
 COPY --chown=nextjs:nextjs public ./public
-COPY --chown=nextjs:nextjs ${NEXT_BUILD_DIR}/standalone ./
-COPY --chown=nextjs:nextjs ${NEXT_BUILD_DIR}/static ./${NEXT_BUILD_DIR}/static
+COPY --from=builder --chown=nextjs:nextjs /app/${NEXT_BUILD_DIR}/standalone ./
+COPY --from=builder --chown=nextjs:nextjs /app/${NEXT_BUILD_DIR}/static ./${NEXT_BUILD_DIR}/static
 COPY --chown=nextjs:nextjs database ./database
 COPY --chown=nextjs:nextjs data ./data
 COPY --chown=nextjs:nextjs scripts ./scripts

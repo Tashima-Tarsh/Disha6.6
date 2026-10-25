@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { withContext } from "@/lib/unified/api";
 import { getOsintMetrics } from "@/lib/unified/osint-runtime-service";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+import { getOsintBackendUrl } from "@/lib/server/osint-backend-client";
+
+const BACKEND = getOsintBackendUrl();
 
 export const dynamic = "force-dynamic";
 

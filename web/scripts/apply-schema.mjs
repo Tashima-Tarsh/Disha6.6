@@ -101,6 +101,12 @@ const migrations = [
     upPath: path.join(databaseRoot, "202610140001_vehicle_intelligence.sql"),
     downPath: path.join(databaseRoot, "rollbacks/202610140001_vehicle_intelligence.down.sql"),
   },
+  {
+    version: "202610250001",
+    name: "durable_authorization_grants",
+    upPath: path.join(databaseRoot, "202610250001_durable_authorization_grants.sql"),
+    downPath: path.join(databaseRoot, "rollbacks/202610250001_durable_authorization_grants.down.sql"),
+  },
 ];
 
 const requiredTables = [

@@ -1,16 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
-
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+import { NextResponse } from "next/server";
+import { callOsintBackend, OsintBackendError } from "@/lib/server/osint-backend-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const res = await fetch(`${BACKEND}/`);
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? String(e) }, { status: 502 });
+    const data = await callOsintBackend("/", { method: "GET", timeoutMs: 5000 });
+    return NextResponse.json(data);
+  } catch (err: unknown) {
+    if (err instanceof OsintBackendError) {
+      return NextResponse.json(
+        { error: err.message, code: err.code, status: "unavailable" },
+        { status: err.statusCode }
+      );
+    }
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err), status: "unavailable" },
+      { status: 502 }
+    );
   }
 }
