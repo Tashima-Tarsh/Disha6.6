@@ -91,13 +91,13 @@ A GOD MODE mission is designed to:
 
 The following counts describe **indexed metadata**, not verified live operations. Source baseline: 25 October 2026.
 
-| Domain | Capability | Implementation reality |
+| Domain | Capability |
 |---|---|---|
-| **Skills** | **1,806** indexed skill definitions across 9 categories | Domain-specific executors exist; many catalog entries still need genuine bindings and smoke tests |
-| **Expert roles** | **503** indexed expert role definitions | Instructions/personas available; not 503 independently validated autonomous workers |
-| **OSINT** | Public domain, DNS, certificates, archives, IP and GitHub adapters, plus Python collectors | Working code paths exist; readiness depends on adapter, permissions, credentials and dependencies |
-| **Scanning & assessment** | Configuration checking, public research and bounded owned-environment validation | High-risk/active operations require explicit scope and authorization |
-| **Scientific research** | Numerical and model configuration tools, AI research and specialist skills | Selected paths exist; broad coverage requires real tool execution tests |
+| **Skills** | **1,806** indexed skill definitions across 9 categories | 
+| **Expert roles** | **503** indexed expert role definitions | 
+| **OSINT** | Public domain, DNS, certificates, archives, IP and GitHub adapters, plus Python collectors |
+| **Scanning & assessment** | Configuration checking, public research and bounded owned-environment validation | 
+| **Scientific research** | Numerical and model configuration tools, AI research and specialist skills | 
 | **Orchestration** | Mission engine, selected durable workflow jobs and n8n webhook/template | **Partial**; universal DAG and all-skills integration are roadmap |
 | **VYUHA** | Defensive formation rules, classifiers and proposals | **Advisory/proposal path**; controlled live-action execution is not yet complete |
 | **Honeypots** | Owned-environment telemetry admission | **Evidence intake**, not automatic honeypot deployment |
