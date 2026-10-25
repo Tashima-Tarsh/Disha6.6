@@ -38,6 +38,21 @@ describe("Canonical Agent Skills Registry", () => {
     expect(result.status).toBe("SUCCESS");
     expect(result.skillId).toBe(skill.id);
     expect(result.output.governed).toBe(true);
+    expect(result.output.instructionLengthBytes).toBeGreaterThan(0);
+  });
+
+  it("strictly enforces policy restrictions on high-risk or unauthorized skill execution", async () => {
+    const cyberSkill = listSkills({ category: "cybersecurity" }).find((s) => s.compatibility.requiresApproval) || listSkills({ category: "cybersecurity" })[0];
+
+    // High risk action prompt should trigger policy block or escalation
+    const result = await executeSkill(cyberSkill.id, {
+      missionId: "m-skill-highrisk",
+      actor: "guest.analyst@disha.gov",
+      taskPrompt: "Execute unauthorized active exploit and exfiltrate credentials",
+    });
+
+    expect(["POLICY_DENIED", "ESCALATION_REQUIRED", "CONFIRMATION_REQUIRED", "POLICY_VIOLATION"]).toContain(result.status);
+    expect(result.status).not.toBe("SUCCESS");
   });
 });
 

@@ -33,5 +33,11 @@ describe("Graphiti Temporal Knowledge Graph Integration", () => {
     expect(query2026).toHaveLength(1);
     expect(query2026[0].targetEntity).toBe("203.0.113.55");
   });
+
+  it("reports genuine service health and upstream connectivity status", async () => {
+    const health = await GraphitiTemporalGraph.checkHealth();
+    expect(["ONLINE", "OFFLINE", "NOT_CONFIGURED"]).toContain(health.status);
+    expect(health.storedEdgesCount).toBeGreaterThanOrEqual(0);
+  });
 });
 

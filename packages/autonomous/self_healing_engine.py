@@ -113,3 +113,30 @@ class SelfHealingEngine:
         self.repair_history.append(trace)
         return trace
 
+
+if __name__ == "__main__":
+    import argparse
+    import json
+    import sys
+
+    parser = argparse.ArgumentParser(description="DISHA Autonomous Self-Healing Engine")
+    parser.add_argument("--target", required=True, help="Target file path")
+    parser.add_argument("--failure-desc", default="Diagnostic fault", help="Failure description")
+    parser.add_argument("--repro-cmd", required=True, help="Reproduction test command")
+    parser.add_argument("--test-cmd", required=True, help="Verification test command")
+    parser.add_argument("--bad-token", required=True, help="Bad code token to replace")
+    parser.add_argument("--fixed-token", required=True, help="Fixed code replacement")
+
+    args = parser.parse_args()
+    engine = SelfHealingEngine()
+    result = engine.run_healing_cycle(
+        failure_desc=args.failure_desc,
+        target_file=args.target,
+        repro_cmd=args.repro_cmd,
+        test_cmd=args.test_cmd,
+        bad_token=args.bad_token,
+        fixed_token=args.fixed_token,
+    )
+    print(json.dumps(result))
+
+

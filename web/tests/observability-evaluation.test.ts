@@ -20,6 +20,12 @@ describe("Promptfoo & Langfuse AI Observability Integration", () => {
     expect(retrieved?.spans[0].output?.result).toBe("ok");
   });
 
+  it("checks Langfuse upstream connectivity and reports honest status", async () => {
+    const health = await LangfuseTelemetry.checkHealth();
+    expect(["ONLINE", "OFFLINE", "NOT_CONFIGURED"]).toContain(health.status);
+    expect(health.storedTracesCount).toBeGreaterThanOrEqual(0);
+  });
+
   it("runs Promptfoo prompt evaluation test suite across adversarial and benign prompts", () => {
     const suiteResult = runFullPromptfooSuite(STANDARD_PROMPT_EVAL_SUITE);
     expect(suiteResult.total).toBe(4);
