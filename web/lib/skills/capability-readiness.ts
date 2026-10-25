@@ -100,7 +100,7 @@ export function getCapabilityReadiness(options: {
   const limit = Math.max(1, Math.min(200, Math.floor(options.limit ?? 50)));
   return {
     catalogued: total,
-    executableToolCount: 0, // no unqualified "all skills are tools" claim
+    independentlyCertifiedExecutors: 0, // category mappings are not specialist certifications
     offlineValidatorMappings: summary.OFFLINE_LIMITED,
     instructionOnlyMappings: summary.INSTRUCTIONS_ONLY,
     offset,
