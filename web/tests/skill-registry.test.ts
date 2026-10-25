@@ -274,9 +274,11 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
       expect(dispatchRes.status).toBe("NOT_EXECUTED");
       expect(dispatchRes.summary).toContain("no model");
       expect(dispatchRes.roleId).toBe(roleId);
-      expect(dispatchRes.executionTrace.length).toBeGreaterThanOrEqual(2);
+      expect(dispatchRes.executionTrace).toHaveLength(1);
+      expect(dispatchRes.executionTrace[0].tokensUsed).toBe(0);
       expect(dispatchRes.artifactHash).toBeDefined();
-      expect(dispatchRes.findings.length).toBeGreaterThan(0);
+      expect(dispatchRes.findings).toHaveLength(0);
+      expect(dispatchRes.governance.tokensConsumed).toBe(0);
       expect(dispatchRes.governance.maxSteps).toBeLessThanOrEqual(5);
     }
   });
