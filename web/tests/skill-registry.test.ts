@@ -119,6 +119,20 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
     expect((resultVariance.output.executionArtifact as any)?.validationPassed).toBe(false);
   });
 
+  it("scientific computing reports undefined t-statistic for constant samples", async () => {
+    const skill = listSkills({ category: "scientific-computing" })[0];
+    const result = await executeSkill(skill.id, {
+      missionId: "m-sci-zero-variance",
+      actor: "analyst@example.test",
+      taskPrompt: "Compute descriptive statistics for constant samples",
+      params: { data: [5, 5, 5], nullHypothesisMean: 4 },
+    });
+    expect(result.status).toBe("SUCCESS");
+    const metrics = (result.output.executionArtifact as any)?.statisticalMeasurements;
+    expect(metrics.variance).toBe(0);
+    expect(metrics.tStatistic).toBeNull();
+  });
+
   it("computer networking: validates real CIDRs, MTU, and loop-free trajectory", async () => {
     const netSkill = listSkills({ category: "computer-networking" })[0];
 
