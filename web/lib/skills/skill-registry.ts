@@ -298,25 +298,20 @@ function executeScientificComputingSkill(
   taskPrompt: string,
   params?: Record<string, unknown>
 ): ExecutorResult {
-  let data = (params?.data as number[]) || (params?.samples as number[]) || [];
-  if (data.length === 0) {
-    // Extract numbers from prompt if present
-    const matches = taskPrompt.match(/-?\d+(?:\.\d+)?/g);
-    if (matches && matches.length >= 2) {
-      data = matches.map(Number);
-    }
-  }
+  // A prompt containing numerals is not an empirical dataset.
+  const suppliedData = params?.data ?? params?.samples;
+  const data: number[] = Array.isArray(suppliedData) ? suppliedData : [];
 
   if (data.length === 0) {
     return {
       status: "NOT_EXECUTED",
-      summary: "No numerical data or sample series provided for scientific computation.",
+      summary: "No explicitly supplied numerical data or sample series provided for scientific computation.",
       artifact: { error: "MISSING_NUMERICAL_DATA", required: ["data", "samples"] },
     };
   }
 
   // Verify numerical validity
-  if (data.some((x) => isNaN(x) || !isFinite(x))) {
+  if (data.some((x) => typeof x !== "number" || !Number.isFinite(x))) {
     return {
       status: "EXECUTION_FAILED",
       summary: "Dataset contains non-finite or NaN values. Scientific calculation rejected.",
@@ -505,7 +500,14 @@ function executeSoftwareEngineeringSkill(
   taskPrompt: string,
   params?: Record<string, unknown>
 ): ExecutorResult {
-  const code = (params?.code as string) || (params?.snippet as string) || taskPrompt;
+  const code = params?.code ?? params?.snippet;
+  if (typeof code !== "string" || code.trim().length === 0) {
+    return {
+      status: "NOT_EXECUTED",
+      summary: "No source code supplied; heuristic source checks were not run.",
+      artifact: { error: "MISSING_CODE", required: ["code", "snippet"] },
+    };
+  }
   const securityViolations: string[] = [];
 
   // Heuristic pattern scanner: does not parse an AST or prove code safety.
@@ -774,18 +776,16 @@ export async function executeSkill(
     evidenceError = err?.message || String(err);
     console.error(`[skill-registry] Evidence event logging failed for ${actionName}: ${evidenceError}`);
 
-    // H-01 Fix: If evidence recording fails, DO NOT report SUCCESS! Fail closed in production.
-    if (process.env.NODE_ENV === "production" || process.env.DISHA_REQUIRE_LEDGER === "true") {
-      return {
-        skillId,
-        status: "EVIDENCE_WRITE_FAILED",
-        summary: `Skill execution completed but evidence logging failed (fail-closed requirement): ${evidenceError}`,
-        output: outputData,
-        policyDecision: policy,
-        evidenceError,
-        artifactHash,
-      };
-    }
+    // Missing ledger evidence invalidates the result in every environment.
+    return {
+      skillId,
+      status: "EVIDENCE_WRITE_FAILED",
+      summary: "Skill result cannot be certified because the evidence ledger write failed.",
+      output: outputData,
+      policyDecision: policy,
+      evidenceError,
+      artifactHash,
+    };
   }
 
   return {
