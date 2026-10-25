@@ -8,8 +8,8 @@ export async function GET(req: NextRequest) {
     const offsetRaw = params.get("offset");
     const limitRaw = params.get("limit");
     if (
-      (offsetRaw !== null && !/^\\d{1,7}$/.test(offsetRaw)) ||
-      (limitRaw !== null && !/^\\d{1,3}$/.test(limitRaw))
+      (offsetRaw !== null && !/^\d{1,7}$/.test(offsetRaw)) ||
+      (limitRaw !== null && !/^\d{1,3}$/.test(limitRaw))
     ) {
       return NextResponse.json({ error: "invalid_pagination" }, { status: 400 });
     }
