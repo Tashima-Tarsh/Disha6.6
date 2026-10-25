@@ -6,7 +6,9 @@ RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json ./
 RUN npm ci --prefer-offline --no-audit
 COPY . .
-RUN npm run build
+# Local compose builds can omit the optional role/skill bundle; release CI
+# populates web/.agents before docker build. Always create the source directory.
+RUN mkdir -p .agents && npm run build
 
 FROM node:22-alpine AS runner
 ARG NEXT_BUILD_DIR=.next
@@ -24,7 +26,7 @@ COPY --from=builder --chown=nextjs:nextjs /app/${NEXT_BUILD_DIR}/standalone ./
 COPY --from=builder --chown=nextjs:nextjs /app/${NEXT_BUILD_DIR}/static ./${NEXT_BUILD_DIR}/static
 COPY --chown=nextjs:nextjs database ./database
 COPY --chown=nextjs:nextjs data ./data
-COPY --chown=nextjs:nextjs .agents ./.agents
+COPY --from=builder --chown=nextjs:nextjs /app/.agents ./.agents
 COPY --chown=nextjs:nextjs scripts ./scripts
 
 USER nextjs
