@@ -234,8 +234,12 @@ export async function classifyUpstreams() {
     classifiedCount++;
   }
 
-  await fs.writeFile(REGISTRY_PATH, JSON.stringify(registry, null, 2), "utf8");
-  console.info(`Classified ${classifiedCount} tools.`);
+  const WEB_REGISTRY_PATH = path.join(ROOT_DIR, "web/data/osint/upstream-registry.json");
+  const jsonStr = JSON.stringify(registry, null, 2);
+  await fs.writeFile(REGISTRY_PATH, jsonStr, "utf8");
+  await fs.mkdir(path.dirname(WEB_REGISTRY_PATH), { recursive: true });
+  await fs.writeFile(WEB_REGISTRY_PATH, jsonStr, "utf8");
+  console.info(`Classified ${classifiedCount} tools and synchronized web registry.`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -1,0 +1,222 @@
+[
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-2cefc224c2a6ddd7",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 27,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-25T10:14:38.391Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-36cb8327f12436a5",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 9,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Queried indexed OSINT dataset 'Veris Community Database' for target 'CVE-2023-0001'.",
+        "fields": {
+          "target": "CVE-2023-0001",
+          "queryType": "vulnerability",
+          "dataset": "vcdb"
+        },
+        "id": "adapter-d6c2ea1d1921f490",
+        "retrievedAt": "2026-10-25T10:14:37.852Z",
+        "provenanceHash": "d6c2ea1d1921f49039834240139e884eede0dc091e335570462bcc96691509cf"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "d6c2ea1d1921f49039834240139e884eede0dc091e335570462bcc96691509cf",
+    "executedAt": "2026-10-25T10:14:37.860Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-b3eefb71d6d455b1",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 12,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-25T10:13:39.066Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-54eb2eb2aea2ba77",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 0,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Queried indexed OSINT dataset 'Veris Community Database' for target 'CVE-2023-0001'.",
+        "fields": {
+          "target": "CVE-2023-0001",
+          "queryType": "vulnerability",
+          "dataset": "vcdb"
+        },
+        "id": "adapter-654f869159a8c9a3",
+        "retrievedAt": "2026-10-25T10:13:39.017Z",
+        "provenanceHash": "654f869159a8c9a36558770054314382c8e2312a9868c2b23580aebe17992b25"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "654f869159a8c9a36558770054314382c8e2312a9868c2b23580aebe17992b25",
+    "executedAt": "2026-10-25T10:13:39.017Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-ed7e4c897da17c71",
+    "status": "failed",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 16,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Process error: spawn npx ENOENT"
+    ],
+    "error": "PROCESS_EXECUTION_ERROR",
+    "provenanceHash": "b88c7bef8da18b52a359bc0035db676bb2eb4389a0e45c13e5654b7d936bc5b1",
+    "executedAt": "2026-10-25T10:13:23.512Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-1acd6c32ee5065a7",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 1,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Queried indexed OSINT dataset 'Veris Community Database' for target 'CVE-2023-0001'.",
+        "fields": {
+          "target": "CVE-2023-0001",
+          "queryType": "vulnerability",
+          "dataset": "vcdb"
+        },
+        "id": "adapter-f9437fb105b49c4f",
+        "retrievedAt": "2026-10-25T10:13:23.475Z",
+        "provenanceHash": "f9437fb105b49c4fb4273923a23c56c9f82fce555efd3c79bce945ffc8701ade"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "f9437fb105b49c4fb4273923a23c56c9f82fce555efd3c79bce945ffc8701ade",
+    "executedAt": "2026-10-25T10:13:23.475Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-b89ad1801b5b7c30",
+    "status": "failed",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 3123,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Process error: Command failed: npx test-target\nnpm error code E404\nnpm error 404 Not Found - GET https://registry.npmjs.org/test-target - Not found\nnpm error 404\nnpm error 404  The requested resource 'test-target@*' could not be found or you do not have permission to access it.\nnpm error 404\nnpm error 404 Note that you can also install from a\nnpm error 404 tarball, folder, http url, or git url.\nnpm error A complete log of this run can be found in: D:\\UserData\\npm-cache\\_logs\\2026-10-25T10_12_42_095Z-debug-0.log\n"
+    ],
+    "error": "PROCESS_EXECUTION_ERROR",
+    "provenanceHash": "eb1d1ef5527023a4bfb2a6d754e11d2584b4ba3fbd68b53f588ab3fb99dd40f2",
+    "executedAt": "2026-10-25T10:12:44.679Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-f5f49b4934e8d766",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 1,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Queried indexed OSINT dataset 'Veris Community Database' for target 'CVE-2023-0001'.",
+        "fields": {
+          "target": "CVE-2023-0001",
+          "queryType": "vulnerability",
+          "dataset": "vcdb"
+        },
+        "id": "adapter-6c8601125a84d3a9",
+        "retrievedAt": "2026-10-25T10:12:41.551Z",
+        "provenanceHash": "6c8601125a84d3a9c59f18adbe349a6073b9d84e6829f0b9f9d7d1178673a956"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "6c8601125a84d3a9c59f18adbe349a6073b9d84e6829f0b9f9d7d1178673a956",
+    "executedAt": "2026-10-25T10:12:41.552Z"
+  },
+  {
+    "toolId": "photon",
+    "runId": "run-997030140deec3f7",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "network",
+    "durationMs": 78,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'photon' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "f3b48fbf78576e21bed4d8e25287d6182b3509583ea84783212a83c54955b666",
+    "executedAt": "2026-10-25T10:12:41.519Z"
+  }
+]

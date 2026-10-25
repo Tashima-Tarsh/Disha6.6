@@ -18,30 +18,32 @@ export async function generateManifests() {
   const raw = await fs.readFile(REGISTRY_PATH, "utf8");
   const registry = JSON.parse(raw);
 
-  const executableTools = registry.filter((e) =>
-    ["python", "go", "node"].includes(e.workerRuntime) &&
-    e.workerCommand &&
-    e.status !== "GUI_ONLY" &&
-    e.status !== "DATASET_ONLY" &&
-    e.status !== "LIBRARY_ONLY"
-  );
+  console.info(`Processing all ${registry.length} tools for typed manifest generation...`);
 
-  console.info(`Found ${executableTools.length} executable tools with configured workers out of ${registry.length} total cataloged.`);
-
-  const manifestItems = executableTools.map((t) => {
+  const manifestItems = registry.map((t) => {
     const safeToolId = t.toolId.replace(/[^a-zA-Z0-9_]/g, "_");
     const regDate = t.lastVerified || new Date().toISOString();
+    const effectiveRuntime = t.workerRuntime || t.runtimeType || "system";
+    let defaultCli = t.workerCommand;
+    const repoSlug = (t.repo || t.toolId || "tool").toLowerCase();
+    if (!defaultCli) {
+      if (t.runtimeType === "python") defaultCli = `python -m ${repoSlug}`;
+      else if (t.runtimeType === "node") defaultCli = `npx ${repoSlug}`;
+      else if (t.runtimeType === "go") defaultCli = repoSlug;
+      else defaultCli = t.toolId;
+    }
+
     const manifestObj = {
       toolId: t.toolId,
       name: t.name,
       version: t.version || "1.0.0",
       repository: t.upstreamUrl,
       license: t.license || "Unknown",
-      executionClass: t.executionClass || "passive_public",
-      targetTypes: t.targetInputs || ["general"],
-      capabilities: t.categories || [t.category || "osint"],
-      workerRuntime: t.workerRuntime,
-      cliCommand: t.workerCommand,
+      executionClass: t.executionClass || (["dataset-only", "gui-only", "library-only", "documentation"].includes(t.runtimeType) ? "catalog_only" : "passive_public"),
+      targetTypes: (t.targetInputs && t.targetInputs.length > 0) ? t.targetInputs : ["general"],
+      capabilities: (t.categories && t.categories.length > 0) ? t.categories : [t.category || "osint"],
+      workerRuntime: effectiveRuntime,
+      cliCommand: defaultCli,
       outputFormat: "json",
       timeoutMs: 60000,
       maxRetries: 1,

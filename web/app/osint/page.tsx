@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Link from "next/link";
 import {
   Scan, Search, User, Phone, Mail, CreditCard, Globe, ShieldAlert,
   Lock, MapPin, Activity, Network, Database, BarChart3, Wifi, Eye,
-  AlertTriangle, Zap, Shell, Terminal, Box, Layers, Waves
+  AlertTriangle, Zap, Shell, Terminal, Box, Layers, Waves, Compass
 } from "lucide-react";
 
 const ICONS: Record<string, any> = {
@@ -188,6 +189,12 @@ export default function OsintPage() {
           </div>
           <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             <div className="text-xs text-[#64748b] uppercase tracking-widest px-2 mb-2">SURVEILLANCE</div>
+            <Link
+              href="/osint/universe"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-[#a855f7]/15 text-[#c084fc] font-bold border border-[#a855f7]/30 hover:bg-[#a855f7]/25 transition mb-2"
+            >
+              <Compass size={16} className="shrink-0 text-[#c084fc]" /> 532-Tool Universe
+            </Link>
             <button
               onClick={() => { setResults([]); setStatus("Ready"); }}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-[#22d3ee]/10 text-[#22d3ee] font-bold border border-[#22d3ee]/30"

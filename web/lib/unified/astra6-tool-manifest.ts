@@ -12,7 +12,7 @@ export type DishaToolManifest = {
   capabilities: string[];
   passiveModuleAllowlist?: string[];
   blockedModules?: string[];
-  workerRuntime: "python" | "go" | "node";
+  workerRuntime: "python" | "go" | "node" | "rust" | "docker" | "binary" | "library-only" | "dataset-only" | "gui-only" | "documentation" | string;
   cliCommand: string;
   outputFormat: "json" | "csv" | "ndjson" | "text";
   timeoutMs: number;

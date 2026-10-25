@@ -2,7 +2,7 @@ import { hashValue } from "./hash";
 
 export type AdapterHealth = "healthy" | "degraded" | "unavailable" | "not_configured";
 export type AdapterAuth = "none" | "api_key" | "oauth2" | "session" | "service_account";
-export type AdapterExecutionClass = "passive_public" | "credentialed_public_api" | "active_recon" | "identity_enumeration" | "prohibited";
+export type AdapterExecutionClass = "passive_public" | "credentialed_public_api" | "active_recon" | "identity_enumeration" | "prohibited" | "catalog_only";
 
 export type AdapterMetadata = {
   id: string;

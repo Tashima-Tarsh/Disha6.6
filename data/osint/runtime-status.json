@@ -1,22 +1,54 @@
 {
-  "updatedAt": "2026-10-15T03:27:54.703Z",
-  "totalCataloged": 523,
-  "tested": 523,
+  "updatedAt": "2026-10-25T10:07:58.651Z",
+  "totalCataloged": 532,
+  "tested": 532,
   "metrics": {
+    "totalCataloged": 532,
+    "tested": 532,
     "runnableSmokePassed": 0,
-    "smokeFailed": 496,
-    "smokeMissing": 0,
-    "authOrKeyRequired": 4,
-    "referenceOnly": 23,
+    "smokeFailed": 492,
+    "smokeMissing": 2,
+    "authOrKeyRequired": 6,
+    "referenceOnly": 32,
     "catalogueOnly": 0,
-    "guiOnly": 6,
-    "datasetOnly": 6,
+    "guiOnly": 14,
+    "datasetOnly": 7,
     "libraryOnly": 9,
     "cataloged": 0,
     "byRuntimeEvidence": {
-      "SMOKE_FAILED": 496,
-      "REFERENCE_ONLY": 23,
-      "AUTH_OR_KEY_REQUIRED": 4
+      "RUNNABLE_SMOKE_PASS": 0,
+      "REFERENCE_ONLY": 32,
+      "AUTH_OR_KEY_REQUIRED": 6,
+      "SMOKE_FAILED": 492,
+      "SMOKE_MISSING": 2,
+      "CATALOGUE_ONLY": 0
+    },
+    "byCategory": {
+      "framework": 154,
+      "network": 108,
+      "documents": 52,
+      "identity": 105,
+      "web-archive": 7,
+      "media": 44,
+      "secrets": 16,
+      "threat-intelligence": 28,
+      "case-forensics": 3,
+      "metadata": 6,
+      "movement_tracking": 4,
+      "earth_observation": 2,
+      "conflict_events": 3
+    },
+    "byRuntime": {
+      "node": 50,
+      "python": 383,
+      "go": 35,
+      "library-only": 9,
+      "binary": 5,
+      "docker": 13,
+      "gui-only": 14,
+      "dataset-only": 7,
+      "rust": 14,
+      "documentation": 2
     }
   },
   "tools": [
@@ -297,8 +329,8 @@
       "name": "Anthropic Cybersecurity Skills",
       "category": "framework",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:23.469Z",
       "smokeResult": {
         "success": true,
@@ -517,8 +549,8 @@
       "name": "Autopsy",
       "category": "documents",
       "runtimeType": "gui-only",
-      "status": "GUI_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:24.568Z",
       "smokeResult": {
         "success": true,
@@ -533,8 +565,8 @@
       "name": "Autopsy Add-on Modules",
       "category": "documents",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:24.619Z",
       "smokeResult": {
         "success": true,
@@ -872,8 +904,8 @@
       "name": "Bright Data MCP",
       "category": "network",
       "runtimeType": "dataset-only",
-      "status": "DATASET_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:25.468Z",
       "smokeResult": {
         "success": true,
@@ -1075,8 +1107,8 @@
       "name": "Claude OSINT",
       "category": "framework",
       "runtimeType": "dataset-only",
-      "status": "DATASET_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:26.225Z",
       "smokeResult": {
         "success": true,
@@ -1465,8 +1497,8 @@
       "name": "CTI Expert",
       "category": "threat-intelligence",
       "runtimeType": "gui-only",
-      "status": "GUI_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:27.802Z",
       "smokeResult": {
         "success": true,
@@ -2654,8 +2686,8 @@
       "name": "Geolocation Skill",
       "category": "framework",
       "runtimeType": "gui-only",
-      "status": "GUI_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:32.047Z",
       "smokeResult": {
         "success": true,
@@ -3195,8 +3227,8 @@
       "name": "Hack Skills",
       "category": "framework",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:33.816Z",
       "smokeResult": {
         "success": true,
@@ -4331,8 +4363,8 @@
       "name": "MassDNS",
       "category": "framework",
       "runtimeType": "dataset-only",
-      "status": "DATASET_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:36.637Z",
       "smokeResult": {
         "success": true,
@@ -4857,8 +4889,8 @@
       "name": "notebooklm-py",
       "category": "documents",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:38.063Z",
       "smokeResult": {
         "success": true,
@@ -5211,8 +5243,8 @@
       "name": "OpenOSINT",
       "category": "framework",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:39.104Z",
       "smokeResult": {
         "success": true,
@@ -5292,7 +5324,7 @@
     },
     {
       "toolId": "opensky-api",
-      "name": "OpenSky API",
+      "name": "OpenSky Network API",
       "category": "framework",
       "runtimeType": "python",
       "status": "UNCONFIGURED",
@@ -5304,7 +5336,7 @@
         "error": "Executable 'opensky-api' not found in current environment PATH",
         "command": "opensky-api"
       },
-      "runtimeEvidenceState": "SMOKE_FAILED",
+      "runtimeEvidenceState": "SMOKE_MISSING",
       "runnableVerified": false
     },
     {
@@ -5363,8 +5395,8 @@
       "name": "OSINT AI",
       "category": "framework",
       "runtimeType": "gui-only",
-      "status": "GUI_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:39.533Z",
       "smokeResult": {
         "success": true,
@@ -5396,8 +5428,8 @@
       "name": "OSINT Framework",
       "category": "framework",
       "runtimeType": "gui-only",
-      "status": "GUI_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:39.599Z",
       "smokeResult": {
         "success": true,
@@ -5412,8 +5444,8 @@
       "name": "OSINT Investigation",
       "category": "framework",
       "runtimeType": "gui-only",
-      "status": "GUI_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:39.626Z",
       "smokeResult": {
         "success": true,
@@ -5802,8 +5834,8 @@
       "name": "Pentest AI",
       "category": "framework",
       "runtimeType": "dataset-only",
-      "status": "DATASET_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:40.645Z",
       "smokeResult": {
         "success": true,
@@ -5852,16 +5884,15 @@
       "name": "Photon",
       "category": "network",
       "runtimeType": "python",
-      "status": "UNCONFIGURED",
+      "status": "AUTH_REQUIRED",
       "healthStatus": "UNCONFIGURED",
-      "lastSmokeTested": "2026-10-15T03:27:40.741Z",
+      "lastSmokeTested": "2026-10-25T09:19:42.287Z",
       "smokeResult": {
         "success": false,
-        "latencyMs": 9,
-        "error": "Executable 'photon' not found in current environment PATH",
-        "command": "photon"
+        "latencyMs": 0,
+        "error": "Active reconnaissance deployment approval is not enabled"
       },
-      "runtimeEvidenceState": "SMOKE_FAILED",
+      "runtimeEvidenceState": "AUTH_OR_KEY_REQUIRED",
       "runnableVerified": false
     },
     {
@@ -5980,7 +6011,7 @@
         "error": "Executable 'project-eyes-on' not found in current environment PATH",
         "command": "project-eyes-on"
       },
-      "runtimeEvidenceState": "SMOKE_FAILED",
+      "runtimeEvidenceState": "SMOKE_MISSING",
       "runnableVerified": false
     },
     {
@@ -6447,8 +6478,8 @@
       "name": "Scientific Agent Skills",
       "category": "documents",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:42.255Z",
       "smokeResult": {
         "success": true,
@@ -6701,16 +6732,15 @@
       "name": "Sherlock",
       "category": "identity",
       "runtimeType": "python",
-      "status": "UNCONFIGURED",
+      "status": "AUTH_REQUIRED",
       "healthStatus": "UNCONFIGURED",
-      "lastSmokeTested": "2026-10-15T03:27:43.060Z",
+      "lastSmokeTested": "2026-10-25T09:19:42.233Z",
       "smokeResult": {
         "success": false,
-        "latencyMs": 9,
-        "error": "Executable 'sherlock' not found in current environment PATH",
-        "command": "sherlock"
+        "latencyMs": 1,
+        "error": "Identity enumeration deployment approval is not enabled"
       },
-      "runtimeEvidenceState": "SMOKE_FAILED",
+      "runtimeEvidenceState": "AUTH_OR_KEY_REQUIRED",
       "runnableVerified": false
     },
     {
@@ -7041,8 +7071,8 @@
       "name": "Stagehand",
       "category": "network",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:44.761Z",
       "smokeResult": {
         "success": true,
@@ -7650,8 +7680,8 @@
       "name": "TORCH",
       "category": "framework",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:48.443Z",
       "smokeResult": {
         "success": true,
@@ -8040,8 +8070,8 @@
       "name": "Veris Community Database",
       "category": "threat-intelligence",
       "runtimeType": "dataset-only",
-      "status": "DATASET_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:50.739Z",
       "smokeResult": {
         "success": true,
@@ -8209,8 +8239,8 @@
       "name": "Volatility Community Plugins",
       "category": "documents",
       "runtimeType": "library-only",
-      "status": "LIBRARY_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:51.649Z",
       "smokeResult": {
         "success": true,
@@ -8514,8 +8544,8 @@
       "name": "WhatsMyName",
       "category": "identity",
       "runtimeType": "dataset-only",
-      "status": "DATASET_ONLY",
-      "healthStatus": "REFERENCE_ONLY",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
       "lastSmokeTested": "2026-10-15T03:27:53.118Z",
       "smokeResult": {
         "success": true,
@@ -8880,6 +8910,114 @@
         "command": "zotpilot"
       },
       "runtimeEvidenceState": "SMOKE_FAILED",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "adsb-exchange",
+      "name": "ADS-B Exchange",
+      "category": "movement_tracking",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "marinetraffic",
+      "name": "MarineTraffic",
+      "category": "movement_tracking",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "global-fishing-watch",
+      "name": "Global Fishing Watch",
+      "category": "movement_tracking",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "sentinel-hub",
+      "name": "Sentinel Hub EO Browser",
+      "category": "earth_observation",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "liveuamap",
+      "name": "Liveuamap",
+      "category": "conflict_events",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "polyglobe",
+      "name": "Polyglobe Intelligence Dashboard",
+      "category": "conflict_events",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "flightradar24",
+      "name": "Flightradar24",
+      "category": "movement_tracking",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "google-earth-pro",
+      "name": "Google Earth Pro",
+      "category": "earth_observation",
+      "runtimeType": "gui-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
+      "runnableVerified": false
+    },
+    {
+      "toolId": "acled",
+      "name": "ACLED",
+      "category": "conflict_events",
+      "runtimeType": "dataset-only",
+      "status": "UNCONFIGURED",
+      "healthStatus": "UNCONFIGURED",
+      "lastSmokeTested": null,
+      "smokeResult": null,
+      "runtimeEvidenceState": "REFERENCE_ONLY",
       "runnableVerified": false
     }
   ]
