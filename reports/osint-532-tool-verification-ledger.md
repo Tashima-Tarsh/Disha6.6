@@ -565,3 +565,18 @@
 | **530** | `flightradar24` | [Flightradar24](https://www.flightradar24.com/) | `gui-only` | **REFERENCE_ONLY** | `/api/v1/osint/tools/flightradar24/run` | [`/osint/universe?tool=flightradar24`](/osint/universe?tool=flightradar24) | Reference-only capability (GUI link, indexed dataset, or library binding) |
 | **531** | `google-earth-pro` | [Google Earth Pro](https://earth.google.com/) | `gui-only` | **REFERENCE_ONLY** | `/api/v1/osint/tools/google-earth-pro/run` | [`/osint/universe?tool=google-earth-pro`](/osint/universe?tool=google-earth-pro) | Reference-only capability (GUI link, indexed dataset, or library binding) |
 | **532** | `acled` | [ACLED](https://acleddata.com/) | `dataset-only` | **REFERENCE_ONLY** | `/api/v1/osint/tools/acled/run` | [`/osint/universe?tool=acled`](/osint/universe?tool=acled) | Reference-only capability (GUI link, indexed dataset, or library binding) |
+
+---
+
+## 4. Domain Intelligence & Authorized Vulnerability Assessment Engine
+
+| Capability | Module & Endpoint | Verification Status | Test Verification Reference |
+| :--- | :--- | :--- | :--- |
+| **Server-Side Approved Asset Inventory** | `web/lib/server/asset-inventory.ts`<br>`/api/v1/vulnerability/assets` | **VERIFIED OPERATIONAL** | `tests/domain-vulnerability-assessment.test.ts` (Assets & Tier allowances) |
+| **Governed Authorization Grants & SSRF Guard** | `web/lib/server/authorization-grants.ts`<br>`/api/v1/osint/approvals` | **VERIFIED OPERATIONAL** | `tests/domain-vulnerability-assessment.test.ts` (Cross-user block, expiry, SSRF filter) |
+| **Domain Intelligence Workflow** | `web/lib/domain/domain-intelligence-service.ts`<br>`/api/v1/domain/investigate` | **VERIFIED OPERATIONAL** | `tests/domain-vulnerability-assessment.test.ts` (DNS, RDAP, CT, Wayback, KEV) |
+| **TLS & Security Configuration Scanner** | `web/lib/vulnerability/tls-configuration-scanner.ts` | **VERIFIED OPERATIONAL** | `tests/domain-vulnerability-assessment.test.ts` (Handshake, HSTS, CSP, Cert expiration) |
+| **Vulnerability Normalizer (CVE/CWE/CVSS/EPSS)** | `web/lib/vulnerability/vulnerability-normalizer.ts` | **VERIFIED OPERATIONAL** | `tests/domain-vulnerability-assessment.test.ts` (CVSS calc, fake CVE rejection) |
+| **Authorized Assessment Service** | `web/lib/vulnerability/vulnerability-assessment-service.ts`<br>`/api/v1/vulnerability/scan` | **VERIFIED OPERATIONAL** | `tests/domain-vulnerability-assessment.test.ts` (Lab scan, unauthorized target reject) |
+| **Cyber Defense Portal Console** | `web/app/cyber-defense/cyber-defense-client.tsx`<br>`/cyber-defense` | **VERIFIED OPERATIONAL** | Full production build verified (`/cyber-defense`) |
+

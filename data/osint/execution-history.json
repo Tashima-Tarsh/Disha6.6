@@ -1,6 +1,826 @@
 [
   {
     "toolId": "abster-intelligence",
+    "runId": "run-8444904584f7c6fc",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 22,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-25T12:58:20.371Z"
+  },
+  {
+    "toolId": "marinetraffic",
+    "runId": "run-ca9a30c8001f2b44",
+    "status": "reference_only",
+    "executionMethod": "gui_view",
+    "workerType": "geospatial",
+    "durationMs": 0,
+    "data": {
+      "mode": "interactive_gui_reference",
+      "portalUrl": "https://www.marinetraffic.com/",
+      "targetQuery": "IMO9123456",
+      "type": "web_interactive",
+      "instructions": "Interactive GUI tool 'MarineTraffic' cannot be executed headlessly in background mode. Open https://www.marinetraffic.com/ manually to interact with the application."
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Tool 'MarineTraffic' is an interactive desktop/web GUI application. Background automated execution was not attempted."
+    ],
+    "provenanceHash": "e180f15765ac8867c726e1190647cd3a65a2e62c3264c4b5c0756cb393b71a54",
+    "executedAt": "2026-10-25T12:58:20.319Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-d0afd102823f9917",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 2947,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-25T12:58:20.252Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-875e4fe063e459c1",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 317,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-c210586cb413f238",
+        "retrievedAt": "2026-10-25T12:58:17.221Z",
+        "provenanceHash": "c210586cb413f23866e0c4cfc257d5bec0e39a2647217b22a35a736df7da7921"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "c210586cb413f23866e0c4cfc257d5bec0e39a2647217b22a35a736df7da7921",
+    "executedAt": "2026-10-25T12:58:17.222Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-ba69c40f3758ac4c",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 24,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-25T12:56:39.140Z"
+  },
+  {
+    "toolId": "marinetraffic",
+    "runId": "run-27ce1ed3c585b2a3",
+    "status": "reference_only",
+    "executionMethod": "gui_view",
+    "workerType": "geospatial",
+    "durationMs": 0,
+    "data": {
+      "mode": "interactive_gui_reference",
+      "portalUrl": "https://www.marinetraffic.com/",
+      "targetQuery": "IMO9123456",
+      "type": "web_interactive",
+      "instructions": "Interactive GUI tool 'MarineTraffic' cannot be executed headlessly in background mode. Open https://www.marinetraffic.com/ manually to interact with the application."
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Tool 'MarineTraffic' is an interactive desktop/web GUI application. Background automated execution was not attempted."
+    ],
+    "provenanceHash": "e180f15765ac8867c726e1190647cd3a65a2e62c3264c4b5c0756cb393b71a54",
+    "executedAt": "2026-10-25T12:56:39.093Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-e9ae6079fc466892",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 2894,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-25T12:56:38.994Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-e9adf74588fddc4c",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 373,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-8f6b043aeec76af2",
+        "retrievedAt": "2026-10-25T12:56:36.009Z",
+        "provenanceHash": "8f6b043aeec76af2107438948013f285a64c45e9352671bbd175f9adb95507b6"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "8f6b043aeec76af2107438948013f285a64c45e9352671bbd175f9adb95507b6",
+    "executedAt": "2026-10-25T12:56:36.010Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-25296146bce06549",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 9,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-25T12:55:19.580Z"
+  },
+  {
+    "toolId": "marinetraffic",
+    "runId": "run-68f77ea8aabf10c4",
+    "status": "reference_only",
+    "executionMethod": "gui_view",
+    "workerType": "geospatial",
+    "durationMs": 1,
+    "data": {
+      "mode": "interactive_gui_reference",
+      "portalUrl": "https://www.marinetraffic.com/",
+      "targetQuery": "IMO9123456",
+      "type": "web_interactive",
+      "instructions": "Interactive GUI tool 'MarineTraffic' cannot be executed headlessly in background mode. Open https://www.marinetraffic.com/ manually to interact with the application."
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Tool 'MarineTraffic' is an interactive desktop/web GUI application. Background automated execution was not attempted."
+    ],
+    "provenanceHash": "e180f15765ac8867c726e1190647cd3a65a2e62c3264c4b5c0756cb393b71a54",
+    "executedAt": "2026-10-25T12:55:19.558Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-425d99a8e2a0fed4",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 892,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-25T12:55:19.551Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-2365bc1e939080da",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 141,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-fc95970283f92a37",
+        "retrievedAt": "2026-10-25T12:55:18.637Z",
+        "provenanceHash": "fc95970283f92a37cd60ab981ac65b2c2e18676d48dbe083f0e9ce6dfd78fdd2"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "fc95970283f92a37cd60ab981ac65b2c2e18676d48dbe083f0e9ce6dfd78fdd2",
+    "executedAt": "2026-10-25T12:55:18.638Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-edc7589fa8b14936",
+    "status": "unconfigured",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 7,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-25T12:55:00.279Z"
+  },
+  {
+    "toolId": "marinetraffic",
+    "runId": "run-01119bc435ffbb1a",
+    "status": "reference_only",
+    "executionMethod": "gui_view",
+    "workerType": "geospatial",
+    "durationMs": 1,
+    "data": {
+      "mode": "interactive_gui_reference",
+      "portalUrl": "https://www.marinetraffic.com/",
+      "targetQuery": "IMO9123456",
+      "type": "web_interactive",
+      "instructions": "Interactive GUI tool 'MarineTraffic' cannot be executed headlessly in background mode. Open https://www.marinetraffic.com/ manually to interact with the application."
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Tool 'MarineTraffic' is an interactive desktop/web GUI application. Background automated execution was not attempted."
+    ],
+    "provenanceHash": "e180f15765ac8867c726e1190647cd3a65a2e62c3264c4b5c0756cb393b71a54",
+    "executedAt": "2026-10-25T12:55:00.250Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-5fa8cb90de018dcc",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 854,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-25T12:55:00.242Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-a535774cf912129c",
+    "status": "completed",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 111,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-32392a44f7098155",
+        "retrievedAt": "2026-10-25T12:54:59.372Z",
+        "provenanceHash": "32392a44f7098155e76fa30e40e2dc412a8d3682b1738e889202ae2466f0a551"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "32392a44f7098155e76fa30e40e2dc412a8d3682b1738e889202ae2466f0a551",
+    "executedAt": "2026-10-25T12:54:59.373Z"
+  },
+  {
+    "toolId": "abster-intelligence",
     "runId": "run-46d9c8defc2916ba",
     "status": "unconfigured",
     "executionMethod": "cli_subprocess",

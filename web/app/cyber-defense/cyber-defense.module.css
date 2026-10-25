@@ -269,3 +269,186 @@
 .safeBadge {
   color: #35c78a;
 }
+
+/* Tab Navigation */
+.tabsBar {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.tabBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #7f93a7;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.tabBtn:hover {
+  color: #dce7f0;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tabActive {
+  background: #172535 !important;
+  color: #39c7d7 !important;
+  border-color: rgba(57, 199, 215, 0.3) !important;
+}
+
+/* Form controls */
+.scanForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+}
+
+.selectInput {
+  background: #172535;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #dce7f0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.selectInput:focus {
+  border-color: #39c7d7;
+}
+
+/* Findings styling */
+.findingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.findingCard {
+  background: #101823;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.findingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.findingTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #dce7f0;
+}
+
+.badgeCritical {
+  background: rgba(220, 38, 38, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.badgeHigh {
+  background: rgba(234, 88, 12, 0.2);
+  color: #f97316;
+  border: 1px solid rgba(234, 88, 12, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.badgeMedium {
+  background: rgba(217, 119, 6, 0.2);
+  color: #f59e0b;
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.badgeLow {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.badgeInfo {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.findingMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11px;
+  color: #7f93a7;
+  font-family: var(--font-mono, monospace);
+}
+
+.evidenceBox {
+  background: #080c12;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.remediationBox {
+  font-size: 12px;
+  color: #cbd5e1;
+  background: rgba(53, 199, 138, 0.05);
+  border-left: 3px solid #35c78a;
+  padding: 6px 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+.provenancePill {
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  color: #64748b;
+  margin-top: 4px;
+}

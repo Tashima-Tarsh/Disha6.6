@@ -225,6 +225,7 @@ describe("DISHA 6.6 — 532-Tool Universe & Governed Execution Verification", ()
     const grant = issueAuthorizationGrant({
       scope: "active_recon",
       approver: adminPrincipal,
+      grantedTo: "analyst-1",
       toolId: "photon",
       targetPattern: "example.com",
       purpose: "Authorized perimeter audit",

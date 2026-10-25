@@ -1,17 +1,24 @@
 import crypto from "node:crypto";
 import type { Principal, Role } from "./types";
-import { signJson, verifySignedJson } from "./crypto";
+import { signJson } from "./crypto";
 import { authSigningSecret } from "./auth";
 import type { UniversalToolDefinition } from "../osint/universal-execution-service";
+import { validateTargetAgainstAssetInventory, type AssessmentTier } from "./asset-inventory";
 
-export type AuthorizationScope = "active_recon" | "identity_enumeration" | "high_risk_execution";
+export type AuthorizationScope =
+  | "active_recon"
+  | "identity_enumeration"
+  | "high_risk_execution"
+  | "vulnerability_scan"
+  | "internal_lab_assessment";
 
 export interface AuthorizationGrant {
   grantId: string;
   scope: AuthorizationScope;
   toolId?: string; // specific toolId or "*"
-  targetPattern?: string; // target string or regex pattern or "*"
-  approvedBy: string; // principal userId
+  targetPattern?: string; // target string, wildcard (*.domain.com), or "*"
+  grantedTo: string; // principal userId who can execute this grant
+  approvedBy: string; // principal userId who issued/approved this grant
   approverRole: Role;
   purpose: string;
   createdAt: string;
@@ -23,19 +30,70 @@ export interface AuthorizationGrant {
 // In-memory grant store for durable runtime authorization
 const grantStore = new Map<string, AuthorizationGrant>();
 
+export function normalizeHostOrUrl(raw: string): string {
+  let cleaned = raw.trim().toLowerCase();
+  // Strip protocol
+  if (cleaned.startsWith("https://")) cleaned = cleaned.slice(8);
+  if (cleaned.startsWith("http://")) cleaned = cleaned.slice(7);
+  // Strip trailing path/query/fragment
+  cleaned = cleaned.split("/")[0].split("?")[0].split("#")[0];
+  // Strip port
+  cleaned = cleaned.split(":")[0];
+  return cleaned;
+}
+
+export function isPrivateOrLocalAddress(hostOrIp: string): boolean {
+  const h = normalizeHostOrUrl(hostOrIp);
+  if (h === "localhost" || h === "127.0.0.1" || h === "::1" || h === "0.0.0.0") return true;
+  if (h === "169.254.169.254" || h.startsWith("169.254.")) return true; // Cloud metadata
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
+  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
+  if (h.endsWith(".internal") || h.endsWith(".local") || h.endsWith(".lan")) return true;
+  return false;
+}
+
+export function isTargetMatchingPattern(target: string, pattern: string): boolean {
+  if (!pattern || pattern === "*") return true;
+
+  const normTarget = normalizeHostOrUrl(target);
+  const normPattern = normalizeHostOrUrl(pattern);
+
+  if (normTarget === normPattern) return true;
+
+  // Wildcard pattern: *.domain.com
+  if (normPattern.startsWith("*.")) {
+    const root = normPattern.slice(2);
+    // Must be either exact root or end with .root (ensuring domain boundary)
+    return normTarget === root || normTarget.endsWith(`.${root}`);
+  }
+
+  // Exact domain root: pattern domain.com matches sub.domain.com, but NOT evildomain.com or domain.com.evil.com
+  if (normTarget.endsWith(`.${normPattern}`)) {
+    return true;
+  }
+
+  return false;
+}
+
 export function issueAuthorizationGrant(params: {
   scope: AuthorizationScope;
   approver: Principal;
+  grantedTo?: string;
   toolId?: string;
   targetPattern?: string;
   purpose: string;
   ttlMinutes?: number;
 }): AuthorizationGrant {
-  // Authorization policy enforcement
   const isApproverAdmin = params.approver.roles.includes("admin");
   const isApproverOperator = params.approver.roles.includes("operator");
 
-  if (params.scope === "active_recon" || params.scope === "high_risk_execution") {
+  if (
+    params.scope === "active_recon" ||
+    params.scope === "high_risk_execution" ||
+    params.scope === "vulnerability_scan" ||
+    params.scope === "internal_lab_assessment"
+  ) {
     if (!isApproverAdmin) {
       throw Object.assign(
         new Error(`Grant creation denied: Only users with 'admin' role can approve '${params.scope}'.`),
@@ -45,7 +103,9 @@ export function issueAuthorizationGrant(params: {
   } else if (params.scope === "identity_enumeration") {
     if (!isApproverAdmin && !isApproverOperator) {
       throw Object.assign(
-        new Error(`Grant creation denied: Users must have 'admin' or 'operator' role to approve 'identity_enumeration'.`),
+        new Error(
+          `Grant creation denied: Users must have 'admin' or 'operator' role to approve 'identity_enumeration'.`
+        ),
         { status: 403 }
       );
     }
@@ -56,12 +116,14 @@ export function issueAuthorizationGrant(params: {
   const ttlMs = Math.min(Math.max(params.ttlMinutes || 30, 1), 240) * 60 * 1000;
   const createdAt = new Date(now).toISOString();
   const expiresAt = new Date(now + ttlMs).toISOString();
+  const grantedTo = params.grantedTo?.trim() || params.approver.userId;
 
   const grantPayload: Record<string, unknown> = {
     grantId,
     scope: params.scope,
     toolId: params.toolId || "*",
     targetPattern: params.targetPattern || "*",
+    grantedTo,
     approvedBy: params.approver.userId,
     approverRole: isApproverAdmin ? "admin" : "operator",
     purpose: params.purpose,
@@ -74,7 +136,6 @@ export function issueAuthorizationGrant(params: {
   try {
     signature = signJson(grantPayload, authSigningSecret());
   } catch {
-    // If JWT secret is not configured in local test mode, fallback to hash
     signature = crypto
       .createHmac("sha256", "disha-grant-key")
       .update(JSON.stringify(grantPayload))
@@ -86,6 +147,7 @@ export function issueAuthorizationGrant(params: {
     scope: params.scope,
     toolId: params.toolId || "*",
     targetPattern: params.targetPattern || "*",
+    grantedTo,
     approvedBy: params.approver.userId,
     approverRole: (isApproverAdmin ? "admin" : "operator") as Role,
     purpose: params.purpose,
@@ -129,6 +191,7 @@ export interface ExecutionAuthResult {
   authorized: boolean;
   activeAuthorized: boolean;
   identityAuthorized: boolean;
+  vulnerabilityScanAuthorized?: boolean;
   reason?: string;
   grant?: AuthorizationGrant;
 }
@@ -147,36 +210,115 @@ export async function validateExecutionAuthorization(params: {
     tool.scopeRequirements.executionClass === "identity_enumeration" ||
     tool.workerType === "identity" ||
     tool.toolId.toLowerCase() === "sherlock";
+  const isVulnScan =
+    tool.capabilities?.includes("vulnerability") ||
+    tool.toolId.toLowerCase() === "nuclei" ||
+    tool.toolId.toLowerCase() === "vulnerability-scanner";
+
+  const normTarget = normalizeHostOrUrl(target);
+  const isPrivateTarget = isPrivateOrLocalAddress(normTarget);
 
   let activeAuthorized = false;
   let identityAuthorized = false;
+  let vulnerabilityScanAuthorized = false;
   let matchedGrant: AuthorizationGrant | undefined;
 
-  // 1. Check if independent approval grant is provided and valid
+  // Check asset inventory first
+  const assetCheck = validateTargetAgainstAssetInventory(target, isVulnScan ? "vulnerability_scan" : "passive_intel");
+  if (assetCheck.approved) {
+    if (isVulnScan) vulnerabilityScanAuthorized = true;
+    if (isActiveRecon) activeAuthorized = true;
+  }
+
+  // 1. Validate independent approval grant if provided
   if (grantId) {
     const grant = getAuthorizationGrant(grantId);
-    if (grant) {
-      const toolMatch = !grant.toolId || grant.toolId === "*" || grant.toolId.toLowerCase() === tool.toolId.toLowerCase();
-      let targetMatch = !grant.targetPattern || grant.targetPattern === "*";
-      if (!targetMatch && grant.targetPattern) {
-        targetMatch = target.toLowerCase().includes(grant.targetPattern.toLowerCase());
-      }
+    if (!grant) {
+      return {
+        authorized: false,
+        activeAuthorized: false,
+        identityAuthorized: false,
+        reason: `INVALID_GRANT: Authorization grant '${grantId}' does not exist, has expired, or was revoked.`,
+      };
+    }
 
-      if (toolMatch && targetMatch) {
-        matchedGrant = grant;
-        if (grant.scope === "active_recon" || grant.scope === "high_risk_execution") {
-          if (grant.approverRole === "admin") {
-            activeAuthorized = true;
-          }
-        }
-        if (grant.scope === "identity_enumeration" || grant.scope === "high_risk_execution") {
-          identityAuthorized = true;
-        }
+    // Cross-user grant reuse check: Grant must belong to caller unless caller is an admin
+    if (principal && grant.grantedTo !== principal.userId && !principal.roles.includes("admin")) {
+      return {
+        authorized: false,
+        activeAuthorized: false,
+        identityAuthorized: false,
+        reason: `CROSS_USER_GRANT_REUSE_BLOCKED: Authorization grant '${grantId}' was issued to user '${grant.grantedTo}', but requested by '${principal.userId}'.`,
+      };
+    }
+
+    // Precise tool matching
+    const toolMatch =
+      !grant.toolId ||
+      grant.toolId === "*" ||
+      grant.toolId.toLowerCase() === tool.toolId.toLowerCase();
+
+    // Precise target scope matching
+    const targetMatch = isTargetMatchingPattern(target, grant.targetPattern || "*");
+
+    if (!toolMatch) {
+      return {
+        authorized: false,
+        activeAuthorized: false,
+        identityAuthorized: false,
+        reason: `GRANT_TOOL_MISMATCH: Grant '${grantId}' authorizes tool '${grant.toolId}', but was invoked with '${tool.toolId}'.`,
+      };
+    }
+
+    if (!targetMatch) {
+      return {
+        authorized: false,
+        activeAuthorized: false,
+        identityAuthorized: false,
+        reason: `OUT_OF_SCOPE_TARGET: Target '${target}' does not match authorized scope pattern '${grant.targetPattern}'. Deceptive hostnames and redirects are strictly rejected.`,
+      };
+    }
+
+    // Private address guard: must be explicitly authorized for internal lab assessment
+    if (isPrivateTarget && grant.scope !== "internal_lab_assessment" && grant.targetPattern !== "localhost" && grant.targetPattern !== "127.0.0.1") {
+      return {
+        authorized: false,
+        activeAuthorized: false,
+        identityAuthorized: false,
+        reason: `PRIVATE_NETWORK_DESTINATION_REJECTED: Target '${target}' resolves to a private or metadata address without explicit internal_lab_assessment grant scope.`,
+      };
+    }
+
+    matchedGrant = grant;
+
+    if (grant.scope === "active_recon" || grant.scope === "high_risk_execution" || grant.scope === "internal_lab_assessment") {
+      if (grant.approverRole === "admin") {
+        activeAuthorized = true;
       }
+    }
+    if (grant.scope === "identity_enumeration" || grant.scope === "high_risk_execution") {
+      identityAuthorized = true;
+    }
+    if (grant.scope === "vulnerability_scan" || grant.scope === "high_risk_execution" || grant.scope === "internal_lab_assessment") {
+      vulnerabilityScanAuthorized = true;
     }
   }
 
-  // 2. Active Reconnaissance Authorization Evaluation
+  // 2. Private IP / SSRF destination check if no grant matched
+  if (isPrivateTarget && !activeAuthorized && !vulnerabilityScanAuthorized) {
+    const isDirectAdmin = principal?.roles?.includes("admin") ?? false;
+    const isLabAllowed = process.env.DISHA_ALLOW_INTERNAL_LAB_ASSESSMENTS === "true";
+    if (!isDirectAdmin || !isLabAllowed) {
+      return {
+        authorized: false,
+        activeAuthorized: false,
+        identityAuthorized: false,
+        reason: `PRIVATE_NETWORK_DESTINATION_REJECTED: Target '${target}' resolves to private or metadata IP address without internal lab authorization.`,
+      };
+    }
+  }
+
+  // 3. Active Reconnaissance Authorization Evaluation
   if (isActiveRecon && !activeAuthorized) {
     const isAdmin = principal?.roles?.includes("admin") ?? false;
     const isEnvApproved = process.env.DISHA_ACTIVE_RECON_APPROVED === "true";
@@ -195,7 +337,7 @@ export async function validateExecutionAuthorization(params: {
     }
   }
 
-  // 3. Identity Enumeration Authorization Evaluation
+  // 4. Identity Enumeration Authorization Evaluation
   if (isIdentityEnum && !identityAuthorized) {
     const isOperatorOrAdmin =
       (principal?.roles?.includes("operator") || principal?.roles?.includes("admin")) ?? false;
@@ -214,10 +356,29 @@ export async function validateExecutionAuthorization(params: {
     }
   }
 
+  // 5. Vulnerability Scan Authorization Evaluation
+  if (isVulnScan && !vulnerabilityScanAuthorized) {
+    // Check if target is an approved asset in asset inventory
+    const assetCheck = validateTargetAgainstAssetInventory(target, "vulnerability_scan");
+    if (assetCheck.approved) {
+      vulnerabilityScanAuthorized = true;
+    } else {
+      return {
+        authorized: false,
+        activeAuthorized,
+        identityAuthorized,
+        vulnerabilityScanAuthorized: false,
+        reason:
+          `VULNERABILITY_SCAN_UNAUTHORIZED: Target '${target}' is not in approved asset inventory and lacks an independent administrative vulnerability_scan approval grant.`,
+      };
+    }
+  }
+
   return {
     authorized: true,
     activeAuthorized,
     identityAuthorized,
+    vulnerabilityScanAuthorized,
     grant: matchedGrant,
   };
 }
