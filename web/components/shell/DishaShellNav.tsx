@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
   Brain,
@@ -36,12 +36,13 @@ const NAV_ITEMS = [
 
 export function DishaShellNav() {
   const pathname = usePathname();
+  const router = useRouter();
 
   async function handleLogout() {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
     } finally {
-      window.location.assign("/login");
+      router.push("/login");
     }
   }
 
