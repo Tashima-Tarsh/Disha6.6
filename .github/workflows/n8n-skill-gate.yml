@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "web/lib/skills/**"
+      - "web/app/api/v1/skills/readiness/**"
+      - "web/tests/capability-readiness.test.ts"
       - "web/app/api/v1/workflows/n8n/**"
       - "web/tests/n8n-governed-skills.test.ts"
       - "web/tests/n8n-workflow-bridge.test.ts"
@@ -33,6 +35,6 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
       - name: Focused contract tests
-        run: npm test -- tests/n8n-governed-skills.test.ts tests/n8n-workflow-bridge.test.ts tests/skill-registry.test.ts
+        run: npm test -- tests/n8n-governed-skills.test.ts tests/n8n-workflow-bridge.test.ts tests/skill-registry.test.ts tests/capability-readiness.test.ts
       - name: Full type check
         run: npm run type-check:full
