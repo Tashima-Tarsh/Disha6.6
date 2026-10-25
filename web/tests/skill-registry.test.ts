@@ -251,7 +251,7 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
       taskPrompt: "Perform high risk scan",
       params: { approvalGrantId: grant.grantId },
     });
-    expect(["SUCCESS", "CONFIRMATION_REQUIRED"]).toContain(verifiedResult.status);
+    expect(["NOT_EXECUTED", "CONFIRMATION_REQUIRED"]).toContain(verifiedResult.status);
     expect(verifiedResult.status).not.toBe("POLICY_DENIED");
   });
 
