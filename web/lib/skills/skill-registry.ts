@@ -903,43 +903,20 @@ export async function dispatchRole(
     };
   }
 
-  const maxSteps = Math.min(request.maxSteps || 5, 10);
-  const tokenBudget = request.tokenBudget || 4000;
-  let tokensConsumed = 0;
-
-  const executionTrace: Array<{ step: number; action: string; observation: string; tokensUsed: number }> = [];
-
-  // Step 1: Initialize role persona & constraints
-  tokensConsumed += Math.min(role.tokenEstimate, 500);
-  executionTrace.push({
-    step: 1,
-    action: `recruit_role:${role.id}`,
-    observation: `Successfully assumed persona '${role.name}'. Bound theoretical domain instructions.`,
-    tokensUsed: 500,
-  });
-
-  // Step 2: Analyze task objective against role domain
-  tokensConsumed += 300;
-  executionTrace.push({
-    step: 2,
-    action: "domain_task_decomposition",
-    observation: `Objective analyzed: '${request.objective}'. Formulated domain hypotheses and verification gates.`,
-    tokensUsed: 300,
-  });
-
-  // Step 3: Synthesize findings
-  tokensConsumed += 400;
-  const findings = [
-    `Role '${role.name}' evaluated objective with theoretical domain rigor.`,
-    `Policy check: ${policy.decision} (Risk: low, Device trust: verified).`,
-    `Instruction provenance verified from ${role.path}.`,
-  ];
-  executionTrace.push({
-    step: 3,
-    action: "synthesize_findings",
-    observation: `Synthesized ${findings.length} domain observations.`,
-    tokensUsed: 400,
-  });
+  const maxSteps = Math.max(1, Math.min(request.maxSteps ?? 5, 10));
+  // This is a catalogue lookup, not an LLM inference or an autonomous run.
+  // The actual token counter must remain zero until a model gateway reports
+  // measured usage. Do not invent findings merely because a persona exists.
+  const tokensConsumed = 0;
+  const executionTrace: Array<{ step: number; action: string; observation: string; tokensUsed: number }> = [{
+    step: 0,
+    action: "role_instruction_lookup",
+    observation: instructions
+      ? `Loaded role metadata and ${instructions.length} instruction characters; no domain task or tool executed.`
+      : "Role metadata found, but its instruction document was unavailable.",
+    tokensUsed: 0,
+  }];
+  const findings: string[] = [];
 
   const durationMs = Date.now() - startTime;
   const artifact = {
