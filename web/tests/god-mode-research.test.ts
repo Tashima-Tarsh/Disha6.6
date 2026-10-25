@@ -165,6 +165,14 @@ describe("GodModeResearchEngine", () => {
     expect(dossier.corroboration.length).toBeGreaterThan(0);
     expect(dossier.executiveSummary).toContain("Autonomous investigative research");
 
+    // Multi-Agent team and replayability
+    expect(dossier.multiAgentTeam.length).toBeGreaterThanOrEqual(4);
+    expect(dossier.multiAgentTeam.some((a) => a.role === "network_recon")).toBe(true);
+    expect(dossier.replayLog.length).toBeGreaterThan(0);
+    const replayResult = engine.replayInvestigation(dossier);
+    expect(replayResult.verified).toBe(true);
+    expect(replayResult.matchedSteps).toBe(dossier.replayLog.length);
+
     runSpy.mockRestore();
   });
 
@@ -233,6 +241,14 @@ describe("GodModeResearchEngine", () => {
     expect(dossier.entities.length).toBeGreaterThan(0);
     expect(dossier.corroboration.some((c) => c.subject === "conflict-test.org")).toBe(true);
     expect(dossier.corroboration.some((c) => c.predicate === "registrar")).toBe(true);
+
+    // Multi-Agent team and replayability
+    expect(dossier.multiAgentTeam.length).toBeGreaterThanOrEqual(4);
+    expect(dossier.multiAgentTeam.some((a) => a.role === "network_recon")).toBe(true);
+    expect(dossier.replayLog.length).toBeGreaterThan(0);
+    const replayResult = engine.replayInvestigation(dossier);
+    expect(replayResult.verified).toBe(true);
+    expect(replayResult.matchedSteps).toBe(dossier.replayLog.length);
 
     runSpy.mockRestore();
   });

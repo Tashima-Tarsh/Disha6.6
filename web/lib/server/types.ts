@@ -30,5 +30,6 @@ export interface AuditEvent {
   action: string;
   resource?: string;
   outcome: "success" | "failure" | "deny";
+  critical?: boolean;
   metadata?: Record<string, unknown>;
 }

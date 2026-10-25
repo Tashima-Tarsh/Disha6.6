@@ -35,6 +35,7 @@ export type OsintTool = {
 export default function OsintUniversePage() {
   const [tools, setTools] = useState<OsintTool[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"operational" | "maintenance">("operational");
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedRuntime, setSelectedRuntime] = useState("all");
@@ -78,8 +79,27 @@ export default function OsintUniversePage() {
     return ["all", ...Array.from(set)];
   }, [tools]);
 
-  const filteredTools = useMemo(() => {
+  const operationalTools = useMemo(() => {
     return tools.filter((t) => {
+      const isHealthy = t.status === "HEALTHY" || t.healthStatus === "HEALTHY";
+      const isIntegrated = ["DATASET_INTEGRATED", "LIBRARY_INTEGRATED"].includes(t.status);
+      const isPassive = t.executionClass === "passive_public" && (isHealthy || t.smokeResult?.success);
+      return isHealthy || isIntegrated || isPassive;
+    });
+  }, [tools]);
+
+  const maintenanceTools = useMemo(() => {
+    return tools.filter((t) => {
+      const isHealthy = t.status === "HEALTHY" || t.healthStatus === "HEALTHY";
+      const isIntegrated = ["DATASET_INTEGRATED", "LIBRARY_INTEGRATED"].includes(t.status);
+      const isPassive = t.executionClass === "passive_public" && (isHealthy || t.smokeResult?.success);
+      return !(isHealthy || isIntegrated || isPassive);
+    });
+  }, [tools]);
+
+  const filteredTools = useMemo(() => {
+    const baseList = viewMode === "operational" ? operationalTools : maintenanceTools;
+    return baseList.filter((t) => {
       if (selectedCategory !== "all" && t.category !== selectedCategory) return false;
       if (selectedRuntime !== "all" && t.runtimeType !== selectedRuntime) return false;
       if (selectedStatus !== "all") {
@@ -98,7 +118,7 @@ export default function OsintUniversePage() {
       }
       return true;
     });
-  }, [tools, selectedCategory, selectedRuntime, selectedStatus, search]);
+  }, [operationalTools, maintenanceTools, viewMode, selectedCategory, selectedRuntime, selectedStatus, search]);
 
   const handleOpenTool = (tool: OsintTool) => {
     setActiveTool(tool);
@@ -172,13 +192,49 @@ export default function OsintUniversePage() {
 
       {/* Main Body */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
+        {/* Mode Selector Tabs */}
+        <div className="flex border-b border-[#1f2937] gap-4">
+          <button
+            onClick={() => setViewMode("operational")}
+            className={`pb-3 px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition ${
+              viewMode === "operational"
+                ? "border-[#22d3ee] text-[#22d3ee]"
+                : "border-transparent text-[#64748b] hover:text-[#94a3b8]"
+            }`}
+          >
+            <CheckCircle size={14} className={viewMode === "operational" ? "text-[#22d3ee]" : "text-[#64748b]"} />
+            OPERATIONAL FLEET (INSTALLED & VERIFIED)
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              {operationalTools.length} READY
+            </span>
+          </button>
+          <button
+            onClick={() => setViewMode("maintenance")}
+            className={`pb-3 px-4 text-xs font-semibold flex items-center gap-2 border-b-2 transition ${
+              viewMode === "maintenance"
+                ? "border-[#f59e0b] text-[#f59e0b]"
+                : "border-transparent text-[#64748b] hover:text-[#94a3b8]"
+            }`}
+          >
+            <AlertTriangle size={14} className={viewMode === "maintenance" ? "text-[#f59e0b]" : "text-[#64748b]"} />
+            ADMINISTRATOR MAINTENANCE & BLOCKERS
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30">
+              {maintenanceTools.length} CATALOG / BLOCKED
+            </span>
+          </button>
+        </div>
+
         {/* Search & Filters */}
         <div className="bg-[#0b1121] border border-[#1f2937] rounded-xl p-4 space-y-4">
           <div className="relative">
             <Search className="absolute left-3.5 top-3 text-[#64748b]" size={18} />
             <input
               type="text"
-              placeholder="Search 532 tools by name, ID, or repository..."
+              placeholder={
+                viewMode === "operational"
+                  ? "Search verified operational tools..."
+                  : "Search catalog tools and blocker reasons..."
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-[#030712] border border-[#1f2937] rounded-lg text-sm text-[#e2e8f0] focus:border-[#22d3ee] outline-none"
@@ -291,6 +347,23 @@ export default function OsintUniversePage() {
                       </span>
                     )}
                   </div>
+
+                  {viewMode === "maintenance" && (
+                    <div className="mt-2 mb-3 text-[10px] bg-amber-950/20 border border-amber-800/40 rounded p-2 text-amber-300 font-mono space-y-1">
+                      <div className="font-bold flex items-center gap-1 text-amber-400">
+                        <AlertTriangle size={11} /> Upstream Blocker:
+                      </div>
+                      <div className="text-amber-200/90 leading-tight">
+                        {tool.smokeResult && !tool.smokeResult.success
+                          ? tool.smokeResult.error
+                          : tool.requiresApiKey
+                            ? "Requires external API key provisioning"
+                            : tool.status === "UNCONFIGURED"
+                              ? "CLI binary not found in worker container PATH"
+                              : tool.status}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-[#1f2937]/50 pt-3 flex items-center justify-between text-xs text-[#64748b]">

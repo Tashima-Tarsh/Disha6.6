@@ -1,0 +1,479 @@
+{
+  "bomFormat": "CycloneDX-DISHA",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:1792942716632",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-25T15:38:36.632Z",
+    "tools": [
+      {
+        "vendor": "DISHA Autonomous Systems",
+        "name": "disha-sbom-generator",
+        "version": "6.6.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "disha",
+      "version": "6.6.0",
+      "description": "DISHA 6.6 Constitutional Evidence & Intelligence Operating System"
+    }
+  },
+  "components": [
+    {
+      "name": "@deck.gl/aggregation-layers",
+      "version": "9.4.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@deck.gl/core",
+      "version": "9.4.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@deck.gl/layers",
+      "version": "9.4.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@deck.gl/react",
+      "version": "9.4.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-collapsible",
+      "version": "^1.1.16",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-dialog",
+      "version": "^1.1.15",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-dropdown-menu",
+      "version": "^2.1.16",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-scroll-area",
+      "version": "^1.2.18",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-select",
+      "version": "^2.2.6",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-separator",
+      "version": "^1.1.8",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-slot",
+      "version": "^1.3.3",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-switch",
+      "version": "^1.3.7",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-tabs",
+      "version": "^1.1.13",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-toast",
+      "version": "^1.2.17",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@radix-ui/react-tooltip",
+      "version": "^1.2.16",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@tanstack/react-virtual",
+      "version": "^3.14.5",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@xyflow/react",
+      "version": "^12.12.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "class-variance-authority",
+      "version": "^0.7.1",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "clsx",
+      "version": "^2.1.1",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "cytoscape",
+      "version": "3.34.3",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "exifr",
+      "version": "^7.1.3",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "framer-motion",
+      "version": "^12.38.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "libphonenumber-js",
+      "version": "^1.13.14",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "lucide-react",
+      "version": "^1.8.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "maplibre-gl",
+      "version": "6.10.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "nanoid",
+      "version": "^6.0.1",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "next",
+      "version": "16.3.6",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "pg",
+      "version": "^8.20.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "react",
+      "version": "^19.3.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "react-dom",
+      "version": "^19.3.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "react-map-gl",
+      "version": "8.1.3",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "react-markdown",
+      "version": "^10.1.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "redis",
+      "version": "^6.0.1",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "remark-gfm",
+      "version": "^4.0.1",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "sharp",
+      "version": "0.35.5",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "shiki",
+      "version": "^4.4.3",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "swr",
+      "version": "^2.5.1",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "tailwind-merge",
+      "version": "^3.5.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "three",
+      "version": "0.186.0",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "zod",
+      "version": "^4.6.5",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "zustand",
+      "version": "^5.0.15",
+      "ecosystem": "npm",
+      "scope": "production",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@next/bundle-analyzer",
+      "version": "^16.3.6",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@playwright/test",
+      "version": "^1.64.1",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@tailwindcss/postcss",
+      "version": "^4.3.3",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@types/node",
+      "version": "^26.6.2",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@types/pg",
+      "version": "^8.20.0",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@types/react",
+      "version": "^19.3.0",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@types/react-dom",
+      "version": "^19.3.0",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "@types/three",
+      "version": "^0.186.0",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "autoprefixer",
+      "version": "^10.4.27",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "esbuild",
+      "version": "0.28.1",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "eslint",
+      "version": "9.39.5",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "eslint-config-next",
+      "version": "16.3.6",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "postcss",
+      "version": "8.5.27",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "tailwindcss",
+      "version": "^4.3.1",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "typescript",
+      "version": "^6.0.3",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "vitest",
+      "version": "^4.1.11",
+      "ecosystem": "npm",
+      "scope": "development",
+      "license": "Permissive/OSS"
+    },
+    {
+      "name": "py311",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "UP",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "E501",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "C901",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "UP042",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "E402",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "UP007",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    },
+    {
+      "name": "strict",
+      "version": "unpinned",
+      "ecosystem": "pypi",
+      "scope": "production",
+      "license": "OSI Approved"
+    }
+  ]
+}

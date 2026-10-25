@@ -19,8 +19,32 @@ import { createDefaultOsintBus } from "../unified/osint-default-bus";
 import { generatedOsintManifests, type GeneratedOsintToolManifest } from "../unified/generated/osint-tool-manifests.generated";
 import { audit } from "../server/audit";
 import { DatasetsService } from "../unified/datasets-service";
+import { callOsintBackend, getOsintApiKey } from "../server/osint-backend-client";
 
 const execFileAsync = promisify(execFile);
+
+const SPECIALIST_CLI_TOOLS = new Set([
+  "subfinder",
+  "owasp-amass",
+  "amass",
+  "spiderfoot",
+  "sherlock",
+  "maigret",
+  "phoneinfoga",
+  "theharvester",
+  "holehe",
+  "photon",
+  "recon-ng",
+  "nuclei",
+  "instaloader",
+  "telegram-public",
+  "dnstwist",
+  "gau",
+  "assetfinder",
+  "waybackurls",
+  "katana",
+  "ffuf",
+]);
 
 export type WorkerType =
   | "identity"
@@ -926,6 +950,71 @@ export class UniversalOsintExecutionService {
     };
   }
 
+  private async tryWorkerBackendExecution(
+    def: UniversalToolDefinition,
+    target: string,
+    input: ToolExecutionInput,
+    context: AdapterContext,
+    runId: string,
+    started: number,
+  ): Promise<ToolExecutionResult | null> {
+    const apiKey = getOsintApiKey();
+    if (!apiKey) return null;
+
+    try {
+      const response = await callOsintBackend<Record<string, unknown>>("/scan", {
+        method: "POST",
+        body: {
+          target,
+          missionId: context.missionId || runId,
+          allowActive: context.activeAuthorization === true,
+          ...input.options,
+        },
+        timeoutMs: Math.min(def.timeoutMs, 45_000),
+      });
+
+      if (!response) return null;
+      const results = (response.results as Record<string, unknown>) || response;
+      const findings = Array.isArray(results[def.toolId])
+        ? (results[def.toolId] as unknown[])
+        : results[def.name]
+          ? [results[def.name]]
+          : [];
+
+      const findingsCount = findings.length;
+      const evidenceList: AdapterEvidence[] = [];
+      if (findingsCount > 0) {
+        evidenceList.push(
+          buildAdapterEvidence({
+            sourceId: `worker:${def.toolId}`,
+            sourceName: def.name,
+            sourceUrl: def.upstream,
+            summary: `Executed ${def.name} via DISHA OSINT worker plane against target '${target}'. Found ${findingsCount} result(s).`,
+            fields: { target, results: findings },
+          }),
+        );
+      }
+
+      return {
+        toolId: def.toolId,
+        runId,
+        status: "completed",
+        standardStatus: findingsCount > 0 ? "COMPLETED_WITH_FINDINGS" : "COMPLETED_NO_FINDINGS",
+        executionMethod: "cli_subprocess",
+        workerType: def.workerType,
+        durationMs: Date.now() - started,
+        data: results,
+        findingsCount,
+        evidence: evidenceList,
+        warnings: [],
+        provenanceHash: hashValue({ toolId: def.toolId, runId, source: "worker_backend" }),
+        executedAt: new Date().toISOString(),
+      };
+    } catch {
+      return null;
+    }
+  }
+
   private async executeSubprocess(
     def: UniversalToolDefinition,
     target: string,
@@ -936,9 +1025,44 @@ export class UniversalOsintExecutionService {
   ): Promise<ToolExecutionResult> {
     const recipe = TOOL_RECIPES[def.toolId.toLowerCase()];
     const binary = recipe ? recipe.executable : extractTargetBinary(def);
+    const isSpecialistTool =
+      SPECIALIST_CLI_TOOLS.has(def.toolId.toLowerCase()) ||
+      SPECIALIST_CLI_TOOLS.has(binary.toLowerCase());
+    const isWebProduction =
+      process.env.NODE_ENV === "production" && process.env.DISHA_ALLOW_IN_PROCESS_CLI !== "true";
 
-    // Honest upfront binary existence check without throwing exceptions
+    // 1. In web production, delegate specialist CLI tools to worker container plane
+    if (isWebProduction) {
+      const workerResult = await this.tryWorkerBackendExecution(def, target, input, context, runId, started);
+      if (workerResult) {
+        return workerResult;
+      }
+      return {
+        toolId: def.toolId,
+        runId,
+        status: "unconfigured",
+        standardStatus: "NOT_INSTALLED",
+        executionMethod: "cli_subprocess",
+        workerType: def.workerType,
+        durationMs: Date.now() - started,
+        findingsCount: 0,
+        evidence: [],
+        warnings: [
+          `Specialist CLI tool '${def.name}' (${def.toolId}) requires execution in a dedicated OSINT worker container. In-process execution inside Next.js is disabled for container stability.`,
+        ],
+        error: "SPECIALIST_WORKER_EXECUTION_REQUIRED",
+        provenanceHash: hashValue({ toolId: def.toolId, target, error: "worker_plane_required" }),
+        executedAt: new Date().toISOString(),
+      };
+    }
+
+    // 2. Honest upfront binary existence check without throwing exceptions
     if (!findExecutableOnPath(binary)) {
+      const workerResult = await this.tryWorkerBackendExecution(def, target, input, context, runId, started);
+      if (workerResult) {
+        return workerResult;
+      }
+
       return {
         toolId: def.toolId,
         runId,

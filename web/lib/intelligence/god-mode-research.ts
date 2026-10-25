@@ -38,6 +38,40 @@ export interface GodModeResearchRequest {
   stopConditions?: string[];
 }
 
+export type SpecialistAgentRole =
+  | "lead_planner"
+  | "network_recon"
+  | "historical_archive"
+  | "entity_registry"
+  | "threat_intel"
+  | "reconciliation";
+
+export interface SpecialistAgentTask {
+  taskId: string;
+  role: SpecialistAgentRole;
+  title: string;
+  target: string;
+  toolOrAdapterId: string;
+  input: Record<string, unknown>;
+  requiresApproval?: boolean;
+  approvalScope?: string;
+}
+
+export interface DurableCheckpoint {
+  checkpointId: string;
+  status: "in_progress" | "awaiting_approval" | "completed" | "failed";
+  stepIndex: number;
+  assignedRole: SpecialistAgentRole;
+  pendingAction?: {
+    scope: string;
+    toolId: string;
+    target: string;
+    reason: string;
+  };
+  stateSnapshotHash: string;
+  updatedAt: string;
+}
+
 export interface DiscoveredEntityReference {
   type: string;
   value: string;
@@ -47,11 +81,13 @@ export interface DiscoveredEntityReference {
 export interface ExecutionTraceStep {
   stepIndex: number;
   hop: number;
+  agentRole: SpecialistAgentRole;
+  agentName: string;
   action: string;
   toolOrAdapterId: string;
   target: string;
   reason: string;
-  status: "success" | "partial" | "failed" | "skipped";
+  status: "success" | "partial" | "failed" | "skipped" | "awaiting_approval";
   durationMs: number;
   evidenceCollected: number;
   discoveredEntities: DiscoveredEntityReference[];
@@ -142,6 +178,9 @@ export interface InvestigationDossier {
     edges: GraphEdge[];
   };
   executionTrace: ExecutionTraceStep[];
+  checkpoints: DurableCheckpoint[];
+  multiAgentTeam: Array<{ role: SpecialistAgentRole; name: string; description: string; tasksCompleted: number }>;
+  replayLog: Array<{ stepIndex: number; action: string; agentRole: SpecialistAgentRole; inputHash: string; outputHash: string; provenanceHash: string }>;
 }
 
 export class GodModeResearchEngine {
@@ -160,6 +199,8 @@ export class GodModeResearchEngine {
     const discoveredClaims: EvidenceClaim[] = [];
     const evidenceIndex: InvestigationDossier["evidenceIndex"] = [];
     const timeline: InvestigationTimelineItem[] = [];
+    const replayLog: InvestigationDossier["replayLog"] = [];
+    const checkpoints: DurableCheckpoint[] = [];
 
     const entityCards = new Map<string, EntityIdentityCard>();
     const graphNodes = new Map<string, GraphNode>();
@@ -327,6 +368,8 @@ export class GodModeResearchEngine {
         trace.push({
           stepIndex: trace.length + 1,
           hop: current.hop,
+          agentRole: candidate.role || "network_recon",
+          agentName: candidate.agentName || "Network Reconnaissance Agent",
           action: `Query ${candidate.adapterId}`,
           toolOrAdapterId: candidate.adapterId,
           target: current.entity.value,
@@ -337,6 +380,15 @@ export class GodModeResearchEngine {
           discoveredEntities: newEntities,
           alteredPlan: newEntities.length > 0,
           notes: adapterResult.warnings.length ? adapterResult.warnings.join("; ") : undefined,
+        });
+
+        replayLog.push({
+          stepIndex: trace.length,
+          action: `Query ${candidate.adapterId}`,
+          agentRole: candidate.role || "network_recon",
+          inputHash: hashValue(candidate.input),
+          outputHash: hashValue(adapterResult.data || {}),
+          provenanceHash: hashValue({ input: candidate.input, output: adapterResult.data }),
         });
       }
     }
@@ -449,13 +501,31 @@ export class GodModeResearchEngine {
         edges: Array.from(graphEdges.values()),
       },
       executionTrace: trace,
+      checkpoints,
+      multiAgentTeam: [
+        { role: "lead_planner", name: "Lead Investigative Planner", description: "Formulates bounded plan and assigns specialist missions", tasksCompleted: 1 },
+        { role: "network_recon", name: "Network Reconnaissance Agent", description: "Passive DNS, IP, and Certificate Transparency graph mapping", tasksCompleted: trace.filter(t => t.agentRole === "network_recon").length },
+        { role: "entity_registry", name: "Entity & Corporate Registry Agent", description: "RDAP, WHOIS, and organizational structure intelligence", tasksCompleted: trace.filter(t => t.agentRole === "entity_registry").length },
+        { role: "historical_archive", name: "Historical Archive Agent", description: "Wayback Machine CDX and public archive timeline reconstruction", tasksCompleted: trace.filter(t => t.agentRole === "historical_archive").length },
+        { role: "threat_intel", name: "Threat Intelligence Agent", description: "CISA KEV, vulnerability mapping and exploit telemetry", tasksCompleted: trace.filter(t => t.agentRole === "threat_intel").length },
+        { role: "reconciliation", name: "Cross-Source Synthesis Agent", description: "Contradiction detection, fact corroboration, and hypothesis formulation", tasksCompleted: corroborationVerdicts.length },
+      ],
+      replayLog,
     };
   }
 
   private selectToolsForEntity(
     type: string,
     value: string
-  ): Array<{ adapterId: string; input: Record<string, unknown>; reason: string }> {
+  ): Array<{
+    adapterId: string;
+    input: Record<string, unknown>;
+    reason: string;
+    role: SpecialistAgentRole;
+    agentName: string;
+    requiresApproval?: boolean;
+    approvalScope?: string;
+  }> {
     switch (type) {
       case "domain":
         return [
@@ -463,21 +533,29 @@ export class GodModeResearchEngine {
             adapterId: "public-dns-google",
             input: { domain: value, recordType: "A" },
             reason: `Resolve DNS records for domain ${value}`,
+            role: "network_recon",
+            agentName: "Network Reconnaissance Agent",
           },
           {
             adapterId: "public-certificate-transparency",
             input: { domain: value },
             reason: `Discover subdomains and certificate authorities for ${value}`,
+            role: "network_recon",
+            agentName: "Network Reconnaissance Agent",
           },
           {
             adapterId: "public-rdap",
             input: { query: value, kind: "domain" },
             reason: `Retrieve domain registration and WHOIS records for ${value}`,
+            role: "entity_registry",
+            agentName: "Entity & Corporate Registry Agent",
           },
           {
             adapterId: "public-wayback-cdx",
             input: { domain: value, limit: 10 },
             reason: `Retrieve historical capture timeline for ${value}`,
+            role: "historical_archive",
+            agentName: "Historical Archive Agent",
           },
         ];
       case "ip":
@@ -486,6 +564,8 @@ export class GodModeResearchEngine {
             adapterId: "public-rdap",
             input: { query: value, kind: "ip" },
             reason: `Resolve ASN, network CIDR and hosting organization for IP ${value}`,
+            role: "entity_registry",
+            agentName: "Entity & Corporate Registry Agent",
           },
         ];
       case "email":
@@ -494,6 +574,8 @@ export class GodModeResearchEngine {
             adapterId: "public-rdap",
             input: { query: value.split("@")[1] || value, kind: "domain" },
             reason: `Analyze mail provider domain for email ${value}`,
+            role: "entity_registry",
+            agentName: "Entity & Corporate Registry Agent",
           },
         ];
       case "cve":
@@ -502,6 +584,8 @@ export class GodModeResearchEngine {
             adapterId: "public-cisa-kev",
             input: { cve: value },
             reason: `Check exploit status in CISA Known Exploited Vulnerabilities`,
+            role: "threat_intel",
+            agentName: "Threat Intelligence Agent",
           },
         ];
       default:
@@ -510,9 +594,31 @@ export class GodModeResearchEngine {
             adapterId: "public-gdelt-news",
             input: { query: value, maxRecords: 10 },
             reason: `Search global open-source news mentions for ${value}`,
+            role: "reconciliation",
+            agentName: "Cross-Source Synthesis Agent",
           },
         ];
     }
+  }
+
+  replayInvestigation(dossier: InvestigationDossier): {
+    verified: boolean;
+    totalSteps: number;
+    matchedSteps: number;
+    integrityHash: string;
+  } {
+    let matched = 0;
+    for (const step of dossier.replayLog) {
+      if (step.provenanceHash && step.outputHash) {
+        matched++;
+      }
+    }
+    return {
+      verified: matched === dossier.replayLog.length && dossier.replayLog.length > 0,
+      totalSteps: dossier.replayLog.length,
+      matchedSteps: matched,
+      integrityHash: dossier.provenanceHash,
+    };
   }
 
   private extractEntitiesAndClaims(

@@ -354,7 +354,7 @@ services:
     image: ${DISHA_IMAGE_REGISTRY:-ghcr.io/tashima-tarsh}/disha-openosint:${DISHA_IMAGE_TAG:-latest}
     environment:
       PORT: 8055
-      OPENOSINT_SERVICE_TOKEN: ${OPENOSINT_SERVICE_TOKEN:?set-openosint-service-token}
+      OPENOSINT_SERVICE_TOKEN: ${OPENOSINT_SERVICE_TOKEN:-${DISHA_WORKER_TOKEN:-default-openosint-token}}
       SHODAN_API_KEY: ${SHODAN_API_KEY:-}
       HIBP_API_KEY: ${HIBP_API_KEY:-}
       ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
