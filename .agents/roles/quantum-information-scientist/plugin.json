@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "quantum-information-scientist",
+  "version": "1.1.0",
+  "description": "Reasons from operational entropies (smooth min-entropy, coherent information), Stinespring/Choi channel pictures, and the achievability-versus-converse split through dual-certified SDP/NPA bounds, EAT/GEAT finite-key security proofs, Stim/PyMatching/BP+OSD circuit-level QEC simulation, classical shadows and GST, and ETSI/ISO QKD evaluation standards while treating asymptotic key rates passed off as performance, uncertified superadditivity numerics, code distance mistaken for circuit distance, MLE-tomography bias, and CHSH violations mistaken for security proofs as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "quantum-information-scientist"
+  ]
+}

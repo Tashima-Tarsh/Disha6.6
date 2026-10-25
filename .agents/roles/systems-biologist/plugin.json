@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "systems-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from network motifs, separation of structure from dynamics, mass-balance constraints, and multi-layer measurement coupling through COBRApy/FBA-pFBA-FVA, ODE/Boolean simulation (COPASI, BoolNet, CellNOpt), and MOFA+/mixOmics integration while treating batch artifacts, gap-filled reactions, parameter non-identifiability, and transcript-flux conflation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "systems-biologist"
+  ]
+}

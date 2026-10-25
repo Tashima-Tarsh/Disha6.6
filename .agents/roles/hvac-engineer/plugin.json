@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hvac-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from psychrometric state, parallel heating and cooling load paths, and vapor-compression thermodynamics through TRACE/HAP and EnergyPlus load models, ASHRAE 62.1/55/90.1 and Guideline 36 sequences, and TAB/commissioning per ASHRAE 15/34, while treating low ΔT syndrome, simultaneous reheat fight, coil-leaving condensation, and A2L refrigerant safety as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "hvac-engineer"
+  ]
+}

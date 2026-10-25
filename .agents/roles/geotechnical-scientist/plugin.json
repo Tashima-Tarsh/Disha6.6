@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "geotechnical-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from Terzaghi effective stress, Mohr–Coulomb/CSSM, and consolidation/seepage through SPT/CPTU (Robertson SBT), triaxial/oedometer (ASTM D-series), Boulanger–Idriss liquefaction, Hoek–Brown/GSI rock mass, EC7 characteristic values, and PLAXIS/Slide2/RS2/GeoStudio workflows while treating sample disturbance, N-value correction chains, spatial variability, and LEM-vs-FEM mismatch as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "geotechnical-scientist"
+  ]
+}

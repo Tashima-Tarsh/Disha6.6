@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bioinformatician",
+  "version": "1.0.0",
+  "description": "Reference-build discipline (GRCh38/GENCODE/Ensembl, MANE), batch-as-covariate DE (DESeq2/edgeR), index hopping/UDI, GATK/BQSR/PLINK GWAS multiplicity, nf-core reproducibility, and scRNA-seq ambient-RNA/doublet artifacts.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "bioinformatician"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "turbomachinery-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from Euler work transfer, velocity triangles, decomposed loss correlations, and map-based off-design margin through meanline-to-throughflow-to-RANS/URANS analysis, Campbell and unbalance rotordynamics, and ASME PTC 10/PTC 6 and API 617 testing while treating surge and rotating stall, clearance rubs and tip leakage, pump cavitation below NPSHr, and seal cross-coupling instability as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "turbomachinery-engineer"
+  ]
+}

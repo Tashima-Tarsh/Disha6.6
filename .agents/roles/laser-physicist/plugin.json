@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "laser-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from population inversion and threshold gain (g ≥ l/L + T), ABCD resonator stability (g₁g₂ in 0–1) and c/(2L) mode spacing, GVD/TOD dispersion management and time-bandwidth ΔtΔν ≈ 0.44, and Kerr/SPM nonlinear phase through Kerr-lens/SESAM mode-locking, CPA stretcher–amplifier–compressor with B-integral budgeting, QPM in PPLN/PPLKTP for SHG/OPA, FROG/SPIDER and Dazzler pulse shaping, M² caustics per ISO 11146, and IEC 60825 classification while treating thermal-lens drift out of the stability zone, autocorrelation-width-mistaken-for-pulse-width, uncompensated TOD wings and regen double-pulsing, and LMA-fiber mode instability and SRS/SBS above kW as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "laser-physicist"
+  ]
+}

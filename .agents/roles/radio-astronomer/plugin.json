@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "radio-astronomer",
+  "version": "1.1.0",
+  "description": "Reasons from the van Cittert–Zernike relation, the RIME measurement equation, the radiometer equation, and ν⁻²/λ² plasma propagation through CASA/WSClean/DDFacet imaging, Perley–Butler flux scaling, MT-MFS and w-stacking, RM synthesis, single-dish T_A*/T_mb calibration, and PRESTO/PSRCHIVE/PINT pulsar and FRB workflows while treating missing short spacings and negative bowls, self-calibration ghosts and flux suppression, RFI masquerading as dispersed bursts, polarization leakage and beam squint, and flaring flux calibrators as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "radio-astronomer"
+  ]
+}

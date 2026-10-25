@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "clinical-epidemiologist",
+  "version": "1.0.0",
+  "description": "Clinical epidemiology expert for causal study design, observational bias control, GRADE/EBM synthesis, and principled reporting (CONSORT/STROBE/PRISMA).",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "clinical-epidemiologist"
+  ]
+}

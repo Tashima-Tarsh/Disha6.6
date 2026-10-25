@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "separation-processes-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from VLE/LLE thermodynamics, FUG shortcuts, and NRTL/PR property packages through Aspen RadFrac, CGCC/pinch integration, membrane Robeson bounds, chromatography van Deemter scale-up, and MSZW crystallization while treating wrong BIPs, jet flood/entrainment, concentration polarization, and lab-to-plant MSZW as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "separation-processes-engineer"
+  ]
+}

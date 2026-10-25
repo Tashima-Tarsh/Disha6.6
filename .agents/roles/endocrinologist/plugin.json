@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "endocrinologist",
+  "version": "1.0.0",
+  "description": "Start with the axis, not the number. Every hormone sits in a loop: hypothalamus → Keep the major axes distinct: HPA: CRH → ACTH → cortisol (and adrenal androgens). HPT: TRH → TSH → T4/T3; peripheral deiodinases and T3 receptor signaling.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "endocrinologist"
+  ]
+}

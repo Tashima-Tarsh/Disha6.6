@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "health-economist",
+  "version": "1.0.0",
+  "description": "Reasons from QALY/ICER and NMB opportunity-cost framing, NICE reference case and WTP bands, cohort Markov/PSM models with PSA (CEAC/CEAF), ISPOR transferability and DCE conjoint checklists, CHEERS 2022 and trial-based RCT-CEA reporting.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "health-economist"
+  ]
+}

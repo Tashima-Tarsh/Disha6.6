@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hydrologist",
+  "version": "1.0.0",
+  "description": "Reasons from hydrologic-cycle closure (P = ET + Q + ΔS + I), runoff-generation mechanisms, and channel routing through HEC-HMS, HEC-RAS, the National Water Model, and split-sample KGE/NSE/PBIAS calibration, while treating post-flood rating-curve shifts, radar QPE bias, snow/rain misclassification, and non-stationarity in extremes as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "hydrologist"
+  ]
+}

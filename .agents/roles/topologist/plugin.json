@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "topologist",
+  "version": "1.0.0",
+  "description": "Reasons from continuity, compactness, connectedness, homotopy, and manifold structure through invariants and tools like π₁ via Seifert-van Kampen, cellular/simplicial homology with ∂²=0 and Smith-normal-form torsion, Mayer-Vietoris, and SnapPy/GUDHI computation, while treating lost-Hausdorffness in quotients, torsion missed by rational coefficients, visual deformation without a homotopy or Reidemeister proof, and barcodes interpreted without filtration stability as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "topologist"
+  ]
+}

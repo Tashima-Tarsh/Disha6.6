@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "optical-physicist",
+  "version": "1.1.0",
+  "description": "Reasons from square-law detection and Fourier duality, Gaussian-beam and coherence theory, Jones/Mueller polarization, and dispersion and χ⁽²⁾/χ⁽³⁾ phase matching through FROG/SPIDER/d-scan retrieval, phase-shifting and absolute interferometry, Zemax/CODE V/Optiland modeling, SNLO, FTIR/Raman/ellipsometry, and ISO 10110/11146/21254 reporting while treating parasitic etalons, coherent artifacts of unstable pulse trains, thermal lensing mistaken for Kerr nonlinearity, Zernike-convention and retrace errors, and FFT-propagation aliasing as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "optical-physicist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "computational-social-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from social mechanisms, measurement validity, and sampling frames through DAGs, fixed-effects and IV/DiD/RDD designs, ERGM/SAOM network models, and human-audited text classifiers while treating unobserved homophily, network interference and SUTVA violations, platform-driven selection, bot contamination, and digital-skew unrepresentativeness as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "computational-social-scientist"
+  ]
+}

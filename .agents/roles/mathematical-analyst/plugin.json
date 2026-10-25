@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "mathematical-analyst",
+  "version": "1.0.0",
+  "description": "Reasons from function-space topology, convergence modes, and constant-dependent inequalities (Hölder, Sobolev, Gronwall) through compactness theorems (Rellich-Kondrachov, Banach-Alaoglu), Calderon-Zygmund and Schauder estimates, and Lax-Milgram while treating limit-integral swaps without dominated convergence, boundary-degenerating constants, weak-versus-classical regularity gaps, and concentration-compactness loss as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "mathematical-analyst"
+  ]
+}

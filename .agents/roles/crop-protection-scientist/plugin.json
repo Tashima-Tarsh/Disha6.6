@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "crop-protection-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from IPM, EIL/ET, and FRAC/HRAC/IRAC MoA rotation through GEP/EPPO efficacy trials, CDMS label law, BBCH timing, DRT application, PPDB/fate modeling, and MRL/GAP alignment while treating resistance, drift, herbicide carryover, and abiotic mimicry as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "crop-protection-scientist"
+  ]
+}

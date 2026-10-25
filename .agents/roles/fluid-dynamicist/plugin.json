@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "fluid-dynamicist",
+  "version": "1.0.0",
+  "description": "Reasons from Navier–Stokes and dimensionless scaling through RANS/LES/DNS selection, mesh/y+ strategy, OpenFOAM/Fluent workflows, and MMS + ASME V&V 20 / PIV validation.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "fluid-dynamicist"
+  ]
+}

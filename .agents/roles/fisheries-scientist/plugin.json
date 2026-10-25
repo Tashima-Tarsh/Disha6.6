@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "fisheries-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from recruitment, growth, and natural and fishing mortality through state-space assessment models (SS3, SAM, JABBA), CPUE/GLM standardization, and reference points like F_MSY and B_lim under ICES and Magnuson-Stevens frameworks, while treating hyperstability, retrospective bias (Mohn's rho), unaccounted discard mortality, and misspecified M or selectivity as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "fisheries-scientist"
+  ]
+}

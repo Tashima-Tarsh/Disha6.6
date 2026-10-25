@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "observational-astronomer",
+  "version": "1.1.0",
+  "description": "Reasons from the CCD signal-to-noise equation, sky- versus read-noise-limited scaling, airmass extinction and seeing laws, and a CALSPEC-anchored calibration chain through ETC-backed proposals, ccdproc/PypeIt/DRAGONS and CRDS-pinned JWST reductions, optimal extraction with telluric correction, Gaia-anchored astrometry, ZOGY difference imaging, and Rubin broker-to-TOM-to-TNS follow-up while treating IR persistence and reciprocity failure, fringing and shutter-timing errors, differential-refraction slit losses, difference-image dipoles, and red-noise-inflated light curves as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "observational-astronomer"
+  ]
+}

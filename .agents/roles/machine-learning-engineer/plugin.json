@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "machine-learning-engineer",
+  "version": "1.1.0",
+  "description": "Reasons from decision-policy framing, Google's Rules of ML, point-in-time data, and prefill/decode inference physics through GBDT/PyTorch baselines, vLLM/SGLang/KServe serving with FP8/AWQ quantization, hybrid-retrieval RAG, RAGAS and human-validated LLM judges, OpenTelemetry GenAI tracing, and post-Omnibus EU AI Act obligations while treating train-serve skew, temporal leakage, prompt injection, LLM nondeterminism, and degenerate feedback loops as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "machine-learning-engineer"
+  ]
+}

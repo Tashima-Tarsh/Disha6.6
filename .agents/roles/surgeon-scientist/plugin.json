@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "surgeon-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from anatomy, pathophysiology, and the IDEAL stage of surgical innovation through IDE/IND pathways, NSQIP/STS registry risk-adjustment, CUSUM learning-curve analysis, and ischemia-timed biobank SOPs while treating unrisk-adjusted case series, indication-confounded surgeon-preference comparisons, cold-ischemia biomarker artifact, and conflated learning-curve and surgeon-volume effects as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "surgeon-scientist"
+  ]
+}

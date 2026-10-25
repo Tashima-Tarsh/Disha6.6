@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "epigeneticist",
+  "version": "1.0.0",
+  "description": "Reasons from chromatin state, DNA methylation, histone marks, accessibility, and 3D genome topology through ChIP/CUT&RUN, ATAC-seq, WGBS/EM-seq, Hi-C, and dCas9-DNMT3A/KRAB perturbation while treating cell-composition shifts, batch confounding, antibody nonspecificity, Tn5 bias, and incomplete bisulfite conversion as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "epigeneticist"
+  ]
+}

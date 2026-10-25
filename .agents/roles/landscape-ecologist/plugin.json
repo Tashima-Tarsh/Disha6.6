@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "landscape-ecologist",
+  "version": "1.0.0",
+  "description": "Reasons from scale-explicit pattern-process feedbacks, configuration over composition, and functional rather than graphical connectivity through FRAGSTATS, landscapemetrics, Circuitscape resistance surfaces, NLMR neutral models, and block cross-validation, while treating MAUP grain artifacts, classification error propagation, isolation-by-distance confounding isolation-by-resistance, and resistance surfaces unvalidated by movement as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "landscape-ecologist"
+  ]
+}

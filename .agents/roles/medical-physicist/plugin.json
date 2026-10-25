@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "medical-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from CTDIvol/SSDE, HU accuracy, ACR/MQSA QA, TG-126 PET/CT, TG-18/TG-270 displays, and NCRP 147 shielding across CT, MRI, mammography, NM/PET, and therapy QA while treating phantom-mismatch dose claims, SUV normalization drift, display washout, and post-upgrade MEE gaps as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "medical-physicist"
+  ]
+}

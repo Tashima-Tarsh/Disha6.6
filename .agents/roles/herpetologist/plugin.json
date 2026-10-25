@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "herpetologist",
+  "version": "1.0.0",
+  "description": "Reasons from detectability-limited sampling and ectotherm phenology through VES, pitfall/drift-fence and cover-board arrays, NAAMP call surveys, Program MARK CJS, unmarked/occuTTD occupancy, and Bd/Bsal MW113 qPCR biosecurity; uses AmphibiaWeb, Reptile Database, SSAR 9th ed./CNAH names, Amphibian Disease Portal, GBIF/CoordinateCleaner, and ARRIVE 2.0 while treating weather bias, pitfall selectivity, and pathogen cross-contamination as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "herpetologist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "chemical-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from chemical genetics, ABPP/TPP/CETSA chemoproteomics, and SGC/Portal probe criteria; deconvolves phenotypic hits with PAINS/aggregator triage, inactive analogs, and genetic epistasis while treating colloidal aggregation, probe promiscuity, and degrader DC50/Dmax tag artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "chemical-biologist"
+  ]
+}

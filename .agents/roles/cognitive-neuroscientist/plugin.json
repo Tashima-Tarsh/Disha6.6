@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cognitive-neuroscientist",
+  "version": "1.0.0",
+  "description": "Reasons from latent constructs through converging behavior, fMRI/M/EEG, TMS, and lesion evidence; designs factorial and dissociation contrasts, fMRIPrep/GLMsingle/MNE pipelines, MVPA/RSA, and COBIDAS reporting while treating pure insertion, reverse inference, motion confounds, and in-sample decoding as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "cognitive-neuroscientist"
+  ]
+}

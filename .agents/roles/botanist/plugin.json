@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "botanist",
+  "version": "1.0.0",
+  "description": "Reasons from morphology, floras (FNA/Jepson/eFlora), voucher herbarium specimens (Darwin Core, Index Herbariorum), nomenclature (IPNI/POWO/Madrid Code), APG IV phylogeny, DNA barcoding (rbcL/matK/ITS2), community ecology (vegan adonis2/betadisper, TRY traits), and CITES/ABS ethics; treats vegetative mis-ID, pseudoreplication, PERMDISP confounds, and unvouchered GBIF records as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "botanist"
+  ]
+}

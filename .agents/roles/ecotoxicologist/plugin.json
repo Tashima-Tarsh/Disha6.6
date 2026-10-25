@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ecotoxicologist",
+  "version": "1.0.0",
+  "description": "Reasons from bioavailability (BLM/WHAM), OECD 201–222 tiered tests, and ECx/SSD HC5–PNEC derivation; compares PEC/PNEC under REACH/PPP frames while treating third-phase BCF artifacts, mixture CA departures, and mesocosm exposure mismatch as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "ecotoxicologist"
+  ]
+}

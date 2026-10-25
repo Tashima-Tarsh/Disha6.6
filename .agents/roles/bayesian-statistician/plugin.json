@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bayesian-statistician",
+  "version": "1.0.0",
+  "description": "Reasons from Bayes' rule, coherent uncertainty, exchangeability, and partial-pooling hierarchy through Stan/PyMC HMC-NUTS fits, prior and posterior predictive checks, PSIS-LOO, and SBC calibration while treating divergent transitions and funnels, weak identifiability and label switching, improper posteriors, and post-hoc prior tuning as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "bayesian-statistician"
+  ]
+}

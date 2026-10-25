@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "disha6.6 Skills Explorer",
-  description: "Search 460+ registered agent skills, inspect capabilities, and run governed tasks.",
+  description: "Search 1,800+ registered agent skills and 500+ expert roles, inspect capabilities, and run governed tasks.",
 };
 
 export default async function SkillsPage() {

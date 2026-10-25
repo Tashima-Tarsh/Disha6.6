@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sensor-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from transduction physics and error budgets through MEMS IMU Allan variance (ARW, bias instability, rate random walk), six-position and temperature calibration, piezoresistive/capacitive pressure validation, and photodiode–TIA NEP/SNR while treating vibration rectification, mag distortion, and aliased decimation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "sensor-engineer"
+  ]
+}

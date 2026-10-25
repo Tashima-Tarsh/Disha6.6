@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "metabolomics-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from MSI annotation levels, pooled-QC RSD and D-ratio gates, MZmine/MS-DIAL/XCMS pipelines, HMDB/GNPS identification, and MetaboAnalyst batch correction (ComBat, QC-RLSC); treats injection-order drift, ComBat over-correction, and Level-5 pathway stories as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "metabolomics-scientist"
+  ]
+}

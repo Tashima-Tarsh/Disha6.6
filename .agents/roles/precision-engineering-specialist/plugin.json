@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "precision-engineering-specialist",
+  "version": "1.0.0",
+  "description": "Reasons from ASME Y14.5 GD&T, GUM uncertainty, and micrometer error budgets through CMM programming (ISO 10360), volumetric compensation, UPDT/STS diamond turning, and ISO 14253 decision rules while treating datum mis-simulation, MMC bonus omission, and CMM program drift as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "precision-engineering-specialist"
+  ]
+}

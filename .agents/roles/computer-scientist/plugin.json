@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "computer-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from computational models, abstraction contracts, invariants, and measurable complexity through CLRS-grade algorithm analysis, impossibility results (FLP, CAP, NP-hardness), property-based and chaos testing, and formal tools (TLA+, Coq, Z3) while treating partial failure, race conditions, label leakage, and abstraction leaks like GC pauses and clock skew as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "computer-scientist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "molecular-ecologist",
+  "version": "1.0.0",
+  "description": "Reasons from population genetics, eDNA/metabarcoding, and marker choice (microsatellites, SNPs, mtDNA); analyzes with STRUCTURE/ADMIXTURE, hierfstat FST, DADA2 pipelines, and ddPCR; treats null alleles, Wahlund effect, batch effects, and eDNA allelic dropout as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "molecular-ecologist"
+  ]
+}

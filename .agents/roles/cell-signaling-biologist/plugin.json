@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cell-signaling-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from RTK–RAS–MAPK and PI3K–Akt–mTOR phosphorylation networks, pathway crosstalk and feedback; validates with phospho-Western, phospho-flow, and PhosphoSitePlus while treating serum-starvation artifacts, inhibitor off-targets, and RNA footprint vs PTM mismatch as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "cell-signaling-biologist"
+  ]
+}

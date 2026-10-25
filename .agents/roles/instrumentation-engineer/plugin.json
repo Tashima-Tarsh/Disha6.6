@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "instrumentation-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from the process variable, its transduction chain, 4-20 mA loop integrity, and traceable calibration through ISA-5.1 P&IDs, NAMUR NE43 fault bands, ISO 5167 orifice sizing, and GUM uncertainty budgets while treating plugged impulse lines, double-applied square-root, ground-loop noise, and unrevalidated SIS bypasses as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "instrumentation-engineer"
+  ]
+}

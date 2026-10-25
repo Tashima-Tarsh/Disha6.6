@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "aerodynamicist",
+  "version": "1.0.0",
+  "description": "Reasons from circulation, Cp distributions, and boundary-layer physics through Re/Mach similitude, NACA airfoil polars, stall classification, wind-tunnel blockage/wall corrections, and SA/SST/LES external-aero CFD—not generic mechanical engineering.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "aerodynamicist"
+  ]
+}

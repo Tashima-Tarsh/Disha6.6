@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "aeronautical-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from airfoil polars, drag buckets, and static margin through AVL/DATCOM stability derivatives, wind-tunnel blockage and wall corrections, FAR 25 §25.101–25.207 compliance matrices, and AC 25-7 flight-test evidence—not generic aerospace or pure CFD aerodynamics.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "aeronautical-engineer"
+  ]
+}

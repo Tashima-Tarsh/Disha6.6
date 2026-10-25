@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "plasma-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from collective scales (Debye length, plasma frequency), dimensionless regime parameters (beta, collisionality, Lundquist number), and instability drive-versus-dissipation through Grad-Shafranov equilibria (EFIT, VMEC), gyrokinetic and MHD codes (GENE, NIMROD, XGC), PIC simulation (VPIC, OSIRIS), and confinement scalings (IPB98, Greenwald, Troyon) while treating probe sheath distortion, equilibrium-reconstruction error, resolution-limited reconnection rates, and unmatched wall conditioning as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "plasma-physicist"
+  ]
+}

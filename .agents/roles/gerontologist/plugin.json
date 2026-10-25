@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "gerontologist",
+  "version": "1.0.0",
+  "description": "Reasons from senescence hallmarks, frailty, multi-morbidity, and life-course exposures through validated instruments (Fried phenotype, Rockwood CFS, SPPB/gait speed), epigenetic clocks (Horvath, PhenoAge, GrimAge), competing-risk survival (Fine-Gray), and NIA cohorts (HRS, NHATS, ITP) while treating survivor bias, differential attrition, healthy-volunteer bias, and frail-subset toxicity as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "gerontologist"
+  ]
+}

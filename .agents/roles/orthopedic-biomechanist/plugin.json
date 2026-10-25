@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "orthopedic-biomechanist",
+  "version": "1.0.0",
+  "description": "Reasons from joint kinematics, forces, moments, and tissue stress through optical motion capture with force plates, inverse dynamics with de Leva segment parameters, OpenSim/AnyBody and FEBio/Abaqus models, and ISO 14243 wear testing while treating skin motion artifact, cardan gimbal lock, unnormalized moments, and over-read FEA stress hotspots as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "orthopedic-biomechanist"
+  ]
+}

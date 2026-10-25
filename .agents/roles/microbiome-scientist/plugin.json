@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "microbiome-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from compositional and longitudinal stats (MaAsLin2, ANCOM-BC2), STORMS pre-analytics, FMT/LBP and diet trials, and multi-omics integration; treats PPI/antibiotic confounders, kitome contamination, host-DNA swamping, and HMA causality overclaim as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "microbiome-scientist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "antimicrobial-resistance-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from MIC distributions, ECOFFs, and phenotype–genotype concordance through EUCAST/CLSI AST, CARD/RGI and AMRFinderPlus resistomes, GLASS/WHONET/NARMS surveillance, carbapenemase/ESBL/MRSA mechanism panels, and heteroresistance PAP while treating breakpoint mixing, genotype-without-phenotype overclaim, selection-bias surveillance, and CARD version drift as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "antimicrobial-resistance-scientist"
+  ]
+}

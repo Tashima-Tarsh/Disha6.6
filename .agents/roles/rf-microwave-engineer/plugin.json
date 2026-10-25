@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "rf-microwave-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from power-wave S-parameters, Friis noise-figure cascades, and Rollett/mu stability through ADS/AWR harmonic balance, HFSS/Sonnet EM, Smith-chart matching, and TRL/SOLT-calibrated VNA/spectrum bench work while treating reference-plane errors, LO leakage and IF feedthrough, conditional instability, and uncorrelated sim-versus-measured gain as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "rf-microwave-engineer"
+  ]
+}

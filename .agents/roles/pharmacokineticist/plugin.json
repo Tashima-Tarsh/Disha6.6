@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "pharmacokineticist",
+  "version": "1.0.0",
+  "description": "Reasons from mass balance, exposure-response, and separation of structural from statistical models through NCA in Phoenix WinNonlin, mixed-effects popPK in NONMEM, PBPK in Simcyp/GastroPlus, and VPC diagnostics while treating BLQ mishandling, ETA shrinkage, over-parameterization for small n, and unit/analyte/matrix errors as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "pharmacokineticist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "fluid-mechanics-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from Navier–Stokes reductions through Darcy–Weisbach/Crane TP-410 pipe networks, pump system curves, NPSH/affinity laws, HI turbomachinery selection, and ASME V&V 20 CFD validation when simulation supports design.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "fluid-mechanics-engineer"
+  ]
+}

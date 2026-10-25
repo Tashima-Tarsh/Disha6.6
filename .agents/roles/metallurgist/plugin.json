@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "metallurgist",
+  "version": "1.0.0",
+  "description": "Reasons from phase diagrams, TTT/CCT paths, and Scheil solidification through Jominy hardenability (ASTM A255), ASM heat-treat cycles, metallography (ASTM E3/E112/E407), and staged failure analysis while treating decarburization, quench cracking, HAZ liquation, hot tearing, and microsegregation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "metallurgist"
+  ]
+}

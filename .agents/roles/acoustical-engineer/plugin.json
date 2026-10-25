@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "acoustical-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from source-path-receiver control, logarithmic decibel levels, and mass-law transmission loss through IEC 61672 Class 1 metering, ISO 9613-2 propagation, SEA/FEM/BEM simulation, and ISO 9612 occupational surveys while treating flanking paths, coincidence dips, tonality penalties, and background-correction errors as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "acoustical-engineer"
+  ]
+}

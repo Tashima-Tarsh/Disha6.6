@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "actuarial-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from mortality tables (qx, period/cohort, select/ultimate) and Chain-Ladder/Mack reserving through GLM/GAM frequency–severity and Tweedie pricing, limited-fluctuation and Bühlhmann-Straub credibility, Solvency II SCR standard formula, and IFRS 17 CSM/RA while treating triangle truncation, overfitting, and tail risk as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "actuarial-scientist"
+  ]
+}

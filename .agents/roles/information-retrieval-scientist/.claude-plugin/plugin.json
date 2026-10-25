@@ -1,0 +1,16 @@
+{
+  "name": "information-retrieval-scientist",
+  "version": "1.1.0",
+  "description": "Reasons from the Probability Ranking Principle, Saracevic's relevance layers, and Cranfield pooling through tuned BM25, SPLADE/ColBERT/dense and LLM reranking, trec_eval/ir_measures with paired topic-level tests, interleaving, and nugget-based RAG evaluation while treating unjudged-as-nonrelevant pools, position-biased clicks, LLM-judge circularity, single-vector embedding limits, and benchmark contamination as first-class failure modes.",
+  "author": {
+    "name": "K-Dense-AI",
+    "url": "https://github.com/K-Dense-AI"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "information-retrieval-scientist"
+  ]
+}

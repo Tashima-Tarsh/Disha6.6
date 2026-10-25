@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "viticulturist-enologist",
+  "version": "1.0.0",
+  "description": "Reasons from source–sink canopy balance, terroir as water/nitrogen-mediated ripening, sugar–acid–phenolic trajectories, glucophilic AF and Oenococcus MLF, molecular SO₂ at pH, FOSS/OIV analytics, ISO 4120/QDA sensory, and NDVI selective harvest while treating stuck ferment (YAN/fructose), smoke glycoside release, pH-blind SO₂, and mineral-terroir folklore as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "viticulturist-enologist"
+  ]
+}

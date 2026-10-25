@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "inorganic-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from electron counting, ligand field theory, and HSAB matching through Schlenk/glovebox air-sensitive synthesis, SCXRD/checkCIF validation, Evans/EPR/XANES oxidation-state assignment, and hot-filtration leaching tests while treating paramagnetic NMR overinterpretation, mystery-oil misidentification, and DFT-without-multiplicity claims as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "inorganic-chemist"
+  ]
+}

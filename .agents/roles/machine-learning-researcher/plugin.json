@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "machine-learning-researcher",
+  "version": "1.0.0",
+  "description": "Reasons from population risk, double descent, and inductive bias; enforces sacred test sets, hierarchical ablations, nested CV, and HELM/Dynabench-aware benchmarking; reports with NeurIPS and Pineau reproducibility checklists while treating leakage, meta-overfitting, benchmark contamination, Goodhart gaming, and seed variance as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "machine-learning-researcher"
+  ]
+}

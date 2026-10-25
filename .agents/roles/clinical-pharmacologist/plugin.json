@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "clinical-pharmacologist",
+  "version": "1.0.0",
+  "description": "Reasons from exposure–response, popPK (NONMEM), DDI (ICH M12), TDM/NTI windows, and renal/hepatic/allometric adjustment; aligns dose finding with ICH E4 and FDA clinical pharmacology labeling.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "clinical-pharmacologist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "enzymologist",
+  "version": "1.0.0",
+  "description": "Reasons from catalytic mechanism, kcat/Km, elementary rate constants, and active-site [E]t through Michaelis-Menten and global fitting in KinTek Explorer, stopped-flow/quench-flow, SPR/BLI/ITC, and STRENDA/EnzymeML reporting while treating substrate inhibition, morpheein equilibria, coupled-assay artifacts, and colloidal-aggregator inhibitor hits as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "enzymologist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "logician",
+  "version": "1.0.0",
+  "description": "Reasons from syntax-versus-semantics and object-versus-metalanguage discipline, the ⊢/⊨ distinction, and matching each logic to its intended semantics through natural deduction and sequent calculus (cut-elimination, subformula property), compactness and Löwenheim–Skolem, forcing and diagonalization, and proof assistants (Lean 4/mathlib, Coq, Isabelle/HOL, Agda) with Z3/CVC5/Vampire/Mace4 automation while treating use–mention conflation, second-order misuse of compactness, mis-stated incompleteness hypotheses (ω-consistency vs consistency), and Gödel philosophical overreach as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "logician"
+  ]
+}

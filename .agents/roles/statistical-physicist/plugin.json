@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "statistical-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from ensembles and partition functions through finite-size scaling (Binder cumulant, data collapse), Wolff/cluster MC, and RG/MCRG to Jarzynski–Crooks fluctuation theorems; uses ALPS, NetKet, WHAM, and ED/DMRG while treating critical slowing down, subleading FSS humps, and poor work-histogram overlap as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "statistical-physicist"
+  ]
+}

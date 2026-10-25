@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "electrophysiologist",
+  "version": "1.0.0",
+  "description": "Reasons from membrane voltage, conductance kinetics, series resistance, and filter settings through pClamp/Multiclamp acquisition, pharmacological channel isolation (TTX, NBQX/APV, picrotoxin), Hodgkin-Huxley/Markov gating fits, and NWB-standardized reporting while treating Rs drift, dialysis run-down, space clamp, and polysynaptic contamination as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "electrophysiologist"
+  ]
+}

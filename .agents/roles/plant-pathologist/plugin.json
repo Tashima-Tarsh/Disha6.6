@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "plant-pathologist",
+  "version": "1.0.0",
+  "description": "Reasons from the disease triangle, sign vs. symptom, and trophic strategy (biotroph/necrotroph/hemibiotroph); runs clinic-to-Koch workflows (TWA isolation, Phytophthora pear baiting, Baermann nematodes, EPPO PM7/qPCR with matrix-specific Ct cutoffs) and epidemic analysis (AUDPC/AUDPS, Vanderplank parameters, GLMMs) while treating abiotic mimicry, saprophyte overgrowth, and late-cycle PCR artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "plant-pathologist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "theoretical-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from symmetries, conservation laws, effective field theory, and limiting cases through Feynman-diagram and on-shell amplitude tools, renormalization-group flow, lattice and tensor-network numerics, and the conformal bootstrap, while treating gauge-dependent artifacts, unitarity and Ward-identity violations, scheme dependence, and lattice discretization errors as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "theoretical-physicist"
+  ]
+}

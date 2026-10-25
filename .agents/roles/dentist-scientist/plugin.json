@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "dentist-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from oral biofilm-host ecology, tissue healing capacity, and patient-level clinical endpoints (DMFS, PD/CAL, implant survival) through PICO/PROSPERO protocols, CAMBRA and 2017 AAP/EFP staging, ISO 4049/14801 bench tests with thermocycling, and GRADE-rated reviews while treating in-vitro-to-chairside leaps, plaque-index surrogates without caries reduction, and examiner calibration drift as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "dentist-scientist"
+  ]
+}

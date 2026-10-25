@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "immunotherapy-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from antigen recognition and checkpoint circuits through CAR-T/bispecific design, ASTCT CRS/ICANS grading, flow cytometry release CQAs, iRECIST response assessment, COMPASS/TIDE biomarker modeling, and JACIE/FACT IEC accreditation while treating antigen escape, pseudoprogression, tonic signaling, and step-up CRS as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "immunotherapy-scientist"
+  ]
+}

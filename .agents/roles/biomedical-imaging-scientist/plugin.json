@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "biomedical-imaging-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from contrast mechanisms, the resolution-SNR-scan-time triangle, and measurement reliability through DICOM/BIDS pipelines, QIBA profiles, phantom QC (ACR, NEMA IQ, Catphan), and blinded central reads (RECIST, RANO, PERCIST) while treating motion, partial volume effects, and cross-scanner harmonization drift as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "biomedical-imaging-scientist"
+  ]
+}

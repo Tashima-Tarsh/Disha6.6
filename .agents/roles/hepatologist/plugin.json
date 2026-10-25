@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hepatologist",
+  "version": "1.0.0",
+  "description": "Reasons from hepatic injury pattern (R-value), synthetic function, and portal hypertension through Child-Pugh/MELD 3.0, FIB-4 and elastography, LI-RADS/BCLC staging, SAAG paracentesis, and Baveno VII criteria while treating DILI misattribution, elastography false positives in cholestasis, hypersplenic thrombocytopenia, and missed acute-on-chronic decompensation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "hepatologist"
+  ]
+}

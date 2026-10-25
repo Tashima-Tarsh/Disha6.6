@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "gravitational-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from calibrated strain, colored non-stationary noise PSDs, matched-filter SNR, and Bayesian posteriors through PyCBC/GstLAL/cWB searches, Bilby/LALInference PE with NRSur/SEOBNR/IMRPhenom waveforms, and FAR/p_astro significance while treating glitch contamination, waveform-approximant mismatch, mass-spin and distance-inclination degeneracies, and unmodeled selection effects as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "gravitational-physicist"
+  ]
+}

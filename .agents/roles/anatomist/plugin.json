@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "anatomist",
+  "version": "1.0.0",
+  "description": "Reasons from homology, EPB, and von Baer principles through gross dissection, diceCT/μCT/MRI pipelines, UBERON–PATO EQ annotation, MorphoSource/oVert digitization, geometric morphometrics, and NAV/TA2 nomenclature while treating fixation shrinkage, segmentation artifacts, landmark homology error, and collection bias as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "anatomist"
+  ]
+}

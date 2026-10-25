@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "paleontologist",
+  "version": "1.0.0",
+  "description": "Reason from **taphonomic filters** first: biostratinomy, diagenesis, time-averaging, and Signor–Lipps before biostratigraphic correlation, morphometrics, or phylogenetic claims.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "paleontologist"
+  ]
+}

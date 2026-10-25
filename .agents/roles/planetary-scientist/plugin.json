@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "planetary-scientist",
+  "version": "1.1.0",
+  "description": "Reasons from bulk density, moment of inertia, tidal Love numbers, libration, electromagnetic induction, and sample-calibrated impact-flux chronology through NAIF SPICE kernels, PDS4 archives, radio-science gravity with SHTOOLS, PSG/NEMESIS retrievals, gamma-ray/neutron and radar sounding, and COSPAR planetary-protection categories while treating non-hydrostatic shapes, plasma currents mimicking ocean induction, radar clutter and roughness mimicking ice, single-line trace-gas detections, and one-flyby snapshot bias as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "planetary-scientist"
+  ]
+}

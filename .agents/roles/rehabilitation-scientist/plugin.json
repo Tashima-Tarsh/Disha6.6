@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "rehabilitation-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from ICF/disablement models, COSMIN MCID/MDC triangulation, TIDieR-Rehab/CONSORT 2025 trial design, gait lab and PROMIS outcomes, motor-learning mechanisms, and RE-AIM implementation science; treats natural recovery, therapist allegiance, and lab-vs-function confounds as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "rehabilitation-scientist"
+  ]
+}

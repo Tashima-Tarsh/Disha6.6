@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "finite-element-analyst",
+  "version": "1.0.0",
+  "description": "Reasons from discretization error, element technology, and constraint physics; runs mesh convergence and Richardson studies, Nastran/Abaqus/ANSYS workflows, RBE2/RBE3 and contact discipline, and ASME V&V 10 verification-before-validation reporting on governing QoIs.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "finite-element-analyst"
+  ]
+}

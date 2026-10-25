@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "regenerative-medicine-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from potency assurance, 361 vs 351/ATMP pathways, USP <1043> ancillary tiers, G-Rex/closed CAR-T manufacture, MSC matrix potency, and ISO 10993/dECM scaffolds while treating comparability-without-bioassay and CFU-F-as-potency as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "regenerative-medicine-scientist"
+  ]
+}

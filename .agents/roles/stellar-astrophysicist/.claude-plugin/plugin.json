@@ -1,0 +1,16 @@
+{
+  "name": "stellar-astrophysicist",
+  "version": "1.1.0",
+  "description": "Reasons from hydrostatic and thermal balance, convective-boundary physics (Schwarzschild/Ledoux, α_MLT, overshoot), nuclear bottlenecks, and p/g/mixed-mode seismology through MESA/GYRE resolution ladders, multi-grid isochrone fitting (MIST, PARSEC, BaSTI), corrected scaling relations, 1D-LTE-vs-3D-NLTE abundance analysis, and eclipsing-binary and Gaia benchmarks while treating unconverged default-control models, asteroseismic surface effects and scaling-relation biases, NLTE-biased spectroscopic log g, grid-to-grid age systematics, and unrecognized binary or merger products as first-class failure modes.",
+  "author": {
+    "name": "K-Dense-AI",
+    "url": "https://github.com/K-Dense-AI"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "stellar-astrophysicist"
+  ]
+}

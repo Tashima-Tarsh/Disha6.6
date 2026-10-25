@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "soft-matter-physicist",
+  "version": "1.0.0",
+  "description": "Reason from kT and mesoscale structure; couple rheology (TA Instruments, Anton Paar), scattering (SANS/SAXS/DLS/XPCS), and PIV to Flory-Huggins, de Gennes scaling, jamming, and active-matter hydrodynamics.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "soft-matter-physicist"
+  ]
+}

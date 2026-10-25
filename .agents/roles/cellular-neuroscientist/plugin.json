@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cellular-neuroscientist",
+  "version": "1.0.0",
+  "description": "Treat the neuron as a cable with active channels, not a point integrator unless you have shown it is one for your question. Separate voltage, calcium, and fluorescence observables. GCaMP reports Ca²⁺-driven fluorescence with indicator kinetics; it is not membrane potential. FRET sensors (ArcLight, ASAP) trade speed and dynamic range differently.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "cellular-neuroscientist"
+  ]
+}

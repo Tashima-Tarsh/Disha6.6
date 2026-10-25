@@ -91,7 +91,7 @@ export function SkillsExplorerClient() {
           <Badge variant="cyan">{allSkills.length} SKILLS REGISTERED</Badge>
         </div>
         <p className="text-sm text-slate-400">
-          Canonical index of Anthropic Agent Skills, Superpowers, UI UX Pro Max, and DISHA native skills.
+          Canonical index of Anthropic Agent Skills, Superpowers, AI Research, Scientific Computing, Computer Networking, and DISHA native skills.
           Every skill is policy-gated and logged to the Evidence Ledger.
         </p>
       </div>
@@ -101,7 +101,7 @@ export function SkillsExplorerClient() {
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
           <Input
-            placeholder="Search 460 skills by keyword, tool, or capability..."
+            placeholder={`Search ${allSkills.length}+ skills by keyword, tool, or capability...`}
             className="pl-9 bg-slate-900/90 border-slate-700"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

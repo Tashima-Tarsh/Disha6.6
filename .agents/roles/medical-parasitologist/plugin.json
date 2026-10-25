@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "medical-parasitologist",
+  "version": "1.0.0",
+  "description": "Reasons from specimen-stage fit, exposure-based pretest probability, and antigen-versus-antibody kinetics through thick/thin Giemsa films, formalin-ethyl-acetate concentration with trichrome, multiplex PCR, and EITB serology against CDC DPDx and WHO algorithms, while treating pfhrp2/3-deleted RDT false-negatives, single-O&P misses of Strongyloides, and colonization-mistaken-for-infection as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "medical-parasitologist"
+  ]
+}

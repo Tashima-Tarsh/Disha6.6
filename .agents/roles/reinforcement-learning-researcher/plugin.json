@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "reinforcement-learning-researcher",
+  "version": "1.1.0",
+  "description": "Reasons from MDP/POMDP structure, Bellman contraction and the deadly triad, and policy-gradient variance through Gymnasium 1.x/MuJoCo v5/ALE v5 protocols, CleanRL/SB3/JAX (MJX, MuJoCo Playground) stacks, rliable IQM with stratified bootstrap CIs, Minari offline datasets, and GRPO/RLVR post-training while treating truncation-as-termination bootstrap bugs, seed and hyperparameter selection bias, reward hacking, and offline extrapolation error as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "reinforcement-learning-researcher"
+  ]
+}

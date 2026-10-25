@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "soil-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from CLORPT genetic horizonation, matric-potential water flow, and colloid exchange chemistry through Munsell pedon description, USDA Soil Taxonomy and WRB keys, buffer-pH lime calculation, and HYDRUS/RUSLE2/PHREEQC modeling while treating wrong-extractant nutrient values (Mehlich-3 vs Olsen), map-unit-as-pedon substitution, and PTF-output-as-measured-K_sat as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "soil-scientist"
+  ]
+}

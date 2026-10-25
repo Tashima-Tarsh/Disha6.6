@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "exoplanet-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from Keplerian motion, transit and RV geometry, and degenerate retrieval spaces through TLS/BLS searches, centroid and odd-even vetting, RadVel and GP activity models, and petitRADTRANS retrievals while treating eclipsing-binary blends, stellar-rotation-mimicking RV signals, and look-elsewhere completeness cliffs as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "exoplanet-scientist"
+  ]
+}

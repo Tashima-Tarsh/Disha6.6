@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "zoologist",
+  "version": "1.0.0",
+  "description": "Reasons from Bauplan, homoplasy, and voucher-backed ICZN taxonomy through COL/WoRMS/GBIF IPT, VertNet/Arctos curation, Folmer COI/BOLD BIN, geomorph GPA, IQ-TREE phylogenetics, and Distance/MARK occupancy–abundance models while treating trap selectivity, checklist drift, barcode-only species, and morphometric digitizing noise as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "zoologist"
+  ]
+}

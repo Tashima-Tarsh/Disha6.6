@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "transportation-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from four-step and activity-based travel demand (CUBE/Visum/EMME), AASHTO Green Book geometry, HCM capacity, MPO LRTP and NEPA 23 CFR 771 project development, and multimodal corridor MOEs while treating unvalidated TDM forecasts and capacity-without-demand balance as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "transportation-engineer"
+  ]
+}

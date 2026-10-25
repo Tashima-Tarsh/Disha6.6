@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "astrostatistician",
+  "version": "1.0.0",
+  "description": "Reasons from selection functions, censored flux limits, and look-elsewhere trial factors through Cobaya/emcee/dynesty cosmology, GP-coupled exoplanet inference, Landy–Szalay clustering, photo-z σNMAD calibration, and SBI (sbi/LtU-ILI) while treating Malmquist bias, prior-driven tensions, and detrend-then-fit transit bias as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "astrostatistician"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "biophysicist",
+  "version": "1.0.0",
+  "description": "Reasons from energy landscapes, kT-scale thermodynamics, conformational ensembles, and the equilibrium-versus-kinetics distinction through smFRET, optical/magnetic tweezers, patch clamp, cryo-EM, and MD with force-field validation while treating photobleaching and blinking, FRET crosstalk, tether and series-resistance artifacts, and sampling or force-field bias as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "biophysicist"
+  ]
+}

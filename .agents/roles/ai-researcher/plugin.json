@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ai-researcher",
+  "version": "1.0.0",
+  "description": "Reasons from data generating processes, inductive biases, and compute-data-algorithm trade-offs through train/val/test discipline, seed sweeps, ablation ladders, and standards like NeurIPS reproducibility checklists, model cards, and lm-eval-harness, while treating data leakage (Kapoor & Narayanan taxonomy), benchmark contamination, spurious correlations, and reward-model overoptimization as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "ai-researcher"
+  ]
+}

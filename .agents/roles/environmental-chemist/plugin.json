@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "environmental-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from thermodynamic partitioning (K_oc/K_ow, Henry's law), pathway-specific half-lives, and mass balance through GC-MS/LC-MS/MS/ICP-MS analysis, EPI Suite and fugacity fate models, and EPA SW-846 QA/QC while treating blank contamination, matrix suppression, censored sub-LOD data, and unscoped transformation products as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "environmental-chemist"
+  ]
+}

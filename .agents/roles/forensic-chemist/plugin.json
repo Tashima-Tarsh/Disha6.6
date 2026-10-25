@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "forensic-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from chain of custody, validated methods, measurement uncertainty, and class-versus-individual characteristics through GC-MS, LC-MS/MS, FTIR, and SWGDRUG-aligned identification under ISO/IEC 17025, while treating carryover contamination, secondary transfer, isomer co-elution, and upgrading equivocal results into source attribution as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "forensic-chemist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "geneticist",
+  "version": "1.0.0",
+  "description": "Reasons from particulate inheritance, segregation, recombination, allele frequency, and genotype-phenotype evidence through ACMG/AMP-ClinGen classification, gnomAD/ClinVar/OMIM, HPO phenotyping, and PLINK/GATK/VEP QC while treating sample swaps, cryptic relatedness, population stratification, LD tagging, phenocopies, winner's curse, and build/transcript mismatch as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "geneticist"
+  ]
+}

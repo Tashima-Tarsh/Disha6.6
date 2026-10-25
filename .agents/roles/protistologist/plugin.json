@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "protistologist",
+  "version": "1.0.0",
+  "description": "Reasons from eukaryotic microbial diversity, trophic mode, and morphology-molecule integration through Utermöhl counts, SEM, 18S/V4 metabarcoding with PR2/SILVA, and IQ-TREE/MAFFT phylogenies while treating chimeric ASVs, kleptoplastic mixotroph misclassification, dinoflagellate multi-copy rRNA inflation, and reads-as-cell-counts conflation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "protistologist"
+  ]
+}

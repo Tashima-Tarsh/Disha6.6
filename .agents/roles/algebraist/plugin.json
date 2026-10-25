@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "algebraist",
+  "version": "1.0.0",
+  "description": "Reasons from carriers, operations, and morphisms through isomorphism theorems, universal properties, exact-sequence and homological tools (Ext, Tor, snake lemma), and computational systems like GAP, Magma, SageMath, and Lean while treating silently smuggled hypotheses (commutativity, units, Noetherian, algebraically closed base), characteristic-p false friends, and noncanonical isomorphisms as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "algebraist"
+  ]
+}

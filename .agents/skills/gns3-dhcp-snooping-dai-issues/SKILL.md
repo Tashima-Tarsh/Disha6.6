@@ -1,0 +1,216 @@
+---
+name: "DHCP Snooping/DAI/PVLAN Issues Injection"
+description: "DHCP Snooping, DAI, IP Source Guard and Private VLAN related network faults"
+category: "computer-networking"
+---
+
+# DHCP Snooping/DAI/PVLAN Issues Injection
+
+DHCP Snooping, DAI, IP Source Guard and Private VLAN related network faults
+
+## Supported Protocols
+- dhcp-snooping
+- dai
+- arp-inspection
+- private-vlan
+
+## Fault Injection Scenarios & Troubleshooting Procedures
+
+### DHCP Snooping Disabled on Trusted Ports (Severity: HIGH)
+
+Disable DHCP snooping or configure wrong trust state
+
+**Diagnostic Symptoms:**
+- DHCP server responses blocked on trusted port
+- DHCP clients cannot get addresses
+- Rogue DHCP server attack not prevented
+- Untrusted port not filtering DHCP offers
+
+**Troubleshooting Commands & Remediation:**
+- `Check DHCP snooping with 'show ip dhcp snooping'`
+- `Enable globally: 'ip dhcp snooping'`
+- `Enable per VLAN: 'ip dhcp snooping vlan <vlan>'`
+- `Uplink ports to DHCP server must be 'ip dhcp snooping trust'`
+- `Default: all ports are untrusted (block server responses)`
+- `Check 'show ip dhcp snooping binding' for lease database`
+
+### DHCP Snooping Rate Limit Exceeded (Severity: LOW)
+
+Configure DHCP snooping rate limit too low causing DHCP packets dropped
+
+**Diagnostic Symptoms:**
+- DHCP packets dropped on switchport
+- DHCP clients timing out
+- Rate limit exceeded errors in logs
+- DHCP packets not reaching server
+
+**Troubleshooting Commands & Remediation:**
+- `Check rate limit with 'show ip dhcp snooping'`
+- `Use 'ip dhcp snooping limit rate <packets-per-sec>'`
+- `Default rate limit is platform dependent`
+- `High traffic environments may need higher limits`
+- `Rate limit on untrusted ports prevents DOS attacks`
+- `Use 'no ip dhcp snooping limit rate' to disable rate limit`
+
+### DHCP Snooping Option 82 Misconfiguration (Severity: LOW)
+
+Configure DHCP snooping option 82 incorrectly (disable or wrong format)
+
+**Diagnostic Symptoms:**
+- DHCP server not receiving option 82 information
+- Remote DHCP server rejecting due to option 82
+- DHCP lease allocation not per-port
+- Option 82 format not supported by DHCP server
+
+**Troubleshooting Commands & Remediation:**
+- `Check option 82 with 'show ip dhcp snooping'`
+- `Enable: 'ip dhcp snooping information option'`
+- `Option 82 identifies switch port and VLAN`
+- `Use 'ip dhcp snooping information option format remote-id'`
+- `Circuit ID typically: switch-module/port format`
+- `Disable option 82 for non-Cisco DHCP servers: 'no ip dhcp snooping information option'`
+
+### DAI (Dynamic ARP Inspection) Not Configured (Severity: LOW)
+
+DAI not enabled on VLANs where ARP spoofing protection is needed
+
+**Diagnostic Symptoms:**
+- ARP spoofing attacks not prevented
+- Man-in-the-middle via ARP not blocked
+- DAI not validating ARP packets
+- No DAI rate limiting on ARP packets
+
+**Troubleshooting Commands & Remediation:**
+- `Check DAI with 'show ip arp inspection'`
+- `Enable DAI: 'ip arp inspection vlan <vlan>'`
+- `DAI requires DHCP snooping to validate ARP`
+- `DAI validates MAC-IP bindings from DHCP snooping DB`
+- `Trusted ports: 'ip arp inspection trust' (usually uplinks)`
+- `Untrusted ports: validate ARP requests and responses`
+
+### DAI Validation Check Misconfiguration (Severity: MEDIUM)
+
+Configure DAI with wrong validation checks (src-mac, dst-mac, ip)
+
+**Diagnostic Symptoms:**
+- ARP packets incorrectly dropped
+- Legitimate ARP not passing DAI validation
+- Missing validation checks allowing spoofed ARP
+- DAI not checking source MAC consistency
+
+**Troubleshooting Commands & Remediation:**
+- `Check DAI validation with 'show ip arp inspection'`
+- `Use 'ip arp inspection validate src-mac dst-mac ip'`
+- `src-mac: checks source MAC in ARP matches Ethernet MAC`
+- `dst-mac: checks destination MAC in ARP reply`
+- `ip: checks IP-to-MAC binding from DHCP snooping`
+- `All checks are enabled by default when DAI is enabled`
+
+### DAI Rate Limit Exceeded (Severity: HIGH)
+
+Configure DAI rate limit too low causing ARP packets dropped
+
+**Diagnostic Symptoms:**
+- ARP packets dropped on untrusted port
+- Hosts cannot reach other devices on same VLAN
+- ARP resolution failures
+- Rate limit exceeded messages
+
+**Troubleshooting Commands & Remediation:**
+- `Check DAI rate limit with 'show ip arp inspection interfaces'`
+- `Use 'ip arp inspection limit rate <pps> burst interval <sec>'`
+- `Default rate: 15 pps (Cisco)`
+- `Increase rate limit for server/switch ports`
+- `Rate limit applies only to untrusted ports`
+- `Err-disabled: 'errdisable recovery cause arp-inspection'`
+
+### Private VLAN Association Mismatch (Severity: HIGH)
+
+Configure wrong private VLAN type (primary, community, isolated) or incorrect association
+
+**Diagnostic Symptoms:**
+- Hosts in private VLAN cannot communicate as designed
+- Isolated port can reach other isolated ports (shouldn't)
+- Community VLAN not communicating within community
+- Promiscuous port not working with secondary VLANs
+
+**Troubleshooting Commands & Remediation:**
+- `Check PVLAN with 'show vlan private-vlan'`
+- `PVLAN types: primary, community (within-group), isolated (no communication)`
+- `Associate secondary to primary: 'private-vlan association <sec-vlans>'`
+- `Promiscuous port (e.g., router) uses 'switchport mode private-vlan promiscuous'`
+- `Host port: 'switchport mode private-vlan host'`
+- `Mapping: 'private-vlan mapping <primary> <secondary>' on SVI`
+
+### Private VLAN SVI Misconfiguration (Severity: HIGH)
+
+Configure SVI incorrectly for private VLAN routing
+
+**Diagnostic Symptoms:**
+- Inter-VLAN routing not working for private VLANs
+- Secondary VLANs not routed to external network
+- SVI not mapping secondary VLANs
+- Private VLAN hosts cannot reach default gateway
+
+**Troubleshooting Commands & Remediation:**
+- `Check PVLAN SVI with 'show interfaces vlan <primary>'`
+- `SVI should be configured on the primary VLAN only`
+- `Mapping: 'private-vlan mapping <primary> <secondary-vlans>'`
+- `IP address on primary VLAN SVI serves all secondary VLANs`
+- `Layer 3 communication flows through promiscuous port`
+- `Use 'show ip interface vlan <vlan>' for SVI status`
+
+### IP Source Guard Not Configured (Severity: LOW)
+
+Configure DHCP snooping but IP Source Guard not enabled on untrusted ports
+
+**Diagnostic Symptoms:**
+- IP spoofing possible on access ports
+- Host can override assigned IP manually
+- No IP source filtering on untrusted port
+- DHCP snooping enabled but IPSG disabled
+
+**Troubleshooting Commands & Remediation:**
+- `IP Source Guard: 'ip verify source' on untrusted port`
+- `Verifies IP: check source IP against DHCP snooping bindings`
+- `Use 'ip verify source port-security' for MAC + IP check`
+- `Without IPSG: host can change IP after DHCP assignment`
+- `IPSG prevents IP spoofing attacks`
+- `Check 'show ip verify source' for active verifications`
+
+### DHCP Snooping Binding Database / Persistence Issue (Severity: LOW)
+
+Configure DHCP snooping binding database not persisted across reloads causing binding loss
+
+**Diagnostic Symptoms:**
+- DHCP snooping bindings lost after switch reload
+- DAI/IPSG not working after reboot until DHCP renewals
+- Binding database not written to persistent storage
+- Traffic dropped after reload until DHCP lease renewal
+
+**Troubleshooting Commands & Remediation:**
+- `Use 'ip dhcp snooping database <url>' for persistent storage`
+- `URL: 'flash:dhcp-snooping-db' (local) or 'tftp://...' (remote)`
+- `Check 'show ip dhcp snooping database' for agent status`
+- `Write timer: 'ip dhcp snooping database write-delay <secs>'`
+- `Timeout causes stale bindings for some time after reload`
+- `Without persistence: all bindings lost on reboot`
+
+### DHCP Snooping VLAN / Trust Boundary Error (Severity: HIGH)
+
+Configure DHCP snooping on wrong VLAN or trust misconfiguration causing DHCP failure for certain VLANs
+
+**Diagnostic Symptoms:**
+- DHCP works in some VLANs but not others
+- DHCP snooping not enabled for specific client VLAN
+- Server trust not configured in the server's VLAN
+- Inconsistent DHCP behavior across VLANs
+
+**Troubleshooting Commands & Remediation:**
+- `Enable per VLAN: 'ip dhcp snooping vlan <vlan-list>'`
+- `Check DAI per VLAN: 'ip arp inspection vlan <vlan-list>'`
+- `DHCP server port must be trusted in the server's VLAN`
+- `Use 'show ip dhcp snooping' for active VLANs`
+- `DHCP snooping binding stored per VLAN`
+- `VLAN not listed = no DHCP protection for that VLAN`
+

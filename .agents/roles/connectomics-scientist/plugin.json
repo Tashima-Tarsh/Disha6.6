@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "connectomics-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from vEM acquisition and petascale alignment through FFN/RoboEM segmentation, FlyWire/neuPrint/MICrONS/H01 graphs, and synapse-level QC while treating split/merge errors, alignment tears, false synapses, and release-version drift as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "connectomics-scientist"
+  ]
+}

@@ -26,8 +26,20 @@ export class SkillsKnowledgeBase {
 
     this.indexJsonPath = path.resolve(
       process.cwd(),
-      "../integrations/claude-skills/.gemini/skills-index.json"
+      "data/skills/skills-index.json"
     );
+    if (!fs.existsSync(this.indexJsonPath)) {
+      this.indexJsonPath = path.resolve(
+        process.cwd(),
+        "../data/skills/skills-index.json"
+      );
+    }
+    if (!fs.existsSync(this.indexJsonPath)) {
+      this.indexJsonPath = path.resolve(
+        process.cwd(),
+        "../integrations/claude-skills/.gemini/skills-index.json"
+      );
+    }
     if (!fs.existsSync(this.indexJsonPath)) {
       this.indexJsonPath = "D:\\Disha6.6\\integrations\\claude-skills\\.gemini\\skills-index.json";
     }
@@ -48,9 +60,10 @@ export class SkillsKnowledgeBase {
       if (fs.existsSync(this.indexJsonPath)) {
         const raw = fs.readFileSync(this.indexJsonPath, "utf-8");
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed.skills)) {
-          this.skills = parsed.skills.map((s: { name: string; category?: string; description?: string }) => ({
-            name: s.name,
+        const list = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.skills) ? parsed.skills : []);
+        if (list.length > 0) {
+          this.skills = list.map((s: { name: string; category?: string; description?: string; id?: string }) => ({
+            name: s.id || s.name,
             category: s.category || "engineering",
             description: s.description || "",
             source: "claude-skills" as const,

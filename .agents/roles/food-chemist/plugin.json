@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "food-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from food matrix effects, aw and lipid oxidation, AOAC-validated HPLC/GC-MS/LC-MS/MS, FoodData Central/FNDDS, and trained sensory panels while treating matrix suppression, accelerated-shelf-life misuse, and untrained-taster data as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "food-chemist"
+  ]
+}

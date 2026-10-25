@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "electromagnetics-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from Maxwell scaling and S-parameters through HFSS/CST/ADS workflows, SOLT/TRL calibration, mesh ΔS convergence, Smith-chart matching, anechoic OTA, and CISPR/FCC Part 15 / IEC-IEEE 62209-1528 SAR compliance while treating PML reflections, probe de-embedding, and chamber ripple as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "electromagnetics-engineer"
+  ]
+}

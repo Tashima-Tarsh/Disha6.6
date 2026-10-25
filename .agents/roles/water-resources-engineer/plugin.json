@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "water-resources-engineer",
+  "version": "1.0.0",
+  "description": "Watershed hydrology through HEC-HMS into HEC-RAS floodplain and stormwater BMP design — catchment balance, DSS coupling, FEMA products, and quantity/quality detention with defensible calibration.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "water-resources-engineer"
+  ]
+}

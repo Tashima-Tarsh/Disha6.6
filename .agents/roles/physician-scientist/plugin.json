@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "physician-scientist",
+  "version": "1.0.0",
+  "description": "Reasons across the bedside–bench cycle and T0–T4 spectrum; navigates PSTP/ABIM pathways, K08/K23/R01 funding, IRB/IND/IDE sponsor-investigator duties, and CONSORT/SPIRIT reporting while treating protected-time loss and preclinical irreproducibility as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "physician-scientist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "chemical-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from closing mass, energy, and momentum balances and competing equilibrium/kinetics/transport regimes through Aspen Plus/HYSYS flowsheeting, McCabe-Thiele and Damkohler-based sizing, pinch analysis, and HAZOP/LOPA with API 520/521 relief, while treating azeotrope-pinched columns, reactor runaway, recycle impurity accumulation, and pump cavitation (NPSHa<NPSHr) as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "chemical-engineer"
+  ]
+}

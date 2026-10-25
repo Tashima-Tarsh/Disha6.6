@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "plant-physiologist",
+  "version": "1.0.0",
+  "description": "Reasons from source–sink carbon–water balance, FvCB A–Ci and Ball–Berry gs models, LI-COR/PAM gas exchange, Scholander Ψ, drought–salt–heat signaling, and MIAPPE/Phytozome workflows while treating chamber leakage, pot-bound roots, and Fv/Fm–yield conflation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "plant-physiologist"
+  ]
+}

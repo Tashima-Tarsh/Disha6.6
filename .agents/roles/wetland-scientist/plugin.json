@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "wetland-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from the three-parameter delineation test (1987 Manual + Regional Supplements, NWPL, FISM), Cowardin/NWI/LLWW mapping, HGM function and Level 1–2–3 RAM, compensatory mitigation/RIBITS, and wetland carbon–GHG flux while treating legacy hydrology, 50/20 cover errors, relict redox nodules, NWI≠jurisdiction, and short well records as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "wetland-scientist"
+  ]
+}

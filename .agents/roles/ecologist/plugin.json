@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ecologist",
+  "version": "1.0.0",
+  "description": "Reasons from Preston/Fisher SADs and Hutchinson fundamental vs realized niches; designs quadrat/transect and distance/occupancy surveys; filters GBIF issue flags and iNaturalist DQA; fits vegan/iNEXT/unmarked GLMMs with Moran's I and nlme/glmmTMB spatial correlation while treating pseudoreplication, effort bias, and citizen-science artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "ecologist"
+  ]
+}

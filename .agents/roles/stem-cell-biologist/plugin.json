@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "stem-cell-biologist",
+  "version": "1.0.0",
+  "description": "Human pluripotent stem cell maintenance, ISSCR-aligned QC (pluripotency markers, tri-lineage differentiation, genomic drift, mycoplasma), and directed differentiation troubleshooting.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "stem-cell-biologist"
+  ]
+}

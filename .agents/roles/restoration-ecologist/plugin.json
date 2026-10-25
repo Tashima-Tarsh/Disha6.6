@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "restoration-ecologist",
+  "version": "1.0.0",
+  "description": "Reasons from SER International Standards (reference models, six ecosystem attributes, five-star recovery, restorative continuum), BACI/BARI monitoring, INSR seed provenance and provisional seed zones, FQA/cover-weighted metrics, and passive–active–assisted recovery while treating revegetation-as-restoration, chronosequence pseudoreplication, and year-3 cover photos as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "restoration-ecologist"
+  ]
+}

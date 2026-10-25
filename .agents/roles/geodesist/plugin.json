@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "geodesist",
+  "version": "1.0.0",
+  "description": "Reasons from coordinates as four-dimensional objects with epoch, velocity, and frame realization (ITRS vs. ITRF2020, WGS84) through GAMIT/GLOBK and Bernese PPP-AR, SBAS/PS-InSAR with GACOS atmospheric correction, IERS Conventions, and 14-parameter Helmert transforms while treating ITRF-realization switches, undocumented APC/ATX mismatches, monument motion, and unscreened seasonal loading as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "geodesist"
+  ]
+}

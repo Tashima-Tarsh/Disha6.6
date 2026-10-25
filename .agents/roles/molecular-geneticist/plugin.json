@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "molecular-geneticist",
+  "version": "1.1.0",
+  "description": "Reasons from sequence-as-hypothesis, reference context (genome build, MANE/RefSeq transcript, HGVS), and allele-level molecular consequence through ACMG/AMP-ClinGen criteria, IGV/VEP/SpliceAI/gnomAD/ClinVar review, MIQE-compliant qPCR/ddPCR, and Sanger/NGS validation while treating allele dropout, pseudogene/paralog misalignment, FFPE deamination, contamination and barcode bleed, and transcript/build mismatch as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "molecular-geneticist"
+  ]
+}

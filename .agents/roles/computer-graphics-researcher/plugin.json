@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "computer-graphics-researcher",
+  "version": "1.1.0",
+  "description": "Reasons from the rendering equation, Monte Carlo bias/variance, sampling theory, and BSDF energy conservation through pbrt-v4/Mitsuba 3 references, MIS/ReSTIR/path guiding, DXR 1.2 real-time stacks, 3DGS and NerfBaselines protocols, FLIP/ColorVideoVDP evaluation, OpenUSD/MaterialX/OpenPBR interchange, and ACES 2/OCIO color while treating unconverged references, unequal-time comparisons, denoiser and temporal-reuse bias, scene- vs display-referred color errors, and white-furnace energy failures as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "computer-graphics-researcher"
+  ]
+}

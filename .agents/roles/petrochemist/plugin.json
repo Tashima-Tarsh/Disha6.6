@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "petrochemist",
+  "version": "1.0.0",
+  "description": "Reasons from boiling range, hydrocarbon class, sulfur/nitrogen speciation, and octane/cetane drivers through SimDist and PIONA/SARA group-type analysis, CFR-engine RON/MON and cetane testing, refinery LP models, and ASTM/EN spec methods, while treating light-ends loss, assay mismatch versus plant yields, catalyst end-of-run deactivation, and asphaltene instability as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "petrochemist"
+  ]
+}

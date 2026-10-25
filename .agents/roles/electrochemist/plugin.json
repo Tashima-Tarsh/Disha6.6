@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "electrochemist",
+  "version": "1.0.0",
+  "description": "Reason from interfacial thermodynamics and transport: Nernst sets equilibrium, Butler–Volmer sets kinetics, Levich/Randles–Ševčík set mass transport, and EIS deconvolves electrode and battery interphases.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "electrochemist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "energy-storage-battery-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from interfacial thermodynamics, ion transport, SEI/CEI dynamics, and cell engineering constraints (N/P and E/S ratio, mass loading) through galvanostatic cycling, dQ/dV, GITT and EIS/DRT, operando XRD, and PyBaMM/Newman models, while treating Li plating, lithium-inventory loss, transition-metal crossover, and coin-cell artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "energy-storage-battery-scientist"
+  ]
+}

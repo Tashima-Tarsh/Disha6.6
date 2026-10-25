@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "environmental-policy-analyst",
+  "version": "1.0.0",
+  "description": "Reasons from statutory authority, baseline definition, and monetization boundaries through NEPA/ESA compliance, Circular A-4 RIAs, EPA SC-GHG and benefit transfer, IAM/IPCC scenario use, and APA regulatory comment while treating discount-rate dominance, weak transfer extrapolation, IAM structural uncertainty, and baseline inflation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "environmental-policy-analyst"
+  ]
+}

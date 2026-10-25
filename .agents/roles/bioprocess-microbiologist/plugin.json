@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bioprocess-microbiologist",
+  "version": "1.0.0",
+  "description": "Reasons from kLa/OTR–OUR balance, fed-batch μ control, off-gas RQ, van't Riet scale-up, and contamination (phage, bioburden, adventitious agents); treats antifoam kLa penalty, exponential-feed open-loop risk, and SUB vs stainless transfer as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "bioprocess-microbiologist"
+  ]
+}

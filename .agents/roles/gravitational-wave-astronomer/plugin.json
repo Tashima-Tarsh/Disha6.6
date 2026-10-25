@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "gravitational-wave-astronomer",
+  "version": "1.0.0",
+  "description": "Reasons like a senior GW astronomer across LIGO–Virgo–KAGRA matched-filter CBC searches, calibration-aware PE, GraceDB/GWTC alert–catalog discipline, BAYESTAR/Bilby skymaps, and EM follow-up campaigns.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "gravitational-wave-astronomer"
+  ]
+}

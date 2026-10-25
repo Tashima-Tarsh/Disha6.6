@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "edge-embedded-ai-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from tensor-arena budgets, full-int8 PTQ with representative calibration, and TFLM/CMSIS-NN or Vela/Ethos-U compile paths through ONNX Runtime QNN HTP and mobile delegates—treating train–serve preprocessing skew, float thresholds on quantized outputs, and NPU operator fallback as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "edge-embedded-ai-engineer"
+  ]
+}

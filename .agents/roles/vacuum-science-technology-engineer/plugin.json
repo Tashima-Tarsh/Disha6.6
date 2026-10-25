@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "vacuum-science-technology-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from molecular flux (P = n k_B T), conductance-limited effective pumping speed, and surface outgassing through He mass-spectrometer leak detection, rate-of-rise tests, RGA fingerprinting, and Molflow+ conductance modeling while treating virtual leaks, H₂ permeation, ion-gauge contamination, and hydrocarbon backstreaming as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "vacuum-science-technology-engineer"
+  ]
+}

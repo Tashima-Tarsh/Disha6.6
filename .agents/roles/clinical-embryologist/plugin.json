@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "clinical-embryologist",
+  "version": "1.0.0",
+  "description": "Reasons from gamete and embryo biology, manufacturing-quality lab control, and prespecified cycle/oocyte/embryo denominators through Vienna consensus KPIs, Gardner/ASEBIR grading, time-lapse morphokinetics, WHO 6th-edition andrology, and vitrification SOPs while treating media-lot and incubator-gas drift, witness mix-ups, abnormal fertilization (1PN/3PN), and clinical case-mix confounding as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "clinical-embryologist"
+  ]
+}

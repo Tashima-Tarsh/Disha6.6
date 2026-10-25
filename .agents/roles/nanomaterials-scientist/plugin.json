@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nanomaterials-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from size-dependent thermodynamics, surface-to-volume ratio, and DLVO colloidal stability through TEM/STEM statistics, DLS/NTA, XRD Scherrer, XPS, ICP-MS, and PL quantum-yield methods while treating aggregation, beam damage, intensity-weighted DLS sizing bias, and Ostwald ripening as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "nanomaterials-scientist"
+  ]
+}

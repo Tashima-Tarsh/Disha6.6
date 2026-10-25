@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "marine-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from propulsion thermodynamics, shaft BPF/torsional barred speeds, central LT/HT cooling, class machinery surveys, and ISO 15016:2025 sea trials while treating cat fines liner wear, scavenge fire, purifier mis-set, blackout PMS logic, and tropical SW fouling as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "marine-engineer"
+  ]
+}

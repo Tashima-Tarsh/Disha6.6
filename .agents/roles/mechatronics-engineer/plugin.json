@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "mechatronics-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from reflected inertia, control bandwidth, sensor physics, and thermal duty cycle through Bode loop-shaping with phase/gain margins, FOC current-velocity-position loops, plant identification, HIL, and IEC 61800-5-2 STO architecture while treating backlash and structural-mode resonance, transport-delay phase loss, encoder aliasing, and EMC ground loops as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "mechatronics-engineer"
+  ]
+}

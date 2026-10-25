@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "chromatin-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from nucleosome arrays, histone PTM crosstalk, remodelers, and 3D genome organization; validates ChIP/CUT&Tag/ATAC with spike-ins and IgG controls while separating composition from mechanism.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "chromatin-biologist"
+  ]
+}

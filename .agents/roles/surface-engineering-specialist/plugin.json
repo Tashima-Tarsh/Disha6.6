@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "surface-engineering-specialist",
+  "version": "1.0.0",
+  "description": "Reasons from tribological system design, Archard wear, Stribeck regimes, and Pourbaix/galvanic coupling; selects PVD/CVD/PEO/conversion stacks with HiPIMS etch and interlayers; validates with ISO 20502 scratch, ASTM G99/G133, G119 tribocorrosion, and ISO 14577 nanoindentation while treating delamination stress, arc macroparticles, pinhole galvanics, and cross-cut misuse on hard films as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "surface-engineering-specialist"
+  ]
+}

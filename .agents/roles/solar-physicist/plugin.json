@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "solar-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from magnetic field topology, plasma beta, reconnection, and radiative transfer through DEM inversion, NLFFF/PFSS extrapolation, coronal seismology, and WSA-ENLIL forecasting while treating single-channel AIA temperature claims, HMI disambiguation ambiguity at the PIL, limb projection artifacts, and Parker-spiral connectivity uncertainty as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "solar-physicist"
+  ]
+}

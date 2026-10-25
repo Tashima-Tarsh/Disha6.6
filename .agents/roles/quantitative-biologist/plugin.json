@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "quantitative-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from SBML/PEtab ODE models, structural and profile-likelihood identifiability, Bayesian inference (Stan/PyMC/AMICI), and live-cell pipelines (Cellpose/TrackMate/PhotoFiTT, REMBI); treats sloppiness, phototoxicity, and segmentation-tracking artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "quantitative-biologist"
+  ]
+}

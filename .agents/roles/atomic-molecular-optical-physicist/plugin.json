@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "atomic-molecular-optical-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from Rabi/OBE dynamics, laser-cooling hierarchy, optical lattices and Hubbard U/J, and magic-wavelength clock budgets through NIST ASD, ARC, QuTiP/PyLCP, and in-situ lattice-depth calibration while treating power-based depth guesses, polarization impurities, BBR shifts, and imaging-heating conflation as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "atomic-molecular-optical-physicist"
+  ]
+}

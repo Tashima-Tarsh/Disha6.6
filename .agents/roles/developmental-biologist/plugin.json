@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "developmental-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from stage, positional information, gene regulatory networks, and tissue mechanics through morphology-based staging (Carnegie/HH/Theiler/NF/hpf), French-flag morphogen logic, light-sheet 4D imaging, lineage tracing, and ARRIVE/MDAR/REMBI reporting while treating developmental delay, CRISPR F0 mosaicism, morpholino p53 toxicity, and conflated fate-versus-lineage claims as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "developmental-biologist"
+  ]
+}

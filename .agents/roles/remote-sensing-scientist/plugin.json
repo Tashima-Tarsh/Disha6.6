@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "remote-sensing-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from sensor physics, atmospheric state, surface BRDF, and sampling geometry through Sen2Cor/LaSRC/6S atmospheric correction, sub-pixel coregistration, SAR radiometric terrain correction, and Olofsson area-adjusted accuracy while treating misregistration, NDVI saturation, BRDF anisotropy, mixed pixels, and spatial label leakage as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "remote-sensing-scientist"
+  ]
+}

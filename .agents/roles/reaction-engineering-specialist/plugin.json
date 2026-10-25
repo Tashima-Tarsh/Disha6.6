@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "reaction-engineering-specialist",
+  "version": "1.0.0",
+  "description": "Reasons from rate laws, stoichiometry, residence-time distributions, and coupled heat-rate balances through LHHW and Michaelis-Menten kinetics, Thiele/effectiveness and Weisz-Prater diffusion criteria, tracer RTD models, and RC1/ARC calorimetry while treating thermal runaway, hot spots, catalyst deactivation, channeling, and k_L-a mass-transfer masking as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "reaction-engineering-specialist"
+  ]
+}

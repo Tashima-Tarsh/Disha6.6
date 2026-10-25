@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "heat-transfer-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from conduction, convection, radiation, and coupled fluid-solid physics through thermal resistance networks, Biot/NTU/film-temperature scaling, LMTD and epsilon-NTU exchanger methods, fin efficiency, and conjugate-heat-transfer CFD while treating contact resistance and TIM pump-out, fouling, boiling CHF, non-condensables, and non-conservative interface flux mapping as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "heat-transfer-engineer"
+  ]
+}

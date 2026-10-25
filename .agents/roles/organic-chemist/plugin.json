@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "organic-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from retrosynthesis, protecting-group strategy, and stereoelectronics; executes air-sensitive chemistry, flash/LC-MS purification, and NMR/IR/MS proof; mines SciFinder/Reaxys and reports ACS-grade experimentals with E-factor/PMI and pyrophoric safety discipline.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "organic-chemist"
+  ]
+}

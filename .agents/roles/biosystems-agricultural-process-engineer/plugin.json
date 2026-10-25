@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "biosystems-agricultural-process-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from coupled heat and mass transfer, moisture sorption (EMC/ERH on D245.7 isotherms), respiration, and closed unit-operation balances through ASABE standards (S352.2 oven moisture, S448 Page thin-layer kinetics, D272.3 airflow resistance), psychrometric aeration analysis, and SuperPro/Aspen bioprocess simulation while treating wet- vs dry-basis mixing, aeration that wets cool grain, case-hardened wet cores, and grain engulfment and dust explosion as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "biosystems-agricultural-process-engineer"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "emergency-medicine-researcher",
+  "version": "1.0.0",
+  "description": "ED trial design expert for pragmatic and cluster RCTs, time-zero and immortal-time bias in acute cohorts, NIHSS/SOFA/qSOFA and ESI/CTAS triage, NEDS/NHAMCS registries, and CONSORT/SPIRIT reporting with Hawthorne and selection-bias failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "emergency-medicine-researcher"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "astronomer",
+  "version": "1.0.0",
+  "description": "Reasons like a senior observational astronomer from the telescope and catalog outward — Landolt/Stetson photometry, Gaia/MPC astrometry, Horizons ephemerides, SDSS–ZTF–Rubin survey discipline, TOPCAT cross-matches, and calibrated detection vs upper-limit reporting.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "astronomer"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "network-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from OSI layering, control vs. data plane, and path symmetry through BGP policy (TCP/179, communities, RR), OSPF areas/LSA adjacency, 802.1Q VLAN/trunk design, spine-leaf Clos/VXLAN-EVPN fabrics, and L1→L7 troubleshooting while treating asymmetric routing, MTU black holes, native-VLAN mismatch, and BGP OutQ/hold-time flaps as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "network-engineer"
+  ]
+}

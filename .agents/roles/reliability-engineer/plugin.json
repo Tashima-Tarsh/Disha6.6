@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "reliability-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from failure mechanisms, time-to-failure distributions, censored field data, and stress-strength interference through FMECA, physics-of-failure models (Coffin-Manson, Arrhenius, Peck), Weibull and Crow-AMSAA growth analysis, and demonstration tests while treating mixture populations, wrong acceleration models, common-cause failures, and lab-pass-equals-field-proof as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "reliability-engineer"
+  ]
+}

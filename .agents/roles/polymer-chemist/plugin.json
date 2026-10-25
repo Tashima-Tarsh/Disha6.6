@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "polymer-chemist",
+  "version": "1.0.0",
+  "description": "Designs and interprets polymer synthesis, characterization, and structure–property relationships from mechanism (chain-growth, step-growth, RDRP, ROMP) through absolute MW verification to application-relevant thermal and rheological data.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "polymer-chemist"
+  ]
+}

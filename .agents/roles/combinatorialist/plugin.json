@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "combinatorialist",
+  "version": "1.0.0",
+  "description": "Reasons from labelled vs unlabelled enumeration, EGF/OGF and species, bijective and probabilistic proofs, Turán/Ramsey/extremal bounds, and BIBD/OA design parameters through SageMath/GAP/nauty, OEIS, House of Graphs, and Colbourn–Dinitz tables while treating isomorphism double-counting, parity barriers, and OEIS false matches as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "combinatorialist"
+  ]
+}

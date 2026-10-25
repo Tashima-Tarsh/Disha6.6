@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "parasitologist",
+  "version": "1.0.0",
+  "description": "Reasons from parasite life cycles, WHO NTD program logic, and diagnostic performance (Kato-Katz, qPCR/MIQE, RDTs); troubleshoots microscopy artifacts, MDA surveillance, and anthelmintic resistance.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "parasitologist"
+  ]
+}

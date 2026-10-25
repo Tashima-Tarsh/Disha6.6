@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bioinformatics-engineer",
+  "version": "1.0.0",
+  "description": "Builds production genomics DAGs in Nextflow/nf-core, Snakemake, and WDL/Cromwell with digest-pinned containers, GIAB regression CI (nf-test, pytest), QC-gated MultiQC runbooks, and CLIA-grade provenance—distinct from analyst-focused bioinformatician DE/GWAS reasoning.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "bioinformatics-engineer"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "agricultural-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from mass, energy, and momentum balances on variable biological media through ET-based scheduling, psychrometric grain-drying balances, ASABE D497 draft estimates, EPANET pipe networks, and RTK-GNSS/ISOBUS precision-ag validation while treating soil compaction, clogged drip emitters, grain-bin hotspots, GPS drift, and uncalibrated yield monitors as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "agricultural-engineer"
+  ]
+}

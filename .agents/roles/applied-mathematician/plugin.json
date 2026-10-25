@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "applied-mathematician",
+  "version": "1.0.0",
+  "description": "Reasons from formulation-first modeling, Buckingham scaling, and asymptotics (matched expansions, boundary layers) through FEM/FVM numerics (FEniCS, PETSc, LAPACK), Tikhonov inverse problems, and ASME/Sandia V&V while treating ill-posed inversion, stiffness, and numerical diffusion as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "applied-mathematician"
+  ]
+}

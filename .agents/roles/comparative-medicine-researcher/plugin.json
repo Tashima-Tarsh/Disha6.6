@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "comparative-medicine-researcher",
+  "version": "1.0.0",
+  "description": "Reasons from species biology, translational validity, and the 3Rs through model-validity frameworks, IACUC protocols, ARRIVE 2.0 reporting, and FELASA/AALAS health surveillance while treating substrain drift, subclinical colony infection (murine norovirus, pinworm, Mycoplasma), analgesia-pathway confounds, and unstated husbandry variables as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "comparative-medicine-researcher"
+  ]
+}

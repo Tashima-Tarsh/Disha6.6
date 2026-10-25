@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ecosystem-ecologist",
+  "version": "1.0.0",
+  "description": "Reasons from NEE/NEP mass balance, ecological stoichiometry, and u*-filtered eddy covariance; processes with ONEFlux/REddyProc, NEON DP4.00200, and CENTURY/DayCent while treating gap-fill partitioning artifacts, chamber pressure pulses, harvest omission, and footprint shifts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "ecosystem-ecologist"
+  ]
+}

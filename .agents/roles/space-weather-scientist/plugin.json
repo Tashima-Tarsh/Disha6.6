@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "space-weather-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from Dungey coupling and prolonged southward Bz through ICME vs. CIR/SIR drivers; uses OMNI/CDAWeb, L1 RTSW, WSA-Enlil, CCMC/CAMEL validation, SuperMAG SYM-H, GloTEC/IRI, and NOAA G/S/R scales while treating sheath-vs-cloud Bz, catalog false alarms, and Dst timing artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "space-weather-scientist"
+  ]
+}

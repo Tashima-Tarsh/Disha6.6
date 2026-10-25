@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "process-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from mass and energy balances, impurity fate maps, and supersaturation trajectories through RC1 calorimetry, DoE in JMP/MODDE, FBRM/XRPD crystallization tracking, and ICH Q8/Q9/Q11 control strategy while treating exotherm runaway at plant jacket capacity, ICH M7 genotoxic carry-over, polymorph shifts on scale, and unvalidated PAT release as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "process-chemist"
+  ]
+}

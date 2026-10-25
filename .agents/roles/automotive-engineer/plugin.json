@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "automotive-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from vehicle-level requirements, regulatory limits, energy/exergy budgets, and distribution-based durability through DFMEA/DVP&R, DoE calibration (INCA, CANape, HIL), Pacejka tire and multibody models, rainflow fatigue, and source-path NVH analysis while treating undocumented build-level and cal-ID deltas, unmet emissions preconditioning and OBD readiness, ADAS sensor misalignment, and cross-domain torque-arbitration conflicts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "automotive-engineer"
+  ]
+}

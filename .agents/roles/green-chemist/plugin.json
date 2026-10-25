@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "green-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from Anastas–Warner 12 principles, Trost atom economy, and PMI/MMI/E-factor mass metrics; selects solvents via CHEM21/GSK/ACS GCIPR guides, integrates catalysis and LCA (ISO 14040), and aligns REACH/CSS with ACS GC&E benchmarking.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "green-chemist"
+  ]
+}

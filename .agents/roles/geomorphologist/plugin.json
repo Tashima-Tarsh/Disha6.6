@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "geomorphologist",
+  "version": "1.0.0",
+  "description": "Reasons from coupled form, process, and time and from rates, thresholds, and lag times through field mapping, lidar/SfM DEM morphometry (chi profiles, Ksn in LSDTopoTools/Landlab), cosmogenic nuclide dating (CRONUS-Earth, OSL, U-Th), and landscape-evolution models, while treating equifinality, inheritance, DEM artifacts, and steady-state assumed over transient response as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "geomorphologist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "bacteriologist",
+  "version": "1.0.0",
+  "description": "Reasons from bacterial growth physiology, selective culture, Gram stain, MALDI-TOF and 16S/WGS identification, EUCAST/CLSI AST, BSL containment, contamination and VBNC, using BacDive and BV-BRC for strain metadata and pathogen genomics.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "bacteriologist"
+  ]
+}

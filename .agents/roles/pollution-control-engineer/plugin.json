@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "pollution-control-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from PTE, Title V Part 70, and NPDES limits through scrubber/baghouse/ESP/RTO selection, CEMS and stack-test demonstration, and parametric O&M (ΔP, pH, L/G) while treating synthetic-minor strategy, sulfite-blinded FGD, bag leaks, and WET/TIE toxicity as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "pollution-control-engineer"
+  ]
+}

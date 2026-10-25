@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "polymer-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from molecular weight distribution, Tg/Tm and crystallinity, viscoelasticity, and phase behavior through GPC/SEC, DSC heat-cool-heat, capillary and oscillatory rheology, WAXD/SAXS, and DMA while treating thermal-history erasure, moisture hydrolysis, incomplete cure, and wrong-grade-lot artifacts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "polymer-scientist"
+  ]
+}

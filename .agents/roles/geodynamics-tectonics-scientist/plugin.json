@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "geodynamics-tectonics-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from plate kinematics, lithospheric rheology, and interseismic-versus-coseismic strain partitioning through GAMIT/GLOBK and MintPy geodesy, Okada/viscoelastic slip inversion, OxCal paleoseismic chronologies, ASPECT mantle modeling, and OpenQuake/USGS NSHM hazard while treating InSAR atmospheric delay, monument instability, unmodeled postseismic afterslip, and incompatible-timescale rate stacking as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "geodynamics-tectonics-scientist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hydrogeologist",
+  "version": "1.0.0",
+  "description": "Reasons from Darcy's law, mass conservation, aquifer heterogeneity, and coupled biogeochemical transport through Theis and Cooper-Jacob aquifer-test analysis, MODFLOW/MT3DMS modeling with PEST uncertainty, and low-flow geochemical sampling while treating wellbore-storage and skin artifacts, equivalent-porous-medium failure in fractured/karst flow, and non-unique K-S calibration as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "hydrogeologist"
+  ]
+}

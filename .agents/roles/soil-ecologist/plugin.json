@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "soil-ecologist",
+  "version": "1.0.0",
+  "description": "Reasons from soil food webs (nematode EI/SI/CI), PLFA phenotypes, amoA/nirK/nifH qPCR, and 16S/ITS/metagenomics through gross 15N pool dilution and C/N priming while treating tillage, compaction, and fire recovery, compositional bias, and DNA-activity gaps as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "soil-ecologist"
+  ]
+}

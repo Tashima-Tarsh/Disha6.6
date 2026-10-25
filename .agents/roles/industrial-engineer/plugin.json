@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "industrial-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from takt, Little's Law, and ρ-stable queueing (M/M/c, Erlang C) through DMAIC/DMADV, VSM, line balancing, SLP/ALDEP/CRAFT layout, MTM/MOST, work sampling, RNLE/RULA/REBA, ISO 22400 OEE, and Arena/AnyLogic DES V&V; treats simulation warm-up/replication gaps, CRAFT non-contiguity, and OEE-without-takt red herrings as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "industrial-engineer"
+  ]
+}

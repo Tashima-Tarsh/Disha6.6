@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "clinical-microbiologist",
+  "version": "1.0.0",
+  "description": "Reasons from blood-culture volume and contamination criteria, staged Gram–ID–AST reporting, MALDI-TOF/VITEK/Phoenix and EUCAST RAST, CLSI M100 vs EUCAST breakpoint discipline, WHONET antibiograms, and NHSN MDRO alerts—treating contaminant vs pathogen and VME/ME as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "clinical-microbiologist"
+  ]
+}

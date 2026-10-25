@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "vibration-dynamics-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from FRF/coherence, MAC, and damping identification through impact/shaker EMA, spectral ODS, FFT windowing, Campbell/critical-speed rotordynamics, and ISO 20816/API 610 diagnostics while treating double-hit, mass-loading, ODS–mode conflation, oil whirl/whip, and leakage as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "vibration-dynamics-engineer"
+  ]
+}

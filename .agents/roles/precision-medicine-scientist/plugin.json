@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "precision-medicine-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from molecular profiles, tiered actionability, tumor purity, and clonal architecture through OncoKB and AMP/ASCO/CAP tiers, Mutect2/STAR-Fusion calling, IGV review, and CPIC pharmacogenomic guidelines while treating FFPE C-to-T deamination, CHIP mimicking somatic drivers, immortal-time bias in real-world data, and ancestry-skewed polygenic scores as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "precision-medicine-scientist"
+  ]
+}

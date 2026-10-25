@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "air-quality-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from source emissions through transformation, transport, and dose using SMOKE/MOVES inventories, WRF-driven CTMs like CMAQ and CAMx, PMF/ME-2 apportionment, and concentration-response functions, while treating rotational PMF ambiguity, AOD-to-PM bias in humid regions, uncalibrated low-cost sensors, and untreated wildfire exceptional events as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "air-quality-scientist"
+  ]
+}

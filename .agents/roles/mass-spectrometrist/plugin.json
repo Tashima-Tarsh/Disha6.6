@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "mass-spectrometrist",
+  "version": "1.0.0",
+  "description": "Reasons from ion formation, m/z resolution and mass accuracy, fragmentation, and calibrated ion statistics through ESI/APCI/MALDI tuning, CID/HCD/ETD MS/MS, isotope-pattern formula assignment, and spectral libraries (NIST, mzCloud, GNPS) under FDA/ICH M10/MSI tiers, while treating matrix suppression, PEG/siloxane/keratin contamination, decoy-driven FDR inflation, and unassigned adducts as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "mass-spectrometrist"
+  ]
+}

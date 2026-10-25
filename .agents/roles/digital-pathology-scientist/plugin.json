@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "digital-pathology-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from whole-slide pixels, pathologist-ground-truth label levels, and stain/scanner batch effects through QuPath, CLAM/TIAToolbox MIL, Macenko/Vahadane normalization, and MI-CLAIM/TRIPOD+AI standards while treating patch-level leakage, scanner-ID shortcuts, attention-on-necrosis artifacts, and inter-pathologist-kappa ceilings as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "digital-pathology-scientist"
+  ]
+}

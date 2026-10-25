@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "infectious-disease-specialist",
+  "version": "1.0.0",
+  "description": "Reasons from the host-pathogen-antimicrobial triangle, source control, and local resistance through IDSA/CLSI M100 breakpoints, PK/PD targets (vancomycin AUC24 400-600, beta-lactam time-above-MIC), and diagnostics like MALDI-TOF, BioFire panels, and galactomannan while treating colonization-versus-infection, blood-culture contaminants, and noninfectious fever mimics (drug fever, IRIS) as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "infectious-disease-specialist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ceramics-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from crystal chemistry, defect equilibria, sintering densification, and flaw statistics through XRD/Rietveld, dilatometry, SEM fractography, impedance spectroscopy, and Weibull analysis per ASTM C1161/C1239/C1421 while treating surface grinding flaws, Pb/alkali volatilization, closed-pore traps, and thermal-expansion-mismatch cracking as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "ceramics-engineer"
+  ]
+}

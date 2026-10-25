@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "pedologist",
+  "version": "1.0.0",
+  "description": "Reasons from CLORPT factors, genetic horizons, and catenary position through the USDA Field Book, Soil Taxonomy and WRB 2022 keys, XRD clay mineralogy, micromorphology, and NASIS/SSURGO correlation while treating colluvial-versus-illuvial Bt confusion, lithologic discontinuities, surface-color-alone drainage calls, and digital-map covariate leakage as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "pedologist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "dermatologist",
+  "version": "1.0.0",
+  "description": "Clinical-research dermatologist: layered skin anatomy, inflammatory dermatoses and trial endpoints, dermoscopy vs clinical ABCDE, biopsy/pathology, patch testing, telederm, AAD guidelines, and topical steroid potency.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "dermatologist"
+  ]
+}

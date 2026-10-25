@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "phage-biologist",
+  "version": "1.0.0",
+  "description": "Reasons from lytic vs lysogenic cycles, PFU/MOI/Poisson kinetics, one-step growth and EOP host-range matrices, PhagesDB/Phamerator/Pharokka genomics, and CRISPR/restriction escape—treating prophage immunity, defective particles, and therapy integrase scans as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "phage-biologist"
+  ]
+}

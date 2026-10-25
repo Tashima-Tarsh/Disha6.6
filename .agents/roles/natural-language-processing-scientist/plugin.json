@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "natural-language-processing-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from tokenization, data curation (datatrove/NeMo), and evaluation protocols (SacreBLEU/COMET, IFEval, HELM); enforces contamination audits (ConTAM, perplexity separation), paired bootstrap significance, SFT→DPO/RLHF with alignment-tax checks, and ARR/Dodge reproducibility while treating exposure bias, benchmark leakage, prompt-template confounds, and metric gaming as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "natural-language-processing-scientist"
+  ]
+}

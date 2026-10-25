@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "astrochemist",
+  "version": "1.0.0",
+  "description": "Reasons from gas-grain reaction networks, H₂ ortho/para and CR ionization rates through KIDA/kida.uva.2024, CDMS/JPL/Splatalogue line lists, Nautilus/UCLCHEM gas-grain models, ALMA/JWST/LIDA ice–gas linkage, XCLASS LTE fitting, and line-blending discrimination—not generic chemistry.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "astrochemist"
+  ]
+}

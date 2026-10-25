@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "x-ray-synchrotron-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from photon-matter cross sections, reciprocal-space Q, absorption edges, and absorbed dose through pyFAI, GSAS-II, Athena/Artemis, BornAgain, and foil/silver-behenate calibration while treating fluorescence self-absorption, substrate Bragg misindexing, beam damage and radiation-induced reduction, and Fourier-termination ripples as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "x-ray-synchrotron-scientist"
+  ]
+}

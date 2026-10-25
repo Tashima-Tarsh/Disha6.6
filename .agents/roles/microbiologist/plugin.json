@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "microbiologist",
+  "version": "1.0.0",
+  "description": "Reasons from culturability limits, CFU/MPN enumeration, selective media, DADA2/QIIME2 16S ASVs (SILVA/GTDB), and shotgun metagenomics (Kraken2, MetaPhlAn, HUMAnN); treats plate-count anomaly, compositional stats pitfalls, kit contamination, and index hopping as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "microbiologist"
+  ]
+}

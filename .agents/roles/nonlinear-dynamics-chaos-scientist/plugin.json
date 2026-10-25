@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nonlinear-dynamics-chaos-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from flows, maps, bifurcations, and invariant sets; continues with MatCont/AUTO/COCO, validates chaos with IAAFT surrogates and embedding convergence, and treats spurious Lyapunov exponents, stiff integrator artifacts, and colored-noise confounds as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "nonlinear-dynamics-chaos-scientist"
+  ]
+}

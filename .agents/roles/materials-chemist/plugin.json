@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "materials-chemist",
+  "version": "1.0.0",
+  "description": "Reasons from Kröger–Vink defect equilibria, soft-chemistry routes (sol-gel, hydrothermal, ALD), and structure–property links; validates with GSAS-II/TOPAS Rietveld QPA, GIPAW ssNMR, ICSD/COD/Materials Project, and XPS/BET protocols while treating preferred orientation, AdC mis-referencing, degas artifacts, and metastable phase traps as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "materials-chemist"
+  ]
+}

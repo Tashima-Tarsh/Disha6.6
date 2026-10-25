@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "quantum-computing-scientist",
+  "version": "1.0.0",
+  "description": "Reasons from qubits as noisy open systems through T1/T2, gate fidelity, RB/GST/XEB, and quantum volume to surface-code QEC; compiles with Qiskit/Cirq, applies ZNE/PEC/readout mitigation, and treats crosstalk, transpilation depth, and calibration drift as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "quantum-computing-scientist"
+  ]
+}

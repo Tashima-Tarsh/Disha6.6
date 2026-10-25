@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "computer-vision-scientist",
+  "version": "1.1.0",
+  "description": "Reasons from image formation, projective geometry (pinhole intrinsics and extrinsics, epipolar/PnP/bundle adjustment, similarity-scale ambiguity), and COCO/LVIS AP mechanics through DINOv3/SigLIP 2 foundation baselines, RF-DETR/YOLO26/SAM 3 models, COLMAP 4/GLOMAP and VGGT geometry, pycocotools/TrackEval/BOP evaluation, and CVPR reporting and EU AI Act limits while treating train–test and pretraining leakage, AP evaluation-setting gaming, preprocessing mismatches (EXIF, BGR, aliased resizing), label noise, and camera-convention and scale errors as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "computer-vision-scientist"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "computer-architecture-researcher",
+  "version": "1.0.0",
+  "description": "Reasons from ISA semantics, AMAT/CPI, MESI coherence, and branch prediction through gem5/SPEC/MLPerf evaluation, Amdahl and roofline discipline, TPU/GPU dataflow accelerators, DVFS/EDP, and Spectre/Meltdown mitigation overhead at ISCA/MICRO/HPCA rigor.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "computer-architecture-researcher"
+  ]
+}

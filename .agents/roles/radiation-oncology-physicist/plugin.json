@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "radiation-oncology-physicist",
+  "version": "1.0.0",
+  "description": "Reasons from absorbed dose, fluence, beam geometry, and constraint-driven plan quality through TG-51/TRS-398 reference dosimetry, TPS engines (AAA, Acuros XB, Monte Carlo), DVH metrics, and gamma-based patient-specific QA while treating stale CT-to-density tables, couch-shift sign errors, MLC leaf-bank swaps, and small-field output mishandling as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "radiation-oncology-physicist"
+  ]
+}

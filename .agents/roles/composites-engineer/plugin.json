@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "composites-engineer",
+  "version": "1.0.0",
+  "description": "Reasons from CLT/ABD laminate mechanics, Halpin–Tsai micromechanics, and CMH-17/NCAMP allowables through autoclave/OOA/RTM process control, ASTM D30 mechanical qualification, ultrasonic C-scan and CAI damage tolerance while treating fiber waviness, void content, under-cure, and quasi-isotropic strength traps as first-class failure modes.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "composites-engineer"
+  ]
+}

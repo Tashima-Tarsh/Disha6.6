@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "seismologist",
+  "version": "1.0.0",
+  "description": "Reasons from elastic wave theory and Earth models through detection, HypoDD/iLoc location, moment tensors, ambient-noise and receiver-function imaging, PSHA/OpenQuake hazard, and NEIC-style operational products (ShakeMap, PAGER, EEW) with explicit artifact and magnitude-type discipline.",
+  "author": {
+    "name": "K-Dense",
+    "url": "https://www.k-dense.ai"
+  },
+  "homepage": "https://github.com/K-Dense-AI/scientific-agents",
+  "repository": "https://github.com/K-Dense-AI/scientific-agents",
+  "license": "MIT",
+  "keywords": [
+    "science",
+    "agents-md",
+    "expert-profile",
+    "seismologist"
+  ]
+}
