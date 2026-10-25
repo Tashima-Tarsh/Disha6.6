@@ -80,7 +80,8 @@ The assistant must not invent breach matches, case facts, legal claims, or sourc
 
   // Keep messages in sync when active target changes
   useEffect(() => {
-    setMessages([initialGreeting]);
+    const timer = window.setTimeout(() => setMessages([initialGreeting]), 0);
+    return () => window.clearTimeout(timer);
   }, [initialGreeting]);
 
   useEffect(() => {
@@ -157,7 +158,7 @@ The assistant must not invent breach matches, case facts, legal claims, or sourc
     }
 
     const userMsg: AstraMessage = {
-      id: `usr-${Date.now()}`,
+      id: `usr-${crypto.randomUUID()}`,
       role: "user",
       content: query,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -204,7 +205,7 @@ The assistant must not invent breach matches, case facts, legal claims, or sourc
           : data.response ?? data.message ?? data.reply ?? JSON.stringify(data, null, 2);
 
       const assistantMsg: AstraMessage = {
-        id: `ast-${Date.now()}`,
+        id: `ast-${crypto.randomUUID()}`,
         role: "assistant",
         content,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -269,7 +270,7 @@ No new source was queried and no evidence claim was generated. Check System > AI
       }
 
       const fallbackMsg: AstraMessage = {
-        id: `ast-fallback-${Date.now()}`,
+        id: `ast-fallback-${crypto.randomUUID()}`,
         role: "assistant",
         content: fallbackText,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
