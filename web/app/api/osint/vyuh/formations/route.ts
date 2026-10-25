@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+import { getOsintBackendUrl } from "@/lib/server/osint-backend-client";
+
+const BACKEND = getOsintBackendUrl();
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

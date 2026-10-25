@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { withContext } from "@/lib/unified/api";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
-const OSINT_API_KEY = process.env.DISHA_OSINT_API_KEY || process.env.OSINT_API_KEY;
+import { getOsintBackendUrl, getOsintApiKey } from "@/lib/server/osint-backend-client";
+
+const BACKEND = getOsintBackendUrl();
+const OSINT_API_KEY = getOsintApiKey();
 
 export const dynamic = "force-dynamic";
 

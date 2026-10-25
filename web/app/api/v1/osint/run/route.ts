@@ -7,8 +7,10 @@ import { appendEvidenceEvent } from "@/lib/unified/evidence-ledger";
 import { hashValue } from "@/lib/unified/hash";
 import { createDefaultOsintBus } from "@/lib/unified/osint-default-bus";
 
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
-const OSINT_API_KEY = process.env.DISHA_OSINT_API_KEY || process.env.OSINT_API_KEY;
+import { getOsintBackendUrl, getOsintApiKey } from "@/lib/server/osint-backend-client";
+
+const BACKEND = getOsintBackendUrl();
+const OSINT_API_KEY = getOsintApiKey();
 
 const requestSchema = z.object({
   missionId: z.string().min(1).max(128),
@@ -196,7 +198,7 @@ export async function POST(req: NextRequest) {
     const parent = await appendEvidenceEvent({
       missionId: body.missionId,
       actor: ctx.principal.userId,
-      action: "governed_osint_adapter_executed",
+      action: backendError ? "governed_osint_adapter_failed" : "governed_osint_adapter_executed",
       input: {
         adapterId: body.adapterId,
         purpose: body.purpose,

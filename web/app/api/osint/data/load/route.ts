@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const BACKEND = process.env.NEXT_PUBLIC_OSINT_BACKEND ?? "http://localhost:8000";
+import { callOsintBackend, OsintBackendError } from "@/lib/server/osint-backend-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,14 +7,21 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const res = await fetch(`${BACKEND}/api/v1/data/load`, {
+    const data = await callOsintBackend("/api/v1/data/load", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body,
     });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? String(e) }, { status: 502 });
+    return NextResponse.json(data);
+  } catch (err: unknown) {
+    if (err instanceof OsintBackendError) {
+      return NextResponse.json(
+        { error: err.message, code: err.code, detail: err.detail },
+        { status: err.statusCode }
+      );
+    }
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 502 }
+    );
   }
 }

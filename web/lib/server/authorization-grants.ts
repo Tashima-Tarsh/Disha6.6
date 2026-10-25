@@ -1,9 +1,12 @@
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import type { Principal, Role } from "./types";
 import { signJson } from "./crypto";
 import { authSigningSecret } from "./auth";
 import type { UniversalToolDefinition } from "../osint/universal-execution-service";
 import { validateTargetAgainstAssetInventory, type AssessmentTier } from "./asset-inventory";
+import { getDbPool } from "./db";
 
 export type AuthorizationScope =
   | "active_recon"
@@ -27,8 +30,61 @@ export interface AuthorizationGrant {
   signature?: string;
 }
 
-// In-memory grant store for durable runtime authorization
+// Durable grant store backed by memory cache, PostgreSQL, and atomic disk backup
 const grantStore = new Map<string, AuthorizationGrant>();
+
+const GRANTS_FILE_PRIMARY = path.resolve(process.cwd(), "data/authorization-grants.json");
+const GRANTS_FILE_FALLBACK = path.resolve(process.cwd(), "../data/authorization-grants.json");
+
+function resolveGrantsFilePath(): string {
+  try {
+    const dir = path.dirname(GRANTS_FILE_PRIMARY);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return GRANTS_FILE_PRIMARY;
+  } catch {
+    const dir2 = path.dirname(GRANTS_FILE_FALLBACK);
+    if (!fs.existsSync(dir2)) fs.mkdirSync(dir2, { recursive: true });
+    return GRANTS_FILE_FALLBACK;
+  }
+}
+
+function persistGrantsToDisk(): void {
+  try {
+    const filePath = resolveGrantsFilePath();
+    const list = Array.from(grantStore.values());
+    const tmp = `${filePath}.tmp.${Date.now()}`;
+    fs.writeFileSync(tmp, JSON.stringify(list, null, 2), "utf8");
+    fs.renameSync(tmp, filePath);
+  } catch {
+    // Non-blocking disk persist fallback
+  }
+}
+
+function loadGrantsFromDisk(): void {
+  try {
+    const paths = [GRANTS_FILE_PRIMARY, GRANTS_FILE_FALLBACK];
+    for (const p of paths) {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, "utf8");
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          const now = Date.now();
+          for (const item of list) {
+            if (item && item.grantId && !item.revoked && new Date(item.expiresAt).getTime() > now) {
+              grantStore.set(item.grantId, item);
+            }
+          }
+          break;
+        }
+      }
+    }
+  } catch {
+    // Ignore initial missing file
+  }
+}
+
+// Initial load on module execution
+loadGrantsFromDisk();
 
 export function normalizeHostOrUrl(raw: string): string {
   let cleaned = raw.trim().toLowerCase();
@@ -158,6 +214,37 @@ export function issueAuthorizationGrant(params: {
   };
 
   grantStore.set(grantId, grant);
+  persistGrantsToDisk();
+
+  try {
+    const pool = getDbPool();
+    if (pool) {
+      pool
+        .query(
+          `INSERT INTO authorization_grants (grant_id, scope, tool_id, target_pattern, granted_to, approved_by, approver_role, purpose, created_at, expires_at, revoked, signature)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+           ON CONFLICT (grant_id) DO UPDATE SET revoked = EXCLUDED.revoked`,
+          [
+            grant.grantId,
+            grant.scope,
+            grant.toolId,
+            grant.targetPattern,
+            grant.grantedTo,
+            grant.approvedBy,
+            grant.approverRole,
+            grant.purpose,
+            grant.createdAt,
+            grant.expiresAt,
+            grant.revoked ?? false,
+            grant.signature,
+          ]
+        )
+        .catch(() => {});
+    }
+  } catch {
+    // Non-blocking PG sync
+  }
+
   return grant;
 }
 
@@ -167,6 +254,7 @@ export function getAuthorizationGrant(grantId: string): AuthorizationGrant | nul
   if (grant.revoked) return null;
   if (new Date(grant.expiresAt).getTime() < Date.now()) {
     grantStore.delete(grantId);
+    persistGrantsToDisk();
     return null;
   }
   return grant;
@@ -180,11 +268,33 @@ export function revokeAuthorizationGrant(grantId: string, principal: Principal):
   }
   grant.revoked = true;
   grantStore.set(grantId, grant);
+  persistGrantsToDisk();
+
+  try {
+    const pool = getDbPool();
+    if (pool) {
+      pool
+        .query(
+          `UPDATE authorization_grants SET revoked = TRUE, revoked_at = NOW() WHERE grant_id = $1`,
+          [grantId]
+        )
+        .catch(() => {});
+    }
+  } catch {
+    // Non-blocking PG sync
+  }
+
   return true;
 }
 
 export function clearGrantsForTests(): void {
   grantStore.clear();
+  try {
+    const filePath = resolveGrantsFilePath();
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  } catch {
+    // ignore
+  }
 }
 
 export interface ExecutionAuthResult {

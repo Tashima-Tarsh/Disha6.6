@@ -23,6 +23,9 @@ jobs:
       matrix:
         include:
           - name: web
+            context: ./web
+            dockerfile: ./web/Dockerfile
+          - name: osint-backend
             context: .
             dockerfile: ./Dockerfile
           - name: brain
