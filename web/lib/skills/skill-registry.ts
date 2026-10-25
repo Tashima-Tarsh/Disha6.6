@@ -335,7 +335,7 @@ function executeScientificComputingSkill(
   const standardError = stdDev / Math.sqrt(n);
 
   const nullHypothesisMean = typeof params?.nullHypothesisMean === "number" ? params.nullHypothesisMean : 0;
-  const tStat = standardError > 0 ? (mean - nullHypothesisMean) / standardError : 0;
+  const tStat = standardError > 0 ? (mean - nullHypothesisMean) / standardError : null;
 
   // Deliberate test threshold: If variance is requested to be within threshold
   const maxAllowedVariance = typeof params?.maxVariance === "number" ? params.maxVariance : undefined;
@@ -355,7 +355,7 @@ function executeScientificComputingSkill(
 
   return {
     status: "SUCCESS",
-    summary: `Scientific computation completed: N=${n}, mean=${mean.toFixed(4)}, stdDev=${stdDev.toFixed(4)}, tStat=${tStat.toFixed(4)}.`,
+    summary: `Scientific computation completed: N=${n}, mean=${mean.toFixed(4)}, stdDev=${stdDev.toFixed(4)}, tStat=${tStat === null ? "undefined (zero sample variance)" : tStat.toFixed(4)}.`,
     artifact: {
       domain: "scientific_computation_and_analysis",
       validationPassed: true,
@@ -365,7 +365,7 @@ function executeScientificComputingSkill(
         variance: Number(variance.toFixed(6)),
         standardDeviation: Number(stdDev.toFixed(6)),
         standardError: Number(standardError.toFixed(6)),
-        tStatistic: Number(tStat.toFixed(6)),
+        tStatistic: tStat === null ? null : Number(tStat.toFixed(6)),
       },
     },
   };
