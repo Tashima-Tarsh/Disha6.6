@@ -278,12 +278,14 @@ function executeNetworkingSkill(
 
   return {
     status: "SUCCESS",
-    summary: `Network verification completed successfully. Validated ${parsedCidrs.length} CIDR prefixes and ${hops.length} hop nodes.`,
+    summary: `Offline network-input consistency checks passed for ${parsedCidrs.length} CIDRs and ${hops.length} hop labels; no packets or routing convergence were measured.`,
     artifact: {
       domain: "network_diagnostics_and_protocol_verification",
-      convergenceStatus: "converged",
+      convergenceStatus: "not_measured",
       mtuIntegrityChecked,
-      packetFlowVerified: true,
+      packetFlowVerified: false,
+      offlineValidationPassed: true,
+      assessmentType: "input_consistency_only",
       parsedCidrs,
       hopsVerified: hops.length,
       routesEvaluated: routes.length,
@@ -429,7 +431,7 @@ function executeAiResearchSkill(
 
   return {
     status: "SUCCESS",
-    summary: `AI hyperparameter and model architecture verified successfully.${
+    summary: `Offline AI configuration validation passed; no model was trained or benchmarked.${
       estimatedParamCount ? ` Estimated parameters: ${estimatedParamCount.toLocaleString()}.` : ""
     }`,
     artifact: {
@@ -485,7 +487,7 @@ function executeCognitiveMemorySkill(
 
   return {
     status: "SUCCESS",
-    summary: `Synthesized knowledge graph: ${nodeCount} nodes, ${edgeCount} edges in ${measuredLatencyMs.toFixed(2)}ms.`,
+    summary: `Constructed an unpersisted keyword association graph: ${nodeCount} nodes, ${edgeCount} edges in ${measuredLatencyMs.toFixed(2)}ms; semantic correctness is unverified.`,
     artifact: {
       domain: "knowledge_graph_and_memory_synthesis",
       graphModel: "entity_relation_attribute",
@@ -493,7 +495,7 @@ function executeCognitiveMemorySkill(
       nodeCount,
       edgeCount,
       graphDensity: Number(density.toFixed(4)),
-      nodeIndexStatus: "synchronized",
+      nodeIndexStatus: "not_persisted",
     },
   };
 }
@@ -506,7 +508,7 @@ function executeSoftwareEngineeringSkill(
   const code = (params?.code as string) || (params?.snippet as string) || taskPrompt;
   const securityViolations: string[] = [];
 
-  // AST / Pattern security scanner
+  // Heuristic pattern scanner: does not parse an AST or prove code safety.
   if (/\beval\s*\(/.test(code)) securityViolations.push("Prohibited use of eval()");
   if (/\bFunction\s*\(/.test(code)) securityViolations.push("Prohibited use of Function() constructor");
   if (/\bchild_process\s*\.\s*exec\s*\(/.test(code)) securityViolations.push("Prohibited unconstrained child_process.exec");
@@ -548,7 +550,7 @@ function executeSoftwareEngineeringSkill(
 
   return {
     status: "SUCCESS",
-    summary: `Static analysis completed: Syntax balanced, 0 security violations in ${code.length} characters.`,
+    summary: `Heuristic text checks completed: brackets balanced, no flagged patterns in ${code.length} characters. This is not AST, lint or security certification.`,
     artifact: {
       domain: "software_engineering_and_static_analysis",
       syntaxValid: true,
@@ -585,7 +587,7 @@ export async function executeSkill(
 
   // 1. Evaluate policy gate before skill execution
   const actionName = `execute_skill:${skill.id}`;
-  const isCallerAdmin = input.principal?.roles.includes("admin") ?? input.actor.includes("admin");
+  const isCallerAdmin = input.principal?.roles.includes("admin") === true;
   const callerRole = isCallerAdmin ? "administrator" : "analyst";
 
   const signal: DishaSignal = {
@@ -731,12 +733,13 @@ export async function executeSkill(
   } else {
     // General / informational skills
     executionResult = {
-      status: "SUCCESS",
-      summary: `Skill '${skill.name}' processed successfully. Guidelines verified (${(instructions.match(/-\s+/g) || []).length} rules).`,
+      status: "NOT_EXECUTED",
+      summary: `Skill '${skill.name}' has an indexed instruction document, but no registered domain executor ran this task.`,
       artifact: {
-        domain: "governed_agent_instruction",
+        domain: "instruction_catalogue_only",
         instructionLength: instructions.length,
-        governed: true,
+        executed: false,
+        nextAction: "Register and test a capability-specific executor before reporting success.",
       },
     };
   }
@@ -816,7 +819,7 @@ export interface RoleDispatchRequest {
 export interface RoleDispatchResult {
   roleId: string;
   roleName: string;
-  status: "SUCCESS" | "POLICY_DENIED" | "BUDGET_EXCEEDED" | "FAILED";
+  status: "SUCCESS" | "NOT_EXECUTED" | "POLICY_DENIED" | "BUDGET_EXCEEDED" | "FAILED";
   summary: string;
   executionTrace: Array<{
     step: number;
@@ -858,7 +861,7 @@ export async function dispatchRole(
   const instructions = getRoleInstructions(roleId);
   const actionName = `dispatch_role:${role.id}`;
 
-  const isCallerAdmin = request.principal?.roles.includes("admin") ?? request.actor.includes("admin");
+  const isCallerAdmin = request.principal?.roles.includes("admin") === true;
   const signal: DishaSignal = {
     id: `sig-${Date.now()}`,
     timestamp: new Date().toISOString(),
@@ -967,8 +970,8 @@ export async function dispatchRole(
   return {
     roleId,
     roleName: role.name,
-    status: "SUCCESS",
-    summary: `Expert role '${role.name}' dispatched and completed ${executionTrace.length} steps under ${policy.decision} policy.`,
+    status: "NOT_EXECUTED",
+    summary: `Role '${role.name}' loaded as an instruction persona only; no model, external tool, or expert execution was performed.`,
     executionTrace,
     findings,
     evidenceId,
