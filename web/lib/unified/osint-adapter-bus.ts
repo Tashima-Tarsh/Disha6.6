@@ -23,9 +23,11 @@ export type AdapterMetadata = {
 export type AdapterContext = {
   missionId: string;
   userId: string;
+  userRoles?: string[];
   purpose: string;
   identityAuthorization?: boolean;
   activeAuthorization?: boolean;
+  approvalGrantId?: string;
   signal?: AbortSignal;
 };
 

@@ -4,6 +4,11 @@ import path from "node:path";
 import { generatedOsintManifests } from "@/lib/unified/generated/osint-tool-manifests.generated";
 import { universalOsintExecutionService } from "@/lib/osint/universal-execution-service";
 import type { AdapterContext } from "@/lib/unified/osint-adapter-bus";
+import {
+  issueAuthorizationGrant,
+  validateExecutionAuthorization,
+  clearGrantsForTests,
+} from "@/lib/server/authorization-grants";
 
 describe("DISHA 6.6 — 532-Tool Universe & Governed Execution Verification", () => {
   const rootRegistryPath = path.resolve(process.cwd(), "../data/osint/upstream-registry.json");
@@ -137,9 +142,109 @@ describe("DISHA 6.6 — 532-Tool Universe & Governed Execution Verification", ()
 
     expect(result.status).toBe("completed");
     expect(result.executionMethod).toBe("dataset_query");
-    expect(result.evidence.length).toBeGreaterThan(0);
+    expect(result.findingsCount).toBe(1);
+    expect(result.evidence.length).toBe(1);
     expect(result.evidence[0].provenanceHash).toBeDefined();
     expect(result.provenanceHash).toBe(result.evidence[0].provenanceHash);
+
+    // Non-matching target truthfully reports 0 matches without fabricating evidence
+    const noMatchResult = await universalOsintExecutionService.execute(
+      "vcdb",
+      { target: "NONEXISTENT-CVE-9999", targetType: "vulnerability" },
+      testContext,
+    );
+
+    expect(noMatchResult.status).toBe("completed");
+    expect(noMatchResult.findingsCount).toBe(0);
+    expect(noMatchResult.evidence.length).toBe(0);
+    expect((noMatchResult.data as any)?.matchCount).toBe(0);
+    expect(noMatchResult.warnings[0]).toContain("returned 0 matching records");
+  });
+
+  it("truthfully treats GUI references as reference_only with zero synthetic evidence", async () => {
+    const testContext: AdapterContext = {
+      missionId: "test-gui-mission",
+      userId: "test-analyst",
+      purpose: "GUI reference verification",
+    };
+
+    const result = await universalOsintExecutionService.execute(
+      "marinetraffic",
+      { target: "IMO9123456" },
+      testContext,
+    );
+
+    expect(result.status).toBe("reference_only");
+    expect(result.executionMethod).toBe("gui_view");
+    expect(result.findingsCount).toBe(0);
+    expect(result.evidence.length).toBe(0);
+    expect((result.data as any)?.mode).toBe("interactive_gui_reference");
+    expect(result.warnings[0]).toContain("interactive desktop/web GUI application");
+  });
+
+  it("enforces independent server-side authorization grants and blocks client self-declaration", async () => {
+    clearGrantsForTests();
+
+    const photonDef = universalOsintExecutionService.getToolDefinition("photon")!;
+    expect(photonDef).toBeDefined();
+
+    // 1. Unprivileged user or client self-declaring active recon is blocked
+    const analystPrincipal = {
+      userId: "analyst-1",
+      email: "analyst@disha.local",
+      roles: ["analyst" as const],
+    };
+
+    const unauthCheck = await validateExecutionAuthorization({
+      principal: analystPrincipal,
+      tool: photonDef,
+      target: "example.com",
+    });
+
+    expect(unauthCheck.authorized).toBe(false);
+    expect(unauthCheck.activeAuthorized).toBe(false);
+    expect(unauthCheck.reason).toContain("ACTIVE_RECON_UNAUTHORIZED");
+
+    // 2. Analyst attempts to issue an active_recon grant -> rejected with 403
+    expect(() =>
+      issueAuthorizationGrant({
+        scope: "active_recon",
+        approver: analystPrincipal,
+        toolId: "photon",
+        purpose: "Unauthorized analyst attempt",
+      })
+    ).toThrow();
+
+    // 3. Admin issues an independent authorization grant
+    const adminPrincipal = {
+      userId: "admin-1",
+      email: "admin@disha.local",
+      roles: ["admin" as const],
+    };
+
+    const grant = issueAuthorizationGrant({
+      scope: "active_recon",
+      approver: adminPrincipal,
+      toolId: "photon",
+      targetPattern: "example.com",
+      purpose: "Authorized perimeter audit",
+      ttlMinutes: 60,
+    });
+
+    expect(grant.grantId).toBeDefined();
+    expect(grant.scope).toBe("active_recon");
+
+    // 4. Valid grant passed to validation -> successfully authorized
+    const authCheckWithGrant = await validateExecutionAuthorization({
+      principal: analystPrincipal,
+      tool: photonDef,
+      target: "example.com",
+      grantId: grant.grantId,
+    });
+
+    expect(authCheckWithGrant.authorized).toBe(true);
+    expect(authCheckWithGrant.activeAuthorized).toBe(true);
+    expect(authCheckWithGrant.grant?.grantId).toBe(grant.grantId);
   });
 
   it("truthfully reports unconfigured status when CLI binary is missing without throwing errors", async () => {
@@ -162,3 +267,4 @@ describe("DISHA 6.6 — 532-Tool Universe & Governed Execution Verification", ()
     expect(result.warnings[0]).toContain("not installed in the local environment PATH");
   });
 });
+

@@ -18,6 +18,7 @@ import {
 import { createDefaultOsintBus } from "../unified/osint-default-bus";
 import { generatedOsintManifests, type GeneratedOsintToolManifest } from "../unified/generated/osint-tool-manifests.generated";
 import { audit } from "../server/audit";
+import { DatasetsService } from "../unified/datasets-service";
 
 const execFileAsync = promisify(execFile);
 
@@ -428,13 +429,128 @@ export class UniversalOsintExecutionService {
     runId: string,
     started: number,
   ): Promise<ToolExecutionResult> {
-    const evidence = buildAdapterEvidence({
-      sourceId: `dataset:${def.toolId}`,
-      sourceName: def.name,
-      sourceUrl: def.upstream,
-      summary: `Queried indexed OSINT dataset '${def.name}' for target '${target}'.`,
-      fields: { target, queryType: input.targetType || "general", dataset: def.toolId },
-    });
+    const candidateDirs = [
+      path.resolve(process.cwd(), "data/datasets", def.toolId),
+      path.resolve(process.cwd(), "../data/datasets", def.toolId),
+      path.resolve(process.cwd(), "web/data/datasets", def.toolId),
+      path.resolve(process.cwd(), "data/datasets", def.name.replace(/[^a-zA-Z0-9_-]/g, "_")),
+      path.resolve(process.cwd(), "web/data/datasets", def.name.replace(/[^a-zA-Z0-9_-]/g, "_")),
+    ];
+
+    const matchedDir = candidateDirs.find((d) => fs.existsSync(d) && fs.statSync(d).isDirectory());
+
+    const ds = DatasetsService.getInstance();
+    const manifest = ds.listDatasets();
+    const hasCategoryMatch = manifest.some((m) =>
+      m.category.toLowerCase().includes(def.toolId.toLowerCase()) ||
+      def.toolId.toLowerCase().includes(m.category.toLowerCase())
+    );
+
+    if (!matchedDir && !hasCategoryMatch) {
+      return {
+        toolId: def.toolId,
+        runId,
+        status: "unconfigured",
+        executionMethod: "dataset_query",
+        workerType: def.workerType,
+        durationMs: Date.now() - started,
+        data: {
+          dataset: def.toolId,
+          target,
+          matchCount: 0,
+          matches: [],
+          provisioned: false,
+          upstreamUrl: def.upstream,
+        },
+        findingsCount: 0,
+        evidence: [],
+        warnings: [
+          `Dataset '${def.name}' (${def.toolId}) is not provisioned locally. Download or clone data into data/datasets/${def.toolId}/ from ${def.upstream}.`,
+        ],
+        error: "DATASET_NOT_PROVISIONED",
+        provenanceHash: hashValue({ toolId: def.toolId, target, status: "unconfigured" }),
+        executedAt: new Date().toISOString(),
+      };
+    }
+
+    const matches: Array<Record<string, unknown>> = [];
+    const query = target.toLowerCase().trim();
+
+    if (matchedDir) {
+      const files = fs.readdirSync(matchedDir, { withFileTypes: true });
+      for (const file of files) {
+        if (!file.isFile()) continue;
+        const filePath = path.join(matchedDir, file.name);
+        try {
+          if (file.name.endsWith(".json")) {
+            const raw = fs.readFileSync(filePath, "utf-8");
+            const parsed = JSON.parse(raw);
+            const items = Array.isArray(parsed) ? parsed : [parsed];
+            for (const item of items) {
+              const str = JSON.stringify(item).toLowerCase();
+              if (str.includes(query)) {
+                matches.push({ file: file.name, ...item });
+              }
+            }
+          } else if (file.name.endsWith(".csv") || file.name.endsWith(".txt")) {
+            const raw = fs.readFileSync(filePath, "utf-8");
+            const lines = raw.split(/\r?\n/).filter(Boolean);
+            if (lines.length > 0) {
+              const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+              for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (line.toLowerCase().includes(query)) {
+                  const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+                  const row: Record<string, string> = { file: file.name };
+                  headers.forEach((h, idx) => {
+                    row[h] = cols[idx] || "";
+                  });
+                  matches.push(row);
+                }
+              }
+            }
+          }
+        } catch {
+          // ignore corrupted individual file
+        }
+      }
+    }
+
+    if (hasCategoryMatch || matches.length === 0) {
+      const searchHits = ds.searchDatasets(target, 20);
+      const relevantHits = searchHits.filter((h) =>
+        hasCategoryMatch
+          ? h.category.toLowerCase().includes(def.toolId.toLowerCase()) ||
+            def.toolId.toLowerCase().includes(h.category.toLowerCase())
+          : true
+      );
+      for (const hit of relevantHits) {
+        matches.push({
+          sourceCategory: hit.category,
+          sourceFile: hit.sourceFile,
+          relevance: hit.relevanceScore,
+          ...hit.data,
+        });
+      }
+    }
+
+    const evidenceList: AdapterEvidence[] = [];
+    for (const match of matches.slice(0, 10)) {
+      const summary = `Found record in ${def.name}: ${JSON.stringify(match).slice(0, 200)}`;
+      evidenceList.push(
+        buildAdapterEvidence({
+          sourceId: `dataset:${def.toolId}`,
+          sourceName: def.name,
+          sourceUrl: def.upstream,
+          summary,
+          fields: match as Record<string, unknown>,
+        })
+      );
+    }
+
+    const provenance = evidenceList.length > 0
+      ? evidenceList[0].provenanceHash
+      : hashValue({ toolId: def.toolId, target, matchCount: matches.length });
 
     return {
       toolId: def.toolId,
@@ -446,14 +562,17 @@ export class UniversalOsintExecutionService {
       data: {
         dataset: def.toolId,
         target,
-        matchCount: 1,
+        matchCount: matches.length,
+        matches: matches.slice(0, 50),
         source: def.upstream,
-        verified: true,
+        verified: matches.length > 0,
       },
-      findingsCount: 1,
-      evidence: [evidence],
-      warnings: [],
-      provenanceHash: evidence.provenanceHash,
+      findingsCount: matches.length,
+      evidence: evidenceList,
+      warnings: matches.length === 0
+        ? [`Query against dataset '${def.name}' returned 0 matching records for '${target}'.`]
+        : [],
+      provenanceHash: provenance,
       executedAt: new Date().toISOString(),
     };
   }
@@ -464,29 +583,26 @@ export class UniversalOsintExecutionService {
     runId: string,
     started: number,
   ): ToolExecutionResult {
-    const evidence = buildAdapterEvidence({
-      sourceId: `gui:${def.toolId}`,
-      sourceName: def.name,
-      sourceUrl: def.upstream,
-      summary: `Interactive GUI tool reference '${def.name}' opened with target '${target}'.`,
-    });
-
     return {
       toolId: def.toolId,
       runId,
-      status: "completed",
+      status: "reference_only",
       executionMethod: "gui_view",
       workerType: def.workerType,
       durationMs: Date.now() - started,
       data: {
+        mode: "interactive_gui_reference",
         portalUrl: def.upstream,
         targetQuery: target,
         type: "web_interactive",
+        instructions: `Interactive GUI tool '${def.name}' cannot be executed headlessly in background mode. Open ${def.upstream} manually to interact with the application.`,
       },
-      findingsCount: 1,
-      evidence: [evidence],
-      warnings: ["Tool is an interactive web or GUI application; query forwarded via deep-link interface."],
-      provenanceHash: evidence.provenanceHash,
+      findingsCount: 0,
+      evidence: [],
+      warnings: [
+        `Tool '${def.name}' is an interactive desktop/web GUI application. Background automated execution was not attempted.`,
+      ],
+      provenanceHash: hashValue({ toolId: def.toolId, target, mode: "gui_reference" }),
       executedAt: new Date().toISOString(),
     };
   }

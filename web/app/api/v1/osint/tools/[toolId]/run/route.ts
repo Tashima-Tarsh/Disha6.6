@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { withContext } from "@/lib/unified/api";
 import { universalOsintExecutionService } from "@/lib/osint/universal-execution-service";
+import { validateExecutionAuthorization } from "@/lib/server/authorization-grants";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +10,9 @@ const runPayloadSchema = z.object({
   target: z.string().min(1).max(512),
   targetType: z.string().optional().default("general"),
   options: z.record(z.string(), z.string()).optional().default({}),
-  confirmed: z.boolean().optional().default(false),
-  activeAuthorization: z.boolean().optional().default(false),
+  approvalGrantId: z.string().min(1).max(128).optional(),
+  confirmed: z.boolean().optional(),
+  activeAuthorization: z.boolean().optional(),
   purpose: z.string().min(3).max(1000).optional().default("Authorized OSINT intelligence query"),
 });
 
@@ -32,12 +34,43 @@ export async function POST(
       );
     }
 
+    const toolDef = universalOsintExecutionService.getToolDefinition(toolId);
+    if (!toolDef) {
+      return NextResponse.json(
+        { error: "tool_not_found", message: `Tool '${toolId}' is not registered in the OSINT universe.` },
+        { status: 404, headers: { "X-Request-ID": ctx.requestId } },
+      );
+    }
+
+    // Independently validate authorization. Client booleans cannot self-declare permission.
+    const auth = await validateExecutionAuthorization({
+      principal: ctx.principal,
+      tool: toolDef,
+      target: body.target,
+      grantId: body.approvalGrantId,
+    });
+
+    if (!auth.authorized) {
+      return NextResponse.json(
+        {
+          error: "authorization_required",
+          message: auth.reason,
+          toolId: toolDef.toolId,
+          executionClass: toolDef.scopeRequirements.executionClass,
+          requiresIndependentGrant: true,
+        },
+        { status: 403, headers: { "X-Request-ID": ctx.requestId } },
+      );
+    }
+
     const adapterContext = {
       missionId: ctx.requestId,
       userId: ctx.principal?.userId || "operator",
+      userRoles: ctx.principal?.roles || [],
       purpose: body.purpose,
-      identityAuthorization: body.confirmed,
-      activeAuthorization: body.activeAuthorization,
+      identityAuthorization: auth.identityAuthorized,
+      activeAuthorization: auth.activeAuthorized,
+      approvalGrantId: auth.grant?.grantId || body.approvalGrantId,
       signal: req.signal,
     };
 
@@ -47,7 +80,7 @@ export async function POST(
         target: body.target,
         targetType: body.targetType,
         options: body.options,
-        confirmed: body.confirmed,
+        confirmed: auth.identityAuthorized,
       },
       adapterContext,
     );
