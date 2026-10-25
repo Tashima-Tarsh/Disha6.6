@@ -59,14 +59,16 @@ export function DishaToolLookupModal({ tool, onClose, onSendToCopilot }: DishaTo
   const request = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    setTarget(tool?.initialTarget ?? "");
-    setAuthorized(false);
-    setResult(null);
-    setError("");
-    setBusy(false);
-    setCopied(false);
-    setActiveTab("dossier");
-    return () => request.current?.abort();
+    const timer = window.setTimeout(() => {
+      setTarget(tool?.initialTarget ?? "");
+      setAuthorized(false);
+      setResult(null);
+      setError("");
+      setBusy(false);
+      setCopied(false);
+      setActiveTab("dossier");
+    }, 0);
+    return () => { window.clearTimeout(timer); request.current?.abort(); };
   }, [tool?.id, tool?.initialTarget]);
 
   async function execute(event?: FormEvent) {
