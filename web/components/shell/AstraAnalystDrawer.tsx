@@ -138,7 +138,7 @@ export function AstraAnalystDrawer({ isOpen, onClose, activeContext }: AstraAnal
   useEffect(() => {
     if (!isOpen) return;
     const controller = new AbortController();
-    setModelStatus("Checking installed local models…");
+    // The catalog fetch reports readiness asynchronously when the response arrives.
     void fetch("/api/v1/runtime/models/catalog", { cache: "no-store", signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error("Model list unavailable");
@@ -181,7 +181,7 @@ export function AstraAnalystDrawer({ isOpen, onClose, activeContext }: AstraAnal
     if (!query || isSubmitting) return;
 
     const userMsg: AstraMessage = {
-      id: `usr-${Date.now()}`,
+      id: `usr-${crypto.randomUUID()}`,
       role: "user",
       content: query,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -214,7 +214,7 @@ export function AstraAnalystDrawer({ isOpen, onClose, activeContext }: AstraAnal
       const content = readAssistantReply(data);
 
       const assistantMsg: AstraMessage = {
-        id: `ast-${Date.now()}`,
+        id: `ast-${crypto.randomUUID()}`,
         role: "assistant",
         content,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -226,7 +226,7 @@ export function AstraAnalystDrawer({ isOpen, onClose, activeContext }: AstraAnal
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (error) {
       const fallbackMsg: AstraMessage = {
-        id: `ast-fallback-${Date.now()}`,
+        id: `ast-fallback-${crypto.randomUUID()}`,
         role: "assistant",
         content: `The selected model did not return a verified response.\n\nModel: ${selectedModel}\nStatus: ${error instanceof Error ? error.message : "request failed"}\n\nTry the fast local model, or open System > AI Models to test which models are actually available.`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),

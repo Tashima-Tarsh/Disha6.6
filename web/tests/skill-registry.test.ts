@@ -119,6 +119,20 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
     expect((resultVariance.output.executionArtifact as any)?.validationPassed).toBe(false);
   });
 
+  it("scientific computing reports undefined t-statistic for constant samples", async () => {
+    const skill = listSkills({ category: "scientific-computing" })[0];
+    const result = await executeSkill(skill.id, {
+      missionId: "m-sci-zero-variance",
+      actor: "analyst@example.test",
+      taskPrompt: "Compute descriptive statistics for constant samples",
+      params: { data: [5, 5, 5], nullHypothesisMean: 4 },
+    });
+    expect(result.status).toBe("SUCCESS");
+    const metrics = (result.output.executionArtifact as any)?.statisticalMeasurements;
+    expect(metrics.variance).toBe(0);
+    expect(metrics.tStatistic).toBeNull();
+  });
+
   it("computer networking: validates real CIDRs, MTU, and loop-free trajectory", async () => {
     const netSkill = listSkills({ category: "computer-networking" })[0];
 
@@ -134,8 +148,9 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
 
     expect(result.status).toBe("SUCCESS");
     const artifact = result.output.executionArtifact as any;
-    expect(artifact.convergenceStatus).toBe("converged");
-    expect(artifact.packetFlowVerified).toBe(true);
+    expect(artifact.convergenceStatus).toBe("not_measured");
+    expect(artifact.offlineValidationPassed).toBe(true);
+    expect(artifact.packetFlowVerified).toBe(false);
     expect(artifact.mtuIntegrityChecked).toBe(true);
     expect(artifact.parsedCidrs.length).toBe(2);
     expect(artifact.parsedCidrs[0].netmask).toBe("255.255.255.0");
@@ -250,7 +265,7 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
       taskPrompt: "Perform high risk scan",
       params: { approvalGrantId: grant.grantId },
     });
-    expect(["SUCCESS", "CONFIRMATION_REQUIRED"]).toContain(verifiedResult.status);
+    expect(["NOT_EXECUTED", "CONFIRMATION_REQUIRED"]).toContain(verifiedResult.status);
     expect(verifiedResult.status).not.toBe("POLICY_DENIED");
   });
 
@@ -270,11 +285,14 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
         tokenBudget: 3000,
       });
 
-      expect(dispatchRes.status).toBe("SUCCESS");
+      expect(dispatchRes.status).toBe("NOT_EXECUTED");
+      expect(dispatchRes.summary).toContain("no model");
       expect(dispatchRes.roleId).toBe(roleId);
-      expect(dispatchRes.executionTrace.length).toBeGreaterThanOrEqual(2);
+      expect(dispatchRes.executionTrace).toHaveLength(1);
+      expect(dispatchRes.executionTrace[0].tokensUsed).toBe(0);
       expect(dispatchRes.artifactHash).toBeDefined();
-      expect(dispatchRes.findings.length).toBeGreaterThan(0);
+      expect(dispatchRes.findings).toHaveLength(0);
+      expect(dispatchRes.governance.tokensConsumed).toBe(0);
       expect(dispatchRes.governance.maxSteps).toBeLessThanOrEqual(5);
     }
   });

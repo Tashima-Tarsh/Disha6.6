@@ -434,9 +434,11 @@ export function GodsEyeHologramGlobe({
 
   // When activeTargetCoords changes, smoothly fly to it
   useEffect(() => {
-    if (activeTargetCoords) {
+    if (!activeTargetCoords) return;
+    const frame = window.requestAnimationFrame(() => {
       focusOnCoordinates(activeTargetCoords.lat, activeTargetCoords.lng);
-    }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [activeTargetCoords, focusOnCoordinates]);
 
   // Handle Texture Mode Swapping (Satellite vs Night Lights vs Topography)
@@ -447,15 +449,15 @@ export function GodsEyeHologramGlobe({
     if (textureMode === "night") {
       mat.map = texturesRef.current.night;
       mat.roughness = 0.85;
-      setStatusMessage("TEXTURE: NASA BLACK MARBLE // CITY NIGHT LIGHTS");
+      window.requestAnimationFrame(() => setStatusMessage("TEXTURE: NASA BLACK MARBLE // CITY NIGHT LIGHTS"));
     } else if (textureMode === "tactical") {
       mat.map = texturesRef.current.day;
       mat.roughness = 0.5;
-      setStatusMessage("TEXTURE: TOPOGRAPHIC RELIEF // SENSOR RADAR");
+      window.requestAnimationFrame(() => setStatusMessage("TEXTURE: TOPOGRAPHIC RELIEF // SENSOR RADAR"));
     } else {
       mat.map = texturesRef.current.day;
       mat.roughness = 0.65;
-      setStatusMessage("TEXTURE: NASA BLUE MARBLE // TRUE-COLOR SATELLITE");
+      window.requestAnimationFrame(() => setStatusMessage("TEXTURE: NASA BLUE MARBLE // TRUE-COLOR SATELLITE"));
     }
     mat.needsUpdate = true;
   }, [textureMode]);
@@ -766,7 +768,7 @@ export function GodsEyeHologramGlobe({
       <div className={styles.topHudBar}>
         <div className={styles.topHudTitle}>
           <Globe2 size={14} className={styles.cyanGlow} />
-          <span>REAL 3D GOD'S EYE OSINT GLOBE</span>
+          <span>REAL 3D GOD&apos;S EYE OSINT GLOBE</span>
           <span className={styles.hudLiveBadge}>● LIVE FEED</span>
         </div>
         <div className={styles.topHudStatus}>{statusMessage}</div>

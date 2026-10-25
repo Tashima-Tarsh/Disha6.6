@@ -192,6 +192,15 @@ Trigger → Authenticate & scope → Evaluate policy → Build typed mission DAG
 
 For the intended job state machine, capability manifests, retries, worker isolation, approval nodes, failure handling and n8n callbacks, see [Orchestration Architecture](docs/ORCHESTRATION_ARCHITECTURE.md).
 
+**Implemented in the governed-skill bridge:** `POST /api/v1/workflows/n8n/skills`
+accepts up to eight authenticated, evidence-logged sequential registered-skill steps
+and stops on denied, unsupported, failed, or unevidenced work. Authenticated
+`GET /api/v1/skills/readiness` reports offline-limited versus instruction-only
+skills; `GET /api/v1/workflows/n8n/schemas` exports an importable workflow.
+A catalogued skill is not proof of an operational specialist executor.
+See [Governed Skill Orchestration](docs/GOVERNED_SKILL_ORCHESTRATION.md) for
+credentials, contracts, limitations and integration tests.
+
 ---
 
 ## Evidence is the product

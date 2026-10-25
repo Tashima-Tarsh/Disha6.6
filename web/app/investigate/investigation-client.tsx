@@ -288,7 +288,7 @@ function InvestigationInner({ email }: { email: string }) {
     const ch = searchParams?.get("channel") ?? searchParams?.get("type");
     if (ch) {
       const match = CHANNELS.find((c) => c.id === ch || c.targetType === ch);
-      if (match) setSelectedChannelId(match.id);
+      if (match) queueMicrotask(() => setSelectedChannelId(match.id));
     }
   }, [searchParams]);
   const [legalConsentChecked, setLegalConsentChecked] = useState(false);
@@ -297,7 +297,7 @@ function InvestigationInner({ email }: { email: string }) {
   const [toolsError, setToolsError] = useState("");
   const session = useRef<InvestigationSession | null>(null);
 
-  useEffect(() => { if (incomingQ !== null) setQuery(incomingQ); }, [incomingQ]);
+  useEffect(() => { if (incomingQ !== null) queueMicrotask(() => setQuery(incomingQ)); }, [incomingQ]);
 
   const channel = useMemo(
     () => CHANNELS.find((item) => item.id === selectedChannelId) ?? CHANNELS[0],
@@ -310,6 +310,7 @@ function InvestigationInner({ email }: { email: string }) {
     const current = new InvestigationSession(
       (value) => {
         setActive(value);
+        if (value?.evidence.length) setActiveTab((tab) => tab === "Summary" ? "Evidence" : tab);
         if (!value) {
           setSelectedEvidence(null);
           setActiveTab("Summary");
@@ -331,19 +332,6 @@ function InvestigationInner({ email }: { email: string }) {
       current.dispose();
     };
   }, []);
-
-  useEffect(() => {
-    if (active?.status === "COMPLETED" || active?.status === "CLOSING") {
-      setBusy(false);
-    }
-  }, [active?.status]);
-
-  // Auto-switch to Evidence tab when first results arrive so user sees populated cards without clicking
-  useEffect(() => {
-    if (active && active.evidence.length > 0 && activeTab === "Summary") {
-      setActiveTab("Evidence");
-    }
-  }, [active?.evidence.length]);
 
   useEffect(() => {
     const controller = new AbortController();

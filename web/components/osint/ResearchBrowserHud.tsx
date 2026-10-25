@@ -76,11 +76,13 @@ export function ResearchBrowserHud({
 
   // Automatically update the browser URL when activeTarget changes
   useEffect(() => {
-    if (defaultTargetUrl) {
+    if (!defaultTargetUrl) return;
+    const timer = window.setTimeout(() => {
       setUrlInput(defaultTargetUrl);
       setActiveBrowserUrl(defaultTargetUrl);
       setIframeKey((k) => k + 1);
-    }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [defaultTargetUrl]);
 
   function handleNavigate(e: FormEvent) {
