@@ -148,3 +148,4 @@ export async function callOsintBackend<T = unknown>(
     { targetUrl, baseUrl }
   );
 }
+

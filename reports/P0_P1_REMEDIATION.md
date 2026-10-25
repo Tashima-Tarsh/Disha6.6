@@ -165,3 +165,4 @@ The platform lacked a unified multi-hop research orchestrator with bounded budge
 
 ### Regression Test Coverage
 - `web/tests/god-mode-research.test.ts` (2/2 tests passed)
+

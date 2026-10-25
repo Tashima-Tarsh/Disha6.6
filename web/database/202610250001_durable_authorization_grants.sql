@@ -17,3 +17,4 @@ CREATE TABLE IF NOT EXISTS authorization_grants (
 CREATE INDEX IF NOT EXISTS idx_auth_grants_granted_to ON authorization_grants (granted_to);
 CREATE INDEX IF NOT EXISTS idx_auth_grants_expires_at ON authorization_grants (expires_at);
 CREATE INDEX IF NOT EXISTS idx_auth_grants_revoked ON authorization_grants (revoked);
+

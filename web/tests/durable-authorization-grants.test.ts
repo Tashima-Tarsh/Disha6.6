@@ -75,3 +75,4 @@ describe("Phase 5 — Durable Transactional Authorization Grants", () => {
     ).toThrow(/Grant creation denied/);
   });
 });
+
