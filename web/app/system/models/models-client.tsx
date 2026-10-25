@@ -63,7 +63,9 @@ export function ModelsClient({ principal }: ModelsClientProps) {
   }
 
   useEffect(() => {
-    void fetchCatalog();
+    // Defer initial catalog retrieval until after mounting to avoid a synchronous state cascade.
+    const timer = window.setTimeout(() => { void fetchCatalog(); }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   async function handleTogglePrivacyMode() {
