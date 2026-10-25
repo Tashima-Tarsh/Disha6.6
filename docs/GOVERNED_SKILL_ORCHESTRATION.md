@@ -95,6 +95,22 @@ Response shape:
 5. Configure the HTTP node to retain error responses for HTTP 4xx/5xx, and branch on
    `workflowStatus`. Escalate refusals to a human; never silently retry them.
 
+## Machine-readable skill readiness
+
+Authenticated `GET /api/v1/skills/readiness?category=computer-networking&limit=25&offset=0`
+returns a paginated catalog with `mode`, `executor`, `requiresApproval`, and an
+explicit `limitation` for each registered skill. Two modes are currently reported:
+
+- `OFFLINE_LIMITED`: code runs only a narrow, input-based validator. It does not
+  prove the domain-specific work implied by an arbitrary skill name.
+- `INSTRUCTIONS_ONLY`: no executor is connected to the skill-ID runtime.
+  n8n must not schedule it expecting real-world results.
+
+The summary distinguishes `offlineValidatorMappings`, `instructionOnlyMappings` and
+`independentlyCertifiedExecutors`. Category-level mappings are not counted as
+independently certified executors. Plan n8n routes from this live capability API rather
+than assuming every indexed role is active.
+
 ## Capability tiers — no false success
 
 | Tier | Meaning | Reporting rule |
