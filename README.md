@@ -101,6 +101,26 @@ Key remaining hardening (see `backend/SECURE_WIRING.md` and `docs/SECURITY_HARDE
 
 ---
 
+
+## Governed n8n skill orchestration (new, bounded)
+
+The web API now accepts authenticated, sequential skill workflows at
+`POST /api/v1/workflows/n8n/skills`. An importable n8n template is available
+from `GET /api/v1/workflows/n8n/schemas` (field `governedSkillWorkflow`).
+
+A registry entry or expert prompt is **not** proof of runtime capability.
+The 1,806 indexed skill records and 503 role instruction personas have different
+execution maturity. Unsupported instruction-only capabilities report
+`NOT_EXECUTED`; no packet capture, model training, or domain verification is
+implied merely by loading a skill. Workflows stop on a denied, unsupported, failed,
+or unevidenced step, and final results are ledger-recorded.
+
+See [Governed Skill Orchestration](docs/GOVERNED_SKILL_ORCHESTRATION.md) for the
+architecture, request example, n8n credentials setup, authorization boundaries and
+remaining integration milestones.
+
+---
+
 ## License
 
 See [LICENSE](LICENSE).
