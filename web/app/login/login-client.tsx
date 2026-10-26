@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useState, FormEvent, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { Shield, Lock, Eye, EyeOff, KeyRound, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useState, FormEvent } from "react";
+import { Shield, AlertTriangle } from "lucide-react";
+
+function safeNavigate(target: string) {
+  if (typeof window === "undefined") return;
+
+  const safeTarget = target.startsWith("http")
+    ? target
+    : `${window.location.origin}${target.startsWith("/") ? target : `/${target}`}`;
+
+  window.location.assign(safeTarget);
+}
 
 export function LoginClient({
   returnUrl = "/investigate",
@@ -11,7 +20,6 @@ export function LoginClient({
   returnUrl?: string;
   authError?: string;
 }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +52,7 @@ export function LoginClient({
         throw new Error("Invalid operator credentials.");
       }
 
-      router.push(returnUrl);
+      safeNavigate(returnUrl);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
       setSubmitting(false);
@@ -53,7 +61,7 @@ export function LoginClient({
 
   function handleMeriPehchaan() {
     const params = new URLSearchParams({ provider: "meri-pehchan", returnUrl });
-    router.push(`/api/auth/oidc/start?${params.toString()}`);
+    safeNavigate(`/api/auth/oidc/start?${params.toString()}`);
   }
 
   return (
