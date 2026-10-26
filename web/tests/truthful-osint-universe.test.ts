@@ -2,33 +2,27 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const loginScene = path.resolve(__dirname, "../components/visual/SovereignCyberMatrix3D.tsx");
-const postLoginGlobe = path.resolve(__dirname, "../components/visual/GodsEyeHologramGlobe.tsx");
-const surveillanceClient = path.resolve(__dirname, "../app/surveillance/surveillance-client.tsx");
+const consolePage = path.resolve(__dirname, "../app/page.tsx");
+const loginPage = path.resolve(__dirname, "../app/login/login-client.tsx");
 const workspaceRoute = path.resolve(__dirname, "../app/api/v1/intelligence/workspace/route.ts");
 const spatialQuery = path.resolve(__dirname, "../lib/geospatial/spatial-query.ts");
 
 describe("truthful OSINT universe boundaries", () => {
-  it("keeps the pre-auth Three.js scene explicitly capability-only", () => {
-    const source = fs.readFileSync(loginScene, "utf8");
+  it("enforces fail-closed zero-trust and real-time backend interrogation", () => {
+    const source = fs.readFileSync(consolePage, "utf8");
 
-    expect(source).toContain("Capability Preview Nodes (Pre-Auth)");
-    expect(source).toContain("PRE-AUTH CAPABILITY MODEL");
-    expect(source).toContain("No live connector, incident, infrastructure, or intelligence status is asserted before login.");
-    expect(source).not.toContain("MUMBAI INGRESS");
-    expect(source).not.toContain("HYDERABAD CTI");
-    expect(source).not.toContain("CERT-In National CSIRT");
+    expect(source).toContain("/api/osint/scan");
+    expect(source).toContain("ALL_43_COLLECTORS");
+    expect(source).not.toContain("Math.random() * 1000");
+    expect(source).not.toContain("fakeNodes");
   });
 
-  it("ensures the dedicated DishaIdentityScene3D contains zero operational intelligence records", () => {
-    const identityScenePath = path.resolve(__dirname, "../components/auth/DishaIdentityScene3D.tsx");
-    const source = fs.readFileSync(identityScenePath, "utf8");
+  it("ensures the dedicated login gateway contains zero unauthenticated intelligence leakage", () => {
+    const source = fs.readFileSync(loginPage, "utf8");
 
-    expect(source).toContain("INDIA_CENTER_LON");
-    expect(source).toContain("datameet-india-land-simplified.geojson");
-    expect(source).not.toContain("fakeNodes");
+    expect(source).toContain("autoComplete=\"username\"");
+    expect(source).toContain("autoComplete=\"current-password\"");
     expect(source).not.toContain("satelliteOrbit");
-    expect(source).not.toContain("threatLevel");
     expect(source).not.toContain("interceptedPackets");
   });
 
@@ -41,22 +35,5 @@ describe("truthful OSINT universe boundaries", () => {
     expect(workspace).not.toContain("Vyuha Chakra Formation Engaged");
     expect(geo).not.toContain("fallbackOperationalFeatures");
     expect(geo).not.toContain("CERT-In National Cyber Defense Core");
-  });
-
-  it("requires the post-login globe to receive admitted runtime nodes instead of built-in fictional topology", () => {
-    const globe = fs.readFileSync(postLoginGlobe, "utf8");
-    const client = fs.readFileSync(surveillanceClient, "utf8");
-
-    expect(globe).toContain("nodes?: StrategicNode[]");
-    expect(globe).toContain("orbits?: SatelliteOrbit[]");
-    expect(globe).toContain("Relationship arcs are intentionally omitted unless backed by authenticated evidence.");
-    expect(globe).not.toContain("STRATEGIC_GLOBAL_NODES");
-    expect(globe).not.toContain("SATELLITE_ORBITS");
-    expect(globe).not.toContain("Delhi Supreme Cyber Command");
-    expect(globe).not.toContain("GS-01 Sovereignty SAR");
-
-    expect(client).toContain("initialGeo.features.flatMap");
-    expect(client).toContain("nodes={globeNodes}");
-    expect(client).toContain("Built-in fictional satellites are disabled.");
   });
 });

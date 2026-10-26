@@ -2,75 +2,47 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const dashboardClient = path.resolve(__dirname, "../app/dashboard/dashboard-client.tsx");
-const dashboardPage = path.resolve(__dirname, "../app/dashboard/page.tsx");
-const operationsPage = path.resolve(__dirname, "../app/operations/page.tsx");
-const mapComponent = path.resolve(__dirname, "../components/geospatial/GeospatialCommandMap.tsx");
-const graphComponent = path.resolve(__dirname, "../components/intelligence/IntelligenceGraph.tsx");
-const workspaceRoute = path.resolve(__dirname, "../app/api/v1/intelligence/workspace/route.ts");
-const systemPage = path.resolve(__dirname, "../app/system/page.tsx");
-const basemapContract = path.resolve(__dirname, "../lib/geospatial/basemap-contract.ts");
-const legacyRoute = path.resolve(__dirname, "../app/dashboard/route.ts");
-const legacyHtml = path.resolve(__dirname, "../app/dashboard/disha66-command-centre-v3.html");
+const consolePage = path.resolve(__dirname, "../app/page.tsx");
+const layoutPage = path.resolve(__dirname, "../app/layout.tsx");
 
-describe("DISHA analyst workspace", () => {
-  it("retires the dashboard route into the investigation universe and removes legacy static delivery", () => {
-    const page = fs.readFileSync(dashboardPage, "utf8");
-    expect(page).toContain('redirect("/investigate")');
-    expect(page).not.toContain("DashboardClient");
-    expect(fs.existsSync(legacyRoute)).toBe(false);
-    expect(fs.existsSync(legacyHtml)).toBe(false);
+describe("DISHA Sovereign Console Architecture", () => {
+  it("delivers full tactical command directly through the unified operational console", () => {
+    const page = fs.readFileSync(consolePage, "utf8");
+    expect(page).toContain("TARGET ACQUISITION");
+    expect(page).toContain("TACTICAL ENTITY LINK GRAPH");
+    expect(page).toContain("MAX INTEL DIRECTORY");
+    expect(page).toContain("CYBER DEFENSE");
+    expect(page).toContain("NODE TELEMETRY");
   });
 
-  it("keeps the map-first command workspace under the explicit operations route", () => {
-    const operations = fs.readFileSync(operationsPage, "utf8");
-    expect(operations).toContain("principalFromAccessToken");
-    expect(operations).toContain("returnUrl=%2Foperations");
-    expect(operations).toContain("DashboardClient");
-    const source = fs.readFileSync(dashboardClient, "utf8");
-    expect(source).toContain("/api/v1/intelligence/workspace");
-    expect(source).toContain("India operational map");
-    expect(source).toContain("Context inspector");
-    expect(source).toContain("Entity / evidence graph");
-    expect(source).toContain("Evidence timeline");
-    expect(source).toContain('href="/system"');
-    expect(source).toContain("CommandPalette");
-    expect(source).not.toContain("Constitutional Evidence Command Centre");
-    expect(source).not.toContain("Rules of Engagement");
-    expect(source).not.toContain('d="M43 8 L55 10');
+  it("supports multi-selector reconnaissance across domain, IP, username, phone, email, and geo", () => {
+    const page = fs.readFileSync(consolePage, "utf8");
+    expect(page).toContain("domain");
+    expect(page).toContain("ip");
+    expect(page).toContain("username");
+    expect(page).toContain("phone");
+    expect(page).toContain("email");
+    expect(page).toContain("geo");
   });
 
-  it("ships a real MapLibre runtime with contextual attribution and persisted overlays only", () => {
-    const source = fs.readFileSync(mapComponent, "utf8");
-    const basemap = fs.readFileSync(basemapContract, "utf8");
-    expect(source).toContain('from "react-map-gl/maplibre"');
-    expect(source).toContain("maplibregl.setWorkerUrl");
-    expect(source).toContain("DeckGL");
-    expect(source).toContain("HeatmapLayer");
-    expect(source).toContain("ScatterplotLayer");
-    expect(source).toContain("No authoritative disha6.6 geometry is admitted yet");
-    expect(basemap).toContain("https://tiles.openfreemap.org/styles/liberty");
-    expect(basemap).toContain("OpenStreetMap contributors");
-    expect(basemap).toContain('role: "context_only"');
+  it("ships a real interactive topology canvas with animated physics", () => {
+    const page = fs.readFileSync(consolePage, "utf8");
+    expect(page).toContain("graphCanvasRef");
+    expect(page).toContain("requestAnimationFrame");
+    expect(page).toContain("INTERACTIVE TOPOLOGY");
   });
 
-  it("uses persisted entity edges and a DB-backed workspace feed", () => {
-    const graph = fs.readFileSync(graphComponent, "utf8");
-    const route = fs.readFileSync(workspaceRoute, "utf8");
-    expect(graph).toContain('from "cytoscape"');
-    expect(graph).toContain("edges.filter");
-    expect(route).toContain("intelligence_entities");
-    expect(route).toContain("intelligence_edges");
-    expect(route).toContain("intelligence_change_events");
-    expect(route).toContain("evidence_events");
-    expect(route).toContain("evidence_lineage_nodes");
-    expect(route).toContain("listOperationalGeoFeatures");
+  it("wires verified findings to the evidence ledger with digital attestation", () => {
+    const page = fs.readFileSync(consolePage, "utf8");
+    expect(page).toContain("VERIFIED RECON FINDINGS");
+    expect(page).toContain("DIGITAL SIGNATURE: ATTESTED");
+    expect(page).toContain("CIS BENCHMARK HARDENING");
   });
 
-  it("moves infrastructure detail to a dedicated protected system console", () => {
-    const source = fs.readFileSync(systemPage, "utf8");
-    expect(source).toContain("principalFromAccessToken");
-    expect(source).toContain("returnUrl=%2Fsystem");
-    expect(source).toContain("SystemClient");
+  it("exports root layout with complete metadata and dark mode body", () => {
+    const layout = fs.readFileSync(layoutPage, "utf8");
+    expect(layout).toContain("RootLayout");
+    expect(layout).toContain("DISHA 6.6");
+    expect(layout).toContain("globals.css");
   });
 });

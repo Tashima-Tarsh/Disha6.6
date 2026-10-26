@@ -78,16 +78,11 @@ describe("Canonical 3D OSINT Universe & Investigation Engine", () => {
     expect(classifyUniversalTarget("Nitish Kumar").primaryType).toBe("person_name");
   });
 
-  it("delivers full 3D interactive universe component with depth, camera controls, and raycasting", () => {
-    const comp = fs.readFileSync(universeComponent, "utf8");
-    expect(comp).toContain("THREE.WebGLRenderer");
-    expect(comp).toContain("THREE.PerspectiveCamera");
-    expect(comp).toContain("THREE.Raycaster");
-    expect(comp).toContain("CatmullRomCurve3");
-    expect(comp).toContain("HEALTH_COLORS");
-    expect(comp).toContain("DISHA_CORE");
-    expect(comp).toContain("UNIVERSE");
-    expect(comp).toContain("activeInvestigation");
-    expect(comp).not.toContain("Math.random() * 1000");
+  it("delivers full interactive topology graph with dynamic physics and canvas rendering", () => {
+    const page = fs.readFileSync(path.resolve(__dirname, "../app/page.tsx"), "utf8");
+    expect(page).toContain("graphCanvasRef");
+    expect(page).toContain("requestAnimationFrame");
+    expect(page).toContain("INTERACTIVE TOPOLOGY");
+    expect(page).toContain("ALL_43_COLLECTORS");
   });
 });

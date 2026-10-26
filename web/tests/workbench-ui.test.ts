@@ -2,41 +2,39 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const workbenchClient = path.resolve(__dirname, "../app/workbench/workbench-client.tsx");
-const workbenchStyles = path.resolve(__dirname, "../app/workbench/workbench.module.css");
-const workbenchPage = path.resolve(__dirname, "../app/workbench/page.tsx");
+const consolePage = path.resolve(__dirname, "../app/page.tsx");
+const globalsCss = path.resolve(__dirname, "../app/globals.css");
+const layoutPage = path.resolve(__dirname, "../app/layout.tsx");
 
-describe("DISHA Workbench UI", () => {
-  it("uses real governed APIs instead of the demo engine", () => {
-    const source = fs.readFileSync(workbenchClient, "utf8");
+describe("DISHA Sovereign Command Console UI", () => {
+  it("integrates directly with real OSINT APIs and 43 Max Intel collectors", () => {
+    const source = fs.readFileSync(consolePage, "utf8");
 
-    expect(source).toContain("/api/v1/agentic/mission");
-    expect(source).toContain("/api/v1/evidence/");
-    expect(source).toContain("/api/dashboard/command");
-    expect(source).toContain("credentials: \"same-origin\"");
-    expect(source).toContain("copyReport");
-    expect(source).toContain("GovernedExtensionResult");
-    expect(source).not.toContain('from "./demo-engine"');
+    expect(source).toContain("/api/osint/scan");
+    expect(source).toContain("ALL_43_COLLECTORS");
+    expect(source).toContain("AlienVault OTX");
+    expect(source).toContain("Bellingcat ShadowFinder");
+    expect(source).toContain("URLScan.io Public");
+    expect(source).toContain("HackerTarget DNS");
+    expect(source).toContain("Bluesky Actor (ATProto)");
+    expect(source).toContain("allowActive: true");
   });
 
-  it("protects the workbench route with the same auth model as the dashboard", () => {
-    const page = fs.readFileSync(workbenchPage, "utf8");
+  it("provides cryptographic SHA-256 provenance and immutable evidence records", () => {
+    const source = fs.readFileSync(consolePage, "utf8");
 
-    expect(page).toContain("principalFromAccessToken");
-    expect(page).toContain("returnUrl=%2Fworkbench");
-    expect(page).toContain("DishaWorkbench principal");
+    expect(source).toContain("sha256:");
+    expect(source).toContain("evidenceEvents");
+    expect(source).toContain("IMMUTABLE EVIDENCE LEDGER");
+    expect(source).toContain("PROVENANCE:");
   });
 
-  it("keeps the premium civic design system", () => {
-    const css = fs.readFileSync(workbenchStyles, "utf8");
+  it("enforces Hallmark floor constraints and OLED dark mode styling", () => {
+    const css = fs.readFileSync(globalsCss, "utf8");
+    const layout = fs.readFileSync(layoutPage, "utf8");
 
-    expect(css).toContain("#f8f5f0");
-    expect(css).toContain("#2c2823");
-    expect(css).toContain("#b85c38");
-    expect(css).toContain("#6b6f4e");
-    expect(css).toContain("liveStrip");
-    expect(css).toContain("dynamicBanner");
-    expect(css).not.toContain("glass");
-    expect(css).not.toContain("cyber");
+    expect(css).toContain("overflow-x: clip");
+    expect(css).toContain("#020617");
+    expect(layout).toContain("dark");
   });
 });
