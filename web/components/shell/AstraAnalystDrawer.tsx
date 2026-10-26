@@ -12,3 +12,4 @@ export function readAssistantReply(payload: unknown): string {
   }
   throw new Error("no readable reply");
 }
+
