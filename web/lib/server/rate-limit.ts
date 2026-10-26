@@ -5,6 +5,25 @@ import { getRedisClient } from "./redis";
 
 const memory = new Map<string, number[]>();
 const WINDOW_SECONDS = 60;
+const MAX_MEMORY_KEYS = 10_000;
+
+function sweepMemoryRateLimits(now: number): void {
+  if (memory.size > MAX_MEMORY_KEYS) {
+    for (const [k, b] of memory.entries()) {
+      const active = b.filter((ts) => now - ts < WINDOW_SECONDS * 1000);
+      if (active.length === 0) {
+        memory.delete(k);
+      } else {
+        memory.set(k, active);
+      }
+    }
+    while (memory.size > MAX_MEMORY_KEYS) {
+      const firstKey = memory.keys().next().value;
+      if (firstKey) memory.delete(firstKey);
+      else break;
+    }
+  }
+}
 
 function resolveClientIdentity(req: NextRequest): string {
   // 1. Authenticated principal token or API key binding
@@ -57,12 +76,14 @@ export async function checkRateLimit(req: NextRequest): Promise<boolean> {
   }
 
   const now = Date.now();
-  const bucket = memory.get(key)?.filter((ts) => now - ts < WINDOW_SECONDS * 1000) ?? [];
+  const existing = memory.get(key);
+  const bucket = existing ? existing.filter((ts) => now - ts < WINDOW_SECONDS * 1000) : [];
   if (bucket.length >= env.DISHA_WEB_RATE_LIMIT) {
     memory.set(key, bucket);
     return false;
   }
   bucket.push(now);
   memory.set(key, bucket);
+  sweepMemoryRateLimits(now);
   return true;
 }

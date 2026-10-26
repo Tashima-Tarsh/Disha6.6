@@ -53,7 +53,7 @@ print("SUCCESS: metric verified")
         assert trace["status"] == "HEALED_VERIFIED"
 
         # Verify target file has indeed been repaired
-        with open(target_script, "r", encoding="utf-8") as f:
+        with open(target_script, encoding="utf-8") as f:
             content = f.read()
         assert "return a * b" in content
 

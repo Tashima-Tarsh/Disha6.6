@@ -13,37 +13,36 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any
 
+from evidence_bridge import observations_to_evidence_events
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
+from osint_collectors import (
+    REGISTRY,
+    inputs_for_display,
+    list_tools_status,
+    plan,
+    redact_for_log,
+    safe,
+)
+from osint_graph import (
+    DB_PATH,
+    detect_kind,
+    load_all,
+    load_file,
+    sg_connect,
+    sg_init,
+    sg_resolve,
+)
 from pydantic import BaseModel, Field
-
 from secure_bootstrap import (
     apply_security,
     ensure_directory_inside_workspace,
     ensure_inside_workspace,
     require_api_key,
 )
-from osint_collectors import (
-    REGISTRY,
-    safe,
-    plan,
-    redact_for_log,
-    inputs_for_display,
-    list_tools_status,
-)
-from osint_graph import (
-    DB_PATH,
-    sg_connect,
-    sg_init,
-    sg_resolve,
-    load_file,
-    load_all,
-    detect_kind,
-)
-from vyuha_formations import VYUH_FORMATIONS, COLLECTOR_NAME_MAP
-from evidence_bridge import observations_to_evidence_events
+from vyuha_formations import COLLECTOR_NAME_MAP, VYUH_FORMATIONS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -55,20 +54,20 @@ apply_security(app)
 
 
 class ScanInput(BaseModel):
-    email: Optional[str] = None
-    username: Optional[str] = None
-    domain: Optional[str] = None
-    ip: Optional[str] = None
-    phone: Optional[str] = None
-    password: Optional[str] = None
-    name: Optional[str] = None
-    vehicle: Optional[str] = None
-    epic: Optional[str] = None
-    pan: Optional[str] = None
-    aadhaar: Optional[str] = None
-    keyword: Optional[str] = None
-    live: Optional[bool] = None
-    missionId: Optional[str] = None
+    email: str | None = None
+    username: str | None = None
+    domain: str | None = None
+    ip: str | None = None
+    phone: str | None = None
+    password: str | None = None
+    name: str | None = None
+    vehicle: str | None = None
+    epic: str | None = None
+    pan: str | None = None
+    aadhaar: str | None = None
+    keyword: str | None = None
+    live: bool | None = None
+    missionId: str | None = None
     allowActive: bool = Field(
         default=False,
         description="Must be true to run active_network collectors. Default false.",
@@ -147,7 +146,7 @@ async def scan(payload: ScanInput):
             if c.get("risk") == "active_network"
         ]
 
-    results: Dict[str, Any] = {}
+    results: dict[str, Any] = {}
     for c in chosen:
         results[c["name"]] = safe(c, v)
 

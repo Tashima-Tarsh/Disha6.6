@@ -29,8 +29,13 @@ type MissionStore = {
 
 class MemoryMissionStore implements MissionStore {
   private readonly missions = new Map<string, MissionResult>();
+  private static readonly MAX_MISSIONS = 500;
 
   async save(result: MissionResult): Promise<void> {
+    if (this.missions.size >= MemoryMissionStore.MAX_MISSIONS && !this.missions.has(result.missionId)) {
+      const oldestKey = this.missions.keys().next().value;
+      if (oldestKey) this.missions.delete(oldestKey);
+    }
     this.missions.set(result.missionId, structuredClone(result));
   }
 

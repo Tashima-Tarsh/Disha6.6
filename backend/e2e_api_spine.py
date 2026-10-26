@@ -19,8 +19,8 @@ import sys
 os.environ.setdefault("DISHA_OSINT_API_KEY", "ci-test-key")
 KEY = os.environ["DISHA_OSINT_API_KEY"]
 
-from fastapi.testclient import TestClient  # noqa: E402
 from app import app  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 
 
 def main() -> int:

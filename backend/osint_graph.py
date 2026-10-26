@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import csv
-import json
 import os
 import re
 import sqlite3
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = HERE
@@ -148,7 +146,13 @@ def sg_resolve(conn, kind, value, max_depth=2):
 
 
 def detect_kind(value):
-    from osint_collectors import norm_phone, norm_aadhaar, norm_pan, norm_epic, norm_vehicle
+    from osint_collectors import (
+        norm_aadhaar,
+        norm_epic,
+        norm_pan,
+        norm_phone,
+        norm_vehicle,
+    )
 
     for kind, fn in [
         ("phone", norm_phone),

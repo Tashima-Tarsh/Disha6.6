@@ -7,7 +7,6 @@ from typing import Any
 from ..database.store import SQLiteStore
 from .base import GovernedAnalysisInput
 
-
 _TOKEN = re.compile(r"\b[A-Z][A-Za-z0-9&._-]{2,}(?:\s+[A-Z][A-Za-z0-9&._-]{2,}){0,3}\b")
 _URL = re.compile(r"https?://[^\s)\]>]+", re.I)
 

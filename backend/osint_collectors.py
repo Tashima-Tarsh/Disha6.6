@@ -22,8 +22,7 @@ import socket
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -34,14 +33,14 @@ UA = {"User-Agent": "DISHA-6.6/OSINT-ONE/2.0 (+https://localhost)"}
 T = 25
 POOL = ThreadPoolExecutor(max_workers=16)
 FETCH_POOL = ThreadPoolExecutor(max_workers=16, thread_name_prefix="fetch")
-REGISTRY: List[dict] = []
+REGISTRY: list[dict] = []
 
 # Secrets — never cleartext in UI, logs, or evidence.
-SECRET_KEYS: Set[str] = {
+SECRET_KEYS: set[str] = {
     "password", "passwd", "secret", "token", "api_key", "apikey",
 }
 # Identity PII — redacted in logs/evidence; may appear in authorized UI display.
-PII_KEYS: Set[str] = {
+PII_KEYS: set[str] = {
     "aadhaar", "pan", "epic", "phone", "email", "name",
 }
 
@@ -76,9 +75,9 @@ def collector(name, inputs, category, unmasked=False, risk="passive", kind="netw
     return deco
 
 
-def redact_for_log(v: Dict[str, Any]) -> Dict[str, Any]:
+def redact_for_log(v: dict[str, Any]) -> dict[str, Any]:
     """Redact secrets + PII for logs, print, and evidence payloads."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, val in v.items():
         lk = k.lower()
         if lk in SECRET_KEYS or lk in PII_KEYS:
@@ -88,14 +87,14 @@ def redact_for_log(v: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-def redact_inputs(v: Dict[str, Any]) -> Dict[str, Any]:
+def redact_inputs(v: dict[str, Any]) -> dict[str, Any]:
     """Alias for log/evidence redaction (backward compatible)."""
     return redact_for_log(v)
 
 
-def inputs_for_display(v: Dict[str, Any]) -> Dict[str, Any]:
+def inputs_for_display(v: dict[str, Any]) -> dict[str, Any]:
     """UI-facing inputs: secrets redacted, identity PII visible to operator."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, val in v.items():
         if k.lower() in SECRET_KEYS:
             out[k] = "[REDACTED]"
@@ -105,7 +104,8 @@ def inputs_for_display(v: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _get(url, headers=None):
-    h = dict(UA); h.update(headers or {})
+    h = dict(UA)
+    h.update(headers or {})
     def _do():
         with urlopen(Request(url, headers=h), timeout=T) as r:
             return r.read().decode("utf-8", "replace"), r.status
@@ -122,8 +122,10 @@ def _get(url, headers=None):
 
 def _json(url):
     b, _ = _get(url)
-    try: return json.loads(b)
-    except Exception: return {"_raw": b}
+    try:
+        return json.loads(b)
+    except Exception:
+        return {"_raw": b}
 
 
 def _exists(url):
@@ -166,7 +168,7 @@ def safe(c, v):
         return {"status": "error", "error": str(e), "collector": c.get("name")}
 
 
-def plan(v, allow_active: bool = False) -> List[dict]:
+def plan(v, allow_active: bool = False) -> list[dict]:
     provided = {k for k, val in v.items() if val}
     chosen = [c for c in REGISTRY if set(c["inputs"]) & provided]
     if not allow_active:
@@ -174,7 +176,7 @@ def plan(v, allow_active: bool = False) -> List[dict]:
     return chosen
 
 
-def collector_runtime_status(c: dict) -> Dict[str, Any]:
+def collector_runtime_status(c: dict) -> dict[str, Any]:
     """Whether this collector can execute on this host right now."""
     name = c["name"]
     kind = c.get("kind", "network")
@@ -209,11 +211,11 @@ def collector_runtime_status(c: dict) -> Dict[str, Any]:
     }
 
 
-def list_tools_status() -> List[Dict[str, Any]]:
+def list_tools_status() -> list[dict[str, Any]]:
     return [collector_runtime_status(c) for c in REGISTRY]
 
 
-def policy_deny_message(collector_name: str) -> Dict[str, Any]:
+def policy_deny_message(collector_name: str) -> dict[str, Any]:
     return {
         "status": "denied_by_policy",
         "collector": collector_name,
@@ -240,9 +242,12 @@ def verhoeff(num):
 
 def norm_phone(v):
     d = re.sub(r"\D", "", v)
-    if d.startswith("+91"): d = d[3:]
-    elif d.startswith("91") and len(d) == 12: d = d[2:]
-    elif d.startswith("0") and len(d) == 11: d = d[1:]
+    if d.startswith("+91"):
+        d = d[3:]
+    elif d.startswith("91") and len(d) == 12:
+        d = d[2:]
+    elif d.startswith("0") and len(d) == 11:
+        d = d[1:]
     return d if re.fullmatch(r"[6-9]\d{9}", d) else None
 
 
@@ -263,7 +268,8 @@ def norm_epic(v):
 
 def norm_vehicle(v):
     n = re.sub(r"[^A-Za-z0-9]", "", v).upper()
-    if re.fullmatch(r"\d{2}BH\d{4}[A-Z]{1,2}", n): return n
+    if re.fullmatch(r"\d{2}BH\d{4}[A-Z]{1,2}", n):
+        return n
     m = re.fullmatch(r"([A-Z]{2})(\d{1,2})([A-Z]{1,3})(\d{4})", n)
     return f"{m.group(1)}{int(m.group(2)):02d}{m.group(3)}{m.group(4)}" if m else None
 
@@ -383,10 +389,22 @@ def s_phone(v): return run_tool(["phoneinfoga", "scan", "-n", v["phone"]])
 @collector("Username candidates", ["name"], "identity", kind="local")
 def c_perms(v):
     p = [x.lower() for x in v["name"].split() if x]
-    if len(p) < 2: return p
-    f, l = p[0], p[-1]; fi, li = f[0], l[0]
-    return sorted({f + l, f + "." + l, f + "_" + l, f + "-" + l, fi + l, f + li,
-                   l + f, f + l + "1", f + l + "01", l + fi})
+    if len(p) < 2:
+        return p
+    first_name, last_name = p[0], p[-1]
+    fi, li = first_name[0], last_name[0]
+    return sorted({
+        first_name + last_name,
+        first_name + "." + last_name,
+        first_name + "_" + last_name,
+        first_name + "-" + last_name,
+        fi + last_name,
+        first_name + li,
+        last_name + first_name,
+        first_name + last_name + "1",
+        first_name + last_name + "01",
+        last_name + fi,
+    })
 
 
 @collector("India: mobile carrier+circle", ["phone"], "india", kind="local")
@@ -401,7 +419,8 @@ def c_india_phone(v):
 @collector("India: vehicle RC parse", ["vehicle"], "india", kind="local")
 def c_india_vehicle(v):
     n = norm_vehicle(v["vehicle"])
-    if not n: return {"valid": False, "raw": v["vehicle"]}
+    if not n:
+        return {"valid": False, "raw": v["vehicle"]}
     if "BH" in n[:4]:
         return {"valid": True, "series": "BH", "state": "Any (BH series)", "normalized": n}
     return {"valid": True, "state_code": n[:2], "state": STATE_CODES.get(n[:2], "?"),

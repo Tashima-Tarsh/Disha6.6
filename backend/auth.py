@@ -5,6 +5,7 @@ Fail closed. No optional open mode.
 from __future__ import annotations
 
 import os
+
 from fastapi import Header, HTTPException, status
 
 # Required. If unset, the service refuses to start sensitive endpoints.

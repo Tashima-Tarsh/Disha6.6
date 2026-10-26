@@ -15233,10 +15233,10 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-07T04:58:41.591Z",
-    "lastSmokeTested": "2026-10-25T17:36:38.900Z",
+    "lastSmokeTested": "2026-10-26T15:05:52.503Z",
     "smokeResult": {
       "success": false,
-      "latencyMs": 0,
+      "latencyMs": 1,
       "error": "Active reconnaissance deployment approval is not enabled"
     },
     "healthStatus": "UNCONFIGURED",
@@ -17452,10 +17452,10 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-07T04:58:47.803Z",
-    "lastSmokeTested": "2026-10-25T17:36:38.869Z",
+    "lastSmokeTested": "2026-10-26T15:05:52.472Z",
     "smokeResult": {
       "success": false,
-      "latencyMs": 1,
+      "latencyMs": 0,
       "error": "Identity enumeration deployment approval is not enabled"
     },
     "healthStatus": "UNCONFIGURED",

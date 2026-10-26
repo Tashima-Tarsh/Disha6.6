@@ -299,10 +299,10 @@ for f in os.listdir(gns3_dir):
         desc = data.get("description", "GNS3 Network protocol fault injection and troubleshooting skill.")
         protocols = data.get("protocols", [])
         issues = data.get("issues", {})
-        
+
         target_dir = os.path.join(out_dir, f"gns3-{stem.replace('_', '-')}")
         os.makedirs(target_dir, exist_ok=True)
-        
+
         md_content = f"""---
 name: "{name}"
 description: "{desc}"
@@ -328,7 +328,7 @@ category: "computer-networking"
                 i_sev = issue_info.get("severity", "medium")
                 i_symptoms = issue_info.get("symptoms", [])
                 i_hints = issue_info.get("troubleshooting_hints", [])
-                
+
                 md_content += f"### {i_name} (Severity: {i_sev.upper()})\\n\\n"
                 md_content += f"{i_desc}\\n\\n"
                 if i_symptoms:
@@ -341,7 +341,7 @@ category: "computer-networking"
                     for h in i_hints:
                         md_content += f"- \`{h}\`\\n"
                     md_content += "\\n"
-        
+
         with open(os.path.join(target_dir, "SKILL.md"), "w", encoding="utf-8") as outf:
             outf.write(md_content)
     except Exception as e:
@@ -420,4 +420,3 @@ installStandardRepoSkills("vercel_skills", "vercel", "design-frontend");
 installStandardRepoSkills("orchestra_ai_research", "orch", "ai-research");
 
 console.info("✓ All skill sources successfully copied and normalized.");
-

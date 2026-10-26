@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import sys
+
 sys.path.insert(0, ".")
 
 from packages.scanners.security_assurance_suite import (
     GitleaksScanner,
-    SemgrepScanner,
-    TrivyScanner,
     NucleiScanner,
     SecurityAssuranceSuite,
+    SemgrepScanner,
+    TrivyScanner,
 )
 
 

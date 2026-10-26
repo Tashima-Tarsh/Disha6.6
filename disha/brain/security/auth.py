@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hmac
+
 from fastapi import Header, HTTPException, status
 
 from ..config import settings
@@ -11,7 +13,8 @@ def require_api_token(authorization: str | None = Header(default=None)) -> None:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Server misconfigured: missing DISHA_BRAIN_API_TOKEN",
         )
-    if authorization != f"Bearer {settings.api_token}":
+    expected = f"Bearer {settings.api_token}"
+    if not authorization or not hmac.compare_digest(authorization, expected):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing API token",

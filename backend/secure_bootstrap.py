@@ -19,10 +19,11 @@ Usage in app.py:
 """
 from __future__ import annotations
 
+import hmac
 import os
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
 # ---------------------------------------------------------------------------
@@ -45,7 +46,7 @@ def require_api_key(authorization: str | None = Header(default=None)) -> None:
             headers={"WWW-Authenticate": "Bearer"},
         )
     scheme, _, token = authorization.partition(" ")
-    if scheme.lower() != "bearer" or token != OSINT_API_KEY:
+    if scheme.lower() != "bearer" or not hmac.compare_digest(token, OSINT_API_KEY):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing Bearer token",

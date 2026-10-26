@@ -1,4 +1,5 @@
 import os
+
 import yaml
 
 gns3_dir = os.path.abspath(".tmp_clones/gns3_skills/injection")
@@ -11,7 +12,7 @@ if os.path.exists(gns3_dir):
         stem = f.replace(".yaml", "").replace(".yml", "")
         full_path = os.path.join(gns3_dir, f)
         try:
-            with open(full_path, 'r', encoding='utf-8', errors='ignore') as yf:
+            with open(full_path, encoding='utf-8', errors='ignore') as yf:
                 data = yaml.safe_load(yf)
             if not data:
                 continue
@@ -19,10 +20,10 @@ if os.path.exists(gns3_dir):
             desc = data.get("description", "GNS3 Network protocol fault injection and troubleshooting skill.")
             protocols = data.get("protocols", [])
             issues = data.get("issues", {})
-            
+
             target_dir = os.path.join(out_dir, f"gns3-{stem.replace('_', '-')}")
             os.makedirs(target_dir, exist_ok=True)
-            
+
             proto_list = "\n".join([f"- {p}" for p in protocols]) if protocols else "- General IP Routing"
             md_content = f"""---
 name: "{name}"
@@ -49,7 +50,7 @@ category: "computer-networking"
                     i_sev = issue_info.get("severity", "medium")
                     i_symptoms = issue_info.get("symptoms", [])
                     i_hints = issue_info.get("troubleshooting_hints", [])
-                    
+
                     md_content += f"### {i_name} (Severity: {i_sev.upper()})\n\n"
                     md_content += f"{i_desc}\n\n"
                     if i_symptoms:
@@ -62,10 +63,9 @@ category: "computer-networking"
                         for h in i_hints:
                             md_content += f"- `{h}`\n"
                         md_content += "\n"
-            
+
             with open(os.path.join(target_dir, "SKILL.md"), "w", encoding="utf-8") as outf:
                 outf.write(md_content)
             print(f"Configured gns3-{stem.replace('_', '-')}")
         except Exception as e:
             print(f"Error converting {f}: {e}")
-

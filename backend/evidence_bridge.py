@@ -18,10 +18,10 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Set
+from datetime import UTC, datetime
+from typing import Any
 
-SENSITIVE_KEYS: Set[str] = {
+SENSITIVE_KEYS: set[str] = {
     "password", "passwd", "secret", "token", "api_key", "apikey",
     "aadhaar", "pan", "epic",
 }
@@ -45,7 +45,7 @@ def _hash_event(event_id: str, previous_hash: str, timestamp: str, payload: Any)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def _redact(inputs: Dict[str, Any]) -> Dict[str, Any]:
+def _redact(inputs: dict[str, Any]) -> dict[str, Any]:
     return {
         k: ("[REDACTED]" if k.lower() in SENSITIVE_KEYS else v)
         for k, v in inputs.items()
@@ -54,17 +54,17 @@ def _redact(inputs: Dict[str, Any]) -> Dict[str, Any]:
 
 def observations_to_evidence_events(
     *,
-    results: Dict[str, Any],
-    inputs: Dict[str, Any],
-    mission_id: Optional[str] = None,
+    results: dict[str, Any],
+    inputs: dict[str, Any],
+    mission_id: str | None = None,
     actor_id: str = "osint-backend",
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Convert collector results into EvidenceEvent-shaped dicts (OBSERVED).
 
     Sensitive input values are redacted from stored inputs.
     """
-    events: List[Dict[str, Any]] = []
-    ts = datetime.now(timezone.utc).isoformat()
+    events: list[dict[str, Any]] = []
+    ts = datetime.now(UTC).isoformat()
     prev = "0"
     safe_inputs = _redact(inputs)
 

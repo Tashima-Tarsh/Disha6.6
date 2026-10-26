@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Download Indian breach/index repos from GitHub into data/india/.
 Real downloads, no test data."""
-import os, subprocess, sys, json, urllib.request, re
+import json
+import os
+import re
+import subprocess
+import urllib.request
 
 REPO = os.path.dirname(os.path.abspath(__file__))
 INDIA_DIR = os.path.join(REPO, "data", "india")

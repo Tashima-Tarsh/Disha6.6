@@ -115,6 +115,8 @@ web/.next-desktop/
 
 # Local authentication tokens and cookies
 cookies.txt
+web/data/authorization-grants.json
+web/data/*.tmp.*
 
 # Staging evaluations and scratch work
 /staging/

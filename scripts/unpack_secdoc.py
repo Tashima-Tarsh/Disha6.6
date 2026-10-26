@@ -1,6 +1,6 @@
 import os
-import zipfile
 import shutil
+import zipfile
 
 sec_dir = os.path.abspath(".tmp_clones/secdoc_ai_skills")
 out_dir = os.path.abspath(".agents/skills")
@@ -15,7 +15,7 @@ if os.path.exists(sec_dir):
             try:
                 with zipfile.ZipFile(archive_path, 'r') as z:
                     z.extractall(target_dir)
-                
+
                 # If extracted inside a subfolder, flatten it
                 items = os.listdir(target_dir)
                 if len(items) == 1 and os.path.isdir(os.path.join(target_dir, items[0])):
@@ -23,11 +23,11 @@ if os.path.exists(sec_dir):
                     for subf in os.listdir(sub):
                         shutil.move(os.path.join(sub, subf), os.path.join(target_dir, subf))
                     os.rmdir(sub)
-                
+
                 # Check SKILL.md and normalize
                 skill_md = os.path.join(target_dir, "SKILL.md")
                 if os.path.exists(skill_md):
-                    with open(skill_md, "r", encoding="utf-8", errors="ignore") as smf:
+                    with open(skill_md, encoding="utf-8", errors="ignore") as smf:
                         content = smf.read()
                     if not content.startswith("---"):
                         title = stem.replace("-", " ").title()
@@ -37,4 +37,3 @@ if os.path.exists(sec_dir):
                 print(f"Extracted and configured secdoc-{stem}")
             except Exception as e:
                 print(f"Error extracting {f}: {e}")
-

@@ -7,15 +7,15 @@ from __future__ import annotations
 
 import sys
 
+from evidence_bridge import observations_to_evidence_events
 from osint_collectors import (
-    plan,
-    redact_for_log,
+    REGISTRY,
     inputs_for_display,
     list_tools_status,
-    REGISTRY,
+    plan,
+    redact_for_log,
 )
-from evidence_bridge import observations_to_evidence_events
-from vyuha_formations import VYUH_FORMATIONS, COLLECTOR_NAME_MAP
+from vyuha_formations import COLLECTOR_NAME_MAP, VYUH_FORMATIONS
 
 
 def main() -> int:

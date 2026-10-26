@@ -64,5 +64,6 @@ ignore = ["E501", "C901", "UP042", "E402", "UP007"]
 python_interpreter = "C:/Users/lenovo/AppData/Local/Programs/Python/Python313/python.exe"
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "strict"

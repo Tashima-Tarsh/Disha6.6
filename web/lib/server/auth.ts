@@ -44,6 +44,15 @@ function cookieOptions(maxAge: number) {
   };
 }
 
+const inMemoryRevokedJtis = new Map<string, number>();
+
+function pruneRevokedJtis(): void {
+  const now = Date.now();
+  for (const [jti, exp] of inMemoryRevokedJtis.entries()) {
+    if (exp <= now) inMemoryRevokedJtis.delete(jti);
+  }
+}
+
 async function storeRefreshToken(payload: TokenPayload, token: string): Promise<void> {
   const pool = getDbPool();
   if (!pool) return;
@@ -55,17 +64,27 @@ async function storeRefreshToken(payload: TokenPayload, token: string): Promise<
   );
 }
 
-async function revokeRefreshToken(jti: string): Promise<void> {
+async function revokeRefreshToken(jti: string, exp?: number): Promise<void> {
   const pool = getDbPool();
-  if (!pool) return;
-  await pool.query("update refresh_tokens set revoked_at = now() where jti = $1", [jti]);
+  if (pool) {
+    await pool.query("update refresh_tokens set revoked_at = now() where jti = $1", [jti]);
+    return;
+  }
+  pruneRevokedJtis();
+  inMemoryRevokedJtis.set(jti, exp ? exp * 1000 : Date.now() + REFRESH_TTL_SECONDS * 1000);
 }
 
 async function ensureRefreshUsable(payload: TokenPayload): Promise<void> {
   const pool = getDbPool();
-  if (!pool) return;
-  const result = await pool.query("select revoked_at from refresh_tokens where jti = $1", [payload.jti]);
-  if (result.rowCount === 0 || result.rows[0].revoked_at) {
+  if (pool) {
+    const result = await pool.query("select revoked_at from refresh_tokens where jti = $1", [payload.jti]);
+    if (result.rowCount === 0 || result.rows[0].revoked_at) {
+      throw Object.assign(new Error("Refresh token revoked"), { status: 401 });
+    }
+    return;
+  }
+  pruneRevokedJtis();
+  if (inMemoryRevokedJtis.has(payload.jti)) {
     throw Object.assign(new Error("Refresh token revoked"), { status: 401 });
   }
 }
@@ -113,7 +132,7 @@ export async function rotateSession(refreshToken: string) {
   const payload = verifySignedJson(refreshToken, authSigningSecret()) as unknown as TokenPayload;
   if (payload.typ !== "refresh") throw Object.assign(new Error("Refresh token required"), { status: 401 });
   await ensureRefreshUsable(payload);
-  await revokeRefreshToken(payload.jti);
+  await revokeRefreshToken(payload.jti, payload.exp);
   return createSession(payload.email, payload.roles, {
     persistent: payload.persistent ?? true,
     subject: payload.sub,

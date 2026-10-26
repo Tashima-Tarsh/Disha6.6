@@ -1,3 +1,10 @@
+:root {
+  --tiranga-saffron: #FF9933;
+  --tiranga-white: #FFFFFF;
+  --tiranga-green: #138F55;
+  --tiranga-chakra: #174EA6;
+}
+
 .tirangaContainer {
   position: relative;
   overflow: hidden;
@@ -9,13 +16,13 @@
   height: 4px;
   background: linear-gradient(
     90deg,
-    #FF9933 0%,
+    var(--tiranga-saffron) 0%,
     rgba(255, 153, 51, 0.85) 30%,
     rgba(255, 255, 255, 0.95) 48%,
-    #174EA6 50%,
+    var(--tiranga-chakra) 50%,
     rgba(255, 255, 255, 0.95) 52%,
     rgba(19, 143, 85, 0.85) 70%,
-    #138F55 100%
+    var(--tiranga-green) 100%
   );
   background-size: 200% 100%;
   animation: waveMotion 8s ease-in-out infinite;
@@ -27,9 +34,9 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    #FF9933 25%,
-    #FFFFFF 50%,
-    #138F55 75%,
+    var(--tiranga-saffron) 25%,
+    var(--tiranga-white) 50%,
+    var(--tiranga-green) 75%,
     transparent 100%
   );
   opacity: 0.85;

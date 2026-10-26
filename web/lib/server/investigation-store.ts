@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { getRedisClient } from "./redis";
 import type { Investigation } from "../investigation/types";
 
@@ -51,7 +51,14 @@ export const investigationStore: InvestigationStore = {
     if (image) tx.set(`${key}:image`, sealTemporary(image), { PX: ttl });
     await tx.exec();
   },
-  async authorized(id, owner) { return await (await redisRequired()).get(`${prefix(id)}:owner`) === ownerHash(owner); },
+  async authorized(id, owner) {
+    const stored = await (await redisRequired()).get(`${prefix(id)}:owner`);
+    if (!stored) return false;
+    const computed = ownerHash(owner);
+    const bufA = Buffer.from(stored);
+    const bufB = Buffer.from(computed);
+    return bufA.length === bufB.length && timingSafeEqual(bufA, bufB);
+  },
   async read(id) {
     const value = await (await redisRequired()).get(`${prefix(id)}:state`);
     return value ? JSON.parse(openTemporary(value).toString("utf8")) as TemporaryInvestigation : null;

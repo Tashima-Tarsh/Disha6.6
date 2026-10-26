@@ -184,7 +184,7 @@ export type OsintToolRecord = {
   requiresAuth: boolean;
   requiresApiKey: boolean;
   apiKeys: string[];
-  lastVerified: string;
+  lastVerified: string | null;
   lastSmokeTested: string | null;
   smokeResult: {
     success: boolean;

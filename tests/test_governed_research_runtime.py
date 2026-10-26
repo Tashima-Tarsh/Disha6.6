@@ -25,8 +25,9 @@ def _payload(component: str, raw_text: str = "Assess this public infrastructure 
 
 def test_governed_runtime_health_and_analysis_are_read_only():
     from fastapi.testclient import TestClient
-    from disha.brain.app import app
+
     from disha.brain.api.routes import context
+    from disha.brain.app import app
     from disha.brain.config import settings
 
     original_token = settings.api_token
@@ -58,6 +59,7 @@ def test_governed_runtime_health_and_analysis_are_read_only():
 
 def test_governed_components_are_distinct_analyzers():
     from fastapi.testclient import TestClient
+
     from disha.brain.app import app
     from disha.brain.config import settings
 
@@ -85,6 +87,7 @@ def test_governed_components_are_distinct_analyzers():
 
 def test_governed_runtime_rejects_external_action_contract():
     from fastapi.testclient import TestClient
+
     from disha.brain.app import app
     from disha.brain.config import settings
 

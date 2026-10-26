@@ -78,4 +78,10 @@ create table if not exists memory_graph_edges (
   weight real not null,
   primary key (user_id, edge_id)
 );
+
+create index if not exists idx_memory_user on memory(user_id, id desc);
+create index if not exists idx_events_created on events(created_at desc);
+create index if not exists idx_events_type on events(event_type);
+create index if not exists idx_telemetry_user on telemetry(user_id, id desc);
+create index if not exists idx_web_audit_req on web_audit_events(request_id);
 """

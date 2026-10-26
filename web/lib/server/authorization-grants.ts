@@ -53,8 +53,11 @@ function persistGrantsToDisk(): void {
     const filePath = resolveGrantsFilePath();
     const list = Array.from(grantStore.values());
     const tmp = `${filePath}.tmp.${Date.now()}`;
-    fs.writeFileSync(tmp, JSON.stringify(list, null, 2), "utf8");
-    fs.renameSync(tmp, filePath);
+    fs.promises.writeFile(tmp, JSON.stringify(list, null, 2), "utf8")
+      .then(() => fs.promises.rename(tmp, filePath))
+      .catch(() => {
+        // Non-blocking disk persist fallback
+      });
   } catch {
     // Non-blocking disk persist fallback
   }
@@ -99,8 +102,10 @@ export function normalizeHostOrUrl(raw: string): string {
 }
 
 export function isPrivateOrLocalAddress(hostOrIp: string): boolean {
-  const h = normalizeHostOrUrl(hostOrIp);
-  if (h === "localhost" || h === "127.0.0.1" || h === "::1" || h === "0.0.0.0") return true;
+  let h = normalizeHostOrUrl(hostOrIp);
+  if (h.startsWith("::ffff:")) h = h.slice(7);
+  if (h === "localhost" || h === "::1" || h === "0.0.0.0") return true;
+  if (h.startsWith("127.")) return true; // Entire 127.0.0.0/8 loopback block
   if (h === "169.254.169.254" || h.startsWith("169.254.")) return true; // Cloud metadata
   if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
   if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(h)) return true;

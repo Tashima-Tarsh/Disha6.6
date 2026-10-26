@@ -5,7 +5,6 @@ from typing import Any
 
 from .base import GovernedAnalysisInput
 
-
 _NEGATION = re.compile(r"\b(no|not|never|none|without|denied|false|did not|is not)\b", re.I)
 _UNCERTAINTY = re.compile(r"\b(may|might|could|possibly|likely|unlikely|reportedly|allegedly|unclear|unknown)\b", re.I)
 _CAUSAL = re.compile(r"\b(because|caused by|due to|therefore|resulted in|led to|driven by)\b", re.I)

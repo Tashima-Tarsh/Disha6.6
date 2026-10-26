@@ -22,6 +22,12 @@ export async function POST(req: NextRequest) {
     });
     return response;
   } catch (error) {
+    await audit({
+      requestId: requestId(req),
+      action: "auth.login.failed",
+      outcome: "failure",
+      metadata: { path: req.nextUrl.pathname },
+    }).catch(() => {});
     return errorResponse(error, req);
   }
 }

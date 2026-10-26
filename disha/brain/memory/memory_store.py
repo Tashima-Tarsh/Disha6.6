@@ -90,7 +90,7 @@ class MemoryStore:
         if not path or not os.path.exists(path):
             return False
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             self.working.context = data.get("working", {})
             self.semantic.entities = data.get("semantic", {})
