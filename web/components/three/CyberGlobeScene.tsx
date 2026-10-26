@@ -16,12 +16,12 @@ export function CyberGlobeScene() {
       const testCanvas = document.createElement("canvas");
       const gl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
       if (!gl) {
-        setWebglSupported(false);
-        return;
+        const timer = window.setTimeout(() => setWebglSupported(false), 0);
+        return () => window.clearTimeout(timer);
       }
     } catch {
-      setWebglSupported(false);
-      return;
+      const timer = window.setTimeout(() => setWebglSupported(false), 0);
+      return () => window.clearTimeout(timer);
     }
 
     const width = container.clientWidth || 600;

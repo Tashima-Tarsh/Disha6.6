@@ -1,0 +1,40 @@
+name: Governed Skill Contract Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "web/lib/skills/**"
+      - "web/app/api/v1/skills/readiness/**"
+      - "web/tests/capability-readiness.test.ts"
+      - "web/app/api/v1/workflows/n8n/**"
+      - "web/tests/n8n-governed-skills.test.ts"
+      - "web/tests/n8n-workflow-bridge.test.ts"
+      - "web/tests/skill-registry.test.ts"
+      - ".github/workflows/n8n-skill-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skill-contracts:
+    name: Registered skills and n8n bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Focused contract tests
+        run: npm test -- tests/n8n-governed-skills.test.ts tests/n8n-workflow-bridge.test.ts tests/skill-registry.test.ts tests/capability-readiness.test.ts
+      - name: Full type check
+        run: npm run type-check:full

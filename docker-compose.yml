@@ -58,6 +58,9 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+    volumes:
+      # Local development provides the complete indexed instruction catalog.
+      - ./.agents:/app/.agents:ro
     ports: ["3000:3000"]
     environment:
       - DATABASE_URL=postgresql://osint:osint@postgres:5432/osint

@@ -50,9 +50,11 @@ describe("n8n Workflow Bridge API", () => {
     const res = await GET(req);
     expect(res.status).toBe(200);
 
-    const json = (await res.json()) as { format: string; workflow: { nodes: unknown[] } };
+    const json = (await res.json()) as { format: string; workflow: { nodes: unknown[] }; governedSkillWorkflow: { nodes: unknown[] }; governedSkillEndpoint: string };
     expect(json.format).toBe("n8n-workflow-v1");
     expect(json.workflow.nodes.length).toBeGreaterThanOrEqual(2);
+    expect(json.governedSkillWorkflow.nodes.length).toBe(2);
+    expect(json.governedSkillEndpoint).toBe("/api/v1/workflows/n8n/skills");
   });
 
   it("handles valid incoming n8n investigation triggers", async () => {

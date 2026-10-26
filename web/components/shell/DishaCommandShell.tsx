@@ -38,7 +38,10 @@ export function DishaCommandShell({ children, principal, activeTarget, evidenceC
   const startButton = useRef<HTMLButtonElement>(null);
   const activeApp = DESKTOP_APPS.find(app => pathname === app.href) ?? DESKTOP_APPS[0];
 
-  useEffect(() => { setMinimized(false); setStartOpen(false); }, [pathname]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => { setMinimized(false); setStartOpen(false); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   useEffect(() => {
     const update = () => setClock(new Date());
@@ -90,7 +93,7 @@ export function DishaCommandShell({ children, principal, activeTarget, evidenceC
     try {
       const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", headers: authFetchHeaders() });
       if (!response.ok) throw new Error("Sign-out failed. Please try again.");
-      window.location.assign("/login");
+      router.push("/login");
     } catch (error) {
       setLogoutError(error instanceof Error ? error.message : "Sign-out failed.");
       setSigningOut(false);

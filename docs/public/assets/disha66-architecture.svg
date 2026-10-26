@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">DISHA 6.6 Constitutional Intelligence and Defense Operating System architecture</title>
+<desc id="diagram-desc">Architecture with operator controlled mission, skill and agent registry, n8n-style orchestration expansion, VYUHA adaptive defensive planning, constitutional policy gateway, evidence ledger, and human review. Existing and planned capabilities are explicitly distinguished.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#071123"/><stop offset=".53" stop-color="#0a1b34"/><stop offset="1" stop-color="#071428"/></linearGradient>
+  <linearGradient id="cardBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14294a"/><stop offset="1" stop-color="#0c1e36"/></linearGradient>
+  <linearGradient id="heroBg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#123d5b"/><stop offset=".52" stop-color="#1a294d"/><stop offset="1" stop-color="#2e2547"/></linearGradient>
+  <radialGradient id="glow" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#1ac8fa" stop-opacity=".1"/><stop offset="1" stop-color="#1ac8fa" stop-opacity="0"/></radialGradient>
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#294160" stroke-opacity=".17" stroke-width="1"/></pattern>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#35d8ff" stroke-width="1.5"/></marker>
+  <style>text{font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:.1px}</style>
+</defs>
+<rect width="1600" height="960" fill="url(#bg)"/>
+<rect width="1600" height="960" fill="url(#grid)"/>
+<rect width="1600" height="960" fill="url(#glow)"/>
+<path d="M50 147H1550" stroke="#314c70" stroke-width="2"/>
+<path d="M49 146H516" stroke="#36d8ff" stroke-width="3"/>
+<path d="M1090 146H1551" stroke="#ffbe67" stroke-width="3"/>
+<path d="M58 70L87 36L120 70L86 105Z" fill="none" stroke="#33d7fa" stroke-width="6"/>
+<path d="M76 83L92 61L111 82" fill="none" stroke="#ffbd5f" stroke-width="5"/>
+<text x="145" y="81" fill="#f8fbff" font-size="57" font-weight="850" text-anchor="start">DISHA 6.6</text>
+<text x="149" y="112" fill="#80bbd9" font-size="18" font-weight="600" text-anchor="start">THE CONSTITUTIONAL INTELLIGENCE &amp; DEFENSE OS</text>
+<rect x="1195" y="46" width="344" height="58" rx="12" fill="#172c46" stroke="#e5a95c" stroke-width="1.8"/>
+<text x="1366" y="69" fill="#ffd17c" font-size="22" font-weight="840" text-anchor="middle">GOD MODE</text>
+<text x="1366" y="90" fill="#d7def2" font-size="13" font-weight="550" text-anchor="middle">Unified mission orchestration vision</text>
+<text x="799" y="174" fill="#a6c9e2" font-size="16" font-weight="650" text-anchor="middle">ONE MISSION  ·  MANY CAPABILITIES  ·  ONE EVIDENCE CHAIN</text>
+
+<!-- Operator mission control -->
+<rect x="360" y="193" width="880" height="119" rx="19" fill="url(#heroBg)" stroke="#49cdec" stroke-width="2"/>
+<text x="800" y="232" fill="#ffffff" font-size="30" font-weight="830" text-anchor="middle">GOD MODE  /  MISSION CONTROL</text>
+<text x="800" y="258" fill="#c5dfef" font-size="17" font-weight="530" text-anchor="middle">Operator-directed planning, governance, monitoring, and reporting</text>
+<rect x="424" y="273" width="139" height="25" rx="7" fill="#102944" stroke="#478ba8" stroke-width="1"/>
+<text x="493" y="291" fill="#afdaeb" font-size="12" font-weight="750" text-anchor="middle">PLAN + SCOPE</text>
+<rect x="580" y="273" width="139" height="25" rx="7" fill="#102944" stroke="#478ba8" stroke-width="1"/>
+<text x="649" y="291" fill="#afdaeb" font-size="12" font-weight="750" text-anchor="middle">APPROVE</text>
+<rect x="737" y="273" width="139" height="25" rx="7" fill="#102944" stroke="#478ba8" stroke-width="1"/>
+<text x="806" y="291" fill="#afdaeb" font-size="12" font-weight="750" text-anchor="middle">EXECUTE</text>
+<rect x="892" y="273" width="139" height="25" rx="7" fill="#102944" stroke="#478ba8" stroke-width="1"/>
+<text x="961" y="291" fill="#afdaeb" font-size="12" font-weight="750" text-anchor="middle">OBSERVE</text>
+<rect x="1048" y="273" width="138" height="25" rx="7" fill="#102944" stroke="#478ba8" stroke-width="1"/>
+<text x="1117" y="291" fill="#afdaeb" font-size="12" font-weight="750" text-anchor="middle">REVIEW</text>
+
+<!-- Inputs / outputs -->
+<rect x="45" y="329" width="288" height="386" rx="18" fill="#0b1c34" stroke="#29466a" stroke-width="1.4"/>
+<text x="189" y="360" fill="#9bdaf1" font-size="19" font-weight="800" text-anchor="middle">AUTHORIZED INPUTS</text>
+<rect x="61" y="375" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="61" y="375" width="4" height="61" rx="2" fill="#39d4f5"/><text x="77" y="400" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">PUBLIC-SOURCE OSINT</text><text x="77" y="421" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">DNS, CT, archives, public APIs</text>
+<rect x="61" y="447" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="61" y="447" width="4" height="61" rx="2" fill="#39d4f5"/><text x="77" y="472" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">OWNED INFRASTRUCTURE</text><text x="77" y="493" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Domains, cloud, network telemetry</text>
+<rect x="61" y="519" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="61" y="519" width="4" height="61" rx="2" fill="#39d4f5"/><text x="77" y="544" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">RESEARCH &amp; DOCUMENTS</text><text x="77" y="565" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Code, data, files, experiments</text>
+<rect x="61" y="591" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="61" y="591" width="4" height="61" rx="2" fill="#39d4f5"/><text x="77" y="616" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">INCIDENT &amp; SENSOR SIGNALS</text><text x="77" y="637" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Approved detections, decoy logs</text>
+<text x="189" y="689" fill="#8cbbd6" font-size="13" font-weight="550" text-anchor="middle">Scope • consent • purpose limits</text>
+<rect x="1267" y="329" width="288" height="386" rx="18" fill="#0b1c34" stroke="#29466a" stroke-width="1.4"/>
+<text x="1411" y="360" fill="#e9bd82" font-size="19" font-weight="800" text-anchor="middle">TRACEABLE OUTPUTS</text>
+<rect x="1283" y="375" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="1283" y="375" width="4" height="61" rx="2" fill="#ffbd69"/><text x="1299" y="400" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">EVIDENCE REPORTS</text><text x="1299" y="421" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Sources, uncertainty, audit trail</text>
+<rect x="1283" y="447" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="1283" y="447" width="4" height="61" rx="2" fill="#ffbd69"/><text x="1299" y="472" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">RISK ASSESSMENTS</text><text x="1299" y="493" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Confidence and limitations</text>
+<rect x="1283" y="519" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="1283" y="519" width="4" height="61" rx="2" fill="#ffbd69"/><text x="1299" y="544" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">DEFENSIVE PROPOSALS</text><text x="1299" y="565" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Approved changes to owned assets</text>
+<rect x="1283" y="591" width="256" height="61" rx="12" fill="#0c203a" stroke="#2c4967" stroke-width="1"/><rect x="1283" y="591" width="4" height="61" rx="2" fill="#ffbd69"/><text x="1299" y="616" fill="#eef6ff" font-size="15" font-weight="700" text-anchor="start">RESEARCH INSIGHTS</text><text x="1299" y="637" fill="#a7bed9" font-size="12" font-weight="480" text-anchor="start">Human-reviewable conclusions</text>
+<text x="1411" y="689" fill="#bca780" font-size="13" font-weight="550" text-anchor="middle">No unsupported VERIFIED claims</text>
+
+<!-- Vertical routing lines -->
+<path d="M800 312V324H493V340 M800 324H771V340 M800 324H1076V340" fill="none" stroke="#38cced" stroke-width="2.4" stroke-dasharray="4 5"/>
+<path d="M332 521H358" fill="none" stroke="#35d8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M1240 521H1264" fill="none" stroke="#35d8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+
+<!-- Three operating modules -->
+<rect x="360" y="340" width="266" height="376" rx="16" fill="url(#cardBg)" stroke="#33d8f6" stroke-width="1.4"/><rect x="361" y="341" width="264" height="5" rx="2" fill="#33d8f6"/><circle cx="396" cy="390" r="22" fill="#33d8f6" fill-opacity=".12" stroke="#33d8f6" stroke-width="1.4"/><text x="396" y="396" fill="#33d8f6" font-size="19" font-weight="800" text-anchor="middle">S</text><text x="430" y="384" fill="#f2f7ff" font-size="20" font-weight="750" text-anchor="start">SKILLS &amp; AGENTS</text><text x="430" y="406" fill="#98b4d4" font-size="12" font-weight="550" text-anchor="start">Existing catalog; execution varies</text><circle cx="386" cy="445" r="4.3" fill="#33d8f6"/><text x="403" y="451" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">1,806 indexed skills</text><circle cx="386" cy="493" r="4.3" fill="#33d8f6"/><text x="403" y="499" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">503 expert role definitions</text><circle cx="386" cy="541" r="4.3" fill="#33d8f6"/><text x="403" y="547" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">OSINT • scientific research</text><circle cx="386" cy="589" r="4.3" fill="#33d8f6"/><text x="403" y="595" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Software • security • analytics</text><circle cx="386" cy="637" r="4.3" fill="#33d8f6"/><text x="403" y="643" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">True readiness: per executor</text>
+<rect x="640" y="340" width="264" height="376" rx="16" fill="url(#cardBg)" stroke="#a18cff" stroke-width="1.4"/><rect x="641" y="341" width="262" height="5" rx="2" fill="#a18cff"/><circle cx="676" cy="390" r="22" fill="#a18cff" fill-opacity=".12" stroke="#a18cff" stroke-width="1.4"/><text x="676" y="396" fill="#a18cff" font-size="19" font-weight="800" text-anchor="middle">O</text><text x="710" y="384" fill="#f2f7ff" font-size="20" font-weight="750" text-anchor="start">ORCHESTRATION</text><text x="710" y="406" fill="#98b4d4" font-size="12" font-weight="550" text-anchor="start">Partial bridge; DAG is roadmap</text><circle cx="666" cy="445" r="4.3" fill="#a18cff"/><text x="683" y="451" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Mission and workflow engine</text><circle cx="666" cy="493" r="4.3" fill="#a18cff"/><text x="683" y="499" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">n8n webhook + template</text><circle cx="666" cy="541" r="4.3" fill="#a18cff"/><text x="683" y="547" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Durable scheduled workers</text><circle cx="666" cy="589" r="4.3" fill="#a18cff"/><text x="683" y="595" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Policy-aware skill routing</text><circle cx="666" cy="637" r="4.3" fill="#a18cff"/><text x="683" y="643" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Target: typed resumable DAG</text>
+<rect x="918" y="340" width="322" height="376" rx="16" fill="url(#cardBg)" stroke="#65e5ab" stroke-width="1.4"/><rect x="919" y="341" width="320" height="5" rx="2" fill="#65e5ab"/><circle cx="954" cy="390" r="22" fill="#65e5ab" fill-opacity=".12" stroke="#65e5ab" stroke-width="1.4"/><text x="954" y="396" fill="#65e5ab" font-size="19" font-weight="800" text-anchor="middle">V</text><text x="988" y="384" fill="#f2f7ff" font-size="20" font-weight="750" text-anchor="start">VYUHA DEFENSE</text><text x="988" y="406" fill="#98b4d4" font-size="12" font-weight="550" text-anchor="start">Current: advisory / evidence</text><circle cx="944" cy="445" r="4.3" fill="#65e5ab"/><text x="961" y="451" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Adaptive defensive formations</text><circle cx="944" cy="493" r="4.3" fill="#65e5ab"/><text x="961" y="499" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Attack-the-attack = contain</text><circle cx="944" cy="541" r="4.3" fill="#65e5ab"/><text x="961" y="547" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Owned honeypot event intake</text><circle cx="944" cy="589" r="4.3" fill="#65e5ab"/><text x="961" y="595" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Rate-limit • isolate • recover</text><circle cx="944" cy="637" r="4.3" fill="#65e5ab"/><text x="961" y="643" fill="#d6e5f7" font-size="16" font-weight="500" text-anchor="start">Target: approved live actions</text>
+
+<!-- Policy + data -->
+<path d="M494 716V734" fill="none" stroke="#35d8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4" marker-end="url(#arrow)"/>
+<path d="M772 716V734" fill="none" stroke="#35d8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4" marker-end="url(#arrow)"/>
+<path d="M1078 716V734" fill="none" stroke="#35d8ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4" marker-end="url(#arrow)"/>
+<rect x="360" y="733" width="880" height="74" rx="15" fill="#1e2b3d" stroke="#f7b95d" stroke-width="2"/>
+<text x="800" y="765" fill="#ffd28c" font-size="23" font-weight="850" text-anchor="middle">CONSTITUTIONAL POLICY &amp; AUTHORIZATION GATEWAY</text>
+<text x="800" y="791" fill="#dee7f5" font-size="16" font-weight="530" text-anchor="middle">Identity  •  Scope  •  No-First-Use  •  Signed approvals  •  Audit</text>
+<path d="M800 808V828" fill="none" stroke="#35d8ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<rect x="360" y="830" width="880" height="84" rx="17" fill="#11283f" stroke="#54bece" stroke-width="1.7"/>
+<text x="800" y="859" fill="#f1f7ff" font-size="24" font-weight="780" text-anchor="middle">EVIDENCE LEDGER  →  HUMAN REVIEW  →  VERIFIED</text>
+<text x="800" y="887" fill="#a6d5df" font-size="16" font-weight="540" text-anchor="middle">Hash-chained records  •  Reconstructible findings  •  Human authority</text>
+<text x="800" y="937" fill="#9bb6d2" font-size="14" font-weight="650" text-anchor="middle">BLUE = IMPLEMENTED FOUNDATION   |   PURPLE = PARTIAL INTEGRATION   |   GREEN = DEFENSIVE PROPOSALS / PLANNED EXECUTION</text>
+</svg>

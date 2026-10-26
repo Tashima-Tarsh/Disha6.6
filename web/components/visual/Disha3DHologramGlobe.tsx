@@ -28,12 +28,12 @@ export function Disha3DHologramGlobe({
       const testCanvas = document.createElement("canvas");
       const gl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
       if (!gl) {
-        setHasWebGL(false);
-        return;
+        const timer = window.setTimeout(() => setHasWebGL(false), 0);
+        return () => window.clearTimeout(timer);
       }
     } catch {
-      setHasWebGL(false);
-      return;
+      const timer = window.setTimeout(() => setHasWebGL(false), 0);
+      return () => window.clearTimeout(timer);
     }
 
     // 1. Scene setup

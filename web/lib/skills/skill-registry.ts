@@ -278,12 +278,14 @@ function executeNetworkingSkill(
 
   return {
     status: "SUCCESS",
-    summary: `Network verification completed successfully. Validated ${parsedCidrs.length} CIDR prefixes and ${hops.length} hop nodes.`,
+    summary: `Offline network-input consistency checks passed for ${parsedCidrs.length} CIDRs and ${hops.length} hop labels; no packets or routing convergence were measured.`,
     artifact: {
       domain: "network_diagnostics_and_protocol_verification",
-      convergenceStatus: "converged",
+      convergenceStatus: "not_measured",
       mtuIntegrityChecked,
-      packetFlowVerified: true,
+      packetFlowVerified: false,
+      offlineValidationPassed: true,
+      assessmentType: "input_consistency_only",
       parsedCidrs,
       hopsVerified: hops.length,
       routesEvaluated: routes.length,
@@ -296,25 +298,20 @@ function executeScientificComputingSkill(
   taskPrompt: string,
   params?: Record<string, unknown>
 ): ExecutorResult {
-  let data = (params?.data as number[]) || (params?.samples as number[]) || [];
-  if (data.length === 0) {
-    // Extract numbers from prompt if present
-    const matches = taskPrompt.match(/-?\d+(?:\.\d+)?/g);
-    if (matches && matches.length >= 2) {
-      data = matches.map(Number);
-    }
-  }
+  // A prompt containing numerals is not an empirical dataset.
+  const suppliedData = params?.data ?? params?.samples;
+  const data: number[] = Array.isArray(suppliedData) ? suppliedData : [];
 
   if (data.length === 0) {
     return {
       status: "NOT_EXECUTED",
-      summary: "No numerical data or sample series provided for scientific computation.",
+      summary: "No explicitly supplied numerical data or sample series provided for scientific computation.",
       artifact: { error: "MISSING_NUMERICAL_DATA", required: ["data", "samples"] },
     };
   }
 
   // Verify numerical validity
-  if (data.some((x) => isNaN(x) || !isFinite(x))) {
+  if (data.some((x) => typeof x !== "number" || !Number.isFinite(x))) {
     return {
       status: "EXECUTION_FAILED",
       summary: "Dataset contains non-finite or NaN values. Scientific calculation rejected.",
@@ -338,7 +335,7 @@ function executeScientificComputingSkill(
   const standardError = stdDev / Math.sqrt(n);
 
   const nullHypothesisMean = typeof params?.nullHypothesisMean === "number" ? params.nullHypothesisMean : 0;
-  const tStat = standardError > 0 ? (mean - nullHypothesisMean) / standardError : 0;
+  const tStat = standardError > 0 ? (mean - nullHypothesisMean) / standardError : null;
 
   // Deliberate test threshold: If variance is requested to be within threshold
   const maxAllowedVariance = typeof params?.maxVariance === "number" ? params.maxVariance : undefined;
@@ -358,7 +355,7 @@ function executeScientificComputingSkill(
 
   return {
     status: "SUCCESS",
-    summary: `Scientific computation completed: N=${n}, mean=${mean.toFixed(4)}, stdDev=${stdDev.toFixed(4)}, tStat=${tStat.toFixed(4)}.`,
+    summary: `Scientific computation completed: N=${n}, mean=${mean.toFixed(4)}, stdDev=${stdDev.toFixed(4)}, tStat=${tStat === null ? "undefined (zero sample variance)" : tStat.toFixed(4)}.`,
     artifact: {
       domain: "scientific_computation_and_analysis",
       validationPassed: true,
@@ -368,7 +365,7 @@ function executeScientificComputingSkill(
         variance: Number(variance.toFixed(6)),
         standardDeviation: Number(stdDev.toFixed(6)),
         standardError: Number(standardError.toFixed(6)),
-        tStatistic: Number(tStat.toFixed(6)),
+        tStatistic: tStat === null ? null : Number(tStat.toFixed(6)),
       },
     },
   };
@@ -429,7 +426,7 @@ function executeAiResearchSkill(
 
   return {
     status: "SUCCESS",
-    summary: `AI hyperparameter and model architecture verified successfully.${
+    summary: `Offline AI configuration validation passed; no model was trained or benchmarked.${
       estimatedParamCount ? ` Estimated parameters: ${estimatedParamCount.toLocaleString()}.` : ""
     }`,
     artifact: {
@@ -485,7 +482,7 @@ function executeCognitiveMemorySkill(
 
   return {
     status: "SUCCESS",
-    summary: `Synthesized knowledge graph: ${nodeCount} nodes, ${edgeCount} edges in ${measuredLatencyMs.toFixed(2)}ms.`,
+    summary: `Constructed an unpersisted keyword association graph: ${nodeCount} nodes, ${edgeCount} edges in ${measuredLatencyMs.toFixed(2)}ms; semantic correctness is unverified.`,
     artifact: {
       domain: "knowledge_graph_and_memory_synthesis",
       graphModel: "entity_relation_attribute",
@@ -493,7 +490,7 @@ function executeCognitiveMemorySkill(
       nodeCount,
       edgeCount,
       graphDensity: Number(density.toFixed(4)),
-      nodeIndexStatus: "synchronized",
+      nodeIndexStatus: "not_persisted",
     },
   };
 }
@@ -503,10 +500,17 @@ function executeSoftwareEngineeringSkill(
   taskPrompt: string,
   params?: Record<string, unknown>
 ): ExecutorResult {
-  const code = (params?.code as string) || (params?.snippet as string) || taskPrompt;
+  const code = params?.code ?? params?.snippet;
+  if (typeof code !== "string" || code.trim().length === 0) {
+    return {
+      status: "NOT_EXECUTED",
+      summary: "No source code supplied; heuristic source checks were not run.",
+      artifact: { error: "MISSING_CODE", required: ["code", "snippet"] },
+    };
+  }
   const securityViolations: string[] = [];
 
-  // AST / Pattern security scanner
+  // Heuristic pattern scanner: does not parse an AST or prove code safety.
   if (/\beval\s*\(/.test(code)) securityViolations.push("Prohibited use of eval()");
   if (/\bFunction\s*\(/.test(code)) securityViolations.push("Prohibited use of Function() constructor");
   if (/\bchild_process\s*\.\s*exec\s*\(/.test(code)) securityViolations.push("Prohibited unconstrained child_process.exec");
@@ -548,7 +552,7 @@ function executeSoftwareEngineeringSkill(
 
   return {
     status: "SUCCESS",
-    summary: `Static analysis completed: Syntax balanced, 0 security violations in ${code.length} characters.`,
+    summary: `Heuristic text checks completed: brackets balanced, no flagged patterns in ${code.length} characters. This is not AST, lint or security certification.`,
     artifact: {
       domain: "software_engineering_and_static_analysis",
       syntaxValid: true,
@@ -585,7 +589,7 @@ export async function executeSkill(
 
   // 1. Evaluate policy gate before skill execution
   const actionName = `execute_skill:${skill.id}`;
-  const isCallerAdmin = input.principal?.roles.includes("admin") ?? input.actor.includes("admin");
+  const isCallerAdmin = input.principal?.roles.includes("admin") === true;
   const callerRole = isCallerAdmin ? "administrator" : "analyst";
 
   const signal: DishaSignal = {
@@ -731,12 +735,13 @@ export async function executeSkill(
   } else {
     // General / informational skills
     executionResult = {
-      status: "SUCCESS",
-      summary: `Skill '${skill.name}' processed successfully. Guidelines verified (${(instructions.match(/-\s+/g) || []).length} rules).`,
+      status: "NOT_EXECUTED",
+      summary: `Skill '${skill.name}' has an indexed instruction document, but no registered domain executor ran this task.`,
       artifact: {
-        domain: "governed_agent_instruction",
+        domain: "instruction_catalogue_only",
         instructionLength: instructions.length,
-        governed: true,
+        executed: false,
+        nextAction: "Register and test a capability-specific executor before reporting success.",
       },
     };
   }
@@ -771,18 +776,16 @@ export async function executeSkill(
     evidenceError = err?.message || String(err);
     console.error(`[skill-registry] Evidence event logging failed for ${actionName}: ${evidenceError}`);
 
-    // H-01 Fix: If evidence recording fails, DO NOT report SUCCESS! Fail closed in production.
-    if (process.env.NODE_ENV === "production" || process.env.DISHA_REQUIRE_LEDGER === "true") {
-      return {
-        skillId,
-        status: "EVIDENCE_WRITE_FAILED",
-        summary: `Skill execution completed but evidence logging failed (fail-closed requirement): ${evidenceError}`,
-        output: outputData,
-        policyDecision: policy,
-        evidenceError,
-        artifactHash,
-      };
-    }
+    // Missing ledger evidence invalidates the result in every environment.
+    return {
+      skillId,
+      status: "EVIDENCE_WRITE_FAILED",
+      summary: "Skill result cannot be certified because the evidence ledger write failed.",
+      output: outputData,
+      policyDecision: policy,
+      evidenceError,
+      artifactHash,
+    };
   }
 
   return {
@@ -816,7 +819,7 @@ export interface RoleDispatchRequest {
 export interface RoleDispatchResult {
   roleId: string;
   roleName: string;
-  status: "SUCCESS" | "POLICY_DENIED" | "BUDGET_EXCEEDED" | "FAILED";
+  status: "SUCCESS" | "NOT_EXECUTED" | "POLICY_DENIED" | "BUDGET_EXCEEDED" | "FAILED";
   summary: string;
   executionTrace: Array<{
     step: number;
@@ -858,7 +861,7 @@ export async function dispatchRole(
   const instructions = getRoleInstructions(roleId);
   const actionName = `dispatch_role:${role.id}`;
 
-  const isCallerAdmin = request.principal?.roles.includes("admin") ?? request.actor.includes("admin");
+  const isCallerAdmin = request.principal?.roles.includes("admin") === true;
   const signal: DishaSignal = {
     id: `sig-${Date.now()}`,
     timestamp: new Date().toISOString(),
@@ -900,43 +903,20 @@ export async function dispatchRole(
     };
   }
 
-  const maxSteps = Math.min(request.maxSteps || 5, 10);
-  const tokenBudget = request.tokenBudget || 4000;
-  let tokensConsumed = 0;
-
-  const executionTrace: Array<{ step: number; action: string; observation: string; tokensUsed: number }> = [];
-
-  // Step 1: Initialize role persona & constraints
-  tokensConsumed += Math.min(role.tokenEstimate, 500);
-  executionTrace.push({
-    step: 1,
-    action: `recruit_role:${role.id}`,
-    observation: `Successfully assumed persona '${role.name}'. Bound theoretical domain instructions.`,
-    tokensUsed: 500,
-  });
-
-  // Step 2: Analyze task objective against role domain
-  tokensConsumed += 300;
-  executionTrace.push({
-    step: 2,
-    action: "domain_task_decomposition",
-    observation: `Objective analyzed: '${request.objective}'. Formulated domain hypotheses and verification gates.`,
-    tokensUsed: 300,
-  });
-
-  // Step 3: Synthesize findings
-  tokensConsumed += 400;
-  const findings = [
-    `Role '${role.name}' evaluated objective with theoretical domain rigor.`,
-    `Policy check: ${policy.decision} (Risk: low, Device trust: verified).`,
-    `Instruction provenance verified from ${role.path}.`,
-  ];
-  executionTrace.push({
-    step: 3,
-    action: "synthesize_findings",
-    observation: `Synthesized ${findings.length} domain observations.`,
-    tokensUsed: 400,
-  });
+  const maxSteps = Math.max(1, Math.min(request.maxSteps ?? 5, 10));
+  // This is a catalogue lookup, not an LLM inference or an autonomous run.
+  // The actual token counter must remain zero until a model gateway reports
+  // measured usage. Do not invent findings merely because a persona exists.
+  const tokensConsumed = 0;
+  const executionTrace: Array<{ step: number; action: string; observation: string; tokensUsed: number }> = [{
+    step: 0,
+    action: "role_instruction_lookup",
+    observation: instructions
+      ? `Loaded role metadata and ${instructions.length} instruction characters; no domain task or tool executed.`
+      : "Role metadata found, but its instruction document was unavailable.",
+    tokensUsed: 0,
+  }];
+  const findings: string[] = [];
 
   const durationMs = Date.now() - startTime;
   const artifact = {
@@ -967,8 +947,8 @@ export async function dispatchRole(
   return {
     roleId,
     roleName: role.name,
-    status: "SUCCESS",
-    summary: `Expert role '${role.name}' dispatched and completed ${executionTrace.length} steps under ${policy.decision} policy.`,
+    status: "NOT_EXECUTED",
+    summary: `Role '${role.name}' loaded as an instruction persona only; no model, external tool, or expert execution was performed.`,
     executionTrace,
     findings,
     evidenceId,

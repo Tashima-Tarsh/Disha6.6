@@ -283,7 +283,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -315,7 +315,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: true,
     apiKeys: ["SHODAN_API_KEY"],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -347,7 +347,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -379,7 +379,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -411,7 +411,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -443,7 +443,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -475,7 +475,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -507,7 +507,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -539,7 +539,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -571,7 +571,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -603,7 +603,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -635,7 +635,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: true,
     requiresApiKey: true,
     apiKeys: ["OPENCTI_TOKEN"],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "curated_cti",
@@ -667,7 +667,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: true,
     requiresApiKey: true,
     apiKeys: ["INTELOWL_TOKEN"],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "curated_cti",
@@ -699,7 +699,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -731,7 +731,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: true,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "sandboxed_offensive",
@@ -763,7 +763,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: true,
     requiresApiKey: true,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "curated_cti",
@@ -795,7 +795,7 @@ export const CURATED_OSINT_FALLBACK_TOOLS: OsintToolRecord[] = [
     requiresAuth: false,
     requiresApiKey: false,
     apiKeys: [],
-    lastVerified: null,
+    lastVerified: "",
     lastSmokeTested: null,
     smokeResult: null,
     executionClass: "passive_public",
@@ -1073,11 +1073,13 @@ export function Disha3DCommandCenter({
     return null;
   }, [searchPrompt]);
 
-  // If active investigation completes or updates, auto-switch to Evidence or Overview
+  // Keep a user's chosen tab; switch from Overview only when evidence arrives.
   useEffect(() => {
-    if (active && active.evidence.length > 0 && activeResultTab === "Overview") {
-      setActiveResultTab("Intelligence Summary");
-    }
+    if (!active?.evidence.length) return;
+    const timer = window.setTimeout(() => {
+      setActiveResultTab((tab) => tab === "Overview" ? "Intelligence Summary" : tab);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [active?.evidence.length]);
 
   const handleSubmitSearch = (e: React.FormEvent) => {
