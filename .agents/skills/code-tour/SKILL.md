@@ -1,140 +1,254 @@
 ---
-name: "code-tour"
-description: "Use when the user asks to create a CodeTour .tour file — persona-targeted, step-by-step walkthroughs that link to real files and line numbers. Trigger for: create a tour, onboarding tour, architecture tour, PR review tour, explain how X works, vibe check, RCA tour, contributor guide, or any structured code walkthrough request."
+name: code-tour
+description: Create CodeTour `.tour` files — persona-targeted, step-by-step walkthroughs with real file and line anchors. Use for onboarding tours, architecture walkthroughs, PR tours, RCA tours, and structured "explain how this works" requests. Use when the user asks for a code tour, onboarding walkthrough, PR tour, or an explanation of how a subsystem works.
+metadata:
+  origin: ECC
 ---
 
 # Code Tour
 
-Create **CodeTour** files — persona-targeted, step-by-step walkthroughs of a codebase that link directly to files and line numbers. CodeTour files live in `.tours/` and work with the [VS Code CodeTour extension](https://github.com/microsoft/codetour).
+Create **CodeTour** `.tour` files for codebase walkthroughs that open directly to real files and line ranges. Tours live in `.tours/` and are meant for the CodeTour format, not ad hoc Markdown notes.
 
-## Overview
+A good tour is a narrative for a specific reader:
+- what they are looking at
+- why it matters
+- what path they should follow next
 
-A great tour is a **narrative** — a story told to a specific person about what matters, why it matters, and what to do next. Only create `.tour` JSON files. Never modify source code.
+Only create `.tour` JSON files. Do not modify source code as part of this skill.
 
-## When to Use This Skill
+## When to Use
 
-- User asks to create a code tour, onboarding tour, or architecture walkthrough
-- User says "tour for this PR", "explain how X works", "vibe check", "RCA tour"
-- User wants a contributor guide, security review, or bug investigation walkthrough
-- Any request for a structured walkthrough with file/line anchors
+Use this skill when:
+- the user asks for a code tour, onboarding tour, architecture walkthrough, or PR tour
+- the user says "explain how X works" and wants a reusable guided artifact
+- the user wants a ramp-up path for a new engineer or reviewer
+- the task is better served by a guided sequence than a flat summary
 
-## Core Workflow
+Examples:
+- onboarding a new maintainer
+- architecture tour for one service or package
+- PR-review walk-through anchored to changed files
+- RCA tour showing the failure path
+- security review tour of trust boundaries and key checks
 
-### 1. Discover the repo
+## When NOT to Use
 
-Before asking anything, explore the codebase:
+| Instead of code-tour | Use |
+| --- | --- |
+| A one-off explanation in chat is enough | answer directly |
+| The user wants prose docs, not a `.tour` artifact | `documentation-lookup` or repo docs editing |
+| The task is implementation or refactoring | do the implementation work |
+| The task is broad codebase onboarding without a tour artifact | `codebase-onboarding` |
 
-In parallel: list root directory, read README, check config files.
-Then: identify language(s), framework(s), project purpose. Map folder structure 1-2 levels deep. Find entry points — every path in the tour must be real.
+## Workflow
 
-If the repo has fewer than 5 source files, create a quick-depth tour regardless of persona — there's not enough to warrant a deep one.
+### 1. Discover
 
-### 2. Infer the intent
+Explore the repo before writing anything:
+- README and package/app entry points
+- folder structure
+- relevant config files
+- the changed files if the tour is PR-focused
 
-One message should be enough. Infer persona, depth, and focus silently.
+Do not start writing steps before you understand the shape of the code.
 
-| User says | Persona | Depth |
-|-----------|---------|-------|
-| "tour for this PR" | pr-reviewer | standard |
-| "why did X break" / "RCA" | rca-investigator | standard |
-| "onboarding" / "new joiner" | new-joiner | standard |
-| "quick tour" / "vibe check" | vibecoder | quick |
-| "architecture" | architect | deep |
-| "security" / "auth review" | security-reviewer | standard |
-| (no qualifier) | new-joiner | standard |
+### 2. Infer the reader
 
-When intent is ambiguous, default to **new-joiner** persona at **standard** depth — it's the most generally useful.
+Decide the persona and depth from the request.
 
-### 3. Read actual files
+| Request shape | Persona | Suggested depth |
+| --- | --- | --- |
+| "onboarding", "new joiner" | `new-joiner` | 9-13 steps |
+| "quick tour", "vibe check" | `vibecoder` | 5-8 steps |
+| "architecture" | `architect` | 14-18 steps |
+| "tour this PR" | `pr-reviewer` | 7-11 steps |
+| "why did this break" | `rca-investigator` | 7-11 steps |
+| "security review" | `security-reviewer` | 7-11 steps |
+| "explain how this feature works" | `feature-explainer` | 7-11 steps |
+| "debug this path" | `bug-fixer` | 7-11 steps |
 
-**Every file path and line number must be verified.** A tour pointing to the wrong line is worse than no tour.
+### 3. Read and verify anchors
 
-### 4. Write the tour
+Every file path and line anchor must be real:
+- confirm the file exists
+- confirm the line numbers are in range
+- if using a selection, verify the exact block
+- if the file is volatile, prefer a pattern-based anchor
 
-Save to `.tours/<persona>-<focus>.tour`.
+Never guess line numbers.
+
+### 4. Write the `.tour`
+
+Write to:
+
+```text
+.tours/<persona>-<focus>.tour
+```
+
+Keep the path deterministic and readable.
+
+### 5. Validate
+
+Before finishing:
+- every referenced path exists
+- every line or selection is valid
+- the first step is anchored to a real file or directory
+- the `ref` points at a branch or commit that actually has every file the tour references (see below)
+- the tour tells a coherent story rather than listing files
+
+## The `ref` Field
+
+`ref` ties the tour to a git branch or commit. It matters more than it looks: when `ref` is not the branch the reader has checked out, CodeTour opens each step's file from that revision in git, not from the files on disk. If a file is not in that revision, the step will not open — the reader sees *"The editor could not be opened because the file was not found"* even though the file is sitting right there. The tour and its comments still show, so the real cause is easy to miss.
+
+Pick `ref` by tour type:
+
+| Tour type | Set `ref` to |
+| --- | --- |
+| PR tour | the PR branch — never the base branch |
+| Onboarding / architecture | the branch the reader will be on (often `main`), or leave it out |
+| Not sure | leave `ref` out, so CodeTour reads files straight from disk |
+
+The PR case is the common trap: a PR usually adds new files, and new files do not exist on the base branch yet. Point `ref` at the base (e.g. `develop`) and every step on a new file fails to open.
+
+Before finishing, confirm each step's file actually exists at the `ref` you chose.
+
+## Step Types
+
+### Content
+
+Use sparingly, usually only for a closing step:
+
+```json
+{ "title": "Next Steps", "description": "You can now trace the request path end to end." }
+```
+
+Do not make the first step content-only.
+
+### Directory
+
+Use to orient the reader to a module:
+
+```json
+{ "directory": "src/services", "title": "Service Layer", "description": "The core orchestration logic lives here." }
+```
+
+### File + line
+
+This is the default step type:
+
+```json
+{ "file": "src/auth/middleware.ts", "line": 42, "title": "Auth Gate", "description": "Every protected request passes here first." }
+```
+
+### Selection
+
+Use when one code block matters more than the whole file:
+
+```json
+{
+  "file": "src/core/pipeline.ts",
+  "selection": {
+    "start": { "line": 15, "character": 0 },
+    "end": { "line": 34, "character": 0 }
+  },
+  "title": "Request Pipeline",
+  "description": "This block wires validation, auth, and downstream execution."
+}
+```
+
+### Pattern
+
+Use when exact lines may drift:
+
+```json
+{ "file": "src/app.ts", "pattern": "export default class App", "title": "Application Entry" }
+```
+
+### URI
+
+Use for PRs, issues, or docs when helpful:
+
+```json
+{ "uri": "https://github.com/org/repo/pull/456", "title": "The PR" }
+```
+
+## Writing Rule: SMIG
+
+Each description should answer:
+- **Situation**: what the reader is looking at
+- **Mechanism**: how it works
+- **Implication**: why it matters for this persona
+- **Gotcha**: what a smart reader might miss
+
+Keep descriptions compact, specific, and grounded in the actual code.
+
+## Narrative Shape
+
+Use this arc unless the task clearly needs something different:
+1. orientation
+2. module map
+3. core execution path
+4. edge case or gotcha
+5. closing / next move
+
+The tour should feel like a path, not an inventory.
+
+## Example
 
 ```json
 {
   "$schema": "https://aka.ms/codetour-schema",
-  "title": "Descriptive Title — Persona / Goal",
-  "description": "Who this is for and what they'll understand after.",
-  "ref": "<current-branch-or-commit>",
-  "steps": []
+  "title": "API Service Tour",
+  "description": "Walkthrough of the request path for the payments service.",
+  "ref": "main",
+  "steps": [
+    {
+      "directory": "src",
+      "title": "Source Root",
+      "description": "All runtime code for the service starts here."
+    },
+    {
+      "file": "src/server.ts",
+      "line": 12,
+      "title": "Entry Point",
+      "description": "The server boots here and wires middleware before any route is reached."
+    },
+    {
+      "file": "src/routes/payments.ts",
+      "line": 8,
+      "title": "Payment Routes",
+      "description": "Every payments request enters through this router before hitting service logic."
+    },
+    {
+      "title": "Next Steps",
+      "description": "You can now follow any payment request end to end with the main anchors in place."
+    }
+  ]
 }
 ```
-
-### Step types
-
-| Type | When to use | Example |
-|------|-------------|---------|
-| **Content** | Intro/closing only (max 2) | `{ "title": "Welcome", "description": "..." }` |
-| **Directory** | Orient to a module | `{ "directory": "src/services", "title": "..." }` |
-| **File + line** | The workhorse | `{ "file": "src/auth.ts", "line": 42, "title": "..." }` |
-| **Selection** | Highlight a code block | `{ "file": "...", "selection": {...}, "title": "..." }` |
-| **Pattern** | Regex match (volatile files) | `{ "file": "...", "pattern": "class App", "title": "..." }` |
-| **URI** | Link to PR, issue, doc | `{ "uri": "https://...", "title": "..." }` |
-
-### Step count
-
-| Depth | Steps | Use for |
-|-------|-------|---------|
-| Quick | 5-8 | Vibecoder, fast exploration |
-| Standard | 9-13 | Most personas |
-| Deep | 14-18 | Architect, RCA |
-
-### Writing descriptions — SMIG formula
-
-- **S — Situation**: What is the reader looking at?
-- **M — Mechanism**: How does this code work?
-- **I — Implication**: Why does this matter for this persona?
-- **G — Gotcha**: What would a smart person get wrong?
-
-### 5. Validate
-
-- [ ] Every `file` path relative to repo root (no leading `/` or `./`)
-- [ ] Every `file` confirmed to exist
-- [ ] Every `line` verified by reading the file
-- [ ] First step has `file` or `directory` anchor
-- [ ] At most 2 content-only steps
-- [ ] `nextTour` matches another tour's `title` exactly if set
-
-## Personas
-
-| Persona | Goal | Must cover |
-|---------|------|------------|
-| **Vibecoder** | Get the vibe fast | Entry point, main modules. Max 8 steps. |
-| **New joiner** | Structured ramp-up | Directories, setup, business context |
-| **Bug fixer** | Root cause fast | Trigger -> fault points -> tests |
-| **RCA investigator** | Why did it fail | Causality chain, observability anchors |
-| **Feature explainer** | End-to-end | UI -> API -> backend -> storage |
-| **PR reviewer** | Review correctly | Change story, invariants, risky areas |
-| **Architect** | Shape and rationale | Boundaries, tradeoffs, extension points |
-| **Security reviewer** | Trust boundaries | Auth flow, validation, secret handling |
-| **Refactorer** | Safe restructuring | Seams, hidden deps, extraction order |
-| **External contributor** | Contribute safely | Safe areas, conventions, landmines |
-
-## Narrative Arc
-
-1. **Orientation** — `file` or `directory` step (never content-only first step — blank in VS Code)
-2. **High-level map** — 1-3 directory steps showing major modules
-3. **Core path** — file/line steps, the heart of the tour
-4. **Closing** — what the reader can now do, suggested follow-ups
 
 ## Anti-Patterns
 
 | Anti-pattern | Fix |
-|---|---|
-| **File listing** — "this file contains the models" | Tell a story. Each step depends on the previous. |
-| **Generic descriptions** | Name the specific pattern unique to this codebase. |
-| **Line number guessing** | Never write a line you didn't verify by reading. |
-| **Too many steps** for quick depth | Actually cut steps. |
-| **Hallucinated files** | If it doesn't exist, skip the step. |
-| **Recap closing** — "we covered X, Y, Z" | Tell the reader what they can now *do*. |
-| **Content-only first step** | Anchor step 1 to a file or directory. |
+| --- | --- |
+| Flat file listing | Tell a story with dependency between steps |
+| Generic descriptions | Name the concrete code path or pattern |
+| Guessed anchors | Verify every file and line first |
+| Too many steps for a quick tour | Cut aggressively |
+| First step is content-only | Anchor the first step to a real file or directory |
+| Persona mismatch | Write for the actual reader, not a generic engineer |
 
-## Cross-References
+## Best Practices
 
-- Related: `engineering/codebase-onboarding` — for broader onboarding beyond tours
-- Related: `engineering/pr-review-expert` — for automated PR review workflows
-- CodeTour extension: [microsoft/codetour](https://github.com/microsoft/codetour)
-- Real-world tours: [coder/code-server](https://github.com/coder/code-server/blob/main/.tours/contributing.tour)
+- keep step count proportional to repo size and persona depth
+- use directory steps for orientation, file steps for substance
+- for PR tours, cover changed files first
+- for monorepos, scope to the relevant packages instead of touring everything
+- close with what the reader can now do, not a recap
+
+## Related Skills
+
+- `codebase-onboarding`
+- `coding-standards`
+- `council`
+- official upstream format: `microsoft/codetour`

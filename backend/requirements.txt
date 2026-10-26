@@ -2,3 +2,6 @@ fastapi
 uvicorn[standard]
 psycopg-binary
 leakcheck
+holehe
+sherlock-project
+maigret
