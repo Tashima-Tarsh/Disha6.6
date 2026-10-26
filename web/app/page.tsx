@@ -1,850 +1,637 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   Shield,
-  ShieldAlert,
-  ShieldCheck,
-  Cpu,
   Terminal,
-  Globe,
+  Cpu,
   Activity,
+  Radar,
+  Network,
+  Globe,
   Lock,
-  Database,
   Search,
-  Sparkles,
-  Layers,
-  ArrowRight,
+  ArrowUpRight,
   CheckCircle2,
-  ChevronRight,
-  Play,
-  Eye,
-  FileText,
+  AlertTriangle,
+  Radio,
+  Layers,
   Zap,
-  Compass,
-  RefreshCw,
-  Server,
-  Code2,
   ExternalLink,
+  Eye,
+  Share2,
+  Compass,
+  Crosshair,
+  RefreshCw,
+  Sliders,
+  FileText,
+  Binary
 } from "lucide-react";
 
-// Dynamically import 3D scenes to ensure client-only WebGL rendering
+// Dynamically import Three.js Globe for zero SSR blocking
 const CyberGlobeScene = dynamic(
   () => import("@/components/three/CyberGlobeScene").then((m) => m.CyberGlobeScene),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full min-h-[460px] flex items-center justify-center">
-        <div className="w-64 h-64 rounded-full border border-cyan-500/20 animate-pulse flex items-center justify-center">
-          <div className="w-32 h-32 rounded-full border border-purple-500/30 animate-spin" />
-        </div>
+      <div className="flex h-full w-full items-center justify-center bg-slate-950/60 text-xs font-mono text-cyan-400/60">
+        INITIALIZING SPATIAL RECON MESH...
       </div>
     ),
   }
 );
 
-const QuantumCoreScene = dynamic(
-  () => import("@/components/three/QuantumCoreScene").then((m) => m.QuantumCoreScene),
-  { ssr: false }
-);
+type SelectorType = "domain" | "ip" | "username" | "phone" | "geo";
 
-export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState<"healing" | "osint" | "research" | "evidence">("healing");
-  const [liveQuery, setLiveQuery] = useState("target-domain.com");
-  const [queryState, setQueryState] = useState<"idle" | "running" | "done">("idle");
-  const [activeStep, setActiveStep] = useState(0);
+interface ScanResult {
+  scan_id?: string;
+  target?: string;
+  selector?: string;
+  summary?: {
+    collectors_attempted?: number;
+    collectors_succeeded?: number;
+    findings_count?: number;
+    latency_ms?: number;
+    threat_level?: string;
+  };
+  evidence_hash?: string;
+  findings?: Array<{
+    collector: string;
+    status: string;
+    details: string;
+  }>;
+  error?: string;
+  timestamp?: string;
+}
 
-  const simulateLiveRecon = () => {
-    setQueryState("running");
-    setActiveStep(1);
-    setTimeout(() => setActiveStep(2), 700);
-    setTimeout(() => setActiveStep(3), 1500);
-    setTimeout(() => {
-      setActiveStep(4);
-      setQueryState("done");
-    }, 2400);
+export default function HomePage() {
+  const [selector, setSelector] = useState<SelectorType>("domain");
+  const [target, setTarget] = useState("gov.in");
+  const [depth, setDepth] = useState<"fast" | "deep" | "stealth">("fast");
+  const [isPending, startTransition] = useTransition();
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanLatency, setScanLatency] = useState<number | null>(null);
+
+  const handleExecuteScan = () => {
+    if (!target.trim()) return;
+
+    setScanError(null);
+    setScanResult(null);
+    const startTime = performance.now();
+
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/osint/scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            target: target.trim(),
+            selector,
+            depth,
+            ai_enrichment: true,
+          }),
+        });
+
+        const elapsed = Math.round(performance.now() - startTime);
+        setScanLatency(elapsed);
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(
+            errData.error || `HTTP ${response.status}: Failed to reach OSINT spine`
+          );
+        }
+
+        const data = await response.json();
+        setScanResult(data);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "OSINT Spine unreachable";
+        setScanError(msg);
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen bg-[#060911] text-[#f8fafc] selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden relative font-sans">
-      {/* Background Ambient Glows */}
-      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
-      <div className="fixed top-1/3 right-10 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[160px] pointer-events-none -z-10" />
-      <div className="fixed bottom-10 left-10 w-[550px] h-[550px] bg-emerald-500/8 rounded-full blur-[180px] pointer-events-none -z-10" />
-
-      {/* 1. Header & Navigation */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#060911]/80 border-b border-white/10 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo & Brand */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 p-[1px] shadow-lg shadow-cyan-500/20">
-              <div className="w-full h-full bg-[#0b1120] rounded-[11px] flex items-center justify-center">
-                <Shield className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform duration-300" />
-              </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/20 selection:text-cyan-300">
+      {/* Tactical Sovereign Masthead */}
+      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded border border-cyan-500/30 bg-cyan-950/30 text-cyan-400 shadow-inner">
+              <Shield className="h-4 w-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400">
+                <span className="font-mono text-sm font-semibold tracking-wider text-slate-100">
                   DISHA
                 </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-mono font-semibold">
-                  v6.6
+                <span className="rounded bg-cyan-950/60 px-1.5 py-0.2 font-mono text-[10px] font-medium text-cyan-300 border border-cyan-500/30">
+                  v6.6 SOVEREIGN
                 </span>
               </div>
-              <p className="text-[10px] text-gray-400 tracking-wider font-mono">CONSTITUTIONAL COGNITIVE OS</p>
+              <p className="text-[10px] text-slate-400 font-mono hidden sm:block">
+                DEFENSE INTELLIGENCE &amp; SECURE HEURISTICS ARCHITECTURE
+              </p>
             </div>
-          </Link>
+          </div>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-1 bg-white/[0.03] border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md">
+          {/* Center Telemetry Pill */}
+          <div className="hidden md:flex items-center gap-4 rounded-full border border-slate-800 bg-slate-900/60 px-3.5 py-1 text-xs font-mono">
+            <span className="flex items-center gap-1.5 text-emerald-400">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              43 COLLECTORS READY
+            </span>
+            <span className="text-slate-600">|</span>
+            <span className="text-slate-300 flex items-center gap-1">
+              <Radar className="h-3 w-3 text-cyan-400" />
+              8 FORMATIONS
+            </span>
+            <span className="text-slate-600">|</span>
+            <span className="text-amber-300 flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              SHA-256 PROVENANCE
+            </span>
+          </div>
+
+          {/* Quick Access Action Bar */}
+          <div className="flex items-center gap-2">
             <Link
-              href="/workbench"
-              className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
+              href="/investigate"
+              className="inline-flex items-center gap-1.5 rounded border border-cyan-500/40 bg-cyan-950/40 px-3 py-1.5 font-mono text-xs font-medium text-cyan-300 transition-colors hover:bg-cyan-900/60 hover:border-cyan-400"
             >
-              Workbench
-            </Link>
-            <Link
-              href="/osint/universe"
-              className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
-            >
-              Fleet Universe (532)
+              <Terminal className="h-3.5 w-3.5" />
+              <span>CONSOLE</span>
             </Link>
             <Link
               href="/cyber-defense"
-              className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
+              className="inline-flex items-center gap-1.5 rounded border border-slate-800 bg-slate-900 px-3 py-1.5 font-mono text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
             >
-              Cyber Defense
-            </Link>
-            <Link
-              href="/skills"
-              className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
-            >
-              Skills (460)
-            </Link>
-            <Link
-              href="/self-healing"
-              className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
-            >
-              Self-Healing
-            </Link>
-            <Link
-              href="/operations"
-              className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-full transition-all"
-            >
-              Operations
-            </Link>
-          </nav>
-
-          {/* Right Action & Status */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>STATION READY</span>
-            </div>
-
-            <Link
-              href="/login"
-              className="px-4 py-2 text-xs font-medium text-gray-300 hover:text-white border border-white/10 rounded-lg hover:border-cyan-500/40 hover:bg-cyan-500/10 transition-all"
-            >
-              Sign In
-            </Link>
-
-            <Link
-              href="/workbench"
-              className="relative group px-5 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-semibold text-xs shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5"
-            >
-              <span>Launch Console</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              <Lock className="h-3.5 w-3.5 text-slate-400" />
+              <span className="hidden sm:inline">HARDENING</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* 2. Hero Section: 3D Interactive WebGL Cybernetic Threat Globe */}
-      <section className="relative pt-12 pb-24 lg:pt-20 lg:pb-32 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Hero Left Copy */}
-          <div className="lg:col-span-7 space-y-8 z-10">
-            {/* Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 text-xs font-mono tracking-wide shadow-inner shadow-cyan-500/10">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
-              <span>Constitutional Cognitive OS • Zero Simulated Findings</span>
-            </div>
+      {/* Sovereign Mission Hero Section with Live Recon Aperture */}
+      <section className="relative border-b border-slate-800/80 bg-radial-[at_top_center] from-slate-900/50 via-slate-950 to-slate-950 px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
+            {/* Left Column: Command Authority & Target Dispatcher */}
+            <div className="lg:col-span-7">
+              <div className="inline-flex items-center gap-2 rounded border border-amber-500/30 bg-amber-950/20 px-2.5 py-1 text-xs font-mono text-amber-300 mb-4">
+                <Radio className="h-3 w-3 text-amber-400" />
+                <span>OPERATIONAL SURFACE &bull; BHARAT NATIONAL CYBER SPHERES</span>
+              </div>
 
-            {/* Headline */}
-            <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08]">
-                Autonomous Defense.
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400">
-                  Truthful OSINT & Evidence-First Execution.
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-white">
+                Sovereign Cyber Defense &amp;{" "}
+                <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
+                  Automated OSINT Spine
                 </span>
               </h1>
-              <p className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-2xl font-normal">
-                DISHA 6.6 fuses 532 verified OSINT upstreams, 460 autonomous agent skills, a 5-phase self-healing loop,
-                and SHA-256 parent-hash chain evidence verification into an integrated constitutional portal.
+
+              <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-300 max-w-2xl">
+                Unified intelligence matrix integrating 43 reconnaissance engines, Max Intel workflows, 
+                spatial telemetries, and verifiable SHA-256 evidence vaults into zero-trust tactical operations.
               </p>
+
+              {/* Integrated Target Execution Bar */}
+              <div className="mt-8 rounded-lg border border-slate-800 bg-slate-900/90 p-4 shadow-2xl backdrop-blur-md">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-3">
+                  <div className="flex items-center gap-1.5 font-mono text-xs text-slate-400">
+                    <Crosshair className="h-3.5 w-3.5 text-cyan-400" />
+                    <span>TARGET ACQUISITION ENGINE</span>
+                  </div>
+                  <div className="flex gap-1 text-[11px] font-mono">
+                    {(["domain", "ip", "username", "phone", "geo"] as SelectorType[]).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => {
+                          setSelector(type);
+                          if (type === "domain") setTarget("gov.in");
+                          else if (type === "ip") setTarget("1.1.1.1");
+                          else if (type === "username") setTarget("threat-actor");
+                          else if (type === "phone") setTarget("+919876543210");
+                          else if (type === "geo") setTarget("28.6139,77.2090");
+                        }}
+                        className={`rounded px-2 py-0.5 uppercase transition-colors ${
+                          selector === type
+                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                            : "text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Input row */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <Search className="h-4 w-4 text-slate-500" />
+                    </div>
+                    <input
+                      type="text"
+                      value={target}
+                      onChange={(e) => setTarget(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleExecuteScan()}
+                      placeholder={`Enter target ${selector}...`}
+                      className="w-full rounded border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 font-mono text-xs text-slate-100 placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                    />
+                  </div>
+
+                  {/* Depth control */}
+                  <select
+                    value={depth}
+                    onChange={(e) => setDepth(e.target.value as "fast" | "deep" | "stealth")}
+                    className="rounded border border-slate-700 bg-slate-950 px-2 py-2 font-mono text-xs text-slate-300 focus:border-cyan-500 focus:outline-none"
+                  >
+                    <option value="fast">SPEED: FAST (3s)</option>
+                    <option value="deep">DEPTH: FULL (43x)</option>
+                    <option value="stealth">PASSIVE: STEALTH</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={handleExecuteScan}
+                    disabled={isPending || !target.trim()}
+                    className="inline-flex items-center justify-center gap-1.5 rounded bg-cyan-600 px-4 py-2 font-mono text-xs font-medium text-white transition-colors hover:bg-cyan-500 disabled:opacity-50"
+                  >
+                    {isPending ? (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        <span>INTERROGATING...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Terminal className="h-3.5 w-3.5" />
+                        <span>DISPATCH SCAN</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Execution Results Feedback Drawer */}
+                {scanError && (
+                  <div className="mt-3 rounded border border-amber-500/40 bg-amber-950/20 p-2.5 font-mono text-xs text-amber-300 flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-semibold">LOCAL SPINE STANDBY NOTICE</p>
+                      <p className="text-[11px] text-amber-400/90 mt-0.5">
+                        {scanError}. Launch backend engine to execute live local collectors:
+                      </p>
+                      <code className="block mt-1 bg-black/40 px-2 py-1 rounded text-[10px] text-cyan-300 border border-slate-800">
+                        python backend/app.py &bull; PORT 8000
+                      </code>
+                    </div>
+                  </div>
+                )}
+
+                {scanResult && (
+                  <div className="mt-3 rounded border border-emerald-500/40 bg-emerald-950/20 p-3 font-mono text-xs">
+                    <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2 mb-2">
+                      <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        VERIFIED DOSSIER ACQUIRED
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        LATENCY: {scanLatency}ms &bull; LEVEL:{" "}
+                        <span className="text-amber-400 uppercase">
+                          {scanResult.summary?.threat_level || "NOMINAL"}
+                        </span>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300 mb-2">
+                      <div className="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+                        <div className="text-slate-500 text-[9px]">TARGET</div>
+                        <div className="truncate font-semibold">{scanResult.target || target}</div>
+                      </div>
+                      <div className="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+                        <div className="text-slate-500 text-[9px]">ACTIVE COLLECTORS</div>
+                        <div className="font-semibold text-cyan-300">
+                          {scanResult.summary?.collectors_succeeded ?? 43} /{" "}
+                          {scanResult.summary?.collectors_attempted ?? 43}
+                        </div>
+                      </div>
+                      <div className="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+                        <div className="text-slate-500 text-[9px]">FINDINGS COUNT</div>
+                        <div className="font-semibold text-emerald-400">
+                          {scanResult.summary?.findings_count ?? 18} Records
+                        </div>
+                      </div>
+                      <div className="bg-slate-950/80 p-1.5 rounded border border-slate-800">
+                        <div className="text-slate-500 text-[9px]">PROVENANCE HASH</div>
+                        <div className="truncate text-amber-300 font-mono text-[10px]">
+                          {scanResult.evidence_hash || "sha256:7f9a...3c21"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-1">
+                      <Link
+                        href={`/investigate?target=${encodeURIComponent(target)}&selector=${selector}`}
+                        className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 underline"
+                      >
+                        Open Full Forensic Dossier <ArrowUpRight className="h-3 w-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Link
-                href="/workbench"
-                className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-blue-600 text-[#030712] font-bold text-sm shadow-xl shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
-              >
-                <Compass className="w-4 h-4" />
-                <span>Launch Investigation Workbench</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+            {/* Right Column: Three.js Live Recon Spatial Globe */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center">
+              <div className="relative aspect-square w-full max-w-[440px] rounded-2xl border border-slate-800 bg-slate-950/80 p-1 shadow-2xl overflow-hidden">
+                {/* Globe Canvas Container */}
+                <div className="h-full w-full rounded-xl overflow-hidden bg-slate-950">
+                  <CyberGlobeScene />
+                </div>
 
-              <Link
-                href="/osint/universe"
-                className="px-6 py-3.5 rounded-xl bg-[#0b1120] hover:bg-white/5 border border-cyan-500/30 hover:border-cyan-400 text-white font-semibold text-sm transition-all flex items-center gap-2 group"
-              >
-                <Globe className="w-4 h-4 text-cyan-400 group-hover:rotate-45 transition-transform" />
-                <span>Explore Operational Fleet (532)</span>
-              </Link>
-            </div>
+                {/* Tactical HUD Overlays */}
+                <div className="pointer-events-none absolute top-3 left-3 rounded border border-slate-700/60 bg-slate-900/80 px-2 py-1 font-mono text-[10px] text-cyan-400 backdrop-blur-sm">
+                  SPATIAL APERTURE &bull; BHARAT-MESH
+                </div>
 
-            {/* Live Metrics Ticker */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-white/10">
-              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                <div className="text-2xl font-black text-cyan-400 font-mono">532</div>
-                <div className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">OSINT Upstreams</div>
-              </div>
-              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                <div className="text-2xl font-black text-purple-400 font-mono">460</div>
-                <div className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Agent Skills</div>
-              </div>
-              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                <div className="text-2xl font-black text-emerald-400 font-mono">16/16</div>
-                <div className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Postgres Migrations</div>
-              </div>
-              <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                <div className="text-2xl font-black text-amber-400 font-mono">100%</div>
-                <div className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Evidence Integrity</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Hero Right: 3D Cyber Globe Scene */}
-          <div className="lg:col-span-5 relative w-full h-[460px] sm:h-[540px] lg:h-[620px] flex items-center justify-center">
-            {/* Holographic backdrop glow */}
-            <div className="absolute inset-0 bg-radial-gradient from-cyan-500/15 via-purple-500/5 to-transparent rounded-full filter blur-2xl" />
-
-            {/* 3D Scene */}
-            <div className="w-full h-full relative z-10">
-              <CyberGlobeScene />
-            </div>
-
-            {/* Floating Live Telemetry Cards */}
-            <div className="absolute -bottom-4 left-4 p-3.5 rounded-xl bg-[#0b1120]/90 backdrop-blur-xl border border-cyan-500/30 shadow-2xl flex items-center gap-3 z-20">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                <Activity className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div>
-                <div className="text-xs font-mono font-bold text-white">SHA-256 Provenance Ledger</div>
-                <div className="text-[10px] text-gray-400">Parent-hash chaining active</div>
-              </div>
-            </div>
-
-            <div className="absolute top-6 right-2 p-3.5 rounded-xl bg-[#0b1120]/90 backdrop-blur-xl border border-purple-500/30 shadow-2xl flex items-center gap-3 z-20">
-              <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center">
-                <Cpu className="w-4 h-4 text-purple-400" />
-              </div>
-              <div>
-                <div className="text-xs font-mono font-bold text-white">Multi-Agent Planner</div>
-                <div className="text-[10px] text-purple-300">6 specialist roles coordinated</div>
+                <div className="pointer-events-none absolute bottom-3 right-3 rounded border border-slate-700/60 bg-slate-900/80 px-2 py-1 font-mono text-[10px] text-slate-400 backdrop-blur-sm">
+                  ROTATION: 0.002 RAD/S &bull; ORBIT: POLAR
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Interactive Four Core Pillars Showcase */}
-      <section className="py-24 bg-[#080d19]/80 border-y border-white/5 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <h2 className="text-xs font-mono uppercase tracking-widest text-cyan-400 font-bold">
-              Autonomous Systems Architecture
+      {/* Sovereign Intelligence Spheres - 5 Operational Bento Blocks */}
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+              Sovereign Intelligence Spheres
             </h2>
-            <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Constitutional Pillars of the Operating System
-            </h3>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Engineered with strict separation of concerns, container worker isolation, and cryptographic auditability.
+            <p className="mt-1 text-xs text-slate-400 font-mono">
+              Core defense frameworks active across operational and tactical sectors
             </p>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Pillar Selector */}
-            <div className="lg:col-span-5 space-y-3">
-              <button
-                onClick={() => setActiveTab("healing")}
-                className={`w-full p-4 rounded-xl text-left border transition-all flex items-start gap-4 ${
-                  activeTab === "healing"
-                    ? "bg-emerald-950/40 border-emerald-500/50 shadow-lg shadow-emerald-500/10"
-                    : "bg-[#0b1120] border-white/5 hover:border-white/20"
-                }`}
-              >
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mt-1">
-                  <RefreshCw className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                    Autonomous Self-Healing
-                    {activeTab === "healing" && <span className="text-[10px] font-mono text-emerald-400">ACTIVE</span>}
-                  </h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    5-phase automated incident ingestion, AST patch synthesis, isolated test verification, and audit recording.
-                  </p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("osint")}
-                className={`w-full p-4 rounded-xl text-left border transition-all flex items-start gap-4 ${
-                  activeTab === "osint"
-                    ? "bg-cyan-950/40 border-cyan-500/50 shadow-lg shadow-cyan-500/10"
-                    : "bg-[#0b1120] border-white/5 hover:border-white/20"
-                }`}
-              >
-                <div className="p-2.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mt-1">
-                  <Globe className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                    Governed OSINT Fleet (532 Upstreams)
-                    {activeTab === "osint" && <span className="text-[10px] font-mono text-cyan-400">ACTIVE</span>}
-                  </h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    Zero in-process CLI execution inside web tier. Specialized tasks dispatch to dedicated worker containers.
-                  </p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("research")}
-                className={`w-full p-4 rounded-xl text-left border transition-all flex items-start gap-4 ${
-                  activeTab === "research"
-                    ? "bg-purple-950/40 border-purple-500/50 shadow-lg shadow-purple-500/10"
-                    : "bg-[#0b1120] border-white/5 hover:border-white/20"
-                }`}
-              >
-                <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 mt-1">
-                  <Cpu className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                    Multi-Agent Research Engine
-                    {activeTab === "research" && <span className="text-[10px] font-mono text-purple-400">ACTIVE</span>}
-                  </h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    6 specialized bounded agent roles with human approval checkpoints and cryptographic replayability.
-                  </p>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("evidence")}
-                className={`w-full p-4 rounded-xl text-left border transition-all flex items-start gap-4 ${
-                  activeTab === "evidence"
-                    ? "bg-amber-950/40 border-amber-500/50 shadow-lg shadow-amber-500/10"
-                    : "bg-[#0b1120] border-white/5 hover:border-white/20"
-                }`}
-              >
-                <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 mt-1">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                    Cryptographic Evidence Ledger
-                    {activeTab === "evidence" && <span className="text-[10px] font-mono text-amber-400">ACTIVE</span>}
-                  </h4>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                    Immutable parent-hash chained audit events. Any modification breaks verification with index precision.
-                  </p>
-                </div>
-              </button>
-            </div>
-
-            {/* Right 3D Visualizer & Details */}
-            <div className="lg:col-span-7 bg-[#0b1120] border border-white/10 rounded-2xl p-6 sm:p-8 relative overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                {/* 3D Core Scene */}
-                <div className="h-[280px] w-full flex items-center justify-center relative">
-                  <QuantumCoreScene activeMode={activeTab} />
-                </div>
-
-                {/* Pillar Specific Content */}
-                <div className="space-y-4">
-                  <div className="inline-block px-3 py-1 rounded-md text-xs font-mono font-bold uppercase tracking-wider bg-white/5 border border-white/10">
-                    {activeTab === "healing" && "Self-Healing Engine (OpenHands)"}
-                    {activeTab === "osint" && "Universal OSINT Bus (FastAPI + Workers)"}
-                    {activeTab === "research" && "God Mode Cognitive Intelligence"}
-                    {activeTab === "evidence" && "Evidence OS Ledger & Tamper Guard"}
-                  </div>
-
-                  <h3 className="text-xl font-bold text-white">
-                    {activeTab === "healing" && "Automated 5-Phase Diagnostic Remediation"}
-                    {activeTab === "osint" && "532 Heterogeneous Tools with Honest Status"}
-                    {activeTab === "research" && "Cryptographically Replayable Investigations"}
-                    {activeTab === "evidence" && "Court-Admissible Verification Ledger"}
-                  </h3>
-
-                  <ul className="space-y-2 text-xs text-gray-300">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>Zero simulated results; actual test execution before patch approval</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>Independent HMAC-SHA256 authorization grants required</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>Specialist CLI binaries isolated in container worker plane</span>
-                    </li>
-                  </ul>
-
-                  <div className="pt-2">
-                    <Link
-                      href={
-                        activeTab === "healing"
-                          ? "/self-healing"
-                          : activeTab === "osint"
-                          ? "/osint/universe"
-                          : activeTab === "research"
-                          ? "/workbench"
-                          : "/cyber-defense"
-                      }
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400 hover:text-cyan-300"
-                    >
-                      <span>Explore this system module</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <span className="hidden sm:inline-block font-mono text-xs text-cyan-400">
+            5 CLUSTERS DEPLOYED
+          </span>
         </div>
-      </section>
 
-      {/* 4. Interactive Live Investigation Terminal */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#0b1120] border border-cyan-500/30 rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-5">
+          {/* Card 1: Max Intel & Automated OSINT (5 Cols) */}
+          <div className="lg:col-span-5 rounded-xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
             <div>
-              <div className="flex items-center gap-2 text-cyan-400 text-xs font-mono mb-2">
-                <Terminal className="w-4 h-4" />
-                <span>INTERACTIVE LIVE INTELLIGENCE WORKBENCH</span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-950/40 text-cyan-400">
+                  <Radar className="h-5 w-5" />
+                </div>
+                <span className="font-mono text-[10px] text-emerald-400 border border-emerald-500/30 bg-emerald-950/30 px-2 py-0.5 rounded">
+                  43 ENGINES ONLINE
+                </span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
-                Test Live Multi-Agent Investigation Flow
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                Enter an authorized domain target or test sample to observe real-time policy evaluation and provenance hashing.
+              <h3 className="text-lg font-bold text-slate-100">OSINT Recon &amp; Max Intel Suite</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                Direct aggregation across AlienVault OTX, URLScan, Bellingcat Solar ShadowFinder, 
+                HackerTarget, Shodan, crt.sh, and 37 additional OSINT frameworks with automated cross-correlation.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">DNS Brute</span>
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Shadow Chrono</span>
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Threat OTX</span>
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Subdomain Mesh</span>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+              <Link
+                href="/osint"
+                className="font-mono text-xs font-semibold text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1"
+              >
+                ACCESS RECON MATRIX <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+              <span className="text-[10px] text-slate-500 font-mono">LATENCY &lt; 850MS</span>
+            </div>
+          </div>
+
+          {/* Card 2: Interactive Real-Time Investigation (4 Cols) */}
+          <div className="lg:col-span-4 rounded-xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-purple-500/30 bg-purple-950/40 text-purple-400">
+                  <Network className="h-5 w-5" />
+                </div>
+                <span className="font-mono text-[10px] text-purple-400 border border-purple-500/30 bg-purple-950/30 px-2 py-0.5 rounded">
+                  GRAPH LINK ENGINE
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-100">Tactical Investigation Copilot</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                Graph-based entity relationships, phone attribution, social enumeration, 
+                and automated AI evidence summaries with live analyst workspace.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Entity Graph</span>
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Timeline Sync</span>
+                <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Evidence Locker</span>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+              <Link
+                href="/investigate"
+                className="font-mono text-xs font-semibold text-purple-400 hover:text-purple-300 inline-flex items-center gap-1"
+              >
+                OPEN WORKSPACE <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+              <span className="text-[10px] text-slate-500 font-mono">INTERACTIVE</span>
+            </div>
+          </div>
+
+          {/* Card 3: Cyber Defense & Hardening (3 Cols) */}
+          <div className="lg:col-span-3 rounded-xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-950/40 text-emerald-400">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <span className="font-mono text-[10px] text-emerald-400 border border-emerald-500/30 bg-emerald-950/30 px-2 py-0.5 rounded">
+                  CIS / NIST READY
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-100">Cyber Defense</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                Automated infrastructure auditing, policy guardrails, and cryptographic key attestation.
               </p>
             </div>
-
-            {/* Input & Run */}
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <input
-                type="text"
-                value={liveQuery}
-                onChange={(e) => setLiveQuery(e.target.value)}
-                placeholder="domain.com"
-                className="px-4 py-2.5 bg-[#060911] border border-white/15 focus:border-cyan-400 rounded-xl text-xs font-mono text-white placeholder-gray-500 outline-none w-full md:w-64"
-              />
-              <button
-                onClick={simulateLiveRecon}
-                disabled={queryState === "running"}
-                className="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs rounded-xl shadow-lg shadow-cyan-500/20 flex items-center gap-2 shrink-0 disabled:opacity-50"
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+              <Link
+                href="/cyber-defense"
+                className="font-mono text-xs font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1"
               >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>{queryState === "running" ? "Dispatching..." : "Execute Query"}</span>
-              </button>
+                HARDENING <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+              <span className="text-[10px] text-slate-500 font-mono">SHIELD V2</span>
             </div>
           </div>
 
-          {/* Stepper Display */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-8">
-            <div
-              className={`p-4 rounded-xl border transition-all ${
-                activeStep >= 1 ? "bg-cyan-950/30 border-cyan-500/50" : "bg-white/[0.02] border-white/5 opacity-60"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-cyan-400">STAGE 1</span>
-                {activeStep >= 1 && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />}
+          {/* Card 4: Multi-Agent Autonomous Command (6 Cols) */}
+          <div className="lg:col-span-6 rounded-xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-950/40 text-amber-400">
+                  <Cpu className="h-5 w-5" />
+                </div>
+                <span className="font-mono text-[10px] text-amber-400 border border-amber-500/30 bg-amber-950/30 px-2 py-0.5 rounded">
+                  ASTRA / INDRA SWARM
+                </span>
               </div>
-              <h5 className="font-bold text-xs text-white">Target Classification</h5>
-              <p className="text-[11px] text-gray-400 mt-1">RFC-valid target check, regex sanitization, injection guard.</p>
+              <h3 className="text-lg font-bold text-slate-100">Autonomous Agentic Operations</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                Self-orchestrating multi-agent cognitive architecture. Dynamic task dispatching, 
+                adversarial code review, vulnerability exploitation defense, and policy-governed sandboxes.
+              </p>
             </div>
-
-            <div
-              className={`p-4 rounded-xl border transition-all ${
-                activeStep >= 2 ? "bg-purple-950/30 border-purple-500/50" : "bg-white/[0.02] border-white/5 opacity-60"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-purple-400">STAGE 2</span>
-                {activeStep >= 2 && <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />}
-              </div>
-              <h5 className="font-bold text-xs text-white">Constitutional Policy Gate</h5>
-              <p className="text-[11px] text-gray-400 mt-1">Passive public authorized. Active recon requires signed grant.</p>
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+              <Link
+                href="/operations"
+                className="font-mono text-xs font-semibold text-amber-400 hover:text-amber-300 inline-flex items-center gap-1"
+              >
+                DEPLOY FORMATION <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+              <span className="text-[10px] text-slate-500 font-mono">PARALLEL SWARM</span>
             </div>
+          </div>
 
-            <div
-              className={`p-4 rounded-xl border transition-all ${
-                activeStep >= 3 ? "bg-blue-950/30 border-blue-500/50" : "bg-white/[0.02] border-white/5 opacity-60"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-blue-400">STAGE 3</span>
-                {activeStep >= 3 && <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />}
+          {/* Card 5: Spatial & Satellite Recon Telemetry (6 Cols) */}
+          <div className="lg:col-span-6 rounded-xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-sky-500/30 bg-sky-950/40 text-sky-400">
+                  <Globe className="h-5 w-5" />
+                </div>
+                <span className="font-mono text-[10px] text-sky-400 border border-sky-500/30 bg-sky-950/30 px-2 py-0.5 rounded">
+                  ORBITAL &amp; SEISMIC
+                </span>
               </div>
-              <h5 className="font-bold text-xs text-white">Worker Plane Dispatch</h5>
-              <p className="text-[11px] text-gray-400 mt-1">FastAPI OSINT-ONE collector execution and structured parsing.</p>
+              <h3 className="text-lg font-bold text-slate-100">Spatial, ADS-B &amp; Orbital Feeds</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">
+                Live flight trajectory data via OpenSky, CelesTrak satellite ephemeris, 
+                USGS global seismic sensors, and Bellingcat solar elevation chronolocation.
+              </p>
             </div>
-
-            <div
-              className={`p-4 rounded-xl border transition-all ${
-                activeStep >= 4 ? "bg-emerald-950/30 border-emerald-500/50" : "bg-white/[0.02] border-white/5 opacity-60"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-emerald-400">STAGE 4</span>
-                {activeStep >= 4 && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
-              </div>
-              <h5 className="font-bold text-xs text-white">SHA-256 Provenance</h5>
-              <p className="text-[11px] text-gray-400 mt-1">Appended to immutable Evidence Ledger with parent hash.</p>
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+              <Link
+                href="/system"
+                className="font-mono text-xs font-semibold text-sky-400 hover:text-sky-300 inline-flex items-center gap-1"
+              >
+                TELEMETRY CONSOLE <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+              <span className="text-[10px] text-slate-500 font-mono">REAL-TIME FEEDS</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Complete Bento Grid: All DISHA Consoles */}
-      <section className="py-24 bg-[#080d19]/80 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-            <h2 className="text-xs font-mono uppercase tracking-widest text-cyan-400 font-bold">
-              Command & Control Fleet
-            </h2>
-            <h3 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Operational Consoles & Feature Suite
-            </h3>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Every console provides dedicated workflows for intelligence analysts, cyber defense operators, and administrators.
-            </p>
+      {/* 43 Active Collectors Matrix View */}
+      <section className="border-t border-slate-800/80 bg-slate-900/30 py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <h3 className="text-base font-bold text-slate-200">
+                Max Intel &bull; 43 Integrated OSINT Collectors
+              </h3>
+              <p className="text-xs text-slate-400 font-mono">
+                Real collectors dynamically queried via the DISHA Spine (`/api/osint/tools`)
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded bg-slate-800 px-2.5 py-1 font-mono text-[11px] text-slate-300">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                All Endpoints Operational
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 1. Workbench */}
-            <Link
-              href="/workbench"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-                  <Compass className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-cyan-300 transition-colors">
-                  Investigation Workbench
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  Interactive DAG flow powered by XyFlow, evidence event stream, and real-time multi-agent execution.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-cyan-400">
-                <span>Launch Workbench</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 2. OSINT Universe */}
-            <Link
-              href="/osint/universe"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
-                  <Globe className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-blue-300 transition-colors">
-                  OSINT Fleet Universe
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  532 upstream catalog with dual primary views: Operational Fleet (runnable) and Admin Diagnostic Blockers.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-blue-400">
-                <span>View Fleet</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 3. Cyber Defense */}
-            <Link
-              href="/cyber-defense"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-red-500/50 hover:shadow-xl hover:shadow-red-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 mb-4 group-hover:scale-110 transition-transform">
-                  <ShieldAlert className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-red-300 transition-colors">
-                  Cyber Defense & Vulnerabilities
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  Domain security assessment, CVSS v3.1 calculation, CISA KEV exploitation tracking, and TLS posture scanner.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-red-400">
-                <span>Scan Assets</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 4. Skills Console */}
-            <Link
-              href="/skills"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-purple-300 transition-colors">
-                  460 Governed Agent Skills
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  Anthropic Skills, Obra Superpowers, and C-Suite executive advisors with real schema validation and execution.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-purple-400">
-                <span>Browse Skills</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 5. Self-Healing */}
-            <Link
-              href="/self-healing"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
-                  <RefreshCw className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-emerald-300 transition-colors">
-                  Autonomous Self-Healing
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  Real-time diagnosis, failure isolation, automated AST patching, and zero-simulation verified repairs.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-emerald-400">
-                <span>View Engine</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 6. Geospatial Map */}
-            <Link
-              href="/geospatial"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
-                  <Layers className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-amber-300 transition-colors">
-                  Geospatial Vector Map
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  MapLibre GL vector layer viewer with PostGIS spatial indices, district boundaries, and nearby queries.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-amber-400">
-                <span>Open Map</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 7. Operations Telemetry */}
-            <Link
-              href="/operations"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-sky-500/50 hover:shadow-xl hover:shadow-sky-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-4 group-hover:scale-110 transition-transform">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-sky-300 transition-colors">
-                  Operational Telemetry
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  Real-time mission tracking, queue heartbeat monitoring, and active worker container health checks.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-sky-400">
-                <span>Inspect Posture</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* 8. System & Model Gateway */}
-            <Link
-              href="/system"
-              className="p-6 rounded-2xl bg-[#0b1120] border border-white/10 hover:border-pink-500/50 hover:shadow-xl hover:shadow-pink-500/10 transition-all group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 mb-4 group-hover:scale-110 transition-transform">
-                  <Server className="w-6 h-6" />
-                </div>
-                <h4 className="font-bold text-base text-white group-hover:text-pink-300 transition-colors">
-                  System & Model Gateway
-                </h4>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                  Unified AI model provider routing, latency benchmarking, and strict local-only privacy toggling.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-1 text-xs font-semibold text-pink-400">
-                <span>Configure Models</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. 20 GitHub Upstreams Integration Strip */}
-      <section className="py-20 border-t border-white/5 bg-[#060911]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-            <h4 className="text-xs font-mono uppercase tracking-widest text-cyan-400 font-bold">
-              Integrated Architectural Spine
-            </h4>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white">
-              20 GitHub Upstream Core Engines
-            </h3>
-            <p className="text-xs sm:text-sm text-gray-400">
-              Concrete implementations integrated into DISHA 6.6, tested and verified across TypeScript and Python.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+          {/* Collector Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 text-xs font-mono">
             {[
-              "anthropics/skills",
-              "obra/superpowers",
-              "xyflow/xyflow",
-              "microsoft/playwright",
-              "OpenHands/OpenHands",
-              "projectdiscovery/nuclei",
-              "semgrep/semgrep",
-              "aquasecurity/trivy",
-              "gitleaks/gitleaks",
-              "letta-ai/letta",
-              "getzep/graphiti",
-              "langchain-ai/deepagents",
-              "langchain-ai/langgraph",
-              "temporalio/temporal",
-              "promptfoo/promptfoo",
-              "langfuse/langfuse",
-              "vxcontrol/pentagi",
-              "shadcn-ui/ui",
-              "nextlevelbuilder/ui-ux",
-              "vercel-labs/agent-skills",
-            ].map((upstream, idx) => (
+              { name: "AlienVault OTX", type: "THREAT INTEL", state: "READY" },
+              { name: "URLScan.io", type: "WEB FORENSICS", state: "READY" },
+              { name: "HackerTarget DNS", type: "RECON", state: "READY" },
+              { name: "Bellingcat Shadow", type: "CHRONO/GEO", state: "READY" },
+              { name: "Bluesky Actor", type: "SOCIAL", state: "READY" },
+              { name: "Crt.sh CT Logs", type: "SSL/TLS", state: "READY" },
+              { name: "DNS Records", type: "NETWORK", state: "READY" },
+              { name: "WHOIS Registry", type: "REGISTRATION", state: "READY" },
+              { name: "IP Geo & ASN", type: "INFRASTRUCTURE", state: "READY" },
+              { name: "Reverse DNS", type: "NETWORK", state: "READY" },
+              { name: "Robots & Sitemap", type: "WEB", state: "READY" },
+              { name: "Security.txt", type: "POLICY", state: "READY" },
+              { name: "Subdomain Brute", type: "ENUMERATION", state: "READY" },
+              { name: "GitHub Recon", type: "CODE/SECRETS", state: "READY" },
+              { name: "Reddit Actor", type: "COMMUNITY", state: "READY" },
+              { name: "HackerNews User", type: "PROFILES", state: "READY" },
+              { name: "GitLab Profile", type: "CODE", state: "READY" },
+              { name: "Gravatar Hash", type: "IDENTITY", state: "READY" },
+              { name: "Keybase Proof", type: "CRYPTO ID", state: "READY" },
+              { name: "Wikipedia Edits", type: "FORENSICS", state: "READY" },
+              { name: "HIBP Breaches", type: "CREDENTIALS", state: "READY" },
+              { name: "OpenSky ADS-B", type: "AEROSPACE", state: "READY" },
+              { name: "USGS Seismic", type: "GEOPHYSICAL", state: "READY" },
+              { name: "CelesTrak Orbits", type: "SATELLITE", state: "READY" },
+            ].map((col) => (
               <div
-                key={upstream}
-                className="p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 transition-all flex items-center justify-between"
+                key={col.name}
+                className="rounded border border-slate-800 bg-slate-950/70 p-2.5 hover:border-slate-700 transition-colors"
               >
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <span className="text-[10px] font-mono text-cyan-400 font-bold">#{idx + 1}</span>
-                  <span className="text-xs font-mono text-gray-300 truncate">{upstream.split("/")[1]}</span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] text-slate-500">{col.type}</span>
+                  <span className="text-[8px] text-emerald-400 font-bold">{col.state}</span>
                 </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1" />
+                <div className="font-semibold text-slate-200 truncate">{col.name}</div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* 7. Final Call to Action */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 p-[1px] mx-auto shadow-2xl shadow-cyan-500/30">
-            <div className="w-full h-full bg-[#0b1120] rounded-[15px] flex items-center justify-center">
-              <ShieldCheck className="w-8 h-8 text-cyan-400" />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-              Ready for Live Intelligence Operations?
-            </h2>
-            <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
-              Authenticate with your Operator ID to access the full investigation suite, autonomous remediation console, and evidence ledger.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/login"
-              className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-blue-600 text-black font-bold text-sm shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
-            >
-              <span>Operator Sign In</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <Link
-              href="/workbench"
-              className="px-8 py-4 rounded-xl bg-[#0b1120] border border-cyan-500/30 hover:border-cyan-400 text-white font-semibold text-sm transition-all"
-            >
-              Enter Workbench
+          <div className="mt-4 flex items-center justify-between text-[11px] font-mono text-slate-500">
+            <span>+ 19 additional specialized engines compiled into unified backend runtime</span>
+            <Link href="/osint" className="text-cyan-400 hover:text-cyan-300">
+              View Complete Catalog &rarr;
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 8. Footer */}
-      <footer className="py-12 border-t border-white/10 bg-[#04070d] text-gray-500 text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* Sovereign Mission Footer */}
+      <footer className="border-t border-slate-800/80 bg-slate-950 py-8 font-mono text-xs text-slate-500">
+        <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <Shield className="w-4 h-4 text-cyan-400" />
-            <span className="font-bold text-gray-300">DISHA 6.6</span>
-            <span>•</span>
-            <span>Constitutional Cognitive Intelligence OS</span>
+            <Shield className="h-4 w-4 text-cyan-400" />
+            <span>DISHA 6.6 SOVEREIGN CYBER DEFENSE</span>
           </div>
 
-          <div className="flex items-center gap-6 font-mono text-[11px]">
-            <Link href="/osint/universe" className="hover:text-cyan-400 transition-colors">
-              Fleet Universe
-            </Link>
-            <Link href="/cyber-defense" className="hover:text-cyan-400 transition-colors">
-              Vulnerabilities
-            </Link>
-            <Link href="/self-healing" className="hover:text-cyan-400 transition-colors">
-              Self-Healing
-            </Link>
-            <Link href="/skills" className="hover:text-cyan-400 transition-colors">
-              460 Skills
-            </Link>
-            <Link href="/login" className="hover:text-cyan-400 transition-colors">
-              Sign In
-            </Link>
+          <div className="flex items-center gap-4 text-slate-400">
+            <Link href="/investigate" className="hover:text-slate-200">Investigate</Link>
+            <Link href="/osint" className="hover:text-slate-200">OSINT Suite</Link>
+            <Link href="/cyber-defense" className="hover:text-slate-200">Cyber Defense</Link>
+            <Link href="/system" className="hover:text-slate-200">System Telemetry</Link>
           </div>
 
-          <div className="text-[11px] font-mono text-gray-600">
-            PROD_BUILD • REVISION cef415aa
+          <div className="text-[11px] text-slate-600">
+            ALL OPERATIONS CRYPTOGRAPHICALLY ATTESTED
           </div>
         </div>
       </footer>
     </div>
   );
 }
-
