@@ -248,6 +248,82 @@ def resolve_one(payload: dict):
         return {"error": str(e), "hint": "load CSVs first via /api/v1/data/load"}
 
 
+class LeakCheckQuery(BaseModel):
+    query: str
+    type: str | None = None
+    limit: int = 100
+    offset: int = 0
+    apiKey: str | None = None
+
+
+def run_leakcheck_lookup(query: str, query_type: str | None = None, limit: int = 100, offset: int = 0, explicit_key: str | None = None):
+    try:
+        import leakcheck
+    except ImportError:
+        leakcheck = None
+
+    q = (query or "").strip()
+    if not q:
+        return JSONResponse({"error": "query cannot be empty"}, status_code=400)
+    api_key = explicit_key or os.getenv("LEAKCHECK_APIKEY")
+    try:
+        if leakcheck is not None and api_key and len(api_key) >= 40:
+            client = leakcheck.LeakCheckAPI_v2(api_key=api_key)
+            res = client.lookup(q, query_type=query_type, limit=min(limit, 1000), offset=min(offset, 2500))
+            return {
+                "success": True,
+                "tier": "pro_v2",
+                "target": q,
+                "type": query_type or "auto",
+                "found": len(res) if isinstance(res, list) else 0,
+                "result": res if isinstance(res, list) else [],
+            }
+        elif leakcheck is not None:
+            client = leakcheck.LeakCheckAPI_Public()
+            res = client.lookup(q)
+            return {
+                "success": res.get("success", False),
+                "tier": "public",
+                "target": q,
+                "found": res.get("found", 0),
+                "fields": res.get("fields", []),
+                "sources": res.get("sources", []),
+            }
+        else:
+            from urllib.parse import quote
+            import json as _j
+            from urllib.request import Request as _Req, urlopen as _uo
+            req = _Req(f"https://leakcheck.io/api/public?check={quote(q)}", headers={"User-Agent": "PyLCAPI/2.0.0"})
+            with _uo(req, timeout=20) as resp:
+                data = _j.loads(resp.read().decode())
+                return {
+                    "success": data.get("success", False),
+                    "tier": "public_direct",
+                    "target": q,
+                    "found": data.get("found", 0),
+                    "fields": data.get("fields", []),
+                    "sources": data.get("sources", []),
+                }
+    except Exception as e:
+        return JSONResponse({"success": False, "error": str(e), "target": q}, status_code=500)
+
+
+@app.post("/api/v1/leakcheck/lookup", dependencies=[Depends(require_api_key)])
+def leakcheck_lookup_post(payload: LeakCheckQuery):
+    return run_leakcheck_lookup(payload.query, payload.type, payload.limit, payload.offset, payload.apiKey)
+
+
+@app.get("/api/v1/leakcheck/lookup", dependencies=[Depends(require_api_key)])
+def leakcheck_lookup_get(
+    query: str,
+    type: str | None = None,
+    limit: int = 100,
+    offset: int = 0,
+    apiKey: str | None = None
+):
+    return run_leakcheck_lookup(query, type, limit, offset, apiKey)
+
+
 @app.get("/api/v1/vyuh/formations", dependencies=[Depends(require_api_key)])
 def vyuh_formations():
     return {

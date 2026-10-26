@@ -228,6 +228,14 @@ export default function SovereignConsole() {
   const [copiedHash, setCopiedHash] = useState(false);
   const [expandedFindings, setExpandedFindings] = useState<Record<number, boolean>>({});
 
+  // LeakCheck Terminal States
+  const [leakCheckQuery, setLeakCheckQuery] = useState("test@example.com");
+  const [leakCheckType, setLeakCheckType] = useState<string>("auto");
+  const [leakCheckApiKey, setLeakCheckApiKey] = useState("");
+  const [leakCheckLoading, setLeakCheckLoading] = useState(false);
+  const [leakCheckData, setLeakCheckData] = useState<any | null>(null);
+  const [leakCheckError, setLeakCheckError] = useState<string | null>(null);
+
   // Link Graph Canvas Reference
   const graphCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -419,6 +427,34 @@ export default function SovereignConsole() {
 
   const toggleFinding = (idx: number) => {
     setExpandedFindings((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  const handleRunLeakCheck = async (targetQuery?: string) => {
+    const q = (targetQuery || leakCheckQuery).trim();
+    if (!q) return;
+    setLeakCheckLoading(true);
+    setLeakCheckError(null);
+    try {
+      const res = await fetch("/api/osint/leakcheck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: q,
+          type: leakCheckType === "auto" ? undefined : leakCheckType,
+          apiKey: leakCheckApiKey.trim() || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      setLeakCheckData(data);
+    } catch (err: unknown) {
+      setLeakCheckError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLeakCheckLoading(false);
+    }
   };
 
   // Interactive Graph Simulation inside Canvas
@@ -1015,6 +1051,178 @@ export default function SovereignConsole() {
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            {/* LEAKCHECK OFFICIAL API INTEGRATION PANEL */}
+            <div className="rounded-xl border border-cyan-500/30 bg-slate-900/80 p-5 shadow-xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 mb-4 border-b border-slate-800 gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded border border-cyan-500/40 bg-cyan-950/50 text-cyan-400">
+                    <Database className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-white tracking-wide">LEAKCHECK API &bull; BREACH ENGINE</h3>
+                      <span className="rounded bg-cyan-950 px-2 py-0.5 text-[10px] font-bold text-cyan-400 border border-cyan-500/30">
+                        OFFICIAL PYTHON WRAPPER v2.0.0
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 font-sans">
+                      Connects to LeakCheck.io Public &amp; Pro API v2 for deep credentials, stealer logs, and compromised identifier intelligence.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-[10px] text-slate-500">API TIER:</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${leakCheckApiKey.trim() ? "bg-amber-950 text-amber-300 border-amber-500/40" : "bg-emerald-950 text-emerald-300 border-emerald-500/40"}`}>
+                    {leakCheckApiKey.trim() ? "PRO API v2 (AUTHENTICATED)" : "PUBLIC FREE (AUTO-DETECT)"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Search Form */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-4">
+                <div className="sm:col-span-4">
+                  <label className="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Query Target</label>
+                  <input
+                    type="text"
+                    value={leakCheckQuery}
+                    onChange={(e) => setLeakCheckQuery(e.target.value)}
+                    placeholder="email, username, phone, hash, domain"
+                    className="w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100 placeholder-slate-600 focus:border-cyan-500 focus:outline-none font-mono"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-[10px] text-slate-400 mb-1 uppercase font-bold">Query Type</label>
+                  <select
+                    value={leakCheckType}
+                    onChange={(e) => setLeakCheckType(e.target.value)}
+                    className="w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-300 focus:border-cyan-500 focus:outline-none"
+                  >
+                    <option value="auto">Auto-Detect</option>
+                    <option value="email">Email</option>
+                    <option value="username">Username</option>
+                    <option value="phone">Phone</option>
+                    <option value="domain">Domain</option>
+                    <option value="hash">SHA-256 Hash</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-4">
+                  <label className="block text-[10px] text-slate-400 mb-1 uppercase font-bold">
+                    Pro API Key <span className="text-slate-500 font-normal">(Optional for Pro v2)</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={leakCheckApiKey}
+                    onChange={(e) => setLeakCheckApiKey(e.target.value)}
+                    placeholder="Leave blank for free public API"
+                    className="w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100 placeholder-slate-600 focus:border-cyan-500 focus:outline-none font-mono"
+                  />
+                </div>
+                <div className="sm:col-span-2 flex items-end">
+                  <button
+                    type="button"
+                    onClick={() => handleRunLeakCheck()}
+                    disabled={leakCheckLoading || !leakCheckQuery.trim()}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded bg-cyan-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-cyan-500 disabled:opacity-50"
+                  >
+                    {leakCheckLoading ? (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        <span>QUERYING...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-3.5 w-3.5" />
+                        <span>SEARCH</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {leakCheckError && (
+                <div className="rounded border border-red-500/40 bg-red-950/20 p-3 text-xs text-red-300 mb-4 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+                  <span>{leakCheckError}</span>
+                </div>
+              )}
+
+              {/* LeakCheck Results */}
+              {leakCheckData && (
+                <div className="space-y-4 pt-2 border-t border-slate-800">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <span className="text-[10px] text-slate-500">QUERY IDENTIFIER</span>
+                      <div className="text-xs font-bold text-white truncate">{leakCheckData.target}</div>
+                    </div>
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <span className="text-[10px] text-slate-500">BREACHES DETECTED</span>
+                      <div className="text-sm font-bold text-red-400">
+                        {typeof leakCheckData.found === "number" ? leakCheckData.found.toLocaleString() : leakCheckData.found}
+                      </div>
+                    </div>
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <span className="text-[10px] text-slate-500">INTELLIGENCE TIER</span>
+                      <div className="text-xs font-bold text-cyan-400 uppercase">{leakCheckData.tier || "Public"}</div>
+                    </div>
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <span className="text-[10px] text-slate-500">EXPOSED CATEGORIES</span>
+                      <div className="text-xs font-bold text-amber-300">
+                        {leakCheckData.fields?.length || 0} Data Types
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Exposed Data Fields Badges */}
+                  {Array.isArray(leakCheckData.fields) && leakCheckData.fields.length > 0 && (
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase mb-2">Exposed Identity &amp; Secret Fields:</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {leakCheckData.fields.map((f: string, i: number) => (
+                          <span
+                            key={i}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${
+                              ["password", "hash", "ssn", "pin"].includes(f.toLowerCase())
+                                ? "bg-red-950/80 text-red-300 border-red-500/40"
+                                : ["phone", "email", "address", "dob"].includes(f.toLowerCase())
+                                ? "bg-amber-950/80 text-amber-300 border-amber-500/40"
+                                : "bg-slate-800/80 text-slate-300 border-slate-700"
+                            }`}
+                          >
+                            {f}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sources List */}
+                  {Array.isArray(leakCheckData.sources) && leakCheckData.sources.length > 0 && (
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase mb-2">Compromised Databases &amp; Collections ({leakCheckData.sources.length}):</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                        {leakCheckData.sources.map((s: any, idx: number) => (
+                          <div key={idx} className="flex items-center justify-between rounded bg-slate-900/80 border border-slate-800/80 p-2 text-xs">
+                            <span className="font-semibold text-slate-200 truncate">{s.name || s.source || "Breach Record"}</span>
+                            <span className="text-[10px] font-mono text-cyan-400 ml-2 shrink-0">{s.date || "Unknown"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pro API detailed results if available */}
+                  {Array.isArray(leakCheckData.result) && leakCheckData.result.length > 0 && (
+                    <div className="rounded border border-slate-800 bg-slate-950 p-3">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase mb-2">Pro API Records ({leakCheckData.result.length}):</div>
+                      <pre className="text-[10px] text-cyan-300 bg-black/60 p-2 rounded max-h-48 overflow-auto border border-slate-800 font-mono">
+                        {JSON.stringify(leakCheckData.result, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

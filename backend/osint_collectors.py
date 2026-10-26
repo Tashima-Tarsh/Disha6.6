@@ -31,6 +31,11 @@ from urllib.request import Request, urlopen
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+try:
+    import leakcheck
+except ImportError:
+    leakcheck = None
+
 UA = {"User-Agent": "DISHA-6.6/OSINT-ONE/2.0 (+https://localhost)"}
 T = 25
 POOL = ThreadPoolExecutor(max_workers=16)
@@ -326,6 +331,50 @@ def c_pwn(v):
 @collector("emailrep.io", ["email"], "breach", kind="network")
 def c_emailrep(v):
     return _json(f"https://emailrep.io/{v['email']}")
+
+
+@collector("LeakCheck breach intelligence", ["email", "username", "phone"], "breach", unmasked=True, kind="network")
+def c_leakcheck(v):
+    q = v.get("email") or v.get("username") or v.get("phone")
+    if not q:
+        return {"found": 0, "error": "target required"}
+    q = str(q).strip()
+    api_key = os.getenv("LEAKCHECK_APIKEY")
+    try:
+        if leakcheck is not None and api_key and len(api_key) >= 40:
+            client = leakcheck.LeakCheckAPI_v2(api_key=api_key)
+            q_type = "email" if "@" in q else ("phone" if q.replace("+", "").replace("-", "").isdigit() else "username")
+            res = client.lookup(q, query_type=q_type, limit=100)
+            return {
+                "source": "LeakCheck Pro API v2",
+                "target": q,
+                "type": q_type,
+                "found": len(res) if isinstance(res, list) else 0,
+                "entries": res if isinstance(res, list) else [],
+            }
+        elif leakcheck is not None:
+            client = leakcheck.LeakCheckAPI_Public()
+            res = client.lookup(q)
+            return {
+                "source": "LeakCheck Public API",
+                "target": q,
+                "success": res.get("success", False),
+                "found": res.get("found", 0),
+                "fields": res.get("fields", []),
+                "sources": res.get("sources", []),
+            }
+        else:
+            d = _json(f"https://leakcheck.io/api/public?check={q}")
+            return {
+                "source": "LeakCheck Public API (Direct)",
+                "target": q,
+                "success": d.get("success", False) if isinstance(d, dict) else False,
+                "found": d.get("found", 0) if isinstance(d, dict) else 0,
+                "fields": d.get("fields", []) if isinstance(d, dict) else [],
+                "sources": d.get("sources", []) if isinstance(d, dict) else [],
+            }
+    except Exception as e:
+        return {"target": q, "error": str(e), "source": "LeakCheck"}
 
 
 @collector("Gravatar", ["email"], "accounts", kind="network")
