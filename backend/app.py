@@ -15,6 +15,10 @@ import os
 import sys
 from typing import Any
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
 from evidence_bridge import observations_to_evidence_events
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
@@ -43,9 +47,6 @@ from secure_bootstrap import (
     require_api_key,
 )
 from vyuha_formations import COLLECTOR_NAME_MAP, VYUH_FORMATIONS
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
 
 PORT = int(os.environ.get("PORT", 8000))
 
