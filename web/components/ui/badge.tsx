@@ -26,4 +26,3 @@ export interface BadgeProps
 export function Badge({ className, variant, ...props }: BadgeProps) {
   return <div className={badgeVariants({ variant, className })} {...props} />;
 }
-

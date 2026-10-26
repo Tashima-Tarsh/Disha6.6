@@ -231,11 +231,6 @@ export default function SovereignConsole() {
   // Link Graph Canvas Reference
   const graphCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Auto-execute default target on initial load
-  useEffect(() => {
-    handleRunScan("gov.in", "domain", "rapid");
-  }, []);
-
   const handleRunScan = (scanTarget: string, scanSelector: SelectorType, scanDepth: "rapid" | "deep" | "stealth") => {
     if (!scanTarget.trim()) return;
 
@@ -380,6 +375,14 @@ export default function SovereignConsole() {
       }
     });
   };
+
+  // Auto-execute default target on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleRunScan("gov.in", "domain", "rapid");
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Vyuha Activation Handler
   const handleActivateVyuha = (formationId: string) => {

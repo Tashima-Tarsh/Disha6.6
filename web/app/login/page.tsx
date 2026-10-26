@@ -8,4 +8,3 @@ export default async function LoginPage({
   const params = await searchParams;
   return <LoginClient returnUrl={params?.returnUrl || "/"} authError={params?.error} />;
 }
-

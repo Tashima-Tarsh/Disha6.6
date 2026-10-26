@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, FormEvent, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Shield, Lock, Eye, EyeOff, KeyRound, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export function LoginClient({
@@ -10,6 +11,7 @@ export function LoginClient({
   returnUrl?: string;
   authError?: string;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +44,7 @@ export function LoginClient({
         throw new Error("Invalid operator credentials.");
       }
 
-      window.location.assign(returnUrl);
+      router.push(returnUrl);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
       setSubmitting(false);
@@ -51,7 +53,7 @@ export function LoginClient({
 
   function handleMeriPehchaan() {
     const params = new URLSearchParams({ provider: "meri-pehchan", returnUrl });
-    window.location.assign(`/api/auth/oidc/start?${params.toString()}`);
+    router.push(`/api/auth/oidc/start?${params.toString()}`);
   }
 
   return (
