@@ -66,6 +66,9 @@ class ScanInput(BaseModel):
     pan: str | None = None
     aadhaar: str | None = None
     keyword: str | None = None
+    lat: float | None = None
+    lon: float | None = None
+    timestamp: str | None = None
     live: bool | None = None
     missionId: str | None = None
     allowActive: bool = Field(

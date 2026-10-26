@@ -13,8 +13,10 @@ Privacy:
 """
 from __future__ import annotations
 
+import datetime
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -535,6 +537,165 @@ def c_off_ports(v):
         except Exception:
             pass
     return {"ip": ip, "open_ports": open_ports}
+
+
+@collector("AlienVault OTX (Domain)", ["domain"], "infra", kind="network")
+def c_otx_domain(v):
+    url = f"https://otx.alienvault.com/api/v1/indicators/domain/{v['domain']}/general"
+    data = _json(url)
+    if not isinstance(data, dict):
+        return {"domain": v["domain"], "error": "unreachable"}
+    pulse = data.get("pulse_info", {})
+    return {
+        "domain": v["domain"],
+        "pulse_count": pulse.get("count", 0),
+        "validation": data.get("validation", []),
+        "whois": data.get("whois"),
+        "alexa_rank": data.get("alexa"),
+        "indicator_type": data.get("type_title"),
+    }
+
+
+@collector("AlienVault OTX (IP)", ["ip"], "infra", kind="network")
+def c_otx_ip(v):
+    url = f"https://otx.alienvault.com/api/v1/indicators/IPv4/{v['ip']}/general"
+    data = _json(url)
+    if not isinstance(data, dict):
+        return {"ip": v["ip"], "error": "unreachable"}
+    pulse = data.get("pulse_info", {})
+    return {
+        "ip": v["ip"],
+        "pulse_count": pulse.get("count", 0),
+        "reputation": data.get("reputation", 0),
+        "asn": data.get("asn"),
+        "country": data.get("country_name"),
+        "city": data.get("city"),
+    }
+
+
+@collector("URLScan.io public scans", ["domain"], "infra", kind="network")
+def c_urlscan_domain(v):
+    url = f"https://urlscan.io/api/v1/search/?q=domain:{v['domain']}&size=5"
+    data = _json(url)
+    if not isinstance(data, dict):
+        return {"domain": v["domain"], "error": "unreachable"}
+    results = []
+    for item in data.get("results", [])[:5]:
+        page = item.get("page", {})
+        results.append({
+            "url": page.get("url"),
+            "domain": page.get("domain"),
+            "ip": page.get("ip"),
+            "asn": page.get("asnname"),
+            "title": page.get("title"),
+            "screenshot": item.get("screenshot"),
+            "time": item.get("task", {}).get("time"),
+        })
+    return {"domain": v["domain"], "total_scans": data.get("total", 0), "recent": results}
+
+
+@collector("HackerTarget DNS lookup", ["domain"], "infra", kind="network")
+def c_hackertarget_dns(v):
+    raw, code = _get(f"https://api.hackertarget.com/dnslookup/?q={v['domain']}")
+    lines = [line.strip() for line in raw.splitlines() if line.strip() and not line.startswith("API count")]
+    records: dict[str, list[str]] = {}
+    for line in lines:
+        parts = line.split(" : ", 1)
+        if len(parts) == 2:
+            rtype, val = parts[0].strip(), parts[1].strip()
+            records.setdefault(rtype, []).append(val)
+    return {"domain": v["domain"], "status": code, "records": records if records else {"raw": lines[:10]}}
+
+
+@collector("HackerTarget Reverse DNS", ["ip"], "infra", kind="network")
+def c_hackertarget_rev(v):
+    raw, code = _get(f"https://api.hackertarget.com/reversedns/?q={v['ip']}")
+    lines = [line.strip() for line in raw.splitlines() if line.strip() and not line.startswith("API count")]
+    return {"ip": v["ip"], "status": code, "hostnames": lines}
+
+
+@collector("Bluesky social profile", ["username"], "identity", kind="network")
+def c_bluesky(v):
+    u = v["username"].lstrip("@")
+    url = f"https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor={u}.bsky.social"
+    data = _json(url)
+    if isinstance(data, dict) and data.get("did"):
+        return {
+            "found": True,
+            "handle": data.get("handle"),
+            "displayName": data.get("displayName"),
+            "description": data.get("description"),
+            "did": data.get("did"),
+            "followersCount": data.get("followersCount"),
+            "avatar": data.get("avatar"),
+        }
+    return {"found": False, "username": u}
+
+
+@collector("Bellingcat ShadowFinder (Solar Chrono)", ["lat", "lon"], "geo", kind="local")
+def c_shadowfinder(v):
+    try:
+        lat = float(v["lat"])
+        lon = float(v["lon"])
+        dt_str = v.get("timestamp") or v.get("datetime")
+        if dt_str:
+            try:
+                dt_utc = datetime.datetime.fromisoformat(dt_str.replace("Z", "+00:00")).astimezone(datetime.UTC)
+            except Exception:
+                dt_utc = datetime.datetime.now(datetime.UTC)
+        else:
+            dt_utc = datetime.datetime.now(datetime.UTC)
+
+        day_of_year = dt_utc.timetuple().tm_yday
+        hour = dt_utc.hour + dt_utc.minute / 60.0 + dt_utc.second / 3600.0
+        gamma = 2.0 * math.pi / 365.0 * (day_of_year - 1 + (hour - 12.0) / 24.0)
+
+        eqtime = 229.18 * (0.000075 + 0.001868 * math.cos(gamma) - 0.032077 * math.sin(gamma)
+                           - 0.014615 * math.cos(2*gamma) - 0.040849 * math.sin(2*gamma))
+        decl = (0.006918 - 0.399912 * math.cos(gamma) + 0.070257 * math.sin(gamma)
+                - 0.006758 * math.cos(2*gamma) + 0.000907 * math.sin(2*gamma)
+                - 0.002697 * math.cos(3*gamma) + 0.00148 * math.sin(3*gamma))
+
+        time_offset = eqtime + 4.0 * lon
+        tst = hour * 60.0 + time_offset
+        solar_time_deg = (tst / 4.0) - 180.0
+        ha_rad = math.radians(solar_time_deg)
+
+        lat_rad = math.radians(lat)
+        cos_zenith = math.sin(lat_rad) * math.sin(decl) + math.cos(lat_rad) * math.cos(decl) * math.cos(ha_rad)
+        cos_zenith = max(-1.0, min(1.0, cos_zenith))
+        zenith_rad = math.acos(cos_zenith)
+        elevation_deg = 90.0 - math.degrees(zenith_rad)
+
+        if elevation_deg <= 0:
+            return {
+                "coordinates": [lat, lon],
+                "utc_time": dt_utc.isoformat(),
+                "sun_above_horizon": False,
+                "elevation_deg": round(elevation_deg, 2),
+                "shadow_ratio": None,
+                "note": "Sun below horizon at target time (nighttime; no shadow)",
+            }
+
+        shadow_ratio = 1.0 / math.tan(zenith_rad if elevation_deg < 89.9 else 0.01)
+        cos_az = (math.sin(decl) - math.sin(lat_rad) * cos_zenith) / (math.cos(lat_rad) * math.sin(zenith_rad))
+        cos_az = max(-1.0, min(1.0, cos_az))
+        azimuth_deg = math.degrees(math.acos(cos_az))
+        if solar_time_deg > 0:
+            azimuth_deg = 360.0 - azimuth_deg
+
+        return {
+            "coordinates": [lat, lon],
+            "utc_time": dt_utc.isoformat(),
+            "sun_above_horizon": True,
+            "elevation_deg": round(elevation_deg, 2),
+            "azimuth_deg": round(azimuth_deg, 2),
+            "shadow_ratio": round(shadow_ratio, 3),
+            "shadow_direction_deg": round((azimuth_deg + 180.0) % 360.0, 2),
+            "methodology": "Bellingcat ShadowFinder solar geometry",
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def load_india_breaches():
