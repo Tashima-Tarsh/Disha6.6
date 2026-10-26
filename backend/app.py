@@ -264,7 +264,7 @@ def run_leakcheck_lookup(query: str, query_type: str | None = None, limit: int =
 
     q = (query or "").strip()
     if not q:
-        return JSONResponse({"error": "query cannot be empty"}, status_code=400)
+        return {"success": False, "error": "query cannot be empty"}
     api_key = explicit_key or os.getenv("LEAKCHECK_APIKEY")
     try:
         if leakcheck is not None and api_key and len(api_key) >= 40:
@@ -290,9 +290,10 @@ def run_leakcheck_lookup(query: str, query_type: str | None = None, limit: int =
                 "sources": res.get("sources", []),
             }
         else:
-            from urllib.parse import quote
             import json as _j
-            from urllib.request import Request as _Req, urlopen as _uo
+            from urllib.parse import quote
+            from urllib.request import Request as _Req
+            from urllib.request import urlopen as _uo
             req = _Req(f"https://leakcheck.io/api/public?check={quote(q)}", headers={"User-Agent": "PyLCAPI/2.0.0"})
             with _uo(req, timeout=20) as resp:
                 data = _j.loads(resp.read().decode())
@@ -305,7 +306,7 @@ def run_leakcheck_lookup(query: str, query_type: str | None = None, limit: int =
                     "sources": data.get("sources", []),
                 }
     except Exception as e:
-        return JSONResponse({"success": False, "error": str(e), "target": q}, status_code=500)
+        return {"success": False, "error": str(e), "target": q}
 
 
 @app.post("/api/v1/leakcheck/lookup", dependencies=[Depends(require_api_key)])

@@ -1,33 +1,27 @@
 {
+  "extends": "./web/tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "declaration": false,
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": false,
-    "lib": ["ESNext"],
-    "types": ["node", "bun"],
-    "baseUrl": ".",
     "paths": {
-      "bun:bundle": ["./src/types/bun-bundle.d.ts"]
+      "@/*": ["./web/*"]
     }
   },
-  "include": ["disha/**/*.ts", "disha/**/*.tsx"],
+  "include": [
+    "web/next-env.d.ts",
+    "web/app/**/*.ts",
+    "web/app/**/*.tsx",
+    "web/lib/server/**/*.ts",
+    "web/lib/types.ts",
+    "web/lib/utils.ts",
+    "web/lib/share-store.ts",
+    "web/lib/export/**/*.ts",
+    "web/services/**/*.ts"
+  ],
   "exclude": [
-    "node_modules", 
-    "dist", 
-    "disha/apps/*", 
-    "disha/services/integrations/*",
-    "disha/services/ai-platform/frontend/*"
+    "node_modules",
+    "dist",
+    "disha",
+    "src",
+    "web/node_modules",
+    "web/.next"
   ]
 }
-

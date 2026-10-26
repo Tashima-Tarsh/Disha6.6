@@ -143,9 +143,10 @@ def run_holehe(email: str) -> dict[str, Any]:
     if not re.fullmatch(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}", email):
         raise ValueError("invalid_email")
 
+    from types import SimpleNamespace
+
     import httpx
     import trio
-    from types import SimpleNamespace
     from holehe.core import get_functions, import_submodules, launch_module
 
     output: list[dict[str, Any]] = []
