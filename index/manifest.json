@@ -1,0 +1,13 @@
+[
+  {
+    "bytes": 208,
+    "fetched_utc": "2026-10-27T15:20:15.679792Z",
+    "http_status": 200,
+    "parser": "fetch_eci_dataverse",
+    "path": "d:/Downloads/Disha6.6-main/bharatdata/data/eci/raw/eci_dl_2024.csv",
+    "phase": "ingest_raw",
+    "run_id": "run-eci-d6b9c0c6",
+    "sha256": "84d875c3a8fd69c694b11f5fb77227d60ade3fb5ffe5ad57d18aa7826f106796",
+    "url": "https://dataverse.harvard.edu/api/access/datafile/sample_eci_dataverse?state=DL&year=2024"
+  }
+]
