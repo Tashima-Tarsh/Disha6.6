@@ -14661,7 +14661,7 @@
       "general"
     ],
     "runtimeType": "node",
-    "status": "INSTALLED",
+    "status": "HEALTHY",
     "defaultBranch": "main",
     "pinnedSha": "085b2429b11b2b1af43880caaa088575cc98c14f",
     "upstreamSha": "085b2429b11b2b1af43880caaa088575cc98c14f",
@@ -15262,10 +15262,10 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-07T04:58:41.591Z",
-    "lastSmokeTested": "2026-10-27T15:55:41.163Z",
+    "lastSmokeTested": "2026-10-27T17:04:48.142Z",
     "smokeResult": {
       "success": false,
-      "latencyMs": 1,
+      "latencyMs": 0,
       "error": "Active reconnaissance deployment approval is not enabled"
     },
     "healthStatus": "UNCONFIGURED",
@@ -17481,7 +17481,7 @@
     "requiresApiKey": false,
     "apiKeys": [],
     "lastVerified": "2026-10-07T04:58:47.803Z",
-    "lastSmokeTested": "2026-10-27T15:55:40.980Z",
+    "lastSmokeTested": "2026-10-27T17:04:47.782Z",
     "smokeResult": {
       "success": false,
       "latencyMs": 1,

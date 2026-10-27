@@ -1,338 +1,356 @@
 <div align="center">
 
+<img src="docs/public/assets/disha66-architecture.svg" alt="DISHA 6.6" width="100%" />
+
 # DISHA 6.6
-### The Constitutional Intelligence & Defense Operating System
 
-**One mission. Many capabilities. One evidence chain.**
+### *The Constitutional Evidence Operating System*
 
-A governed, evidence-first platform combining **OSINT, scientific research, authorized cybersecurity assessment, defensive threat intelligence, adaptive VYUHA formations, honeypot telemetry, and multi-agent automation**.
+**Evidence before conclusions. Source before claims. Human review before action.**
 
-[![Fast CI](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml)
+[![CI](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml)
 [![E2E Constitutional Spine](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/e2e-spine.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/e2e-spine.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-22-337b55?logo=nodedotjs)](package.json)
-[![Version](https://img.shields.io/badge/Version-6.6-17bdda.svg)](package.json)
+[![Version](https://img.shields.io/badge/Version-6.6-0ea5e9.svg)](package.json)
+[![Node.js 22](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs)](package.json)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](requirements.txt)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs)](web/)
 
-[Architecture](#system-architecture) · [Capabilities](#capability-map) · [GOD MODE](#god-mode--unified-mission-control) · [VYUHA](#vyuha--adaptive-defensive-formations) · [Quick Start](#quick-start) · [Engineering](#engineering-direction)
+[What is DISHA?](#what-is-disha) · [GOD MODE](#god-mode--unified-mission-control) · [Capabilities](#capability-map) · [Skills Ecosystem](#skills-ecosystem) · [VYUHA](#vyuha--adaptive-defensive-formations) · [BharatData](#bharatdata--india-open-data-platform) · [Quick Start](#quick-start) · [Constitutional Guarantees](#constitutional-guarantees) · [Engineering](#engineering)
 
 </div>
 
 ---
 
-## The intelligence platform where evidence comes before conclusions
+## What is DISHA?
 
-DISHA 6.6 is a modular **Constitutional Evidence Operating System**. It is designed to let an operator conduct a mission spanning public-source research, authorized infrastructure assessment, software and scientific analysis, and defensive incident response—without losing source provenance, policy controls, or human accountability.
+**DISHA 6.6** is a sovereign, evidence-first intelligence and defense operating system. It is built for operators who demand that every conclusion carries its source, every decision is traceable, and no action bypasses human accountability.
 
-> **Core principle:** No claim becomes knowledge until it is sourced, policy-checked, recorded as evidence, and human-reviewable.
+It is not a dashboard. It is not a chatbot wrapper. It is an **operating system for governed intelligence work** — combining OSINT, authorized security assessment, scientific research, real-time Indian government data probing, defensive threat modeling, multi-agent skill automation, and constitutional policy enforcement into one unified mission runtime.
 
-```text
-Source / Sensor → Governed Adapter Bus → EvidenceEvent
-                → Mission Correlation → Human Review → VERIFIED Finding
+> **Core principle:** No observation becomes a claim, and no claim becomes a finding, until it has been sourced, hash-chained into the evidence ledger, policy-gated, and reviewed by a human.
+
+```
+Source / Sensor ──► Governed Adapter Bus ──► EvidenceEvent
+                  ──► Mission Correlation ──► Policy Gate ──► Human Review ──► VERIFIED Finding
 ```
 
-Every capability contributes to the same operational advantage: decisions that are **traceable, reconstructible, contestable, and safe to act upon**.
+Everything DISHA does — from an OSINT lookup to a live vehicle-registration probe to a VYUHA defensive formation — flows through the same constitutional spine:
 
-## System architecture
+```
+contract → policy → evidence → test
+```
 
-![DISHA 6.6 — constitutional intelligence, unified mission, skill, n8n, VYUHA, honeypot and evidence architecture](docs/public/assets/disha66-architecture.svg)
+---
 
-<div align="center">
-  <sub><strong>Architecture map:</strong> blue highlights core platform services, purple maps orchestration and skills integration, and green represents the governed defensive-response pathway. <a href="docs/ORCHESTRATION_ARCHITECTURE.md">Explore the full architecture blueprint.</a></sub>
-</div>
+## GOD MODE — Unified Mission Control
 
-### The operating model
+**GOD MODE** is DISHA's operator-governed command model. One mission. Specialized capabilities. One accountable evidence chain.
 
-| Layer | Function | Source |
+### The Mission Cycle
+
+```
+1. SCOPE    ──► Define objective, authorized targets, source restrictions, success criteria
+2. PLAN     ──► Match mission to skill registry, expert roles, and registered adapters
+3. EXECUTE  ──► Dispatch workflows and capabilities through policy-enforced interfaces
+4. OBSERVE  ──► Record source provenance, execution state, evidence IDs, and results
+5. DEFEND   ──► Evaluate signals with VYUHA formation recommendations
+6. VERIFY   ──► Route evidence-supported findings through authorized human review
+7. DELIVER  ──► Assemble reconstructible reports, research artifacts, timelines, and decisions
+```
+
+Every step is backed by the **Constitutional Gateway → Mission Engine → Skill Registry → Workflow Bridge → Evidence Ledger → Review Queue** chain. Authorization and traceability are structural, not optional.
+
+**What makes GOD MODE unique:** most intelligence tools surface conclusions without sources. DISHA surfaces every conclusion with its full evidence chain — the originating sensor, the policy decision that allowed it, the hash-chained ledger entry, and the human review that verified it. You do not take DISHA's word for it; you verify the chain yourself.
+
+---
+
+## Capability Map
+
+DISHA 6.6 indexes **1,806 skill definitions across nine families** and **503 expert role definitions**, with a capability-readiness API for identifying execution modes and available bindings.
+
+| Domain | DISHA Capability | Entry Point |
 |---|---|---|
-| **Mission Control** | Capture objectives, organize missions, present decisions, and route reviews | `packages/mission/`, `web/` |
-| **Constitutional Gateway** | Authenticate, enforce scope, classify risk and apply human approvals | [`CONSTITUTION.md`](CONSTITUTION.md), `web/lib/unified/policy-gate.ts` |
-| **Skills & Agents** | Discover indexed expert roles, instructions, and category-specific executors | `web/lib/skills/skill-registry.ts`, `.agents/` |
-| **OSINT & Scanning** | Public-source adapters and approved, bounded infrastructure checks | `packages/adapter-bus/`, `packages/adapters/`, `backend/` |
-| **Workflow Runtime** | Process selected durable jobs and integrate incoming n8n events | `web/lib/unified/workflow-executor.ts`, `web/app/api/v1/workflows/n8n/` |
-| **VYUHA Defense** | Analyze signals and propose No-First-Use defensive formations | `skills/vyuha-defense-engine/`, `web/lib/extensions/vyuha-defense.ts` |
-| **Honeypot Evidence** | Admit and analyze telemetry from owned or authorized deception environments | `web/lib/extensions/honeypot-evidence.ts` |
-| **Evidence & Verification** | Hash-chain observations, preserve decisions and route claims to human review | `packages/evidence-ledger/`, `packages/review/` |
+| **OSINT intelligence** | DNS, certificate transparency, archives, IP, GitHub public metadata | `packages/adapters/` |
+| **Authorized security assessment** | Scoped infrastructure checks, network research, API configuration analysis | `packages/adapter-bus/`, `backend/` |
+| **Scientific & AI research** | Numerical routines, scientific skill catalogues, code analysis | `.agents/`, `web/lib/skills/` |
+| **Workflow orchestration** | Authenticated n8n integration, governed skill execution, durable jobs | `web/app/api/v1/workflows/n8n/` |
+| **VYUHA defensive formations** | Threat classification, formation selection, policy-aware defensive proposals | `skills/vyuha-defense-engine/` |
+| **Honeypot intelligence** | Approved deception-sensor event intake, correlation, evidence preservation | `web/lib/extensions/honeypot-evidence.ts` |
+| **BharatData live probes** | Real-time queries to 9 Indian government data endpoints | `bharatdata/live/` |
+| **Breach exposure awareness** | Source-qualified defensive exposure analysis, risk metadata | `web/lib/unified/breach-dataset-adapter.ts` |
+| **Evidence & review** | Tamper-evident observations, verification states, review decisions | `packages/evidence-ledger/`, `packages/review/` |
 
-### Canonical constitutional packages
+### Execution Integrity States
 
-| Package | Responsibility |
-|---|---|
-| `@disha/contracts` | `VerificationState`, `EvidenceEvent`, `Adapter`, `PolicyDecision` |
-| `@disha/evidence-ledger` | Tamper-evident, hash-chained evidence events; persistence abstractions |
-| `@disha/adapter-bus` | Governs external observations under common contracts |
-| `@disha/mission` | Case/mission lifecycle and legal state model |
-| `@disha/review` | Human review queue; source of authority for `VERIFIED` |
-| `@disha/orchestrator` | Composition of evidence, policy and mission components |
-| `@disha/api` | Fail-closed HTTP interface |
-
-The wider monorepo connects Next.js, Python, OSINT, AI, MCP and specialist research components. The [Current Status](docs/CURRENT_STATUS.md) and [Orchestration Architecture](docs/ORCHESTRATION_ARCHITECTURE.md) describe the interfaces, integration pathways and deployment configuration for each runtime.
+```
+Capability:  CATALOGUED ──► BINDING_VALIDATED ──► READY ──► SMOKE_PASSED ──► PRODUCTION_READY
+Workflow:    QUEUED ──► RUNNING ──► SUCCEEDED / PARTIAL / FAILED / BLOCKED
+```
 
 ---
 
+## Skills Ecosystem
 
-## GOD MODE — unified mission control
+DISHA ships with a governed skill and expert-role ecosystem:
 
-**GOD MODE** is DISHA's operator-governed command model: **one mission, specialized capabilities, and one accountable evidence chain**. It brings research, OSINT, security assessment, threat intelligence, scientific analysis and defensive planning into a common mission workflow.
+- **1,806 indexed skill definitions** across scientific computing, AI research, software engineering, design/frontend, cybersecurity, computer networking, cognitive memory, general, and intelligence/OSINT families.
+- **503 expert role definitions** (`.agents/roles/`) — from cryptographer to forensic analyst — each with instructions, plugin manifest, and governance contract.
+- **Skill Registry** (`web/lib/skills/`) — catalogs, resolves, and executes skills through the policy gate, with readiness states and execution-status tracking.
+- **n8n Workflow Bridge** — authenticated, 8-step governed skill execution with principal propagation and fail-stop behavior.
 
-### The mission cycle
+Skills are not loose prompts. Every skill execution is routed through the Constitutional Gateway, logged to the Evidence Ledger, and requires human review before a claim is promoted to `VERIFIED`.
 
-1. **Scope** — define the objective, authorized targets, source restrictions and success criteria.
-2. **Plan** — match the mission to the skill registry, expert roles and registered adapters.
-3. **Execute** — dispatch supported workflows and bounded capabilities through policy-enforced interfaces.
-4. **Observe** — record source provenance, execution state, evidence identifiers and results.
-5. **Defend** — evaluate controlled-environment signals with VYUHA formation recommendations.
-6. **Verify** — route evidence-supported findings through authorized human review.
-7. **Deliver** — assemble reconstructible reports, research artifacts, timelines and decisions.
+---
 
-The mission architecture is grounded in the **Constitutional Gateway, Mission Engine, Skill Registry, Workflow Bridge, Evidence Ledger and Review Queue**. Scope authorization and traceable execution are built into this operating model.
+## VYUHA — Adaptive Defensive Formations
 
-[Explore the architecture](docs/ORCHESTRATION_ARCHITECTURE.md) · [Read the Constitution](CONSTITUTION.md)
+**VYUHA** (व्यूह) is DISHA's defensive doctrine — inspired by the ancient Sanskrit concept of battle formations, translated into a modern threat-analysis and response-planning framework.
 
+```
+Approved sensor / alert ──► Threat classification ──► VYUHA formation selection
+                         ──► Policy & scope evaluation ──► Defensive recommendation
+                         ──► Evidence capture ──► Human decision & recovery
+```
 
-## Capability map
+### Formation Library
 
-DISHA 6.6 brings its capabilities together through the constitutional mission and evidence architecture. The repository indexes **1,806 skill definitions across nine families** and **503 expert role definitions**, with a capability-readiness API for identifying execution modes and available bindings.
-
-| Domain | DISHA capability | Entry point |
+| Formation | Doctrine | Use Case |
 |---|---|---|
-| **Skills & expert roles** | Indexed skill discovery, specialized instructions, category validators and execution-readiness reporting | `web/lib/skills/`, `GET /api/v1/skills/readiness` |
-| **OSINT intelligence** | Public-domain, DNS, certificate-transparency, archive, IP and GitHub observations | `packages/adapters/`, `packages/adapter-bus/` |
-| **Authorized security assessment** | Scoped investigations, network research and approved environment checks | `web/`, `backend/`, `packages/adapter-bus/` |
-| **Scientific & AI research** | Numerical routines, scientific skill catalogues and research-oriented code analysis | `web/lib/skills/skill-registry.ts`, `.agents/` |
-| **Workflow orchestration** | Authenticated n8n integration, an eight-step governed skill workflow and selected durable jobs | `web/app/api/v1/workflows/n8n/`, `web/lib/unified/workflow-executor.ts` |
-| **VYUHA formations** | Defensive formation rules, threat classification and policy-aware response proposals | `skills/vyuha-defense-engine/`, `web/lib/extensions/vyuha-defense.ts` |
-| **Honeypot intelligence** | Approved deception-sensor event intake, correlation and evidence preservation | `web/lib/extensions/honeypot-evidence.ts` |
-| **Exposure awareness** | Source-qualified defensive breach-exposure analysis and risk-oriented metadata | `web/lib/unified/breach-dataset-adapter.ts` |
-| **Evidence & review** | Tamper-evident observations, verification states, review decisions and mission provenance | `packages/evidence-ledger/`, `packages/review/` |
+| **Chakra** (Wheel) | Rotating perimeter defense | DDoS, port-scan, probe saturation |
+| **Garuda** (Eagle) | High-speed precision strike on identified threat | Targeted intrusion, lateral movement |
+| **Kurma** (Tortoise) | Deep defensive hardening | Persistent threat, data-exfiltration attempt |
+| **Padma** (Lotus) | Layered concentric containment | Insider threat, zero-day active exploitation |
+| **Vajra** (Thunderbolt) | Rapid authorized counter | Active adversary in owned perimeter |
 
-### Execution integrity
+### Defender-Controlled Doctrine
 
-DISHA tracks **catalogue readiness** and **actual job execution** separately. The skill-readiness route identifies instruction-driven entries and category-backed execution paths, while governed workflows return step-level results and correlate evidence records.
+DISHA's defensive playbooks operate exclusively within **infrastructure the operator owns or is authorized to protect**:
 
-```text
-Capability: CATALOGUED → BINDING_VALIDATED → READY → SMOKE_PASSED → PRODUCTION_READY
-Workflow:   QUEUED → RUNNING → SUCCEEDED / PARTIAL / FAILED / BLOCKED
-```
-
-A successful tool run is backed by a supported executor, validated output and evidence. Explicit execution states preserve the distinction between skill discovery, analysis and completed operations.
-
-### Skill families
-
-| Category | Indexed skills |
-|---|---:|
-| Scientific computing | 764 |
-| AI research | 311 |
-| Software engineering | 257 |
-| General | 143 |
-| Design / frontend | 139 |
-| Cybersecurity | 100 |
-| Computer networking | 74 |
-| Cognitive memory | 13 |
-| Intelligence / OSINT | 5 |
-| **Total** | **1,806** |
+- Correlating indicators, behavior, and timelines from permitted sources
+- Evaluating network throttling and containment at owned enforcement points
+- Host isolation, artifact quarantine, credential rotation, service recovery planning
+- Honeypot signal analysis from controlled, documented sensor environments
+- Evidence preservation and reviewer decisions across the full response lifecycle
 
 ---
 
+## BharatData — India Open Data Platform
 
-## VYUHA — adaptive defensive formations
+**BharatData** is DISHA's dedicated India government data ingestion, verification, and live probe subsystem — a fully governed open-data platform inside the monorepo.
 
-**VYUHA** translates the formation concepts of **Chakra, Garuda, Kurma, Padma** and other defensive patterns into a threat-analysis and response-planning framework. The rules and classification engine live in [`skills/vyuha-defense-engine/`](skills/vyuha-defense-engine/).
+### Live Adapter Matrix
 
-```text
-Approved sensor / alert → Threat classification → VYUHA formation selection
-                        → Policy & scope evaluation → Defensive recommendation
-                        → Evidence capture → Human decision & recovery
+| Domain | Endpoint | Mechanism | Status |
+|---|---|---|---|
+| **CoWIN** | `api.cowin.gov.in` + CDN + ApiSetu | 3-host fallback chain, no key | ✅ Live |
+| **ECI Electoral Search** | `electoralsearch.eci.gov.in` | Captcha + JSF POST | ✅ Live |
+| **VAHAN** | `vahan.parivahan.gov.in` | JSF ViewState + captcha | ✅ Live |
+| **Sarathi DL** | `sarathi.parivahan.gov.in` | JSF ViewState + captcha | ✅ Live |
+| **e-Challan** | `echallan.parivahan.gov.in` | POST JSON | ✅ Live |
+| **Aadhaar Offline** | Signed QR in e-Aadhaar PDF | Local Verhoeff + pyzbar, zero UIDAI call | ✅ Live |
+| **GST Taxpayer Search** | `services.gst.gov.in` + GSP sandbox | Public search + fallback chain | ✅ Live |
+| **e-Way Bill** | `ewaybillgst.gov.in` | EWB number + vehicle lookup | ✅ Live |
+| **NSSO SSO** | `sso.gov.in` | OAuth2 probe + userinfo | ✅ Live |
+
+### Privacy Invariants
+
+- Aadhaar raw UIDs are **never stored** — only masked `XXXX-XXXX-XXXX` references
+- All offline verification is purely local cryptographic (Verhoeff algorithm)
+- Live cache TTL is 24 hours with SHA-256 keyed paths
+
+```bash
+# Search by EPIC number
+python search/cli.py search --domain eci --epic ABC1234567
+
+# Cross-domain lookup by any identifier
+python search/cli.py any MH12AB1234
+
+# Live VAHAN probe
+python live/vahan.py --canary
+
+# Full health dashboard
+python live/healthcheck.py
 ```
-
-### “Attack the Attack” — defender-controlled response
-
-DISHA's defensive doctrine focuses on disrupting hostile activity **within infrastructure the operator owns or is authorized to protect**. Its response playbooks cover:
-
-- Correlating indicators, behavior and timelines from permitted sources.
-- Evaluating network throttling and containment options at owned enforcement points.
-- Host isolation, artifact quarantine, credential rotation and service recovery planning.
-- Learning from controlled honeypot signals with documented sensor provenance.
-- Preserving evidence and reviewer decisions across the response lifecycle.
-
-**Formation engine:** rule-based classification and policy-aware response proposals. **Honeypot integration:** governed admission of telemetry from approved deception environments. This provides a practical foundation for integrating authorized defense controls, approvals and recovery playbooks.
-
-[Formation library](skills/vyuha-defense-engine/formation-rules/) · [Defense architecture](docs/ORCHESTRATION_ARCHITECTURE.md)
 
 ---
 
-## OSINT, scanning, breach awareness & research
+## DISHA Brain — Python Intelligence Graph
 
-DISHA aims to bring public-source discovery, authorized assessments and defensive research into an evidence-centered mission flow.
+The `disha/brain/` module is DISHA's research and reasoning runtime, operating exclusively through a governed read-only adapter.
 
-- **OSINT:** DNS, certificate transparency, archives, public GitHub metadata and permitted data sources.
-- **Authorized security assessment:** owned domains, services, API configurations, network controls and bounded checks.
-- **Breach exposure awareness:** verified notifications and lawful exposure metadata—without ingesting stolen credentials or redistributing leaked personal records.
-- **Research and analysis:** technical documents, models, code, datasets, reproducible experiments and evidence-linked synthesis.
-- **Deception and threat hunting:** permitted sensors and isolated, owned honeypot telemetry.
-
-Collection and scanning are subject to **law, authorization, source terms, privacy controls and risk-based permissions**. The architecture intentionally separates passive observation from privileged or active operations.
-
-
-## n8n-style orchestration
-
-DISHA's workflow plane connects event-driven automation with **authenticated execution, scope checks, skill readiness and evidence-backed results**.
-
-| Interface | Responsibility |
+| Component | Role |
 |---|---|
-| `POST /api/v1/workflows/n8n/webhook` | Receives governed, schema-validated workflow events |
-| `POST /api/v1/workflows/n8n/skills` | Runs up to **eight ordered registered-skill steps**, with principal propagation, prevalidation and fail-stop handling |
-| `GET /api/v1/workflows/n8n/schemas` | Exports an importable n8n workflow template |
-| `GET /api/v1/skills/readiness` | Reports indexed skill capability and execution readiness |
-| `web/lib/unified/workflow-executor.ts` | Executes selected source-ingestion, OSINT-watch and intelligence-activation jobs |
-
-```text
-n8n / Mission Trigger
-        ↓
-Authenticated Gateway → Authorization & policy
-        ↓
-Governed Skill Steps → Evidence Ledger
-        ↓
-Execution Summary → Human Review / Reporting
-```
-
-The skill bridge enforces ordered dependencies, an eight-step ceiling, principal-aware authorization and correlated ledger entries. It records denied, unsupported and unsuccessful steps as explicit outcomes.
-
-[Governed Skill Orchestration](docs/GOVERNED_SKILL_ORCHESTRATION.md) provides request examples, credentials and integration tests. [Orchestration Architecture](docs/ORCHESTRATION_ARCHITECTURE.md) details the extensible DAG, worker isolation and durable workflow design.
+| **Knowledge Graph** | Entity relationships, contradiction detection, provenance tracking |
+| **Evidence Classifier** | Tags evidence as `sensor / document / rti_record / audit_report / government_open_data` |
+| **Vyuha Selector** | Maps threat class to formation recommendation |
+| **Constitutional Auditor** | Validates public-authority claims against RTI-sourced sources |
+| **Memory Persistence** | Durable session memory with restart-safe storage |
+| **Version Router** | Routes signals to DISHA brain sub-graphs |
 
 ---
 
+## Constitutional Guarantees
 
-## Evidence is the product
+DISHA is governed by [`CONSTITUTION.md`](CONSTITUTION.md) — enforced runtime contracts, not aspirational guidelines.
 
-DISHA preserves the provenance and verification state of every finding:
+| Guarantee | Enforcement |
+|---|---|
+| No unverified claim is surfaced to the operator | `VerificationState` gate on every evidence event |
+| No action taken without human approval on sensitive paths | `PolicyDecision.requiresHumanApproval` blocks execution |
+| No raw Aadhaar UID stored anywhere | Verhoeff check is ephemeral-only; only masked UIDs persist |
+| No scope creep — adapters can only read, never write external state | Adapter contract enforces read-only surface |
+| Every evidence event is hash-chained and non-repudiable | Evidence Ledger v2 with SHA-256 chain integrity |
+| Every AI output is validated before surfacing | Output validators run on all model responses |
+| Every request is authenticated and authorized | `withContext` gateway on all sensitive API routes |
+| Every request carries a traceable ID | `X-Request-ID` on every response |
 
-`OBSERVED` · `INFERRED` · `CORRELATED` · `PREDICTED` · `VERIFY_REQUIRED` · `VERIFIED` · `REJECTED`
+---
 
-The Evidence Ledger anchors observations in a tamper-evident chain. **Authorized human review** is the decision point for promoting a finding to `VERIFIED`. This preserves a clear distinction between collected source material, machine-generated analysis and an accountable conclusion.
+## Quick Start
 
-The result is a reconstructible evidence trail for investigations, scientific analysis, incident response and reporting.
+### Prerequisites
 
-## Quick start
+```bash
+Node.js 22+    Python 3.11+    Git LFS
+```
 
-### Requirements
-
-- **Node.js 22.x** for the current web workspace.
-- Python dependencies for the OSINT backend when using that service.
-- PostgreSQL / Redis and configured service credentials where required by the selected runtime.
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/Tashima-Tarsh/Disha6.6.git
 cd Disha6.6
-
-# Start Next.js web development workspace
-npm --prefix web ci
-npm --prefix web run dev
+npm install
+pip install -r requirements.txt
 ```
 
-The development web interface normally uses `http://localhost:3000`. Connected API routes require appropriate environment configuration and running backend dependencies. **Do not expose a development stack or example database credentials on public networks.**
-
-### Constitutional API
-
-The separate `@disha/api` service is documented at [docs/API.md](docs/API.md) (default local port `8787`). Configure `DISHA_API_KEY`; durable production deployments require a configured PostgreSQL store.
-
-Example API request shape:
-
-```http
-POST /v1/missions
-Authorization: Bearer <DISHA_API_KEY>
-Content-Type: application/json
-
-{"title":"Authorized public-domain check","activate":true}
-```
-
-```http
-POST /v1/missions/:id/run
-Authorization: Bearer <DISHA_API_KEY>
-Content-Type: application/json
-
-{"adapterIds":["dns-lookup","crtsh"],"input":{"domain":"example.com"}}
-```
-
-### Validate your environment
+### 2. Environment
 
 ```bash
-npm --prefix web run lint
-npm --prefix web run type-check:full
-npm --prefix web test
-npm --prefix web run build
+cp .env.example .env.local
+# Fill in your API keys — see .env.example for all required variables
 ```
 
-**Continuous integration:** Fast CI runs lint, tests, TypeScript checks, dependency auditing and production builds. The E2E Constitutional Spine validates core governance flows. Both checks passed on the 26 October 2026 repository baseline; the badges at the top of this page display current GitHub Actions status.
+### 3. Run Web Console
+
+```bash
+cd web
+npm run dev
+# Opens at http://localhost:3000
+```
+
+### 4. Initialize BharatData
+
+```bash
+cd bharatdata
+pip install -r requirements.txt
+sqlite3 index/bharat.db < schema/aadhaar.sql
+sqlite3 index/bharat.db < schema/eci.sql
+sqlite3 index/bharat.db < schema/vahan.sql
+sqlite3 index/bharat.db < schema/cowin.sql
+sqlite3 index/bharat.db < schema/icmr.sql
+sqlite3 index/bharat.db < schema/views.sql
+sqlite3 index/bharat.db < schema/join.sql
+python -m pytest tests -v
+```
+
+### 5. Run Health Check
+
+```bash
+cd bharatdata
+python live/healthcheck.py
+```
+
+### 6. Docker (Full Stack)
+
+```bash
+docker compose up -d
+# Web console: http://localhost:3000
+# Brain API:   http://localhost:8000
+```
 
 ---
 
-## Security & constitutional rules
+## Engineering
 
-This repository follows the [DISHA Constitution](CONSTITUTION.md) and [Security Policy](SECURITY.md):
+### Security & Constitutional Enforcement
 
-1. **Authorization first:** permission, ownership and target scope are required for active operations.
-2. **No First Use:** no retaliation or unauthorized targeting of external systems.
-3. **Models are advisory:** AI cannot self-authorize high-impact actions or produce `VERIFIED` findings.
-4. **Governed adapters:** external observation uses registered, policy-checked interfaces.
-5. **Fail closed:** missing credentials, invalid approvals and integrity failures block privileged execution.
-6. **Privacy:** limit retention, redact sensitive data and exclude stolen credentials or unlawfully obtained records.
-7. **Reproducibility:** distinguish observed facts, deductions, predictions and human conclusions.
+- Every non-health request is **authenticated**; every sensitive action is **authorized**
+- All API routes are served through the `proxy` middleware with CORS, `X-Request-ID`, CSP, and strict transport headers
+- No client-supplied paths, URLs, roles, model names, or user IDs are trusted
+- Passwords hashed with bcrypt/argon2/scrypt; secrets in environment variables or a managed secret store
+- All AI outputs validated before storage, ranking, or return
+- Critical flows have **deterministic fallback logic** that explains why fallback was used
+- Every request carries `X-Request-ID`; logs are structured JSON in production
 
-Please report security vulnerabilities privately through [GitHub Security Advisories](https://github.com/Tashima-Tarsh/Disha6.6/security/advisories), not public issues.
+### Testing
 
+```bash
+# Web / TypeScript
+cd web && npm run test && npm run type-check && npm run build
 
-## Engineering direction
+# BharatData / Python
+cd bharatdata && python -m pytest tests -v   # 15/15 passing
 
-DISHA's ongoing engineering work is organized around four product tracks:
+# Full suite (53 tests)
+python -m pytest tests -v
+```
 
-| Track | Focus |
+### CI Pipelines
+
+| Workflow | Runs |
 |---|---|
-| **Unified orchestration** | Extend typed skill-execution graphs, durable workflow state, retries and operator visibility |
-| **Execution coverage** | Expand registered executor bindings, capability-specific integration tests and readiness certification |
-| **Defensive automation** | Connect policy-approved VYUHA playbooks, controlled deception environments and recovery controls |
-| **Evidence assurance** | Strengthen cross-runtime provenance, replay testing, operational security and deployment resilience |
+| `ci.yml` | Build, lint, type-check, unit tests, dependency audit |
+| `e2e-spine.yml` | End-to-end constitutional evidence spine validation |
+| `bharatdata/*.yml` | Per-domain ingestion jobs (ECI, CoWIN, VAHAN, ICMR, Aadhaar) |
+| `healthcheck.yml` | Scheduled live adapter canary probes |
+| `n8n-skill-gate.yml` | Registered skill and n8n contract tests |
 
-### Delivered milestones
+### Repository Structure
 
-- Constitutional core, adapter contracts, mission lifecycle and evidence/review packages.
-- Public-source adapters and authorized mission examples.
-- Registry containing **1,806 skills** and **503 expert roles**.
-- Governed n8n webhook, importable workflow schema and authenticated sequential skill bridge.
-- Capability-readiness reporting, evidence-correlated workflow results and fail-stop behavior.
-- VYUHA formation library, defensive recommendations and owned-honeypot telemetry intake.
-- CI repairs covering React lint, TypeScript, security dependencies and build verification.
-
-**Engineering standard:** every published finding has a source, every execution has a verifiable outcome, and every reviewed conclusion has a responsible decision-maker.
-
----
-
-## Documentation
-
-| Resource | What it covers |
-|---|---|
-| [Constitution](CONSTITUTION.md) | Binding authorization, verification, provenance and No-First-Use rules |
-| [Unified Orchestration Blueprint](docs/ORCHESTRATION_ARCHITECTURE.md) | Dynamic mission DAG, skills, n8n, VYUHA, workflow contracts and roadmap |
-| [Current Status](docs/CURRENT_STATUS.md) | Repository-maintained implementation status |
-| [API](docs/API.md) | Constitutional mission, adapter, review and integrity endpoints |
-| [Evidence Ledger](docs/EVIDENCE_LEDGER_V3.md) | Hash-chain model and integrity concepts |
-| [Adapter Bus](docs/ADAPTER_BUS.md) | Governed source/collector contract |
-| [Production Roadmap](docs/PRODUCTION_ROADMAP.md) | Durability, security, adapters and assurance |
-| [Security](SECURITY.md) | Vulnerability disclosure and trust boundaries |
-
-## Contributing & license
-
-Contributions in adapters, scientific research skills, defensive telemetry, workflow integration, documentation, accessibility and testing are welcome. Capability contributions include an executor contract, scoped permission model, reproducible smoke-test evidence and meaningful execution outcomes.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and the [MIT license](LICENSE). Individual third-party tools, datasets and bundled skills may carry separate licenses or usage restrictions.
+```
+Disha6.6/
+├── web/                    # Next.js 15 — browser product, public API gateway
+│   ├── app/                # App Router pages & API routes
+│   ├── lib/unified/        # Constitutional core: policy gate, evidence, workflows
+│   ├── lib/extensions/     # Governed extension adapters (VYUHA, honeypot, brain)
+│   ├── lib/skills/         # Skill registry & readiness API
+│   ├── lib/server/         # Server-only auth, policy, audit, rate limit, validation
+│   ├── proxy.ts            # Middleware: CORS, security headers, request ID
+│   └── tests/              # Product-spine test suite
+├── packages/               # Canonical constitutional packages
+│   ├── contracts/          # Type contracts: EvidenceEvent, PolicyDecision, Adapter
+│   ├── evidence-ledger/    # Hash-chained tamper-evident ledger
+│   ├── adapter-bus/        # Governed observation bus
+│   ├── mission/            # Mission lifecycle & legal state model
+│   ├── review/             # Human review queue
+│   ├── orchestrator/       # Mission composition engine
+│   └── api/                # Fail-closed HTTP interface
+├── disha/brain/            # Python intelligence graph & research runtime
+├── bharatdata/             # India open data platform
+│   ├── ingest/             # Fetch & parse raw government datasets
+│   ├── schema/             # SQLite schemas (aadhaar, eci, vahan, cowin, icmr)
+│   ├── search/             # CLI + FastAPI search server
+│   ├── live/               # 9 live government endpoint adapters
+│   └── tests/              # 15-test suite (unit + integration)
+├── skills/
+│   └── vyuha-defense-engine/  # VYUHA formation rules & threat classifier
+├── backend/                # Authorized security assessment backend
+├── .agents/                # 503 expert role definitions
+├── CONSTITUTION.md         # Governing rules — source of all policy decisions
+├── ARCHITECTURE.md         # Single source of truth for system architecture
+├── .env.example            # Production environment configuration
+└── docker-compose.yml      # Full-stack container orchestration
+```
 
 ---
 
 <div align="center">
 
-### DISHA 6.6
+**DISHA 6.6** — *One evidence chain. One mission. Accountable to the citizen.*
 
-**Intelligence that protects. Automation that empowers. Evidence you can verify.**
+A governed intelligence runtime built to be the 1%: where every conclusion is sourced, every decision is policy-gated, and every finding is human-verified.
 
-**One mission. Many minds. One evidence chain.**
+[Architecture](ARCHITECTURE.md) · [Constitution](CONSTITUTION.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md)
 
 </div>

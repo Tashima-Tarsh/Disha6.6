@@ -5,6 +5,7 @@ import {
   fetchCagAuditRecords,
   type CagAuditTopic,
 } from "@/lib/cag-audit-connector";
+import { withContext } from "@/lib/unified/api";
 
 export const dynamic = "force-dynamic";
 
@@ -14,21 +15,23 @@ const allowedTopics = new Set<CagAuditTopic>(defaultCagTopics.concat([
 ]));
 
 export async function GET(request: NextRequest) {
-  const yearFrom = toBoundedYear(request.nextUrl.searchParams.get("yearFrom"), 2015);
-  const yearTo = toBoundedYear(request.nextUrl.searchParams.get("yearTo"), new Date().getFullYear());
-  const startPage = toBoundedNumber(request.nextUrl.searchParams.get("startPage"), 1, 1, 10000);
-  const maxPages = toBoundedNumber(request.nextUrl.searchParams.get("maxPages"), 5, 1, 25);
-  const topics = parseTopics(request.nextUrl.searchParams.get("topics"));
+  return withContext(request, "audit:read", async () => {
+    const yearFrom = toBoundedYear(request.nextUrl.searchParams.get("yearFrom"), 2015);
+    const yearTo = toBoundedYear(request.nextUrl.searchParams.get("yearTo"), new Date().getFullYear());
+    const startPage = toBoundedNumber(request.nextUrl.searchParams.get("startPage"), 1, 1, 10000);
+    const maxPages = toBoundedNumber(request.nextUrl.searchParams.get("maxPages"), 5, 1, 25);
+    const topics = parseTopics(request.nextUrl.searchParams.get("topics"));
 
-  const result = await fetchCagAuditRecords({
-    yearFrom: Math.min(yearFrom, yearTo),
-    yearTo: Math.max(yearFrom, yearTo),
-    startPage,
-    maxPages,
-    topics,
+    const result = await fetchCagAuditRecords({
+      yearFrom: Math.min(yearFrom, yearTo),
+      yearTo: Math.max(yearFrom, yearTo),
+      startPage,
+      maxPages,
+      topics,
+    });
+
+    return NextResponse.json(result);
   });
-
-  return NextResponse.json(result);
 }
 
 function parseTopics(value: string | null): CagAuditTopic[] {

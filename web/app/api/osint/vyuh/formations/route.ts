@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getOsintBackendUrl } from "@/lib/server/osint-backend-client";
+import { withContext } from "@/lib/unified/api";
 
 const BACKEND = getOsintBackendUrl();
 
@@ -58,27 +59,37 @@ export const CANONICAL_VYUH_FORMATIONS: Record<string, any> = {
   },
 };
 
-export async function GET() {
-  try {
-    const res = await fetch(`${BACKEND}/api/v1/vyuh/formations`, {
-      headers: {
-        Authorization: `Bearer ${process.env.DISHA_OSINT_API_KEY || "dev-local-key"}`,
-      },
-      next: { revalidate: 0 },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json(data, { status: 200 });
+export async function GET(request: NextRequest) {
+  return withContext(request, "agent:read", async () => {
+    const apiKey = process.env.DISHA_OSINT_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "osint_backend_unconfigured", status: "unavailable" },
+        { status: 503 }
+      );
     }
-  } catch {
-    // Graceful deterministic fallback
-  }
 
-  return NextResponse.json({
-    mode: "proposal_only",
-    note: "Vyuha is advisory under the Constitution. Built-in formation catalog active.",
-    formations: CANONICAL_VYUH_FORMATIONS,
-  }, {
-    status: 200,
+    try {
+      const res = await fetch(`${BACKEND}/api/v1/vyuh/formations`, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        next: { revalidate: 0 },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return NextResponse.json(data, { status: 200 });
+      }
+    } catch {
+      // Graceful deterministic fallback
+    }
+
+    return NextResponse.json({
+      mode: "proposal_only",
+      note: "Vyuha is advisory under the Constitution. Built-in formation catalog active.",
+      formations: CANONICAL_VYUH_FORMATIONS,
+    }, {
+      status: 200,
+    });
   });
 }
