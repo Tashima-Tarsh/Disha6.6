@@ -3,6 +3,7 @@ import {
   buildAdapterEvidence,
   type AdapterContext,
   type AdapterEvidence,
+  type GovernedOsintAdapter,
 } from "../unified/osint-adapter-bus";
 import {
   createPassiveDnsAdapter,
@@ -10,6 +11,16 @@ import {
   createRdapAdapter,
   createWaybackAdapter,
   createCisaKevAdapter,
+  type DnsLookupInput,
+  type DnsLookupOutput,
+  type CertificateLookupInput,
+  type CertificateLookupOutput,
+  type RdapLookupInput,
+  type RdapLookupOutput,
+  type WaybackLookupInput,
+  type WaybackLookupOutput,
+  type CisaKevLookupInput,
+  type CisaKevLookupOutput,
 } from "../unified/public-osint-adapters";
 import { DatasetsService } from "../unified/datasets-service";
 
@@ -98,11 +109,25 @@ function normalizeDomain(raw: string): string {
 }
 
 export class DomainIntelligenceWorkflowService {
-  private readonly dnsAdapter = createPassiveDnsAdapter();
-  private readonly ctAdapter = createCertificateTransparencyAdapter();
-  private readonly rdapAdapter = createRdapAdapter();
-  private readonly waybackAdapter = createWaybackAdapter();
-  private readonly cisaKevAdapter = createCisaKevAdapter();
+  private readonly dnsAdapter: GovernedOsintAdapter<DnsLookupInput, DnsLookupOutput>;
+  private readonly ctAdapter: GovernedOsintAdapter<CertificateLookupInput, CertificateLookupOutput>;
+  private readonly rdapAdapter: GovernedOsintAdapter<RdapLookupInput, RdapLookupOutput>;
+  private readonly waybackAdapter: GovernedOsintAdapter<WaybackLookupInput, WaybackLookupOutput>;
+  private readonly cisaKevAdapter: GovernedOsintAdapter<CisaKevLookupInput, CisaKevLookupOutput>;
+
+  constructor(opts?: {
+    dnsAdapter?: GovernedOsintAdapter<DnsLookupInput, DnsLookupOutput>;
+    ctAdapter?: GovernedOsintAdapter<CertificateLookupInput, CertificateLookupOutput>;
+    rdapAdapter?: GovernedOsintAdapter<RdapLookupInput, RdapLookupOutput>;
+    waybackAdapter?: GovernedOsintAdapter<WaybackLookupInput, WaybackLookupOutput>;
+    cisaKevAdapter?: GovernedOsintAdapter<CisaKevLookupInput, CisaKevLookupOutput>;
+  }) {
+    this.dnsAdapter = opts?.dnsAdapter ?? createPassiveDnsAdapter();
+    this.ctAdapter = opts?.ctAdapter ?? createCertificateTransparencyAdapter();
+    this.rdapAdapter = opts?.rdapAdapter ?? createRdapAdapter();
+    this.waybackAdapter = opts?.waybackAdapter ?? createWaybackAdapter();
+    this.cisaKevAdapter = opts?.cisaKevAdapter ?? createCisaKevAdapter();
+  }
 
   public async investigateDomain(
     inputDomain: string,
