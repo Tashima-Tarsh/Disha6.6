@@ -1,0 +1,50 @@
+name: Ingest and Verify Aadhaar Offline Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_type:
+        description: 'Package type to parse (xml or qr)'
+        required: true
+        default: 'xml'
+        type: choice
+        options:
+          - xml
+          - qr
+
+jobs:
+  ingest-aadhaar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Parse Offline Packages
+        run: |
+          if [ "${{ inputs.package_type }}" = "xml" ]; then
+            for f in data/aadhaar/raw/*.xml; do
+              [ -e "$f" ] || continue
+              python -m ingest.parse_aadhaar_xml --input "$f"
+            done
+          else
+            for f in data/aadhaar/raw/*.bin; do
+              [ -e "$f" ] || continue
+              python -m ingest.parse_aadhaar_qr --input "$f"
+            done
+          fi
+
+      - name: Enforce Privacy and Invariant Tests
+        run: pytest tests/test_invariant.py -v
+
+      - name: Validate Ledger Integrity
+        run: python -m ingest.ledger --validate
+

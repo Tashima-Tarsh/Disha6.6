@@ -1,0 +1,36 @@
+name: Ingest ICMR Surveillance & Lab Network
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # Daily at 04:00 UTC
+  workflow_dispatch:
+    inputs:
+      state:
+        description: 'State Name'
+        required: true
+        default: 'Delhi'
+
+jobs:
+  ingest-icmr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch and Parse ICMR
+        run: |
+          python -m ingest.fetch_icmr --state "${{ inputs.state || 'Delhi' }}"
+          python -m ingest.parse_icmr --input data/icmr/raw/*.json
+
+      - name: Validate Ledger Integrity
+        run: python -m ingest.ledger --validate
+

@@ -1,0 +1,36 @@
+name: Ingest CoWIN Aggregates
+
+on:
+  schedule:
+    - cron: '30 3 * * *' # Daily at 03:30 UTC
+  workflow_dispatch:
+    inputs:
+      state_id:
+        description: 'CoWIN State ID'
+        required: true
+        default: '9'
+
+jobs:
+  ingest-cowin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch and Parse CoWIN
+        run: |
+          python -m ingest.fetch_cowin --state-id ${{ inputs.state_id || 9 }}
+          python -m ingest.parse_cowin --input data/cowin/raw/*.json
+
+      - name: Validate Ledger Integrity
+        run: python -m ingest.ledger --validate
+

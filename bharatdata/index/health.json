@@ -1,0 +1,42 @@
+{
+  "services": {
+    "aadhaar_offline": {
+      "endpoint": "local_cryptographic_engine",
+      "latency_ms": 0,
+      "status": "HEALTHY",
+      "zero_uid_storage_invariant": "ENFORCED"
+    },
+    "cowin": {
+      "endpoint": "https://cdn-api.co-vin.in/api/v2/admin/location/states",
+      "http_status": 503,
+      "latency_ms": 596,
+      "status": "DEGRADED"
+    },
+    "echallan": {
+      "endpoint": "https://echallan.parivahan.gov.in",
+      "http_status": 403,
+      "latency_ms": 460,
+      "status": "DEGRADED"
+    },
+    "eci": {
+      "endpoint": "https://electoralsearch.eci.gov.in",
+      "http_status": 200,
+      "latency_ms": 532,
+      "status": "HEALTHY"
+    },
+    "sarathi": {
+      "endpoint": "https://sarathi.parivahan.gov.in",
+      "error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))",
+      "latency_ms": 609,
+      "status": "UNREACHABLE"
+    },
+    "vahan": {
+      "endpoint": "https://vahan.parivahan.gov.in",
+      "http_status": 403,
+      "latency_ms": 1870,
+      "status": "DEGRADED"
+    }
+  },
+  "status": "DEGRADED",
+  "updated_utc": "2026-10-27T15:22:36.435575Z"
+}

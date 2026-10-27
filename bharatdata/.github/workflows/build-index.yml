@@ -1,0 +1,34 @@
+name: Build Index and SQLite Database
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Initialize Database Schema
+        run: make init-db
+
+      - name: Validate Ledger Integrity
+        run: python -m ingest.ledger --validate
+
+      - name: Run Test Suite
+        run: pytest tests -v
+

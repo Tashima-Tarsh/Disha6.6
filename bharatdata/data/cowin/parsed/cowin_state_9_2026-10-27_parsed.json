@@ -1,0 +1,37 @@
+{
+  "districts": [
+    {
+      "district_id": 140,
+      "district_name": "Central Delhi",
+      "dose1": 1700000,
+      "dose2": 1300000,
+      "precaution_dose": 200000,
+      "report_date": "2026-10-27",
+      "state_id": 9,
+      "total_doses": 3200000
+    },
+    {
+      "district_id": 141,
+      "district_name": "South Delhi",
+      "dose1": 2100000,
+      "dose2": 1750000,
+      "precaution_dose": 250000,
+      "report_date": "2026-10-27",
+      "state_id": 9,
+      "total_doses": 4100000
+    }
+  ],
+  "source_file": "data\\cowin\\raw\\cowin_state_9_2026-10-27.json",
+  "state_summary": {
+    "covaxin": 7100000,
+    "covishield": 29800000,
+    "dose1": 19520000,
+    "dose2": 15410000,
+    "precaution_dose": 2311000,
+    "report_date": "2026-10-27",
+    "sputnik_v": 341000,
+    "state_id": 9,
+    "state_name": "Delhi",
+    "total_doses": 37241000
+  }
+}

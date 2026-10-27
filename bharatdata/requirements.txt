@@ -1,0 +1,9 @@
+requests
+httpx
+pdfplumber
+lxml
+pytest
+ddddocr
+fastapi
+uvicorn
+sqlite-utils

@@ -1,0 +1,40 @@
+name: Ingest ECI Dataverse
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Weekly Monday at 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      state:
+        description: 'State Code (e.g. DL, UP, KA)'
+        required: true
+        default: 'DL'
+      year:
+        description: 'Election Year'
+        required: true
+        default: '2024'
+
+jobs:
+  ingest-eci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch and Parse ECI Data
+        run: |
+          python -m ingest.fetch_eci_dataverse --state "${{ inputs.state || 'DL' }}" --year ${{ inputs.year || 2024 }}
+          python -m ingest.parse_eci_dataverse --input data/eci/raw/*.csv
+
+      - name: Validate Ledger Integrity
+        run: python -m ingest.ledger --validate
+

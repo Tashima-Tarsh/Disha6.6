@@ -1,0 +1,44 @@
+name: Ingest Vahan Aggregates
+
+on:
+  schedule:
+    - cron: '0 5 1 * *' # Monthly 1st at 05:00 UTC
+  workflow_dispatch:
+    inputs:
+      state_code:
+        description: 'State Code (e.g. DL, MH)'
+        required: true
+        default: 'DL'
+      year:
+        description: 'Year'
+        required: true
+        default: '2024'
+      month:
+        description: 'Month (1-12)'
+        required: true
+        default: '1'
+
+jobs:
+  ingest-vahan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch and Parse Vahan Aggregates
+        run: |
+          python -m ingest.fetch_vahan_agg --state "${{ inputs.state_code || 'DL' }}" --year ${{ inputs.year || 2024 }} --month ${{ inputs.month || 1 }}
+          python -m ingest.parse_vahan_agg --input data/vahan/raw/*.json
+
+      - name: Validate Ledger Integrity
+        run: python -m ingest.ledger --validate
+

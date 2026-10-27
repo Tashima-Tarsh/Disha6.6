@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+index/bharat.db
+index/*.db-wal
+index/*.db-shm
+data/*/live-cache/
