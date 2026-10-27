@@ -19,6 +19,10 @@ const nextConfig = {
   // Keep behavior deterministic in production images.
   poweredByHeader: false,
   experimental: { cpus: 2 },
+  // CI runs `npm run type-check:full` (tsconfig.full.json) before build, which
+  // covers MORE files than Next.js build's tsconfig.json. Skip Next.js's
+  // redundant in-build type check to avoid cancellation on 2-CPU runners.
+  typescript: { ignoreBuildErrors: true },
   // This app lives inside the monorepo; keep Turbopack rooted at web/.
   turbopack: {
     root: __dirname,
