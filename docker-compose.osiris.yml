@@ -1,0 +1,134 @@
+# DISHA 6.6 x OSIRIS integrated Docker Compose
+#
+# Runs OSIRIS alongside the existing DISHA services without changing their port
+# assignments. Use together with the root docker-compose.yml:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.osiris.yml up
+#
+# Port allocation (development):
+#   DISHA web            : localhost:3000  (root docker-compose.yml)
+#   OSINT backend        : localhost:8000  (root docker-compose.yml)
+#   SpiderFoot           : localhost:5001  (root docker-compose.yml)
+#   ChangeDetection      : localhost:5000  (root docker-compose.yml)
+#   PostgreSQL           : localhost:5432  (root docker-compose.yml)
+#   Redis                : localhost:6379  (root docker-compose.yml)
+#   ntfy                 : localhost:8080  (root docker-compose.yml)
+#   OSIRIS UI            : localhost:3005  (this file, container 3000)
+#   OSIRIS intel (scanner): localhost:4000 (this file, container 4000, debug only)
+#   Ollama               : localhost:11434 (this file, container 11434)
+#
+# No API keys or credentials are committed. SCANNER_KEY is intentionally empty by
+# default so the RECON scanner reports CONFIGURATION REQUIRED instead of 503ing
+# silently. Set OSIRIS_SCANNER_KEY in your environment to enable it.
+
+name: disha-osiris
+
+services:
+  osiris:
+    build:
+      context: disha/services/integrations/osint-upstreams/osiris
+      dockerfile: Dockerfile
+    container_name: disha-osiris
+    # Container always listens on 3000; host port fixed at 3005 to avoid
+    # colliding with DISHA web on 3000. Override with OSIRIS_HOST_PORT.
+    ports:
+      - "127.0.0.1:${OSIRIS_HOST_PORT:-3005}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - OSIRIS_PORT=3000
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - UV_THREADPOOL_SIZE=64
+      # RECON scanner backend. Empty SCANNER_KEY disables scanner features
+      # (CONFIGURATION REQUIRED) — do not commit a value.
+      - SCANNER_URL=http://osiris-intel:4000
+      - SCANNER_KEY=${OSIRIS_SCANNER_KEY:-}
+      # Local Ollama for AI (Docker service discovery).
+      - OLLAMA_BASE_URL=http://osiris-ollama:11434/v1
+      - OLLAMA_NATIVE_BASE_URL=http://osiris-ollama:11434
+      - OLLAMA_MODEL=${OSIRIS_OLLAMA_MODEL:-qwen2.5:7b}
+      - DISHA_LOCAL_ONLY_MODE=true
+      # Advertise DISHA integration so OSIRIS source adapters can self-identify.
+      - DISHA_INTEGRATION=osiris-subsystem
+      - DISHA_SERVICE_NAME=disha-osiris
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); })"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: "1001:1001"
+    mem_limit: 1g
+    cpus: "0.75"
+    networks:
+      - disha-osiris_net
+    depends_on:
+      osiris-intel:
+        condition: service_started
+      osiris-ollama:
+        condition: service_started
+
+  osiris-intel:
+    # OSIRIS RECON scanner backend. Built from upstream ./intel. Not published
+    # beyond loopback; reachable by the osiris service over Docker DNS.
+    build:
+      context: disha/services/integrations/osint-upstreams/osiris/intel
+      dockerfile: Dockerfile
+    container_name: disha-osiris-intel
+    ports:
+      - "127.0.0.1:${OSIRIS_INTEL_HOST_PORT:-4000}:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - OSIRIS_KEY=${OSIRIS_SCANNER_KEY:-}
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:4000/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); })"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: "1000:1000"
+    mem_limit: 512m
+    cpus: "0.5"
+    networks:
+      - disha-osiris_net
+
+  osiris-ollama:
+    image: ollama/ollama:latest
+    container_name: disha-osiris-ollama
+    ports:
+      - "127.0.0.1:${OLLAMA_HOST_PORT:-11434}:11434"
+    volumes:
+      - osiris-ollama-models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: "1000:1000"
+    mem_limit: 2g
+    cpus: "1.0"
+    networks:
+      - disha-osiris_net
+
+networks:
+  disha-osiris_net:
+    driver: bridge
+
+volumes:
+  osiris-ollama-models:

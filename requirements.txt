@@ -1,0 +1,4 @@
+requests
+httpx
+pytest
+sqlite-utils
