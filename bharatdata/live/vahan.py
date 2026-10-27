@@ -29,6 +29,17 @@ def lookup(reg_no):
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
+def check_health() -> dict:
+    import time; start = time.time()
+    try:
+        r = session("vahan").get(BASE, timeout=10, allow_redirects=True)
+        status = "HEALTHY" if r.status_code < 500 else "DEGRADED"
+    except Exception as e:
+        return {"status": "UNREACHABLE", "error": str(e), "endpoint": BASE,
+                "latency_ms": int((time.time() - start) * 1000)}
+    return {"status": status, "endpoint": BASE,
+            "latency_ms": int((time.time() - start) * 1000)}
+
 def canary():
     r = lookup("MH12AB1234")
     ok = isinstance(r, dict) and "html" in r

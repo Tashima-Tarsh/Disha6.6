@@ -1,61 +1,45 @@
-"""eChallan Live Traffic Violation Status Adapter."""
+import sys
+from live._base import session, cache_get, cache_put
 
-from __future__ import annotations
+DOMAIN = "echallan"
+BASE = "https://echallan.parivahan.gov.in/index/accused-challan"
 
-import re
-import time
-import requests
-
-ECHALLAN_BASE = "https://echallan.parivahan.gov.in"
-
-
-def check_health(timeout: float = 5.0) -> dict:
-    """Probe eChallan portal availability."""
-    start = time.time()
+def lookup(challan_no=None, vehicle_no=None, dl_no=None):
+    key = f"{challan_no}|{vehicle_no}|{dl_no}"
+    c = cache_get(DOMAIN, key)
+    if c: return c
+    s = session("echallan")
     try:
-        res = requests.head(
-            ECHALLAN_BASE,
-            headers={"User-Agent": "BharatData-LiveProbe/1.0"},
-            timeout=timeout,
-            allow_redirects=True,
-        )
-        latency_ms = int((time.time() - start) * 1000)
-        return {
-            "status": "HEALTHY" if res.status_code < 400 else "DEGRADED",
-            "http_status": res.status_code,
-            "latency_ms": latency_ms,
-            "endpoint": ECHALLAN_BASE,
-        }
-    except Exception as exc:
-        latency_ms = int((time.time() - start) * 1000)
-        return {
-            "status": "UNREACHABLE",
-            "error": str(exc),
-            "latency_ms": latency_ms,
-            "endpoint": ECHALLAN_BASE,
-        }
+        payload = {}
+        if challan_no: payload["challanNo"] = challan_no
+        if vehicle_no: payload["vehicleNo"] = vehicle_no
+        if dl_no:      payload["dlNo"] = dl_no
+        r = s.post(BASE, json=payload, timeout=30,
+                   headers={"Content-Type": "application/json",
+                            "Accept": "application/json"})
+        j = r.json() if r.headers.get("Content-Type","").startswith("application/json") else {"html": r.text}
+        j["_source"] = BASE
+        cache_put(DOMAIN, key, j)
+        return j
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
 
+def check_health() -> dict:
+    import time; start = time.time()
+    try:
+        r = session("echallan").get("https://echallan.parivahan.gov.in", timeout=10, allow_redirects=True)
+        status = "HEALTHY" if r.status_code < 500 else "DEGRADED"
+    except Exception as e:
+        return {"status": "UNREACHABLE", "error": str(e), "endpoint": BASE,
+                "latency_ms": int((time.time() - start) * 1000)}
+    return {"status": status, "endpoint": BASE,
+            "latency_ms": int((time.time() - start) * 1000)}
 
-def validate_challan_number(challan_number: str) -> bool:
-    """Check standard Parivahan challan syntax (e.g. DL1234562401011234)."""
-    clean = re.sub(r"[^A-Za-z0-9]", "", challan_number).upper()
-    return bool(re.match(r"^[A-Z]{2}[0-9A-Z]{12,20}$", clean))
+def canary():
+    r = lookup(vehicle_no="MH12AB1234")
+    ok = isinstance(r, dict) and ("_source" in r)
+    print("echallan canary:", "OK" if ok else r)
+    return ok
 
-
-def lookup_challan_status(challan_number: str) -> dict:
-    """Validate challan number syntax."""
-    clean = re.sub(r"[^A-Za-z0-9]", "", challan_number).upper()
-    if not validate_challan_number(clean):
-        return {
-            "challan_number": challan_number,
-            "valid_format": False,
-            "status": "INVALID_FORMAT",
-        }
-
-    return {
-        "challan_number": clean,
-        "valid_format": True,
-        "state_code": clean[:2],
-        "status": "FORMAT_VERIFIED",
-    }
-
+if __name__ == "__main__" and "--canary" in sys.argv:
+    sys.exit(0 if canary() else 1)
