@@ -72,10 +72,14 @@ jobs:
 
       - name: Build
         env:
+          # Production validation in web/lib/server/env.ts requires these values
+          # even for CI-only builds. Keep them deterministic, non-secret placeholders.
           NODE_ENV: production
           DISHA_AUTH_MODE: password
           DISHA_JWT_SECRET: test-secret-at-least-32-characters-long
           DISHA_DEV_PASSWORD: test-dev-password-12-plus
           DISHA_WORKER_TOKEN: test-worker-token-at-least-24
           DISHA_ALLOW_STATELESS_AUTH: "true"
+          DISHA_BRAIN_URL: http://localhost:8080
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
         run: npm run build
