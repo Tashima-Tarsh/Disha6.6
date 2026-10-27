@@ -88,3 +88,6 @@
 	url = https://github.com/OpenOSINT/OpenOSINT.git
 	branch = main
 	shallow = true
+[submodule "disha/services/integrations/osint-upstreams/osiris"]
+	path = disha/services/integrations/osint-upstreams/osiris
+	url = https://github.com/simplifaisoul/osiris.git

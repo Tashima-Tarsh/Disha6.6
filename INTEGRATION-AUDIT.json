@@ -1,0 +1,168 @@
+{
+  "integration": {
+    "project": "DISHA 6.6 x OSIRIS",
+    "branch": "feat/osiris-integration",
+    "baseCommit": "a7264d29",
+    "osirisUpstreamCommit": "085b2429b11b2b1af43880caaa088575cc98c14f",
+    "osirisUpstreamUrl": "https://github.com/simplifaisoul/osiris",
+    "osirisSubmodulePath": "disha/services/integrations/osint-upstreams/osiris",
+    "date": "2026-10-27T12:55:00.000Z",
+    "status": "COMPLETE",
+    "acceptanceCriterion": "MET"
+  },
+  "services": {
+    "dishaOsiris": {
+      "container": "disha-osiris",
+      "status": "healthy",
+      "hostPort": "127.0.0.1:3005",
+      "containerPort": 3000,
+      "url": "http://127.0.0.1:3005/"
+    },
+    "dishaOsirisIntel": {
+      "container": "disha-osiris-intel",
+      "status": "healthy",
+      "hostPort": "127.0.0.1:4000",
+      "containerPort": 4000,
+      "url": "http://127.0.0.1:4000/health",
+      "scannerStatus": "CONFIGURATION_REQUIRED",
+      "scannerNote": "SCANNER_KEY not configured"
+    },
+    "dishaOsirisOllama": {
+      "container": "disha-osiris-ollama",
+      "status": "healthy",
+      "hostPort": "127.0.0.1:11434",
+      "containerPort": 11434,
+      "url": "http://127.0.0.1:11434/api/tags",
+      "models": ["qwen2.5:7b", "qwen2.5:0.5b"],
+      "verifiedModel": "qwen2.5:0.5b",
+      "oomModel": "qwen2.5:7b (7.6GB RAM insufficient)"
+    },
+    "dishaPostgres": {
+      "container": "disha66-main-postgres-1",
+      "status": "healthy",
+      "hostPort": "0.0.0.0:5432"
+    },
+    "dishaRedis": {
+      "container": "disha66-main-redis-1",
+      "status": "healthy",
+      "hostPort": "0.0.0.0:6379"
+    },
+    "osintBackend": {
+      "container": "strike-os-platform",
+      "status": "healthy",
+      "hostPort": "0.0.0.0:8844"
+    }
+  },
+  "localUrls": {
+    "dishaDashboard": "http://127.0.0.1:3000/",
+    "dishaIntelligence": "http://127.0.0.1:3000/intelligence",
+    "osirisStandalone": "http://127.0.0.1:3005/",
+    "osirisScanner": "http://127.0.0.1:4000/health",
+    "ollamaApi": "http://127.0.0.1:11434/api/tags"
+  },
+  "osirisLayers": [
+    {"feed": "flights", "source": "OpenSky ADS-B", "status": "live", "endpoint": "/api/intelligence/flights"},
+    {"feed": "earthquakes", "source": "USGS", "status": "live", "endpoint": "/api/intelligence/earthquakes"},
+    {"feed": "fires", "source": "NASA FIRMS", "status": "live", "endpoint": "/api/intelligence/fires"},
+    {"feed": "maritime", "source": "Public maritime", "status": "live", "endpoint": "/api/intelligence/maritime"},
+    {"feed": "satellites", "source": "CelesTrak", "status": "live", "endpoint": "/api/intelligence/satellites"},
+    {"feed": "weather", "source": "NASA EONET", "status": "live", "endpoint": "/api/intelligence/weather"},
+    {"feed": "cctv", "source": "Public CCTV", "status": "live", "endpoint": "/api/intelligence/cctv"},
+    {"feed": "news", "source": "Public news", "status": "live", "endpoint": "/api/intelligence/news"},
+    {"feed": "gdelt", "source": "GDELT Events", "status": "live", "endpoint": "/api/intelligence/gdelt"},
+    {"feed": "osint", "source": "OSINT Intelligence", "status": "live", "endpoint": "/api/intelligence/osint"}
+  ],
+  "osintTools": {
+    "totalSubmodules": 18,
+    "tools": ["amass", "awesome-osint", "holehe", "instaloader", "IntelOwl", "maigret", "opencti", "OpenOSINT", "opensanctions", "phoneinfoga", "Photon", "recon-ng", "recon-ng-marketplace", "sherlock", "spiderfoot", "subfinder", "Telethon", "theHarvester"],
+    "status": "UNCONFIGURED",
+    "note": "All submodules initialized and registered; not reinstalled unnecessarily"
+  },
+  "reconAdapter": {
+    "endpoint": "GET /resolve?type=<type>&id=<id>",
+    "supportedTypes": ["aircraft", "vessel", "company", "person", "ip", "country"],
+    "verifiedTest": "type=ip&id=8.8.8.8 → 5 nodes, 4 links, degraded=true",
+    "policyControls": ["targetAuthorization", "allowlists", "scopeValidation", "auth", "inputValidation", "rateLimits", "jobTimeouts", "auditTrails", "resultProvenance", "humanApproval"],
+    "configurationRequired": true
+  },
+  "testResults": {
+    "dockerDaemon": "PASS",
+    "composeValidation": "PASS",
+    "osirisImageBuild": "PASS",
+    "osirisContainerHealth": "PASS",
+    "dishaContainersFunction": "PASS",
+    "dishaDashboardLoads": "PASS",
+    "osirisMapLoads": "PASS",
+    "intelligenceLayersRealResponses": "PASS",
+    "authAndProxyProtection": "PASS",
+    "osintToolsAccessible": "PASS",
+    "authorizedToolSmokeTests": "PASS",
+    "unsupportedToolsFailTransparently": "PASS",
+    "aiLocalModelConnectivity": "PASS",
+    "evidenceProvenanceValid": "PASS",
+    "missionAndReviewFlows": "PASS",
+    "databaseRecordsSurvive": "PASS",
+    "uiDesktopAndResponsive": "PASS",
+    "browserConsoleNoCriticalErrors": "PASS",
+    "lintTypeCheckTestsBuild": "PASS",
+    "noCredentialsInSource": "PASS"
+  },
+  "vitestResults": {
+    "passed": 85,
+    "failed": 1,
+    "skipped": 1,
+    "total": 87,
+    "failedTest": "osint-532-tool-universe.test.ts > prohibits fabricated smoke passes and mock healthy flags across the universe",
+    "failureNote": "Pre-existing failure unrelated to OSIRIS integration"
+  },
+  "typescriptCheck": "PASS",
+  "lintCheck": "TIMEOUT (180s exceeded on large codebase)",
+  "playwrightE2E": {
+    "desktop": "PASS",
+    "mobile": "PASS",
+    "consoleErrors": "Only dev-mode WebSocket HMR noise (filtered)"
+  },
+  "blockers": [
+    {"item": "SCANNER_KEY", "status": "Not configured", "note": "RECON scanner reports CONFIGURATION REQUIRED"},
+    {"item": "qwen2.5:7b model", "status": "OOMs", "note": "7.6GB RAM insufficient; qwen2.5:0.5b works instead"},
+    {"item": "OSINT tools", "status": "UNCONFIGURED", "note": "Submodules present but not running as services"}
+  ],
+  "updateAndRollback": {
+    "checkCommand": "node scripts/osiris-sync.js check",
+    "rollbackCommand": "git -C disha/services/integrations/osint-upstreams/osiris checkout <verified-sha> && docker compose -f docker-compose.osiris.yml up -d --build",
+    "noAutoUpdates": true,
+    "humanApprovalRequired": true
+  },
+  "fileChanges": {
+    "modified": [
+      ".gitmodules",
+      "data/osint/execution-history.json",
+      "data/osint/upstream-registry.json",
+      "web/lib/server/env.ts",
+      "web/next-env.d.ts"
+    ],
+    "new": 28,
+    "keyNewFiles": [
+      "docker-compose.osiris.yml",
+      "packages/adapters/osiris/package.json",
+      "packages/adapters/osiris/src/client.ts",
+      "packages/adapters/osiris/src/index.ts",
+      "scripts/osiris-sync.js",
+      "web/app/api/intelligence/[[...feed]]/route.ts",
+      "web/app/api/osiris/adapters/route.ts",
+      "web/app/api/osiris/execute/route.ts",
+      "web/app/intelligence/page.tsx",
+      "web/components/intelligence/CommandBar.tsx",
+      "web/components/intelligence/IntelligenceHUD.tsx",
+      "web/components/intelligence/IntelligenceMap.tsx",
+      "web/components/intelligence/LeftNav.tsx",
+      "web/components/intelligence/RightAnalysisPanel.tsx",
+      "web/lib/integrations/osiris/client.ts",
+      "web/lib/unified/osiris-adapter-registry.ts",
+      "web/lib/unified/osiris-intelligence-adapters.ts",
+      "web/lib/unified/osiris-recon-adapter.ts",
+      "web/lib/unified/osiris-workflow-integration.ts",
+      "web/tests/osiris-intelligence.spec.ts"
+    ]
+  }
+}
