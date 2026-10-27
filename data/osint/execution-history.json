@@ -1,6 +1,2966 @@
 [
   {
     "toolId": "abster-intelligence",
+    "runId": "run-f86fba615b78f6c3",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 29,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-27T15:55:54.359Z"
+  },
+  {
+    "toolId": "marinetraffic",
+    "runId": "run-09119b6bddcc3b18",
+    "status": "reference_only",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "gui_view",
+    "workerType": "geospatial",
+    "durationMs": 0,
+    "data": {
+      "mode": "interactive_gui_reference",
+      "portalUrl": "https://www.marinetraffic.com/",
+      "targetQuery": "IMO9123456",
+      "type": "web_interactive",
+      "instructions": "Interactive GUI tool 'MarineTraffic' cannot be executed headlessly in background mode. Open https://www.marinetraffic.com/ manually to interact with the application."
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Tool 'MarineTraffic' is an interactive desktop/web GUI application. Background automated execution was not attempted."
+    ],
+    "provenanceHash": "e180f15765ac8867c726e1190647cd3a65a2e62c3264c4b5c0756cb393b71a54",
+    "executedAt": "2026-10-27T15:55:54.254Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-f778bcf67e1a5357",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6308,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-27T15:55:54.182Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-6aa52fb60215fe8f",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 31,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "9ce6c9e7a847aa8d2ffbbc44d206825bb50914c73a0fd70e6c7b27834ad9b261",
+    "executedAt": "2026-10-27T15:55:53.850Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-79a2808ffd1cf10f",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6884,
+    "data": {
+      "dataset": "vcdb",
+      "target": "nonexistent-canary-target-99999-never-matched.internal",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'nonexistent-canary-target-99999-never-matched.internal'."
+    ],
+    "provenanceHash": "a13df85f07e3c1cedc6918ca90c7a396bf2e5ad2806a52703b4d229d2171015a",
+    "executedAt": "2026-10-27T15:55:53.745Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-73026b8ca93a64ce",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6741,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT_QUERY_RECORD_9999999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT_QUERY_RECORD_9999999'."
+    ],
+    "provenanceHash": "34ebb25f102e9184b24cc71554eb839b9f08b5d7aab9d7edb570190daaf7c1bd",
+    "executedAt": "2026-10-27T15:55:53.394Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-34c722d40a5b0d55",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 4924,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-e424d5221ea29ff9",
+        "retrievedAt": "2026-10-27T15:55:47.471Z",
+        "provenanceHash": "e424d5221ea29ff97a51ab81985ee4ce5ac9789efe0d1fe4fb72e3e55dae892f"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "e424d5221ea29ff97a51ab81985ee4ce5ac9789efe0d1fe4fb72e3e55dae892f",
+    "executedAt": "2026-10-27T15:55:47.472Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-f8c1fa7795c764e0",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 4361,
+    "data": {
+      "dataset": "vcdb",
+      "target": "breach",
+      "matchCount": 20,
+      "matches": [
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Morgan Stanley Smith Barney in 2011",
+          "Entity": "Morgan Stanley Smith Barney",
+          "Description": "Morgan Stanley mailed a CD containing sensitive data about investors in tax-exempt funds and bonds to the New York State Department of Taxation and Finance. The package arrived at the building but when it arrived at the relevant desk the data CD was missing.",
+          "Year": "2011",
+          "Records Leaked": "34,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Yale University in 2010",
+          "Entity": "Yale University",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "43,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2011 - Army",
+          "Entity": "US Military",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "50,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Stanford University in 2008",
+          "Entity": "Stanford University",
+          "Description": "Tens of thousands of past and current Stanford University employees had personal information - including their dates of birth, Social Security numbers and home addresses - stored on the hard drive of a stolen university laptop.",
+          "Year": "2008",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://www.sfgate.com/bayarea/article/Stanford-employees-data-on-stolen-laptop-3281185.php",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - Department of Defense",
+          "Entity": "US Military",
+          "Description": "\"According to a report to Congress, assessment forms of 72,000 service members who returned from deployment to Iraq or Afghanistan between Jan 1, 2007 to May 31, 2008 were breached. The forms ask for the service member's SSN,. Name, date of birth.\"",
+          "Year": "2009",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "University of Wisconsin Milwaukee in 2011",
+          "Entity": "University of Wisconsin Milwaukee",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "73,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Texas Lottery in 2007",
+          "Entity": "Texas Lottery",
+          "Description": "Data on more than 89,000 lottery winners (including names, Social Security numbers, addresses and prize amounts )were taken from the agency without permission by a former computer analyst who copied the password-free data. The employee added he wanted the information \"for possible future reference as a programmer at other state agencies.\"",
+          "Year": "2007",
+          "Records Leaked": "89,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Inside Job",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Starbucks in 2008",
+          "Entity": "Starbucks",
+          "Description": "A laptop was stolen that contained private information on 97,000 employees, including names, addresses and Social Security numbers. Employees tried to sue Starbucks in California winning their case in the appeals court before losing in the higher federal court as they were unable to prove any cognizable harm or injury.",
+          "Year": "2008",
+          "Records Leaked": "97,000",
+          "Target Organization Type": "Retail",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://privacyblog.littler.com/2011/01/articles/identity-theft/after-starbucks-laptop-is-stolen-alleged-victims-of-identity-theft-win-pyrrhic-victory/",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Crescent Health Inc., Walgreens in 2013",
+          "Entity": "Crescent Health Inc., Walgreens",
+          "Description": "Names, Social Security numbers, health insurance identification numbers, health insurance information, dates of birth, diagnoses, other medical information, disability codes, addresses, and phone numbers may have been exposed via a laptop theft.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Juvenile Justice - Florida in 2013",
+          "Entity": "Department of Juvenile Justice - Florida",
+          "Description": "Three computers were stolen that contained both youth and employee records was reported stolen on January 2, 2013.  Over 100,000 records were on the device and may have been exposed.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Memorial Healthcare System - Florida in 2011",
+          "Entity": "Memorial Healthcare System - Florida",
+          "Description": "An employee of an affiliated physician'۪s office may have improperly accessed patient information through a web portal used by physicians who provide care and treatment at MHS. Specifically, patients'۪ names, dates of birth, and Social Security numbers.",
+          "Year": "2011",
+          "Records Leaked": "102,153",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.mhs.net/pdf/release071112.pdf, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Health Care Policy & Financing - Colorado in 2010",
+          "Entity": "Department of Health Care Policy & Financing - Colorado",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "105,470",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.databreaches.net/?p=12611, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Central Hudson Gas & Electric in 2013",
+          "Entity": "Central Hudson Gas & Electric",
+          "Description": "Customer banking information and other personal information may have been accessed during the hack.",
+          "Year": "2013",
+          "Records Leaked": "110,000",
+          "Target Organization Type": "Energy",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "AT&T in 2008",
+          "Entity": "AT&T",
+          "Description": "A laptop was stolen from a car containing unencrypted Social Security numbers and bonus/salary info of AT&T employees.",
+          "Year": "2008",
+          "Records Leaked": "113,000",
+          "Target Organization Type": "Telecoms",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Kirkwood Community College in 2013",
+          "Entity": "Kirkwood Community College",
+          "Description": "Hacked online database",
+          "Year": "2013",
+          "Records Leaked": "125,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach, http://www.databreachwatch.org/community-college-data-breach-leaks-125000-ssns/",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Lincoln Medical & Mental Health Center in 2010",
+          "Entity": "Lincoln Medical & Mental Health Center",
+          "Description": "130,495 patients lost their protected health information after seven CDs were lost in transit.",
+          "Year": "2010",
+          "Records Leaked": "130,495",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.phiprivacy.net/?tag=lincoln-medical-and-mental-health-center, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - National Guard",
+          "Entity": "US Military",
+          "Description": "About 131,000 former and current Army Guard members potentially affected  when a personal laptop owned by an Army Guard contractor was stolen. Database incuded names, Social Security Numbers, incentive payment amounts and payment dates.",
+          "Year": "2009",
+          "Records Leaked": "131,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Citigroup in 2013",
+          "Entity": "Citigroup",
+          "Description": "Third big data breach from Citigroup.\"The personal information of 150,000 consumers who went into bankruptcy between 2007 and 2011 ''' including their social security numbers ''' were exposed after Citi failed to properly redact court records before they were put on the Public Access to Court Electronic Records (PACER) system.\"",
+          "Year": "2013",
+          "Records Leaked": "150,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Poor Security",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://news.softpedia.com/news/Citi-Exposes-Details-of-150-000-Individuals-Who-Went-into-Bankruptcy-369979.shtml",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Ankle & Foot Center of Tampa Bay - Florida in 2010",
+          "Entity": "Ankle & Foot Center of Tampa Bay - Florida",
+          "Description": "The information hacked included information such as patient names, social security numbers, date of birth, home addressees, account numbers, and healthcare services and related diagnostic codes.",
+          "Year": "2010",
+          "Records Leaked": "156,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.phiprivacy.net/?p=5743, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "State Court System - Washington in 2013",
+          "Entity": "State Court System - Washington",
+          "Description": "Up to 160,000 Social Security numbers and a million driver's license numbers may have been accessed by hackers exploiting old versions of Adobe Cold Fusion software on the server.",
+          "Year": "2013",
+          "Records Leaked": "160,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.reuters.com/article/2013/05/09/us-usa-hack-washingtonstate-idUSBRE9480YY20130509, http://www.privacyrights.org/data-breach",
+          "Sources name": "Reuters, Privacy Rights"
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 20,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Morgan Stanley Smith Barney in 2011\",\"Entity\":\"Morgan Stanley Smith Barney\",\"Description\":\"Morgan Stanley",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Morgan Stanley Smith Barney in 2011",
+          "Entity": "Morgan Stanley Smith Barney",
+          "Description": "Morgan Stanley mailed a CD containing sensitive data about investors in tax-exempt funds and bonds to the New York State Department of Taxation and Finance. The package arrived at the building but when it arrived at the relevant desk the data CD was missing.",
+          "Year": "2011",
+          "Records Leaked": "34,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-5ff12125736a7a99",
+        "retrievedAt": "2026-10-27T15:55:46.702Z",
+        "provenanceHash": "5ff12125736a7a99e413c6ccf551f831e73bbe34d1e8e3393be4e094171418b6"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Yale University in 2010\",\"Entity\":\"Yale University\",\"Description\":\"\",\"Year\":\"2010\",\"Records Leaked\":\"43,0",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Yale University in 2010",
+          "Entity": "Yale University",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "43,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-8ccbe689a40c376f",
+        "retrievedAt": "2026-10-27T15:55:46.711Z",
+        "provenanceHash": "8ccbe689a40c376ff3853f7df2f26cd044bb5f5ae91b0667295e3e459ae4cd0b"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"US Military in 2011 - Army\",\"Entity\":\"US Military\",\"Description\":\"\",\"Year\":\"2011\",\"Records Leaked\":\"50,00",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2011 - Army",
+          "Entity": "US Military",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "50,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-d4d164dcd3b82800",
+        "retrievedAt": "2026-10-27T15:55:46.712Z",
+        "provenanceHash": "d4d164dcd3b82800395a78b511b306c08ab272960c8a81512f038317cd5f1e54"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Stanford University in 2008\",\"Entity\":\"Stanford University\",\"Description\":\"Tens of thousands of past and ",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Stanford University in 2008",
+          "Entity": "Stanford University",
+          "Description": "Tens of thousands of past and current Stanford University employees had personal information - including their dates of birth, Social Security numbers and home addresses - stored on the hard drive of a stolen university laptop.",
+          "Year": "2008",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://www.sfgate.com/bayarea/article/Stanford-employees-data-on-stolen-laptop-3281185.php",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-fa82ba6684c749b3",
+        "retrievedAt": "2026-10-27T15:55:46.712Z",
+        "provenanceHash": "fa82ba6684c749b378ef7d56d6ed9a5b201d68a0e771bc1d285206f4cd4426b2"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"US Military in 2009 - Department of Defense\",\"Entity\":\"US Military\",\"Description\":\"\\\"According to a repor",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - Department of Defense",
+          "Entity": "US Military",
+          "Description": "\"According to a report to Congress, assessment forms of 72,000 service members who returned from deployment to Iraq or Afghanistan between Jan 1, 2007 to May 31, 2008 were breached. The forms ask for the service member's SSN,. Name, date of birth.\"",
+          "Year": "2009",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-7687e15b190b9aa7",
+        "retrievedAt": "2026-10-27T15:55:46.712Z",
+        "provenanceHash": "7687e15b190b9aa7a0d2047acd2f8edc4b9f6cca6825b662946d801e52c1b6d4"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"University of Wisconsin Milwaukee in 2011\",\"Entity\":\"University of Wisconsin Milwaukee\",\"Description\":\"\",",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "University of Wisconsin Milwaukee in 2011",
+          "Entity": "University of Wisconsin Milwaukee",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "73,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": ""
+        },
+        "id": "adapter-ca574c00171c3a85",
+        "retrievedAt": "2026-10-27T15:55:46.712Z",
+        "provenanceHash": "ca574c00171c3a85190d3496bad17c13401e676b1bb33fc70147343aaee78890"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Texas Lottery in 2007\",\"Entity\":\"Texas Lottery\",\"Description\":\"Data on more than 89,000 lottery winners (",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Texas Lottery in 2007",
+          "Entity": "Texas Lottery",
+          "Description": "Data on more than 89,000 lottery winners (including names, Social Security numbers, addresses and prize amounts )were taken from the agency without permission by a former computer analyst who copied the password-free data. The employee added he wanted the information \"for possible future reference as a programmer at other state agencies.\"",
+          "Year": "2007",
+          "Records Leaked": "89,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Inside Job",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-d6cc1393bd641959",
+        "retrievedAt": "2026-10-27T15:55:46.713Z",
+        "provenanceHash": "d6cc1393bd641959dd043e75f37483dc786198cef2b1a9af95d831647e919d07"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Starbucks in 2008\",\"Entity\":\"Starbucks\",\"Description\":\"A laptop was stolen that contained private informa",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Starbucks in 2008",
+          "Entity": "Starbucks",
+          "Description": "A laptop was stolen that contained private information on 97,000 employees, including names, addresses and Social Security numbers. Employees tried to sue Starbucks in California winning their case in the appeals court before losing in the higher federal court as they were unable to prove any cognizable harm or injury.",
+          "Year": "2008",
+          "Records Leaked": "97,000",
+          "Target Organization Type": "Retail",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://privacyblog.littler.com/2011/01/articles/identity-theft/after-starbucks-laptop-is-stolen-alleged-victims-of-identity-theft-win-pyrrhic-victory/",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-677eda80de735759",
+        "retrievedAt": "2026-10-27T15:55:46.713Z",
+        "provenanceHash": "677eda80de735759080e0a7141f4baef8c6ca5385a92b033b5e8cb4033e09e33"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Crescent Health Inc., Walgreens in 2013\",\"Entity\":\"Crescent Health Inc., Walgreens\",\"Description\":\"Names,",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Crescent Health Inc., Walgreens in 2013",
+          "Entity": "Crescent Health Inc., Walgreens",
+          "Description": "Names, Social Security numbers, health insurance identification numbers, health insurance information, dates of birth, diagnoses, other medical information, disability codes, addresses, and phone numbers may have been exposed via a laptop theft.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        "id": "adapter-573e74756c3a89fb",
+        "retrievedAt": "2026-10-27T15:55:46.717Z",
+        "provenanceHash": "573e74756c3a89fb75da70f2627332a960878c68a82f16f51ce7852fba21f0cf"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Department of Juvenile Justice - Florida in 2013\",\"Entity\":\"Department of Juvenile Justice - Florida\",\"De",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Juvenile Justice - Florida in 2013",
+          "Entity": "Department of Juvenile Justice - Florida",
+          "Description": "Three computers were stolen that contained both youth and employee records was reported stolen on January 2, 2013.  Over 100,000 records were on the device and may have been exposed.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        "id": "adapter-01c6f45fc9304cd3",
+        "retrievedAt": "2026-10-27T15:55:46.717Z",
+        "provenanceHash": "01c6f45fc9304cd377136805c0caa92f7ff42642d75d2dc24f1c73a86ef166cb"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "5ff12125736a7a99e413c6ccf551f831e73bbe34d1e8e3393be4e094171418b6",
+    "executedAt": "2026-10-27T15:55:46.718Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-a44be4ef39b51252",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 4061,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-21123768c9adc921",
+        "retrievedAt": "2026-10-27T15:55:46.560Z",
+        "provenanceHash": "21123768c9adc9211f2e349bd6076dbe07c3b6908348b3bc783e0d93198bbe03"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "21123768c9adc9211f2e349bd6076dbe07c3b6908348b3bc783e0d93198bbe03",
+    "executedAt": "2026-10-27T15:55:46.561Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-3febc44b29233f5d",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 22,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-27T15:55:42.364Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-17834c23fa3d40d1",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 276,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-27T15:44:59.316Z"
+  },
+  {
+    "toolId": "marinetraffic",
+    "runId": "run-ebd289bcf03c218e",
+    "status": "reference_only",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "gui_view",
+    "workerType": "geospatial",
+    "durationMs": 1,
+    "data": {
+      "mode": "interactive_gui_reference",
+      "portalUrl": "https://www.marinetraffic.com/",
+      "targetQuery": "IMO9123456",
+      "type": "web_interactive",
+      "instructions": "Interactive GUI tool 'MarineTraffic' cannot be executed headlessly in background mode. Open https://www.marinetraffic.com/ manually to interact with the application."
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Tool 'MarineTraffic' is an interactive desktop/web GUI application. Background automated execution was not attempted."
+    ],
+    "provenanceHash": "e180f15765ac8867c726e1190647cd3a65a2e62c3264c4b5c0756cb393b71a54",
+    "executedAt": "2026-10-27T15:44:58.560Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-812c37b6cd64ce8c",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 9122,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-27T15:44:58.168Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-4433d2eebe2df644",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 9510,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT_QUERY_RECORD_9999999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT_QUERY_RECORD_9999999'."
+    ],
+    "provenanceHash": "34ebb25f102e9184b24cc71554eb839b9f08b5d7aab9d7edb570190daaf7c1bd",
+    "executedAt": "2026-10-27T15:44:56.958Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-e2d91bcfc033ea6e",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 9191,
+    "data": {
+      "dataset": "vcdb",
+      "target": "nonexistent-canary-target-99999-never-matched.internal",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'nonexistent-canary-target-99999-never-matched.internal'."
+    ],
+    "provenanceHash": "a13df85f07e3c1cedc6918ca90c7a396bf2e5ad2806a52703b4d229d2171015a",
+    "executedAt": "2026-10-27T15:44:56.845Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-095215f35fa82f0f",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6939,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-cc30abdb0bb9324a",
+        "retrievedAt": "2026-10-27T15:44:48.444Z",
+        "provenanceHash": "cc30abdb0bb9324aad9d62560603a7439919a1e3637e61eee45b0ab188e8d3c1"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "cc30abdb0bb9324aad9d62560603a7439919a1e3637e61eee45b0ab188e8d3c1",
+    "executedAt": "2026-10-27T15:44:48.459Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-7e383d1624062658",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 5767,
+    "data": {
+      "dataset": "vcdb",
+      "target": "breach",
+      "matchCount": 20,
+      "matches": [
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Morgan Stanley Smith Barney in 2011",
+          "Entity": "Morgan Stanley Smith Barney",
+          "Description": "Morgan Stanley mailed a CD containing sensitive data about investors in tax-exempt funds and bonds to the New York State Department of Taxation and Finance. The package arrived at the building but when it arrived at the relevant desk the data CD was missing.",
+          "Year": "2011",
+          "Records Leaked": "34,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Yale University in 2010",
+          "Entity": "Yale University",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "43,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2011 - Army",
+          "Entity": "US Military",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "50,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Stanford University in 2008",
+          "Entity": "Stanford University",
+          "Description": "Tens of thousands of past and current Stanford University employees had personal information - including their dates of birth, Social Security numbers and home addresses - stored on the hard drive of a stolen university laptop.",
+          "Year": "2008",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://www.sfgate.com/bayarea/article/Stanford-employees-data-on-stolen-laptop-3281185.php",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - Department of Defense",
+          "Entity": "US Military",
+          "Description": "\"According to a report to Congress, assessment forms of 72,000 service members who returned from deployment to Iraq or Afghanistan between Jan 1, 2007 to May 31, 2008 were breached. The forms ask for the service member's SSN,. Name, date of birth.\"",
+          "Year": "2009",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "University of Wisconsin Milwaukee in 2011",
+          "Entity": "University of Wisconsin Milwaukee",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "73,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Texas Lottery in 2007",
+          "Entity": "Texas Lottery",
+          "Description": "Data on more than 89,000 lottery winners (including names, Social Security numbers, addresses and prize amounts )were taken from the agency without permission by a former computer analyst who copied the password-free data. The employee added he wanted the information \"for possible future reference as a programmer at other state agencies.\"",
+          "Year": "2007",
+          "Records Leaked": "89,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Inside Job",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Starbucks in 2008",
+          "Entity": "Starbucks",
+          "Description": "A laptop was stolen that contained private information on 97,000 employees, including names, addresses and Social Security numbers. Employees tried to sue Starbucks in California winning their case in the appeals court before losing in the higher federal court as they were unable to prove any cognizable harm or injury.",
+          "Year": "2008",
+          "Records Leaked": "97,000",
+          "Target Organization Type": "Retail",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://privacyblog.littler.com/2011/01/articles/identity-theft/after-starbucks-laptop-is-stolen-alleged-victims-of-identity-theft-win-pyrrhic-victory/",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Crescent Health Inc., Walgreens in 2013",
+          "Entity": "Crescent Health Inc., Walgreens",
+          "Description": "Names, Social Security numbers, health insurance identification numbers, health insurance information, dates of birth, diagnoses, other medical information, disability codes, addresses, and phone numbers may have been exposed via a laptop theft.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Juvenile Justice - Florida in 2013",
+          "Entity": "Department of Juvenile Justice - Florida",
+          "Description": "Three computers were stolen that contained both youth and employee records was reported stolen on January 2, 2013.  Over 100,000 records were on the device and may have been exposed.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Memorial Healthcare System - Florida in 2011",
+          "Entity": "Memorial Healthcare System - Florida",
+          "Description": "An employee of an affiliated physician'۪s office may have improperly accessed patient information through a web portal used by physicians who provide care and treatment at MHS. Specifically, patients'۪ names, dates of birth, and Social Security numbers.",
+          "Year": "2011",
+          "Records Leaked": "102,153",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.mhs.net/pdf/release071112.pdf, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Health Care Policy & Financing - Colorado in 2010",
+          "Entity": "Department of Health Care Policy & Financing - Colorado",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "105,470",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.databreaches.net/?p=12611, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Central Hudson Gas & Electric in 2013",
+          "Entity": "Central Hudson Gas & Electric",
+          "Description": "Customer banking information and other personal information may have been accessed during the hack.",
+          "Year": "2013",
+          "Records Leaked": "110,000",
+          "Target Organization Type": "Energy",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "AT&T in 2008",
+          "Entity": "AT&T",
+          "Description": "A laptop was stolen from a car containing unencrypted Social Security numbers and bonus/salary info of AT&T employees.",
+          "Year": "2008",
+          "Records Leaked": "113,000",
+          "Target Organization Type": "Telecoms",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Kirkwood Community College in 2013",
+          "Entity": "Kirkwood Community College",
+          "Description": "Hacked online database",
+          "Year": "2013",
+          "Records Leaked": "125,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach, http://www.databreachwatch.org/community-college-data-breach-leaks-125000-ssns/",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Lincoln Medical & Mental Health Center in 2010",
+          "Entity": "Lincoln Medical & Mental Health Center",
+          "Description": "130,495 patients lost their protected health information after seven CDs were lost in transit.",
+          "Year": "2010",
+          "Records Leaked": "130,495",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.phiprivacy.net/?tag=lincoln-medical-and-mental-health-center, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - National Guard",
+          "Entity": "US Military",
+          "Description": "About 131,000 former and current Army Guard members potentially affected  when a personal laptop owned by an Army Guard contractor was stolen. Database incuded names, Social Security Numbers, incentive payment amounts and payment dates.",
+          "Year": "2009",
+          "Records Leaked": "131,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Citigroup in 2013",
+          "Entity": "Citigroup",
+          "Description": "Third big data breach from Citigroup.\"The personal information of 150,000 consumers who went into bankruptcy between 2007 and 2011 ''' including their social security numbers ''' were exposed after Citi failed to properly redact court records before they were put on the Public Access to Court Electronic Records (PACER) system.\"",
+          "Year": "2013",
+          "Records Leaked": "150,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Poor Security",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://news.softpedia.com/news/Citi-Exposes-Details-of-150-000-Individuals-Who-Went-into-Bankruptcy-369979.shtml",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Ankle & Foot Center of Tampa Bay - Florida in 2010",
+          "Entity": "Ankle & Foot Center of Tampa Bay - Florida",
+          "Description": "The information hacked included information such as patient names, social security numbers, date of birth, home addressees, account numbers, and healthcare services and related diagnostic codes.",
+          "Year": "2010",
+          "Records Leaked": "156,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.phiprivacy.net/?p=5743, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "State Court System - Washington in 2013",
+          "Entity": "State Court System - Washington",
+          "Description": "Up to 160,000 Social Security numbers and a million driver's license numbers may have been accessed by hackers exploiting old versions of Adobe Cold Fusion software on the server.",
+          "Year": "2013",
+          "Records Leaked": "160,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.reuters.com/article/2013/05/09/us-usa-hack-washingtonstate-idUSBRE9480YY20130509, http://www.privacyrights.org/data-breach",
+          "Sources name": "Reuters, Privacy Rights"
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 20,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Morgan Stanley Smith Barney in 2011\",\"Entity\":\"Morgan Stanley Smith Barney\",\"Description\":\"Morgan Stanley",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Morgan Stanley Smith Barney in 2011",
+          "Entity": "Morgan Stanley Smith Barney",
+          "Description": "Morgan Stanley mailed a CD containing sensitive data about investors in tax-exempt funds and bonds to the New York State Department of Taxation and Finance. The package arrived at the building but when it arrived at the relevant desk the data CD was missing.",
+          "Year": "2011",
+          "Records Leaked": "34,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-40194d78f7476592",
+        "retrievedAt": "2026-10-27T15:44:46.928Z",
+        "provenanceHash": "40194d78f74765925a1a5294f48cd46b317cc1ba2e8f32fd7e8bac4b50701d92"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Yale University in 2010\",\"Entity\":\"Yale University\",\"Description\":\"\",\"Year\":\"2010\",\"Records Leaked\":\"43,0",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Yale University in 2010",
+          "Entity": "Yale University",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "43,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-5da245069c2be469",
+        "retrievedAt": "2026-10-27T15:44:46.949Z",
+        "provenanceHash": "5da245069c2be469f60b312a546eb398bb618125aa4c8aa30da04a6ffa077e30"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"US Military in 2011 - Army\",\"Entity\":\"US Military\",\"Description\":\"\",\"Year\":\"2011\",\"Records Leaked\":\"50,00",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2011 - Army",
+          "Entity": "US Military",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "50,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-be905823b06cd159",
+        "retrievedAt": "2026-10-27T15:44:46.950Z",
+        "provenanceHash": "be905823b06cd15975b952f5cdb97f66af4b2944865548693f25a2a78bdbeda3"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Stanford University in 2008\",\"Entity\":\"Stanford University\",\"Description\":\"Tens of thousands of past and ",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Stanford University in 2008",
+          "Entity": "Stanford University",
+          "Description": "Tens of thousands of past and current Stanford University employees had personal information - including their dates of birth, Social Security numbers and home addresses - stored on the hard drive of a stolen university laptop.",
+          "Year": "2008",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://www.sfgate.com/bayarea/article/Stanford-employees-data-on-stolen-laptop-3281185.php",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-2d0ff2ac040423b1",
+        "retrievedAt": "2026-10-27T15:44:46.951Z",
+        "provenanceHash": "2d0ff2ac040423b1adcaa4c32fb6cc69508a838a296449a86a9699c1418f5442"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"US Military in 2009 - Department of Defense\",\"Entity\":\"US Military\",\"Description\":\"\\\"According to a repor",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - Department of Defense",
+          "Entity": "US Military",
+          "Description": "\"According to a report to Congress, assessment forms of 72,000 service members who returned from deployment to Iraq or Afghanistan between Jan 1, 2007 to May 31, 2008 were breached. The forms ask for the service member's SSN,. Name, date of birth.\"",
+          "Year": "2009",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-040b0d95fe605194",
+        "retrievedAt": "2026-10-27T15:44:46.975Z",
+        "provenanceHash": "040b0d95fe6051946373202dadc6f23855c382b68c11c29f502bf66a4f67872d"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"University of Wisconsin Milwaukee in 2011\",\"Entity\":\"University of Wisconsin Milwaukee\",\"Description\":\"\",",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "University of Wisconsin Milwaukee in 2011",
+          "Entity": "University of Wisconsin Milwaukee",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "73,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": ""
+        },
+        "id": "adapter-083b59d5dad52de7",
+        "retrievedAt": "2026-10-27T15:44:46.976Z",
+        "provenanceHash": "083b59d5dad52de7b7c754f3bf05c723ef62451e688b4bc5c7f676637b915678"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Texas Lottery in 2007\",\"Entity\":\"Texas Lottery\",\"Description\":\"Data on more than 89,000 lottery winners (",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Texas Lottery in 2007",
+          "Entity": "Texas Lottery",
+          "Description": "Data on more than 89,000 lottery winners (including names, Social Security numbers, addresses and prize amounts )were taken from the agency without permission by a former computer analyst who copied the password-free data. The employee added he wanted the information \"for possible future reference as a programmer at other state agencies.\"",
+          "Year": "2007",
+          "Records Leaked": "89,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Inside Job",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-9389ba1b7370dc62",
+        "retrievedAt": "2026-10-27T15:44:46.976Z",
+        "provenanceHash": "9389ba1b7370dc62976ce3dedacc256c34f835f5fb6f0bc547aea7eb535e37e9"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Starbucks in 2008\",\"Entity\":\"Starbucks\",\"Description\":\"A laptop was stolen that contained private informa",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Starbucks in 2008",
+          "Entity": "Starbucks",
+          "Description": "A laptop was stolen that contained private information on 97,000 employees, including names, addresses and Social Security numbers. Employees tried to sue Starbucks in California winning their case in the appeals court before losing in the higher federal court as they were unable to prove any cognizable harm or injury.",
+          "Year": "2008",
+          "Records Leaked": "97,000",
+          "Target Organization Type": "Retail",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://privacyblog.littler.com/2011/01/articles/identity-theft/after-starbucks-laptop-is-stolen-alleged-victims-of-identity-theft-win-pyrrhic-victory/",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-71bfe489fec83cb7",
+        "retrievedAt": "2026-10-27T15:44:46.977Z",
+        "provenanceHash": "71bfe489fec83cb7e838cda73cca324431d8c323c3484f6e23eaa65564f0426d"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Crescent Health Inc., Walgreens in 2013\",\"Entity\":\"Crescent Health Inc., Walgreens\",\"Description\":\"Names,",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Crescent Health Inc., Walgreens in 2013",
+          "Entity": "Crescent Health Inc., Walgreens",
+          "Description": "Names, Social Security numbers, health insurance identification numbers, health insurance information, dates of birth, diagnoses, other medical information, disability codes, addresses, and phone numbers may have been exposed via a laptop theft.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        "id": "adapter-13477076ca92c965",
+        "retrievedAt": "2026-10-27T15:44:46.997Z",
+        "provenanceHash": "13477076ca92c9651ff6f82d58ae1098f4fc2b1dd7399d2c02a22377cbb3276b"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Department of Juvenile Justice - Florida in 2013\",\"Entity\":\"Department of Juvenile Justice - Florida\",\"De",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Juvenile Justice - Florida in 2013",
+          "Entity": "Department of Juvenile Justice - Florida",
+          "Description": "Three computers were stolen that contained both youth and employee records was reported stolen on January 2, 2013.  Over 100,000 records were on the device and may have been exposed.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        "id": "adapter-7c62d2e5e9a09e1f",
+        "retrievedAt": "2026-10-27T15:44:46.998Z",
+        "provenanceHash": "7c62d2e5e9a09e1fa5604f51b0b497b96701579f246f932f2b52366a32819e16"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "40194d78f74765925a1a5294f48cd46b317cc1ba2e8f32fd7e8bac4b50701d92",
+    "executedAt": "2026-10-27T15:44:47.008Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-113847ad3671cc04",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 5736,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-60af86f6a19c4678",
+        "retrievedAt": "2026-10-27T15:44:47.129Z",
+        "provenanceHash": "60af86f6a19c467885617b204322e014194f80bc2b05b7d797f6fa4e0e3431aa"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "60af86f6a19c467885617b204322e014194f80bc2b05b7d797f6fa4e0e3431aa",
+    "executedAt": "2026-10-27T15:44:47.131Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-886aaa6ea3c81019",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 35,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-27T15:44:41.280Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-f19c29cb48069748",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 235,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-27T15:41:47.419Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-f62c7afbe0fab05b",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 89,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "9ce6c9e7a847aa8d2ffbbc44d206825bb50914c73a0fd70e6c7b27834ad9b261",
+    "executedAt": "2026-10-27T15:41:47.055Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-fa07651d6b8d35a6",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6604,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT-CVE-9999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT-CVE-9999'."
+    ],
+    "provenanceHash": "e26354f6bc4240d0ffb7d81ffd4bbc48ae42b01603c634f03db2a335162af2b6",
+    "executedAt": "2026-10-27T15:41:46.877Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-005988cd6d865de5",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6272,
+    "data": {
+      "dataset": "vcdb",
+      "target": "nonexistent-canary-target-99999-never-matched.internal",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'nonexistent-canary-target-99999-never-matched.internal'."
+    ],
+    "provenanceHash": "a13df85f07e3c1cedc6918ca90c7a396bf2e5ad2806a52703b4d229d2171015a",
+    "executedAt": "2026-10-27T15:41:46.177Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-9e6d7528c0fa660d",
+    "status": "completed",
+    "standardStatus": "COMPLETED_NO_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 6137,
+    "data": {
+      "dataset": "vcdb",
+      "target": "NONEXISTENT_QUERY_RECORD_9999999",
+      "matchCount": 0,
+      "matches": [],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": false
+    },
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Query against dataset 'Veris Community Database' returned 0 matching records for 'NONEXISTENT_QUERY_RECORD_9999999'."
+    ],
+    "provenanceHash": "34ebb25f102e9184b24cc71554eb839b9f08b5d7aab9d7edb570190daaf7c1bd",
+    "executedAt": "2026-10-27T15:41:45.744Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-c312c6b971585bfd",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 3316,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-da86a23b27c1b24f",
+        "retrievedAt": "2026-10-27T15:41:40.042Z",
+        "provenanceHash": "da86a23b27c1b24f5dfd896af3df2397ec2e40c5e286aea21db17c3610bc0172"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "da86a23b27c1b24f5dfd896af3df2397ec2e40c5e286aea21db17c3610bc0172",
+    "executedAt": "2026-10-27T15:41:40.070Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-8659c03e8002886d",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 3375,
+    "data": {
+      "dataset": "vcdb",
+      "target": "breach",
+      "matchCount": 20,
+      "matches": [
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Morgan Stanley Smith Barney in 2011",
+          "Entity": "Morgan Stanley Smith Barney",
+          "Description": "Morgan Stanley mailed a CD containing sensitive data about investors in tax-exempt funds and bonds to the New York State Department of Taxation and Finance. The package arrived at the building but when it arrived at the relevant desk the data CD was missing.",
+          "Year": "2011",
+          "Records Leaked": "34,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Yale University in 2010",
+          "Entity": "Yale University",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "43,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2011 - Army",
+          "Entity": "US Military",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "50,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Stanford University in 2008",
+          "Entity": "Stanford University",
+          "Description": "Tens of thousands of past and current Stanford University employees had personal information - including their dates of birth, Social Security numbers and home addresses - stored on the hard drive of a stolen university laptop.",
+          "Year": "2008",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://www.sfgate.com/bayarea/article/Stanford-employees-data-on-stolen-laptop-3281185.php",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - Department of Defense",
+          "Entity": "US Military",
+          "Description": "\"According to a report to Congress, assessment forms of 72,000 service members who returned from deployment to Iraq or Afghanistan between Jan 1, 2007 to May 31, 2008 were breached. The forms ask for the service member's SSN,. Name, date of birth.\"",
+          "Year": "2009",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "University of Wisconsin Milwaukee in 2011",
+          "Entity": "University of Wisconsin Milwaukee",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "73,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Texas Lottery in 2007",
+          "Entity": "Texas Lottery",
+          "Description": "Data on more than 89,000 lottery winners (including names, Social Security numbers, addresses and prize amounts )were taken from the agency without permission by a former computer analyst who copied the password-free data. The employee added he wanted the information \"for possible future reference as a programmer at other state agencies.\"",
+          "Year": "2007",
+          "Records Leaked": "89,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Inside Job",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Starbucks in 2008",
+          "Entity": "Starbucks",
+          "Description": "A laptop was stolen that contained private information on 97,000 employees, including names, addresses and Social Security numbers. Employees tried to sue Starbucks in California winning their case in the appeals court before losing in the higher federal court as they were unable to prove any cognizable harm or injury.",
+          "Year": "2008",
+          "Records Leaked": "97,000",
+          "Target Organization Type": "Retail",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://privacyblog.littler.com/2011/01/articles/identity-theft/after-starbucks-laptop-is-stolen-alleged-victims-of-identity-theft-win-pyrrhic-victory/",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Crescent Health Inc., Walgreens in 2013",
+          "Entity": "Crescent Health Inc., Walgreens",
+          "Description": "Names, Social Security numbers, health insurance identification numbers, health insurance information, dates of birth, diagnoses, other medical information, disability codes, addresses, and phone numbers may have been exposed via a laptop theft.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Juvenile Justice - Florida in 2013",
+          "Entity": "Department of Juvenile Justice - Florida",
+          "Description": "Three computers were stolen that contained both youth and employee records was reported stolen on January 2, 2013.  Over 100,000 records were on the device and may have been exposed.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Memorial Healthcare System - Florida in 2011",
+          "Entity": "Memorial Healthcare System - Florida",
+          "Description": "An employee of an affiliated physician'۪s office may have improperly accessed patient information through a web portal used by physicians who provide care and treatment at MHS. Specifically, patients'۪ names, dates of birth, and Social Security numbers.",
+          "Year": "2011",
+          "Records Leaked": "102,153",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.mhs.net/pdf/release071112.pdf, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Health Care Policy & Financing - Colorado in 2010",
+          "Entity": "Department of Health Care Policy & Financing - Colorado",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "105,470",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.databreaches.net/?p=12611, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Central Hudson Gas & Electric in 2013",
+          "Entity": "Central Hudson Gas & Electric",
+          "Description": "Customer banking information and other personal information may have been accessed during the hack.",
+          "Year": "2013",
+          "Records Leaked": "110,000",
+          "Target Organization Type": "Energy",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "AT&T in 2008",
+          "Entity": "AT&T",
+          "Description": "A laptop was stolen from a car containing unencrypted Social Security numbers and bonus/salary info of AT&T employees.",
+          "Year": "2008",
+          "Records Leaked": "113,000",
+          "Target Organization Type": "Telecoms",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Kirkwood Community College in 2013",
+          "Entity": "Kirkwood Community College",
+          "Description": "Hacked online database",
+          "Year": "2013",
+          "Records Leaked": "125,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach, http://www.databreachwatch.org/community-college-data-breach-leaks-125000-ssns/",
+          "Sources name": "Privacy Rights"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Lincoln Medical & Mental Health Center in 2010",
+          "Entity": "Lincoln Medical & Mental Health Center",
+          "Description": "130,495 patients lost their protected health information after seven CDs were lost in transit.",
+          "Year": "2010",
+          "Records Leaked": "130,495",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.phiprivacy.net/?tag=lincoln-medical-and-mental-health-center, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - National Guard",
+          "Entity": "US Military",
+          "Description": "About 131,000 former and current Army Guard members potentially affected  when a personal laptop owned by an Army Guard contractor was stolen. Database incuded names, Social Security Numbers, incentive payment amounts and payment dates.",
+          "Year": "2009",
+          "Records Leaked": "131,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Citigroup in 2013",
+          "Entity": "Citigroup",
+          "Description": "Third big data breach from Citigroup.\"The personal information of 150,000 consumers who went into bankruptcy between 2007 and 2011 ''' including their social security numbers ''' were exposed after Citi failed to properly redact court records before they were put on the Public Access to Court Electronic Records (PACER) system.\"",
+          "Year": "2013",
+          "Records Leaked": "150,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Poor Security",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://news.softpedia.com/news/Citi-Exposes-Details-of-150-000-Individuals-Who-Went-into-Bankruptcy-369979.shtml",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Ankle & Foot Center of Tampa Bay - Florida in 2010",
+          "Entity": "Ankle & Foot Center of Tampa Bay - Florida",
+          "Description": "The information hacked included information such as patient names, social security numbers, date of birth, home addressees, account numbers, and healthcare services and related diagnostic codes.",
+          "Year": "2010",
+          "Records Leaked": "156,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.phiprivacy.net/?p=5743, http://www.hhs.gov/ocr/privacy/hipaa/administrative/breachnotificationrule/breachtool.html",
+          "Sources name": ""
+        },
+        {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "State Court System - Washington in 2013",
+          "Entity": "State Court System - Washington",
+          "Description": "Up to 160,000 Social Security numbers and a million driver's license numbers may have been accessed by hackers exploiting old versions of Adobe Cold Fusion software on the server.",
+          "Year": "2013",
+          "Records Leaked": "160,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.reuters.com/article/2013/05/09/us-usa-hack-washingtonstate-idUSBRE9480YY20130509, http://www.privacyrights.org/data-breach",
+          "Sources name": "Reuters, Privacy Rights"
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 20,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Morgan Stanley Smith Barney in 2011\",\"Entity\":\"Morgan Stanley Smith Barney\",\"Description\":\"Morgan Stanley",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Morgan Stanley Smith Barney in 2011",
+          "Entity": "Morgan Stanley Smith Barney",
+          "Description": "Morgan Stanley mailed a CD containing sensitive data about investors in tax-exempt funds and bonds to the New York State Department of Taxation and Finance. The package arrived at the building but when it arrived at the relevant desk the data CD was missing.",
+          "Year": "2011",
+          "Records Leaked": "34,000",
+          "Target Organization Type": "Financial",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "3. Credit card information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-252184af1ebcbb32",
+        "retrievedAt": "2026-10-27T15:41:39.558Z",
+        "provenanceHash": "252184af1ebcbb327b62edbbaeb2bab10f2727ecf6f4a5e9bb6de9f17611e92e"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Yale University in 2010\",\"Entity\":\"Yale University\",\"Description\":\"\",\"Year\":\"2010\",\"Records Leaked\":\"43,0",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Yale University in 2010",
+          "Entity": "Yale University",
+          "Description": "",
+          "Year": "2010",
+          "Records Leaked": "43,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-46fec999926847d5",
+        "retrievedAt": "2026-10-27T15:41:39.559Z",
+        "provenanceHash": "46fec999926847d5c5df826568981cdcdedda2487aae35f0d82bc3179c9ef931"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"US Military in 2011 - Army\",\"Entity\":\"US Military\",\"Description\":\"\",\"Year\":\"2011\",\"Records Leaked\":\"50,00",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2011 - Army",
+          "Entity": "US Military",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "50,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Accidentally Published",
+          "Data Sensitivity": "1. Just email address and/or online information",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-b83ed2cb6e66e4fa",
+        "retrievedAt": "2026-10-27T15:41:39.559Z",
+        "provenanceHash": "b83ed2cb6e66e4fa4fdc5e16f073a4b6d1b8dc409f14b5690c089f7eb0a75c60"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Stanford University in 2008\",\"Entity\":\"Stanford University\",\"Description\":\"Tens of thousands of past and ",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Stanford University in 2008",
+          "Entity": "Stanford University",
+          "Description": "Tens of thousands of past and current Stanford University employees had personal information - including their dates of birth, Social Security numbers and home addresses - stored on the hard drive of a stolen university laptop.",
+          "Year": "2008",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://www.sfgate.com/bayarea/article/Stanford-employees-data-on-stolen-laptop-3281185.php",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-4ca079db785d0824",
+        "retrievedAt": "2026-10-27T15:41:39.559Z",
+        "provenanceHash": "4ca079db785d082425a31aa2befd690051148e11cf292bf2f1e6f8c5aa22e307"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"US Military in 2009 - Department of Defense\",\"Entity\":\"US Military\",\"Description\":\"\\\"According to a repor",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "US Military in 2009 - Department of Defense",
+          "Entity": "US Military",
+          "Description": "\"According to a report to Congress, assessment forms of 72,000 service members who returned from deployment to Iraq or Afghanistan between Jan 1, 2007 to May 31, 2008 were breached. The forms ask for the service member's SSN,. Name, date of birth.\"",
+          "Year": "2009",
+          "Records Leaked": "72,000",
+          "Target Organization Type": "Military",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-4d14182b3aaca64e",
+        "retrievedAt": "2026-10-27T15:41:39.559Z",
+        "provenanceHash": "4d14182b3aaca64ed7072865aa0821a540c8f79547aaf7b4ed9c4337d79c8bf7"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"University of Wisconsin Milwaukee in 2011\",\"Entity\":\"University of Wisconsin Milwaukee\",\"Description\":\"\",",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "University of Wisconsin Milwaukee in 2011",
+          "Entity": "University of Wisconsin Milwaukee",
+          "Description": "",
+          "Year": "2011",
+          "Records Leaked": "73,000",
+          "Target Organization Type": "Academic",
+          "Method of Leak": "Hacked",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": ""
+        },
+        "id": "adapter-5d47b7a22d0b4d7a",
+        "retrievedAt": "2026-10-27T15:41:39.560Z",
+        "provenanceHash": "5d47b7a22d0b4d7a67adfb5b7a7241f5e46327206125bdd6511ddaca27526bbb"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Texas Lottery in 2007\",\"Entity\":\"Texas Lottery\",\"Description\":\"Data on more than 89,000 lottery winners (",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Texas Lottery in 2007",
+          "Entity": "Texas Lottery",
+          "Description": "Data on more than 89,000 lottery winners (including names, Social Security numbers, addresses and prize amounts )were taken from the agency without permission by a former computer analyst who copied the password-free data. The employee added he wanted the information \"for possible future reference as a programmer at other state agencies.\"",
+          "Year": "2007",
+          "Records Leaked": "89,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Inside Job",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-76b729047fa9ee68",
+        "retrievedAt": "2026-10-27T15:41:39.561Z",
+        "provenanceHash": "76b729047fa9ee68ab413784c3a07ae67e35b345a6ee0c45d570624e5a76a8a7"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Starbucks in 2008\",\"Entity\":\"Starbucks\",\"Description\":\"A laptop was stolen that contained private informa",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Starbucks in 2008",
+          "Entity": "Starbucks",
+          "Description": "A laptop was stolen that contained private information on 97,000 employees, including names, addresses and Social Security numbers. Employees tried to sue Starbucks in California winning their case in the appeals court before losing in the higher federal court as they were unable to prove any cognizable harm or injury.",
+          "Year": "2008",
+          "Records Leaked": "97,000",
+          "Target Organization Type": "Retail",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.idtheftcenter.org/artman2/publish/lib_survey/ITRC_2008_Breach_List.shtml, http://privacyblog.littler.com/2011/01/articles/identity-theft/after-starbucks-laptop-is-stolen-alleged-victims-of-identity-theft-win-pyrrhic-victory/",
+          "Sources name": "ITRC"
+        },
+        "id": "adapter-357774d8ac336dca",
+        "retrievedAt": "2026-10-27T15:41:39.583Z",
+        "provenanceHash": "357774d8ac336dca86a3765c90994916e7256de9eb02f3b5533308ddf1cf0288"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Crescent Health Inc., Walgreens in 2013\",\"Entity\":\"Crescent Health Inc., Walgreens\",\"Description\":\"Names,",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Crescent Health Inc., Walgreens in 2013",
+          "Entity": "Crescent Health Inc., Walgreens",
+          "Description": "Names, Social Security numbers, health insurance identification numbers, health insurance information, dates of birth, diagnoses, other medical information, disability codes, addresses, and phone numbers may have been exposed via a laptop theft.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Healthcare",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "4. Email passworda and/or health records",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        "id": "adapter-240f2cea2b5f1966",
+        "retrievedAt": "2026-10-27T15:41:39.583Z",
+        "provenanceHash": "240f2cea2b5f196654de1f32a59817d7204eb226945aeca5eed8fb212e83881c"
+      },
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"sourceCategory\":\"Biggest-Data-Breaches\",\"sourceFile\":\"Data Breaches.csv\",\"relevance\":1,\"ID\":\"Department of Juvenile Justice - Florida in 2013\",\"Entity\":\"Department of Juvenile Justice - Florida\",\"De",
+        "fields": {
+          "sourceCategory": "Biggest-Data-Breaches",
+          "sourceFile": "Data Breaches.csv",
+          "relevance": 1,
+          "ID": "Department of Juvenile Justice - Florida in 2013",
+          "Entity": "Department of Juvenile Justice - Florida",
+          "Description": "Three computers were stolen that contained both youth and employee records was reported stolen on January 2, 2013.  Over 100,000 records were on the device and may have been exposed.",
+          "Year": "2013",
+          "Records Leaked": "100,000",
+          "Target Organization Type": "Government",
+          "Method of Leak": "Lost / Stolen Computer or Media",
+          "Data Sensitivity": "2 SSN and/or personal details",
+          "Sources Link": "http://www.privacyrights.org/data-breach",
+          "Sources name": "Privacy Rights"
+        },
+        "id": "adapter-8fcf8f371156fe78",
+        "retrievedAt": "2026-10-27T15:41:39.583Z",
+        "provenanceHash": "8fcf8f371156fe78bbc6bad827506ee614eac5c8d9e359badde3add28a7177f9"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "252184af1ebcbb327b62edbbaeb2bab10f2727ecf6f4a5e9bb6de9f17611e92e",
+    "executedAt": "2026-10-27T15:41:39.584Z"
+  },
+  {
+    "toolId": "vcdb",
+    "runId": "run-5b8d244d343d3126",
+    "status": "completed",
+    "standardStatus": "COMPLETED_WITH_FINDINGS",
+    "executionMethod": "dataset_query",
+    "workerType": "threat-intel",
+    "durationMs": 3034,
+    "data": {
+      "dataset": "vcdb",
+      "target": "CVE-2023-0001",
+      "matchCount": 1,
+      "matches": [
+        {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        }
+      ],
+      "source": "https://github.com/vz-risk/VCDB",
+      "verified": true
+    },
+    "findingsCount": 1,
+    "evidence": [
+      {
+        "sourceId": "dataset:vcdb",
+        "sourceName": "Veris Community Database",
+        "sourceUrl": "https://github.com/vz-risk/VCDB",
+        "summary": "Found record in Veris Community Database: {\"file\":\"incidents.json\",\"incident_id\":\"VCDB-2023-0001\",\"cve\":\"CVE-2023-0001\",\"victim\":{\"industry\":\"Healthcare\",\"country\":\"US\",\"employee_count\":\"1001 to 10000\"},\"actor\":{\"external\":{\"motive\":[\"Financi",
+        "fields": {
+          "file": "incidents.json",
+          "incident_id": "VCDB-2023-0001",
+          "cve": "CVE-2023-0001",
+          "victim": {
+            "industry": "Healthcare",
+            "country": "US",
+            "employee_count": "1001 to 10000"
+          },
+          "actor": {
+            "external": {
+              "motive": [
+                "Financial"
+              ],
+              "variety": [
+                "Organized crime"
+              ]
+            }
+          },
+          "action": {
+            "hacking": {
+              "variety": [
+                "Exploit vuln"
+              ],
+              "vector": [
+                "Web application"
+              ]
+            }
+          },
+          "asset": {
+            "assets": [
+              {
+                "variety": "S - Web application"
+              }
+            ]
+          },
+          "attribute": {
+            "confidentiality": {
+              "data": [
+                {
+                  "variety": "Medical"
+                },
+                {
+                  "variety": "Personal"
+                }
+              ],
+              "data_disclosure": "Yes"
+            }
+          },
+          "summary": "Threat actor exploited unauthenticated remote vulnerability CVE-2023-0001 in public patient portal, exfiltrating personal health information.",
+          "timeline": {
+            "incident": {
+              "year": 2023
+            }
+          }
+        },
+        "id": "adapter-6232e66f7cb96423",
+        "retrievedAt": "2026-10-27T15:41:39.505Z",
+        "provenanceHash": "6232e66f7cb96423f97850b93f0214ef40f45a64523b5382e61e1ee9631748cd"
+      }
+    ],
+    "warnings": [],
+    "provenanceHash": "6232e66f7cb96423f97850b93f0214ef40f45a64523b5382e61e1ee9631748cd",
+    "executedAt": "2026-10-27T15:41:39.505Z"
+  },
+  {
+    "toolId": "abster-intelligence",
+    "runId": "run-d7f0a7c608668c37",
+    "status": "unconfigured",
+    "standardStatus": "NOT_INSTALLED",
+    "executionMethod": "cli_subprocess",
+    "workerType": "framework",
+    "durationMs": 55,
+    "findingsCount": 0,
+    "evidence": [],
+    "warnings": [
+      "Executable 'abster-intelligence' is not installed in the local environment PATH."
+    ],
+    "error": "EXECUTABLE_NOT_FOUND",
+    "provenanceHash": "0c323067e815bc1205190bc89a71e377a1d71a3840cb8ba8a04d78b32eb07539",
+    "executedAt": "2026-10-27T15:41:36.241Z"
+  },
+  {
+    "toolId": "abster-intelligence",
     "runId": "run-3cc5c48db54e56c6",
     "status": "unconfigured",
     "standardStatus": "NOT_INSTALLED",

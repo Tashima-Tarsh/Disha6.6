@@ -59,6 +59,12 @@ export default function IntelligenceMap({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
+  const onEntityClickRef = useRef(onEntityClick);
+
+  useEffect(() => {
+    onEntityClickRef.current = onEntityClick;
+  }, [onEntityClick]);
+
   const [activeLayers, setActiveLayers] = useState<Record<IntelLayer, boolean>>({
     flights: true,
     earthquakes: true,
@@ -131,7 +137,7 @@ export default function IntelligenceMap({
             </div>
           `)
           .addTo(map);
-        onEntityClick?.({
+        onEntityClickRef.current?.({
           type: String(props.feature_type ?? props.type ?? layer),
           value: title,
           layer,
