@@ -145,6 +145,6 @@ export async function verifyOtpChallenge(req: NextRequest, response: NextRespons
   response.cookies.set(OTP_COOKIE, "", { ...cookieOptions(0), maxAge: 0 });
   const mobileDigits = normalizedMobile.replace(/\D/g, "");
   const session = await createSession(`mobile-${mobileDigits}@disha.local`, ["analyst"]);
-  setSessionCookies(response, session.accessToken, session.refreshToken);
+  setSessionCookies(response, session.accessToken, session.refreshToken, session.sessionId);
   return session;
 }

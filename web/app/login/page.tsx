@@ -6,5 +6,5 @@ export default async function LoginPage({
   searchParams?: Promise<{ returnUrl?: string; error?: string }>;
 }) {
   const params = await searchParams;
-  return <LoginClient returnUrl={params?.returnUrl || "/"} authError={params?.error} />;
+  return <LoginClient returnUrl={params?.returnUrl || "/investigate"} authError={params?.error} />;
 }

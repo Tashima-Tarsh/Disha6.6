@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const session = await passwordLogin(email, password);
     const publicOrigin = getEnv().NEXT_PUBLIC_APP_URL ?? req.nextUrl.origin;
     const response = NextResponse.redirect(new URL(safeReturnUrl(form.get("returnUrl")), publicOrigin), 303);
-    setSessionCookies(response, session.accessToken, session.refreshToken);
+    setSessionCookies(response, session.accessToken, session.refreshToken, session.sessionId);
     setCsrfCookie(response);
     await audit({
       requestId: requestId(req),

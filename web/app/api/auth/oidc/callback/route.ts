@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
     const response = NextResponse.redirect(
       new URL(safeReturnUrl(statePayload.returnUrl), req.nextUrl.origin),
     );
-    setSessionCookies(response, session.accessToken, session.refreshToken);
+    setSessionCookies(response, session.accessToken, session.refreshToken, session.sessionId);
     setCsrfCookie(response);
     response.cookies.set(OIDC_VERIFIER_COOKIE, "", {
       httpOnly: true,

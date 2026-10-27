@@ -17,6 +17,36 @@ export function verifySecret(secret: string, encoded: string): boolean {
   return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
 }
 
+// Pepper-backed HMAC input for password hashing. The pepper is a server-side
+// secret held in the secret manager (DISHA_AUTH_PEPPER), never in the database.
+export function hmacPepper(password: string): Buffer {
+  const raw = process.env.DISHA_AUTH_PEPPER;
+  if (!raw) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("DISHA_AUTH_PEPPER is required in production");
+    }
+    return crypto.createHash("sha256").update("disha-dev-pepper-ephemeral").digest();
+  }
+  let pepper: Buffer;
+  try {
+    pepper = Buffer.from(raw, "hex");
+    if (pepper.length !== 32) throw new Error("bad-length");
+  } catch {
+    try {
+      pepper = Buffer.from(raw, "base64");
+      if (pepper.length !== 32) throw new Error("bad-length");
+    } catch {
+      pepper = crypto.createHash("sha256").update(raw, "utf8").digest();
+    }
+  }
+  return crypto.createHmac("sha256", pepper).update(password).digest();
+}
+
+export function constantTimeEqual(a: Buffer, b: Buffer): boolean {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 export function signJson(payload: Record<string, unknown>, secret: string): string {
   const header = base64url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
   const body = base64url(JSON.stringify(payload));

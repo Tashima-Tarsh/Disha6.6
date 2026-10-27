@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     if (!refreshToken) throw Object.assign(new Error("Refresh token required"), { status: 401 });
     const session = await rotateSession(refreshToken);
     const response = NextResponse.json({ user: session.principal });
-    setSessionCookies(response, session.accessToken, session.refreshToken, session.persistent);
+    setSessionCookies(response, session.accessToken, session.refreshToken, session.sessionId, session.persistent);
     setCsrfCookie(response);
     await audit({
       requestId: requestId(req),

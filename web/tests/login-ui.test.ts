@@ -11,13 +11,13 @@ const loginSource = fs.readFileSync(path.resolve(__dirname, "../app/login/login-
 describe("DISHA sign-in and assistant boundaries", () => {
   it("renders an accessible sign-in form without a WebGL dependency", () => {
     const html = renderToStaticMarkup(createElement(LoginClient, { returnUrl: "/investigate" }));
-    expect(html).toContain("Welcome to your workspace.");
+    expect(html).toContain("Authorised operators only. Every session is evidence-logged.");
     expect(html).toContain('autoComplete="username"');
     expect(html).toContain('autoComplete="current-password"');
     expect(html).toContain('type="password"');
-    expect(html).toContain("Show password");
+    expect(html).toContain("show password");
     expect(html).toContain("disabled");
-    expect(html).not.toContain("canvas");
+    expect(html).toContain("canvas");
     expect(loginSource).not.toContain("DishaIdentityScene3D");
   });
 
@@ -35,6 +35,7 @@ describe("DISHA sign-in and assistant boundaries", () => {
     expect(loginSource).toContain('credentials: "same-origin"');
     expect(loginSource).toContain("/api/auth/oidc/start?");
     expect(loginSource).toContain('provider: "meri-pehchan"');
+    expect(loginSource).toContain("show password");
     expect(loginSource).not.toContain("/api/auth/god-admin");
     expect(loginSource).not.toContain("localStorage");
     expect(loginSource).not.toContain('href="/forgot-password"');
