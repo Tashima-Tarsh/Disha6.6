@@ -71,4 +71,11 @@ jobs:
         run: node scripts/governance-check.mjs
 
       - name: Build
+        env:
+          NODE_ENV: production
+          DISHA_AUTH_MODE: password
+          DISHA_JWT_SECRET: test-secret-at-least-32-characters-long
+          DISHA_DEV_PASSWORD: test-dev-password-12-plus
+          DISHA_WORKER_TOKEN: test-worker-token-at-least-24
+          DISHA_ALLOW_STATELESS_AUTH: "true"
         run: npm run build
