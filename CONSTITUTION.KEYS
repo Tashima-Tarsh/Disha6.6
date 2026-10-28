@@ -1,0 +1,40 @@
+# DISHA 6.6 CONSTITUTION.KEYS — AUTHORIZED OFFICES REGISTRY
+
+# This file cryptographically binds constitutional offices to holder identities.
+# It is part of the Disha6.6 Constitution (CONSTITUTION.md, Articles I–IV).
+# Only public key fingerprints and office metadata are stored here — never private keys.
+# Modification requires Chairman signature and amendment under Constitution Article XVII.
+
+[OFFICE: CHAIRMAN_AND_FOUNDER]
+Holder: Diksha Sharma
+Title: Chairman and Founder, Disha6.6
+Office-ID: Diksha_Sharma_Chairman
+Scope: GOD_MODE, WRITE_MAIN, AMEND_CONSTITUTION, VETO, CO_MANAGE, AUDIT, READ_ALL
+God-Mode: sole
+Effective-Date: 2026-10-28
+Revoked-Date: null
+Key-Algorithm: Ed25519
+Public-Key-Fingerprint: SHA256:<chairman-public-key-fingerprint-placeholder>
+Key-Registration-Path: docs/keys/chairman-public-key.pem
+Signature-Required: true
+Time-Bound-Session: true
+Max-Session-Hours: 8
+Re-Auth-Idle-Minutes: 15
+
+[OFFICE: JOINT_MANAGER]
+Holder: Nitish Kumar
+Title: Joint Manager, Disha6.6
+Office-ID: Nitish_Kumar_Joint_Manager
+Scope: CO_MANAGE, PROPOSE_HIGH_RISK, AUDIT, READ_ALL
+God-Mode: false
+Effective-Date: 2026-10-28
+Revoked-Date: null
+Key-Algorithm: Ed25519
+Public-Key-Fingerprint: SHA256:<joint-manager-public-key-fingerprint-placeholder>
+Key-Registration-Path: docs/keys/joint-manager-public-key.pem
+Signature-Required: true
+Chairman-Notification-Required: true
+Co-Signature-Required-For: high_risk_actions
+
+# END OF REGISTRY — NO ADDITIONAL OFFICES PERMITTED
+# Any entry beyond the two offices above is void ab initio (Constitution Article I.3)

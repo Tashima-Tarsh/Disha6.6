@@ -1,5 +1,83 @@
 import type { DishaLensResult, DishaSignal, PolicyDecision } from "./contracts";
 
+export type ConstitutionalOffice =
+  | "Diksha_Sharma_Chairman"
+  | "Nitish_Kumar_Joint_Manager"
+  | null;
+
+export type ConstitutionalDecision =
+  | { decision: "ALLOW"; reason: string; office: ConstitutionalOffice }
+  | { decision: "DENY"; reason: string; office: ConstitutionalOffice };
+
+const CHAIRMAN_OFFICE = "Diksha_Sharma_Chairman";
+const JOINT_MANAGER_OFFICE = "Nitish_Kumar_Joint_Manager";
+
+const GOD_MODE_ACTIONS = new Set([
+  "god_mode",
+  "write_main",
+  "amend_constitution",
+  "veto",
+]);
+
+const CO_MANAGE_ACTIONS = new Set([
+  "co_manage",
+  "propose_high_risk",
+]);
+
+export function resolveConstitutionalOffice(actorId: string): ConstitutionalOffice {
+  const id = String(actorId ?? "").toLowerCase().trim();
+  if (id.includes("diksha") || id === CHAIRMAN_OFFICE) return CHAIRMAN_OFFICE;
+  if (id.includes("nitish") || id === JOINT_MANAGER_OFFICE) return JOINT_MANAGER_OFFICE;
+  return null;
+}
+
+export function verifyConstitutionalSignature(
+  _office: ConstitutionalOffice,
+  _signature: unknown,
+  _context: Record<string, unknown>,
+): boolean {
+  // Stub: production path verifies the Ed25519 signature registered in
+  // CONSTITUTION.KEYS against the action payload. Returns false until keys are
+  // registered and the verifier is wired to the keystore.
+  return false;
+}
+
+export function constitutionalAccessDecision(
+  actorId: string,
+  action: string,
+  context: Record<string, unknown> = {},
+): ConstitutionalDecision {
+  const office = resolveConstitutionalOffice(actorId);
+
+  if (GOD_MODE_ACTIONS.has(action.toLowerCase())) {
+    if (office !== CHAIRMAN_OFFICE) {
+      return { decision: "DENY", reason: "God Mode reserved for Chairman and Founder (Diksha Sharma)", office };
+    }
+    if (!verifyConstitutionalSignature(office, context.signature, context)) {
+      return { decision: "DENY", reason: "Invalid or missing constitutional signature for God Mode", office };
+    }
+    return { decision: "ALLOW", reason: "God Mode — Chairman and Founder", office };
+  }
+
+  if (CO_MANAGE_ACTIONS.has(action.toLowerCase())) {
+    if (office === CHAIRMAN_OFFICE) {
+      return { decision: "ALLOW", reason: "Chairman co-management", office };
+    }
+    if (office === JOINT_MANAGER_OFFICE) {
+      if (!verifyConstitutionalSignature(office, context.signature, context)) {
+        return { decision: "DENY", reason: "Invalid or missing constitutional signature for Joint Manager", office };
+      }
+      if (context.chairman_notified !== true) {
+        return { decision: "DENY", reason: "Chairman must be notified of Joint Manager co-management actions", office };
+      }
+      return { decision: "ALLOW", reason: "Joint Manager — Nitish Kumar", office };
+    }
+    return { decision: "DENY", reason: "No co-management authority", office };
+  }
+
+  return { decision: "ALLOW", reason: "Read-only observation permitted", office };
+}
+
 const offensiveActions = [
   "hack back",
   "exploit",
