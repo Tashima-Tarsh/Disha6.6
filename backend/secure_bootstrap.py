@@ -2,9 +2,9 @@
 Constitutional security bootstrap for the OSINT backend.
 
 Import this at the top of app.py (or call apply_security(app)) to enforce:
-- Mandatory API key (fail closed)
+- Mandatory scoped API key (fail closed)
 - Restricted CORS
-- Path sandbox helpers
+- Path sandbox: absolute root enforced, symlinks rejected, root must exist
 
 Usage in app.py:
 
@@ -26,49 +26,84 @@ from pathlib import Path
 from fastapi import FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
-# ---------------------------------------------------------------------------
-# Auth — fail closed
-# ---------------------------------------------------------------------------
-
-OSINT_API_KEY = os.environ.get("DISHA_OSINT_API_KEY") or os.environ.get("OSINT_API_KEY")
-
-
-def require_api_key(authorization: str | None = Header(default=None)) -> None:
-    if not OSINT_API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="OSINT service is not configured with DISHA_OSINT_API_KEY. Refusing to operate open.",
-        )
-    if not authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header required",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    scheme, _, token = authorization.partition(" ")
-    if scheme.lower() != "bearer" or not hmac.compare_digest(token, OSINT_API_KEY):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing Bearer token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+from auth import require_api_key  # scoped, fail-closed, rate-limited
 
 
 # ---------------------------------------------------------------------------
-# Path sandbox
+# Auth — fail closed (re-exported with scope support from auth.py)
 # ---------------------------------------------------------------------------
 
-ALLOWED_DATA_ROOT = Path(
-    os.environ.get("DISHA_DATA_ROOT", os.path.join(os.path.dirname(__file__), "data"))
-).resolve()
+__all__ = [
+    "require_api_key",
+    "ensure_inside_workspace",
+    "ensure_directory_inside_workspace",
+    "apply_security",
+    "ALLOWED_DATA_ROOT",
+]
+
+
+# ---------------------------------------------------------------------------
+# Path sandbox — C4 hardening
+# ---------------------------------------------------------------------------
+
+def _resolve_data_root() -> Path:
+    """Resolve the allowed data root.
+
+    Rules:
+    - Must be an absolute path (env DISHA_DATA_ROOT or backend/data).
+    - Must exist on disk (fail closed if missing).
+    - Symlinks in the resolved root are rejected.
+    """
+    raw = os.environ.get("DISHA_DATA_ROOT", os.path.join(os.path.dirname(__file__), "data"))
+    root = Path(raw).resolve()
+
+    # Reject if the root itself is a symlink (escape vector).
+    if root.is_symlink():
+        raise RuntimeError(f"DISHA_DATA_ROOT must not be a symlink: {root}")
+
+    # Fail closed if the root does not exist.
+    if not root.exists():
+        raise RuntimeError(f"DISHA_DATA_ROOT does not exist: {root}")
+
+    return root
+
+
+ALLOWED_DATA_ROOT = _resolve_data_root()
+
+
+def _has_symlink_component(path: Path) -> bool:
+    """Return True if any component of path (from root down) is a symlink."""
+    try:
+        parts = path.parts
+    except ValueError:
+        return True
+    cur = Path(parts[0]) if parts[0] else Path("/")
+    if cur.is_symlink():
+        return True
+    for part in parts[1:]:
+        cur = cur / part
+        if cur.is_symlink():
+            return True
+    return False
 
 
 def ensure_inside_workspace(raw_path: str | os.PathLike) -> Path:
+    """
+    Resolve the path and guarantee it stays inside ALLOWED_DATA_ROOT.
+    Rejects symlinks anywhere in the resolved path (C4). Raises PermissionError
+    on escape attempts.
+    """
     candidate = (ALLOWED_DATA_ROOT / raw_path).resolve()
+
+    # Symlink component anywhere under the root = escape vector.
+    if _has_symlink_component(candidate):
+        raise PermissionError(f"Symlink component rejected: {raw_path}")
+
     try:
         candidate.relative_to(ALLOWED_DATA_ROOT)
     except ValueError:
         raise PermissionError(f"Path escapes allowed data root: {raw_path}") from None
+
     return candidate
 
 
@@ -85,8 +120,6 @@ def ensure_directory_inside_workspace(raw_dir: str | os.PathLike) -> Path:
 
 def apply_security(app: FastAPI) -> None:
     """Replace open CORS with explicit origins. Call once after creating the app."""
-    # Remove any existing CORS middleware is not trivial; add a strict one.
-    # Preferred: do not add the open middleware in app.py at all.
     origins = [
         o.strip()
         for o in os.environ.get("DISHA_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
@@ -97,4 +130,6 @@ def apply_security(app: FastAPI) -> None:
         allow_origins=origins,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type"],
+        allow_credentials=False,
+        max_age=0,
     )

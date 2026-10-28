@@ -42,7 +42,45 @@ POOL = ThreadPoolExecutor(max_workers=16)
 FETCH_POOL = ThreadPoolExecutor(max_workers=16, thread_name_prefix="fetch")
 REGISTRY: list[dict] = []
 
-# Secrets — never cleartext in UI, logs, or evidence.
+# Per-collector rate limit state: collector name -> list of request timestamps.
+_RATE_STATE: dict[str, list[float]] = {}
+_RATE_LOCK: dict[str, object] = {}
+
+import threading  # noqa: E402
+
+
+def _rate_limited(c: dict) -> bool:
+    """Enforce per-collector rate limit. Returns True if the request should be rejected."""
+    import time as _time
+
+    rl = c.get("rateLimit") or {"requests": 30, "windowMs": 60_000}
+    name = c["name"]
+    now = _time.time()
+    window_start = now - (rl["windowMs"] / 1000.0)
+    lock = _RATE_LOCK.setdefault(name, threading.Lock())
+    with lock:
+        stamps = [t for t in _RATE_STATE.get(name, []) if t > window_start]
+        if len(stamps) >= rl["requests"]:
+            _RATE_STATE[name] = stamps
+            return True
+        stamps.append(now)
+        _RATE_STATE[name] = stamps
+    return False
+
+
+def safe(c, v):
+    """Run a collector with rate-limit enforcement and structured error handling."""
+    if _rate_limited(c):
+        return {
+            "status": "error",
+            "error": "rate_limit_exceeded",
+            "collector": c.get("name"),
+            "rateLimit": c.get("rateLimit"),
+        }
+    try:
+        return c["fn"](v)
+    except Exception as e:
+        return {"status": "error", "error": str(e), "collector": c.get("name")}
 SECRET_KEYS: set[str] = {
     "password", "passwd", "secret", "token", "api_key", "apikey",
 }
@@ -60,11 +98,13 @@ SHELL_BINARIES = {
 }
 
 
-def collector(name, inputs, category, unmasked=False, risk="passive", kind="network"):
+def collector(name, inputs, category, unmasked=False, risk="passive", kind="network", legalBasis="Public open-source observation", rateLimit=None):
     """Register a collector.
 
     kind: network | shell | local | live
     risk: passive | active_network
+    legalBasis: declared legal basis for the collection (Constitution Article VI).
+    rateLimit: {requests, windowMs} per-collector rate cap; None = use default.
     """
     def deco(fn):
         REGISTRY.append(
@@ -76,6 +116,8 @@ def collector(name, inputs, category, unmasked=False, risk="passive", kind="netw
                 unmasked=unmasked,
                 risk=risk,
                 kind=kind,
+                legalBasis=legalBasis,
+                rateLimit=rateLimit or {"requests": 30, "windowMs": 60_000},
             )
         )
         return fn
@@ -305,7 +347,7 @@ SERIES = {
 }
 
 
-@collector("XposedOrNot breach", ["email"], "breach", unmasked=True, kind="network")
+@collector("XposedOrNot breach", ["email"], "breach", unmasked=True, kind="network", legalBasis="Breach exposure awareness on self-declared or authorized targets")
 def c_xon(v):
     d = _json(f"https://api.xposedornot.com/v1/breach-analytics?email={v['email']}")
     b = (d.get("ExposedBreaches") or {}).get("breaches_details") or []
@@ -315,7 +357,7 @@ def c_xon(v):
         for x in b]} or d
 
 
-@collector("Pwned Password (HIBP)", ["password"], "breach", unmasked=True, kind="network")
+@collector("Pwned Password (HIBP)", ["password"], "breach", unmasked=True, kind="network", legalBasis="Breach exposure awareness on self-declared or authorized targets")
 def c_pwn(v):
     h = hashlib.sha1(v["password"].encode()).hexdigest().upper()
     body, status = _get(f"https://api.pwnedpasswords.com/range/{h[:5]}")
@@ -333,7 +375,7 @@ def c_emailrep(v):
     return _json(f"https://emailrep.io/{v['email']}")
 
 
-@collector("LeakCheck breach intelligence", ["email", "username", "phone"], "breach", unmasked=True, kind="network")
+@collector("LeakCheck breach intelligence", ["email", "username", "phone"], "breach", unmasked=True, kind="network", legalBasis="Breach exposure awareness on self-declared or authorized targets")
 def c_leakcheck(v):
     q = v.get("email") or v.get("username") or v.get("phone")
     if not q:
@@ -421,19 +463,19 @@ def c_tg(v): return {"exists": _exists(f"https://t.me/{v['username']}"),
                      "url": f"https://t.me/{v['username']}"}
 
 
-@collector("Holehe", ["email"], "accounts", kind="shell")
+@collector("Holehe", ["email"], "accounts", kind="shell", legalBasis="Authorized account presence check on consented targets")
 def s_holehe(v): return run_tool(["holehe", v["email"], "--no-color"])
 
 
-@collector("Sherlock", ["username"], "accounts", kind="shell")
+@collector("Sherlock", ["username"], "accounts", kind="shell", legalBasis="Authorized account presence check on consented targets")
 def s_sherlock(v): return run_tool(["sherlock", v["username"], "--print-found", "--timeout", "5"])
 
 
-@collector("Maigret", ["username"], "accounts", kind="shell")
+@collector("Maigret", ["username"], "accounts", kind="shell", legalBasis="Authorized account presence check on consented targets")
 def s_maigret(v): return run_tool(["maigret", v["username"], "--no-color", "--top-sites", "300"])
 
 
-@collector("PhoneInfoga", ["phone"], "phone", kind="shell")
+@collector("PhoneInfoga", ["phone"], "phone", kind="shell", legalBasis="Authorized phone presence check on consented targets")
 def s_phone(v): return run_tool(["phoneinfoga", "scan", "-n", v["phone"]])
 
 
@@ -554,7 +596,7 @@ def c_off_crt(v):
     return _json(f"https://crt.sh/?q=%25.{v['domain']}&output=json")
 
 
-@collector("DNS lookup", ["domain"], "offensive", risk="active_network", kind="network")
+@collector("DNS lookup", ["domain"], "offensive", risk="active_network", kind="network", legalBasis="Authorized infrastructure assessment on owned or consented targets")
 def c_off_dns(v):
     try:
         return {"domain": v["domain"], "a": socket.gethostbyname_ex(v["domain"])[2]}
@@ -562,7 +604,7 @@ def c_off_dns(v):
         return {"domain": v["domain"], "error": str(e)}
 
 
-@collector("HTTP headers", ["domain"], "offensive", risk="active_network", kind="network")
+@collector("HTTP headers", ["domain"], "offensive", risk="active_network", kind="network", legalBasis="Authorized infrastructure assessment on owned or consented targets")
 def c_off_headers(v):
     try:
         b, code = _get(f"http://{v['domain']}", headers={"User-Agent": "DISHA/2.0"})
@@ -571,7 +613,7 @@ def c_off_headers(v):
         return {"domain": v["domain"], "error": str(e)}
 
 
-@collector("Port scan (common)", ["ip"], "offensive", risk="active_network", kind="network")
+@collector("Port scan (common)", ["ip"], "offensive", risk="active_network", kind="network", legalBasis="Authorized infrastructure assessment on owned or consented targets")
 def c_off_ports(v):
     ip = v["ip"]
     common = [21,22,23,25,53,80,110,135,139,143,443,445,993,995,1433,3306,3389,5432,5900,6379,8080,8443,27017]

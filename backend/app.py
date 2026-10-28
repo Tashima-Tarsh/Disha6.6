@@ -19,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from evidence_bridge import observations_to_evidence_events
+from evidence_bridge import append_evidence_events, verify_chain
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 from osint_collectors import (
@@ -80,21 +80,10 @@ class ScanInput(BaseModel):
 
 @app.get("/")
 def root():
-    status = list_tools_status()
-    ready = sum(1 for t in status if t.get("status") == "ready")
     return {
         "service": "DISHA 6.6 OSINT",
         "constitutional": True,
         "auth": "Bearer DISHA_OSINT_API_KEY required on sensitive routes",
-        "collectors": len(REGISTRY),
-        "collectorsReady": ready,
-        "vyuhaFormations": len(VYUH_FORMATIONS),
-        "vyuhaMode": "proposal_only",
-        "evidenceBridge": True,
-        "privacy": {
-            "inputsDisplay": "identity PII visible to authorized UI; secrets always [REDACTED]",
-            "inputsRedacted": "logs, print, evidence payloads",
-        },
         "policy": {
             "activeNetworkDefault": "deny",
             "allowActiveField": "allowActive",
@@ -102,7 +91,7 @@ def root():
     }
 
 
-@app.get("/tools")
+@app.get("/tools", dependencies=[Depends(require_api_key)])
 def tools():
     """Catalog of collectors with executable/actionable status."""
     status = list_tools_status()
@@ -155,7 +144,8 @@ async def scan(payload: ScanInput):
         results[c["name"]] = safe(c, v)
 
     # Evidence always uses log-redacted inputs (PII + secrets).
-    evidence_events = observations_to_evidence_events(
+    # Persisted to the real hash-chained ledger; fail closed if the write fails.
+    evidence_events = append_evidence_events(
         results=results, inputs=v, mission_id=mission_id
     )
 
@@ -363,7 +353,7 @@ def vyuh_activate(payload: dict):
             }
             continue
         results[reg_name] = safe(match, inputs)
-    evidence_events = observations_to_evidence_events(
+    evidence_events = append_evidence_events(
         results={
             k: v
             for k, v in results.items()

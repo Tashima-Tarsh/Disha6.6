@@ -12,7 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from evidence_bridge import observations_to_evidence_events
+from evidence_bridge import append_evidence_events, verify_chain
 from osint_collectors import (
     REGISTRY,
     inputs_for_display,
@@ -51,7 +51,7 @@ def main() -> int:
     if disp.get("aadhaar") != "123412341234" or disp.get("email") != "a@b.c":
         errors.append(f"inputs_for_display should keep PII: {disp}")
 
-    events = observations_to_evidence_events(
+    events = append_evidence_events(
         results={"demo": {"ok": True}},
         inputs={"password": "x", "email": "t@example.com"},
         mission_id="smoke",
@@ -60,6 +60,8 @@ def main() -> int:
         errors.append("evidence bridge produced no events")
     elif events[0]["payload"]["inputs"].get("password") != "[REDACTED]":
         errors.append("bridge did not redact password")
+    elif events[0].get("ledgerNote") != "persisted":
+        errors.append(f"bridge did not persist to ledger: {events[0].get('ledgerNote')}")
 
     status = list_tools_status()
     if len(status) != len(REGISTRY):

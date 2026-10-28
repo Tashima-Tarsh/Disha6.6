@@ -15,6 +15,10 @@ from __future__ import annotations
 import os
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
 # Fail closed if key missing — set before importing app
 os.environ.setdefault("DISHA_OSINT_API_KEY", "ci-test-key")
 KEY = os.environ["DISHA_OSINT_API_KEY"]
@@ -64,7 +68,7 @@ def main() -> int:
             errors.append(f"port scan not listed in deniedByPolicy: {denied}")
 
     # 4) Tools status actionable
-    r = client.get("/tools")
+    r = client.get("/tools", headers=headers)
     if r.status_code != 200:
         errors.append(f"/tools failed {r.status_code}")
     else:
@@ -75,10 +79,13 @@ def main() -> int:
         if not all("status" in c and "actionable" in c for c in cols):
             errors.append("collectors missing status/actionable fields")
 
-    # 5) Health / root
+    # 5) Health / root (unauthenticated readiness, no collector counts)
     r = client.get("/")
     if r.status_code != 200 or not r.json().get("constitutional"):
         errors.append("root health not constitutional")
+    body = r.json()
+    if "collectors" in body or "collectorsReady" in body:
+        errors.append("root endpoint must not expose collector counts unauthenticated")
 
     if errors:
         print("E2E API SPINE FAILED")
