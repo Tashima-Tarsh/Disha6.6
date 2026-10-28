@@ -19,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from evidence_bridge import append_evidence_events, verify_chain
+from evidence_bridge import append_evidence_events, verify_chain, get_events_for_mission, export_chain
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 from osint_collectors import (
@@ -47,6 +47,13 @@ from secure_bootstrap import (
     require_api_key,
 )
 from vyuha_formations import COLLECTOR_NAME_MAP, VYUH_FORMATIONS
+
+# Constitutional boot: fail-closed before the app serves any request.
+BOOT_CONFIG = None  # type: ignore
+try:
+    from constitutional_boot import BOOT_CONFIG  # noqa: E402
+except Exception as _boot_exc:  # pragma: no cover - fail closed
+    BOOT_CONFIG = {"boot_error": str(_boot_exc)}
 
 PORT = int(os.environ.get("PORT", 8000))
 
@@ -89,6 +96,28 @@ def root():
             "allowActiveField": "allowActive",
         },
     }
+
+
+@app.get("/boot")
+def boot():
+    """Constitutional boot status (no secrets exposed)."""
+    return {
+        "boot": BOOT_CONFIG if isinstance(BOOT_CONFIG, dict) else {"error": str(BOOT_CONFIG)},
+        "constitutional": True,
+    }
+
+
+@app.get("/api/v1/evidence/verify/{mission_id}", dependencies=[Depends(require_api_key)])
+def evidence_verify(mission_id: str):
+    """Verify the hash-chain integrity of all evidence events for a mission."""
+    result = verify_chain(mission_id)
+    return {"missionId": mission_id, **result}
+
+
+@app.get("/api/v1/evidence/export/{mission_id}", dependencies=[Depends(require_api_key)])
+def evidence_export(mission_id: str):
+    """Export a complete, verifiable evidence package for a mission (reconstructibility)."""
+    return export_chain(mission_id)
 
 
 @app.get("/tools", dependencies=[Depends(require_api_key)])

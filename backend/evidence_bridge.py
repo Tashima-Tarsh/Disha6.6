@@ -23,6 +23,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+try:  # Optional cross-ledger anchor to the authoritative TS Postgres store.
+    import urllib.request as _urlrequest
+    import urllib.error as _urlerror
+except Exception:  # pragma: no cover - urllib is stdlib
+    _urlrequest = None  # type: ignore
+    _urlerror = None  # type: ignore
+
 SENSITIVE_KEYS: set[str] = {
     "password", "passwd", "secret", "token", "api_key", "apikey",
     "aadhaar", "pan", "epic",
@@ -31,6 +38,34 @@ SENSITIVE_KEYS: set[str] = {
 LEDGER_PATH = Path(
     os.environ.get("DISHA_EVIDENCE_LEGACY_DB", os.path.join(os.path.dirname(__file__), "data", "evidence_ledger.sqlite"))
 )
+
+# Optional: anchor every persisted event into the authoritative TypeScript/Postgres
+# evidence ledger so one mission = one evidence chain. Only active when configured.
+TS_LEDGER_URL = os.environ.get("DISHA_TS_LEDGER_URL", "").strip()
+TS_LEDGER_API_KEY = os.environ.get("DISHA_TS_LEDGER_API_KEY", "").strip()
+
+
+def _anchor_to_ts(event: dict[str, Any]) -> None:
+    """Best-effort anchor of one event into the TS ledger. Never blocks persistence."""
+    if not TS_LEDGER_URL or _urlrequest is None:
+        return
+    try:
+        payload = json.dumps(event, default=str).encode("utf-8")
+        req = _urlrequest.Request(
+            TS_LEDGER_URL.rstrip("/") + "/append",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Request-ID": event["id"],
+                **({"Authorization": f"Bearer {TS_LEDGER_API_KEY}"} if TS_LEDGER_API_KEY else {}),
+            },
+            method="POST",
+        )
+        with _urlrequest.urlopen(req, timeout=5) as resp:  # noqa: S310
+            _ = resp.read()
+    except Exception:
+        # Anchor failure must NOT reject a locally persisted observation.
+        pass
 
 
 def _ensure_parent(path: Path) -> None:
@@ -184,6 +219,7 @@ def append_evidence_events(
             )
             events.append(event)
             prev = h
+            _anchor_to_ts(event)
         conn.commit()
     except Exception:
         conn.rollback()
@@ -194,28 +230,92 @@ def append_evidence_events(
     return events
 
 
+def _row_to_event(r: tuple) -> dict[str, Any]:
+    (eid, prev, h, ts, actor_type, actor_id, actor_display,
+     event_type, payload, sources, verification,
+     policy_id, policy_decision, policy_reasons,
+     mission_id, case_id, signature, _created) = r
+    return {
+        "id": eid,
+        "previousHash": prev,
+        "hash": h,
+        "timestamp": ts,
+        "actor": {"type": actor_type, "id": actor_id, "displayName": actor_display or None},
+        "type": event_type,
+        "payload": json.loads(payload) if payload else {},
+        "sources": json.loads(sources) if sources else [],
+        "verification": verification,
+        "policyContext": {
+            "policyId": policy_id,
+            "decision": policy_decision,
+            "reasons": json.loads(policy_reasons) if policy_reasons else [],
+        },
+        "missionId": mission_id or None,
+        "caseId": case_id or None,
+        "signature": signature or None,
+    }
+
+
 def verify_chain(mission_id: str | None = None) -> dict[str, Any]:
-    """Verify the hash chain integrity for all events (or one mission)."""
+    """Verify the full hash chain integrity (linkage + content hash) for all events (or one mission)."""
     conn = _connect()
     try:
         if mission_id:
             rows = conn.execute(
-                "SELECT id, previous_hash, hash, payload, created_at FROM evidence_events WHERE mission_id = ? ORDER BY created_at ASC, id ASC",
+                "SELECT id, previous_hash, hash, timestamp, actor_type, actor_id, actor_display_name, "
+                "event_type, payload, sources, verification, policy_id, policy_decision, policy_reasons, "
+                "mission_id, case_id, signature, created_at FROM evidence_events WHERE mission_id = ? "
+                "ORDER BY created_at ASC, id ASC",
                 (mission_id,),
             ).fetchall()
         else:
             rows = conn.execute(
-                "SELECT id, previous_hash, hash, payload, created_at FROM evidence_events ORDER BY created_at ASC, id ASC"
+                "SELECT id, previous_hash, hash, timestamp, actor_type, actor_id, actor_display_name, "
+                "event_type, payload, sources, verification, policy_id, policy_decision, policy_reasons, "
+                "mission_id, case_id, signature, created_at FROM evidence_events ORDER BY created_at ASC, id ASC"
             ).fetchall()
     finally:
         conn.close()
 
     expected_prev = "0"
-    for (eid, prev, h, _payload, _ts) in rows:
-        if prev != expected_prev:
-            return {"valid": False, "brokenAt": eid, "reason": "previousHash mismatch"}
-        recomputed = _hash_event(eid, prev, "", _payload)
-        # Note: ts is empty here because recompute needs the original ts; we only
-        # validate linkage ordering, not full content hash, in this light check.
-        expected_prev = h
+    for r in rows:
+        event = _row_to_event(r)
+        if event["previousHash"] != expected_prev:
+            return {"valid": False, "brokenAt": event["id"], "reason": "previousHash mismatch"}
+        # Recompute content hash over the event minus its stored hash.
+        event_without_hash = {k: v for k, v in event.items() if k != "hash"}
+        expected_hash = _hash_event(event["id"], event["previousHash"], event["timestamp"], event["payload"])
+        if expected_hash != event["hash"]:
+            return {"valid": False, "brokenAt": event["id"], "reason": "content hash mismatch"}
+        expected_prev = event["hash"]
     return {"valid": True, "count": len(rows)}
+
+
+def get_events_for_mission(mission_id: str) -> list[dict[str, Any]]:
+    """Return all persisted evidence events for a mission, oldest first."""
+    conn = _connect()
+    try:
+        rows = conn.execute(
+            "SELECT id, previous_hash, hash, timestamp, actor_type, actor_id, actor_display_name, "
+            "event_type, payload, sources, verification, policy_id, policy_decision, policy_reasons, "
+            "mission_id, case_id, signature, created_at FROM evidence_events WHERE mission_id = ? "
+            "ORDER BY created_at ASC, id ASC",
+            (mission_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return [_row_to_event(r) for r in rows]
+
+
+def export_chain(mission_id: str) -> dict[str, Any]:
+    """Export a complete, verifiable evidence package for a mission (reconstructibility)."""
+    events = get_events_for_mission(mission_id)
+    chain = verify_chain(mission_id)
+    return {
+        "missionId": mission_id,
+        "eventCount": len(events),
+        "chainValid": chain["valid"],
+        "brokenAt": chain.get("brokenAt"),
+        "events": events,
+        "exportedAt": datetime.now(UTC).isoformat(),
+    }

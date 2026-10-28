@@ -17,6 +17,11 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 
+# Python evidence ledger runtime DB (created at runtime; never commit evidence)
+backend/data/evidence_ledger.sqlite
+backend/data/*.sqlite
+backend/data/__pycache__/
+
 # Environment
 .env
 .env.local
