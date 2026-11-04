@@ -13,8 +13,6 @@ import { Separator } from "@/components/ui/separator";
 import { Switch, SwitchLabel } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { describeCapability, getCapabilityReadiness, listSkills, type RegisteredSkill } from "@/lib/skills/capability-readiness";
-import { executeSkill } from "@/lib/skills/skill-registry";
-import { appendEvidenceEvent } from "@/lib/unified/evidence-ledger";
 
 const CATEGORIES: { id: string; label: string }[] = [
   { id: "all", label: "All" },
@@ -48,22 +46,24 @@ export default function SkillsPage() {
   const handleExecute = async (skill: RegisteredSkill) => {
     setExecuting(skill.id);
     try {
-      const result = await executeSkill(skill.id, {
-        missionId: "skill-ui-" + Date.now(),
-        actor: "operator",
-        taskPrompt: search || skill.name,
-        params: {},
+      const res = await fetch("/api/skills/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skillId: skill.id,
+          taskPrompt: search || skill.name,
+          params: {},
+        }),
       });
+      const result = await res.json();
       setLastResult(result);
-      try {
-        await appendEvidenceEvent({
-          missionId: "skill-ui",
-          actor: "operator",
-          action: "skill_executed_from_ui",
-          input: { skillId: skill.id },
-          output: { status: result.status },
-        });
-      } catch {}
+    } catch (err) {
+      setLastResult({
+        skillId: skill.id,
+        status: "FAILED",
+        summary: err instanceof Error ? err.message : String(err),
+        output: {},
+      });
     } finally {
       setExecuting(null);
     }

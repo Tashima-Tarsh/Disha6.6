@@ -1,4 +1,4 @@
-import { listSkills, type RegisteredSkill, type SkillCategory } from "./skill-registry";
+import { listSkills, type RegisteredSkill, type SkillCategory } from "./client-registry";
 
 export { listSkills };
 export type { RegisteredSkill, SkillCategory };
