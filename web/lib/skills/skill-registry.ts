@@ -1,13 +1,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { appendEvidenceEvent } from "@/lib/unified/evidence-ledger";
 import { evaluatePolicy } from "@/lib/unified/policy-gate";
 import type { DishaSignal } from "@/lib/unified/contracts";
 import type { Principal } from "@/lib/server/types";
-import { verifyAuthorizationGrant } from "@/lib/server/authorization-grants";
 import skillsData from "@/data/skills/skills-index.json";
 import rolesData from "@/data/skills/roles-index.json";
+import { skillResultCache, SkillResultCache } from "./skill-cache";
 
 export type ExpertRole = {
   id: string;
@@ -83,6 +82,9 @@ export type SkillCategory =
   | "ai-research"
   | "scientific-computing"
   | "computer-networking"
+  | "mobile-android"
+  | "api-integration"
+  | "reverse-engineering"
   | "general";
 
 export type RegisteredSkill = {
@@ -121,6 +123,7 @@ export type SkillExecutionResult = {
   policyDecision?: unknown;
   evidenceError?: string;
   artifactHash?: string;
+  cached?: boolean;
 };
 
 const allSkills: RegisteredSkill[] = skillsData as RegisteredSkill[];
@@ -564,6 +567,289 @@ function executeSoftwareEngineeringSkill(
 }
 
 // -------------------------------------------------------------
+// Genuine Category Domain Executors (Zero Simulation) - continued
+// -------------------------------------------------------------
+
+function executeDesignFrontendSkill(
+  skill: RegisteredSkill,
+  taskPrompt: string,
+  params?: Record<string, unknown>
+): ExecutorResult {
+  const code = (params?.code as string) ?? (params?.snippet as string) ?? "";
+  const hasCode = typeof code === "string" && code.trim().length > 0;
+
+  const findings: string[] = [];
+  const checks: Record<string, boolean> = {};
+
+  // Heuristic frontend design checks: no AST, no browser, no WCAG certification.
+  checks.hasCode = hasCode;
+  if (hasCode) {
+    checks.usesSemanticHtml = /\b(main|article|section|nav|aside|header|footer)\b/i.test(code);
+    checks.usesAriaLabels = /aria-(label|labelledby|describedby)\s*=/i.test(code);
+    checks.hasAltText = /alt\s*=/i.test(code);
+    checks.usesColorContrastClass = /(contrast|text-\w+|bg-\w+)/i.test(code);
+    checks.hasFocusManagement = /focus|blur|tabindex/i.test(code);
+
+    if (!checks.usesSemanticHtml) findings.push("No semantic HTML landmarks detected");
+    if (!checks.usesAriaLabels) findings.push("No ARIA labels detected");
+    if (code.includes("img") && !checks.hasAltText) findings.push("Image without alt text detected");
+  }
+
+  const apiDesignHints = /\b(rest|graphql|endpoint|route|middleware|controller)\b/i.test(
+    taskPrompt + code
+  );
+  const reverseHints = /\b(decompile|disassemble|firmware|packaged|binary|electron|native)\b/i.test(
+    taskPrompt + code
+  );
+
+  return {
+    status: hasCode ? "SUCCESS" : "NOT_EXECUTED",
+    summary: hasCode
+      ? `Frontend design review completed: ${checks.hasCode ? "code analyzed" : "no code supplied"}. ${findings.length > 0 ? findings.join("; ") : "No obvious violations detected."} This is a heuristic review, not WCAG certification or AST analysis.`
+      : "No source code supplied; frontend design checks were not run.",
+    artifact: {
+      domain: "frontend_design_and_api_interface",
+      checks,
+      findings,
+      apiDesignHints,
+      reverseEngineeringHints: reverseHints,
+      executed: hasCode,
+      limitation:
+        "Heuristic pattern checks only; not a compiler, linter, WCAG auditor, or reverse-engineering tool.",
+    },
+  };
+}
+
+function executeGeneralSkill(
+  skill: RegisteredSkill,
+  taskPrompt: string,
+  params?: Record<string, unknown>
+): ExecutorResult {
+  const text = (params?.text as string) ?? (params?.content as string) ?? taskPrompt;
+  const hasContent = typeof text === "string" && text.trim().length > 0;
+
+  const wordCount = hasContent ? text.split(/\s+/).filter(Boolean).length : 0;
+  const hasQuestion = /\?\s*$/.test(text.trim());
+  const hasTaskKeyword = /\b(create|build|fix|review|audit|design|analyze|plan|implement|test)\b/i.test(
+    text
+  );
+
+  return {
+    status: hasContent ? "SUCCESS" : "NOT_EXECUTED",
+    summary: hasContent
+      ? `General task analysis completed: ${wordCount} words, task-oriented=${hasTaskKeyword}, question-form=${hasQuestion}. No external action taken; this is a catalogue-instruction lookup only.`
+      : "No content supplied; general analysis was not run.",
+    artifact: {
+      domain: "general_purpose_analysis",
+      wordCount,
+      isQuestion: hasQuestion,
+      isTaskOriented: hasTaskKeyword,
+      executed: hasContent,
+      limitation:
+        "Instruction catalogue entry only; no model inference, external tool, or autonomous execution.",
+    },
+  };
+}
+
+function executeIntelligenceOsintSkill(
+  skill: RegisteredSkill,
+  taskPrompt: string,
+  params?: Record<string, unknown>
+): ExecutorResult {
+  const sources = Array.isArray(params?.sources) ? (params.sources as unknown[]) : [];
+  const hasClaim = typeof params?.claim === "string" && (params.claim as string).trim().length > 0;
+  const hasIncident =
+    typeof params?.incidentId === "string" && (params.incidentId as string).trim().length > 0;
+
+  const checks: Record<string, boolean> = {
+    hasSources: sources.length > 0,
+    hasClaim,
+    hasIncident,
+    multiSource: sources.length >= 3,
+  };
+
+  const findings: string[] = [];
+  if (sources.length === 0) findings.push("No sources supplied; triangulation not possible");
+  if (hasClaim && sources.length === 0) {
+    findings.push("Claim supplied without sources; marked [VERIFY REQUIRED]");
+  }
+  if (hasIncident && sources.length === 0) {
+    findings.push("Incident referenced without source evidence");
+  }
+
+  return {
+    status: sources.length > 0 || hasClaim || hasIncident ? "SUCCESS" : "NOT_EXECUTED",
+    summary: sources.length > 0 || hasClaim || hasIncident
+      ? `OSINT research structure validated: ${sources.length} sources, claim=${hasClaim}, incident=${hasIncident}. No live web search or external query performed; all claims require source triangulation.`
+      : "No sources, claims, or incident data supplied; OSINT analysis was not run.",
+    artifact: {
+      domain: "intelligence_osint_research",
+      checks,
+      findings,
+      executed: sources.length > 0 || hasClaim || hasIncident,
+      limitation:
+        "Read-only governance structure validation only; no live OSINT queries, web scraping, or external intelligence gathering.",
+    },
+  };
+}
+
+// -------------------------------------------------------------
+// Mobile/Android executor
+// -------------------------------------------------------------
+
+function executeAndroidSkill(
+  skill: RegisteredSkill,
+  taskPrompt: string,
+  params?: Record<string, unknown>
+): ExecutorResult {
+  const packageName = (params?.packageName as string) ?? "";
+  const apkPath = (params?.apkPath as string) ?? "";
+  const activityName = (params?.activityName as string) ?? "";
+  const permission = (params?.permission as string) ?? "";
+  const minSdk = typeof params?.minSdk === "number" ? params.minSdk : undefined;
+  const targetSdk = typeof params?.targetSdk === "number" ? params.targetSdk : undefined;
+
+  const checks: Record<string, boolean> = {
+    hasPackageName: packageName.length > 0,
+    hasApkPath: apkPath.length > 0,
+    hasActivityName: activityName.length > 0,
+    hasPermission: permission.length > 0,
+    hasSdkRange: minSdk !== undefined && targetSdk !== undefined,
+  };
+
+  const findings: string[] = [];
+  if (packageName.length > 0 && !/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(packageName)) {
+    findings.push("Package name does not follow reverse-domain notation");
+  }
+  if (minSdk !== undefined && targetSdk !== undefined && minSdk > targetSdk) {
+    findings.push("minSdk is greater than targetSdk");
+  }
+  if (apkPath.length > 0 && !apkPath.toLowerCase().endsWith(".apk")) {
+    findings.push("APK path does not end with .apk extension");
+  }
+
+  return {
+    status: packageName.length > 0 || apkPath.length > 0 || activityName.length > 0 ? "SUCCESS" : "NOT_EXECUTED",
+    summary: packageName.length > 0 || apkPath.length > 0 || activityName.length > 0
+      ? `Android skill structure validated: package=${packageName || "none"}, apk=${apkPath || "none"}, activity=${activityName || "none"}, permission=${permission || "none"}. No APK installation, build, or device interaction performed.`
+      : "No Android package, APK, or activity supplied; Android analysis was not run.",
+    artifact: {
+      domain: "mobile_android_development",
+      checks,
+      findings,
+      executed: packageName.length > 0 || apkPath.length > 0 || activityName.length > 0,
+      limitation:
+        "Read-only structure validation only; no APK signing, installation, ADB, emulator, or device interaction.",
+    },
+  };
+}
+
+// -------------------------------------------------------------
+// API integration executor
+// -------------------------------------------------------------
+
+function executeApiIntegrationSkill(
+  skill: RegisteredSkill,
+  taskPrompt: string,
+  params?: Record<string, unknown>
+): ExecutorResult {
+  const baseUrl = (params?.baseUrl as string) ?? "";
+  const endpoint = (params?.endpoint as string) ?? "";
+  const method = (params?.method as string) ?? "GET";
+  const authType = (params?.authType as string) ?? "none";
+  const hasSchema = typeof params?.schema === "object" && params.schema !== null;
+
+  const validMethods = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]);
+  const validAuthTypes = new Set(["none", "api-key", "bearer", "oauth2", "basic"]);
+
+  const checks: Record<string, boolean> = {
+    hasBaseUrl: baseUrl.length > 0,
+    hasEndpoint: endpoint.length > 0,
+    validMethod: validMethods.has(method.toUpperCase()),
+    validAuthType: validAuthTypes.has(authType.toLowerCase()),
+    hasSchema,
+  };
+
+  const findings: string[] = [];
+  if (baseUrl.length > 0 && !/^https?:\/\//i.test(baseUrl)) {
+    findings.push("Base URL must start with http:// or https://");
+  }
+  if (!checks.validMethod) {
+    findings.push(`Invalid HTTP method: ${method}`);
+  }
+  if (!checks.validAuthType) {
+    findings.push(`Invalid auth type: ${authType}`);
+  }
+
+  return {
+    status: baseUrl.length > 0 || endpoint.length > 0 || hasSchema ? "SUCCESS" : "NOT_EXECUTED",
+    summary: baseUrl.length > 0 || endpoint.length > 0 || hasSchema
+      ? `API integration structure validated: baseUrl=${baseUrl || "none"}, endpoint=${endpoint || "none"}, method=${method}, auth=${authType}, schema=${hasSchema ? "provided" : "none"}. No live HTTP calls or external requests performed.`
+      : "No API base URL, endpoint, or schema supplied; API analysis was not run.",
+    artifact: {
+      domain: "api_integration_and_orchestration",
+      checks,
+      findings,
+      executed: baseUrl.length > 0 || endpoint.length > 0 || hasSchema,
+      limitation:
+        "Read-only structure validation only; no live HTTP requests, webhook delivery, or external API calls.",
+    },
+  };
+}
+
+// -------------------------------------------------------------
+// Reverse engineering executor
+// -------------------------------------------------------------
+
+function executeReverseEngineeringSkill(
+  skill: RegisteredSkill,
+  taskPrompt: string,
+  params?: Record<string, unknown>
+): ExecutorResult {
+  const filePath = (params?.filePath as string) ?? "";
+  const fileHash = (params?.fileHash as string) ?? "";
+  const targetType = (params?.targetType as string) ?? "unknown";
+  const architecture = (params?.architecture as string) ?? "";
+
+  const validTargetTypes = new Set(["apk", "binary", "firmware", "electron", "native", "managed", "browser", "package"]);
+  const validArchitectures = new Set(["x86", "x86_64", "arm", "arm64", "mips", "riscv", "unknown"]);
+
+  const checks: Record<string, boolean> = {
+    hasFilePath: filePath.length > 0,
+    hasFileHash: fileHash.length > 0,
+    validTargetType: validTargetTypes.has(targetType.toLowerCase()),
+    validArchitecture: validArchitectures.has(architecture.toLowerCase()),
+    validHash: fileHash.length === 0 || /^[a-f0-9]{64}$/.test(fileHash),
+  };
+
+  const findings: string[] = [];
+  if (fileHash.length > 0 && !checks.validHash) {
+    findings.push("File hash is not a valid SHA-256 hex string");
+  }
+  if (!checks.validTargetType) {
+    findings.push(`Unknown target type: ${targetType}`);
+  }
+  if (!checks.validArchitecture) {
+    findings.push(`Unknown architecture: ${architecture}`);
+  }
+
+  return {
+    status: filePath.length > 0 || fileHash.length > 0 || targetType !== "unknown" ? "SUCCESS" : "NOT_EXECUTED",
+    summary: filePath.length > 0 || fileHash.length > 0 || targetType !== "unknown"
+      ? `Reverse engineering structure validated: file=${filePath || "none"}, hash=${fileHash || "none"}, type=${targetType}, arch=${architecture}. No decompilation, disassembly, or artifact extraction performed.`
+      : "No file path, hash, or target type supplied; reverse engineering analysis was not run.",
+    artifact: {
+      domain: "reverse_engineering_and_binary_analysis",
+      checks,
+      findings,
+      executed: filePath.length > 0 || fileHash.length > 0 || targetType !== "unknown",
+      limitation:
+        "Read-only structure validation only; no disassembly, decompilation, firmware extraction, or binary analysis tools.",
+    },
+  };
+}
+
+// -------------------------------------------------------------
 // Main Skill Execution Gateway
 // -------------------------------------------------------------
 
@@ -585,6 +871,15 @@ export async function executeSkill(
       summary: `Skill '${skillId}' not found in registry`,
       output: {},
     };
+  }
+
+  // Cache hit for read-only, non-approval skills
+  if (!skill.compatibility.requiresApproval) {
+    const cacheKey = SkillResultCache.makeKey(skillId, input.taskPrompt, input.params);
+    const cached = skillResultCache.get<SkillExecutionResult>(cacheKey);
+    if (cached) {
+      return { ...cached, skillId, cached: true };
+    }
   }
 
   // 1. Evaluate policy gate before skill execution
@@ -623,6 +918,7 @@ export async function executeSkill(
 
   // Record policy evaluation attempt to Evidence Ledger
   try {
+    const { appendEvidenceEvent } = await import("@/lib/unified/evidence-ledger");
     await appendEvidenceEvent({
       missionId: input.missionId,
       actor: input.actor,
@@ -670,6 +966,7 @@ export async function executeSkill(
       };
     }
 
+    const { verifyAuthorizationGrant } = await import("@/lib/server/authorization-grants");
     const grantCheck = verifyAuthorizationGrant({
       grantId,
       caller: input.principal,
@@ -732,6 +1029,18 @@ export async function executeSkill(
     executionResult = executeCognitiveMemorySkill(skill, input.taskPrompt, input.params);
   } else if (skill.category === "software-engineering" || skill.category === "cybersecurity") {
     executionResult = executeSoftwareEngineeringSkill(skill, input.taskPrompt, input.params);
+  } else if (skill.category === "design-frontend") {
+    executionResult = executeDesignFrontendSkill(skill, input.taskPrompt, input.params);
+  } else if (skill.category === "general") {
+    executionResult = executeGeneralSkill(skill, input.taskPrompt, input.params);
+  } else if (skill.category === "intelligence-osint") {
+    executionResult = executeIntelligenceOsintSkill(skill, input.taskPrompt, input.params);
+  } else if (skill.category === "mobile-android") {
+    executionResult = executeAndroidSkill(skill, input.taskPrompt, input.params);
+  } else if (skill.category === "api-integration") {
+    executionResult = executeApiIntegrationSkill(skill, input.taskPrompt, input.params);
+  } else if (skill.category === "reverse-engineering") {
+    executionResult = executeReverseEngineeringSkill(skill, input.taskPrompt, input.params);
   } else {
     // General / informational skills
     executionResult = {
@@ -764,6 +1073,7 @@ export async function executeSkill(
   let evidenceEvent;
   let evidenceError: string | undefined;
   try {
+    const { appendEvidenceEvent } = await import("@/lib/unified/evidence-ledger");
     evidenceEvent = await appendEvidenceEvent({
       missionId: input.missionId,
       actor: input.actor,
@@ -786,6 +1096,21 @@ export async function executeSkill(
       evidenceError,
       artifactHash,
     };
+  }
+
+  // Cache successful, non-approval results for repeat calls
+  if (!skill.compatibility.requiresApproval && executionResult.status === "SUCCESS") {
+    const cacheKey = SkillResultCache.makeKey(skillId, input.taskPrompt, input.params);
+    skillResultCache.set(cacheKey, {
+      skillId,
+      status: executionResult.status,
+      summary: executionResult.summary,
+      output: outputData,
+      evidenceId: evidenceEvent?.eventId,
+      policyDecision: policy,
+      evidenceError,
+      artifactHash,
+    });
   }
 
   return {
@@ -931,6 +1256,7 @@ export async function dispatchRole(
   // Record to evidence ledger
   let evidenceId: string | undefined;
   try {
+    const { appendEvidenceEvent } = await import("@/lib/unified/evidence-ledger");
     const ev = await appendEvidenceEvent({
       missionId: request.missionId,
       actor: request.actor,
