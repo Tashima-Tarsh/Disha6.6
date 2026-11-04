@@ -770,8 +770,10 @@ export class UniversalModelGateway {
     }
 
     // 3. Check requested capabilities
+    let capabilitiesMet = true;
     if (req.requiredCapabilities && req.requiredCapabilities.length > 0) {
       const check = this.validateCapabilities(modelProfile, req.requiredCapabilities);
+      capabilitiesMet = check.valid;
       if (!check.valid) {
         console.warn(`[model-gateway] Model ${modelProfile.tag} lacks capabilities: ${check.missing.join(", ")}`);
       }
@@ -837,12 +839,24 @@ export class UniversalModelGateway {
     }
 
     const usedFallback = providerUsed === "disha.sovereign.fallback" || providerUsed === "disha.sovereign";
+    const hasContent = responseText.length > 0;
+    const hasReasoning = reasoningChain.length > 0;
+    // Confidence derived from observable evidence, not a hardcoded constant:
+    // real local inference with content + reasoning + requested capabilities met → highest;
+    // content without reasoning → moderate; fallback or missing content → low/zero.
+    const confidence = usedFallback
+      ? 0
+      : hasContent && hasReasoning && capabilitiesMet
+        ? 0.85
+        : hasContent
+          ? 0.5
+          : 0;
     return {
       message: responseText,
       model: modelProfile.tag,
       provider: providerUsed,
       isLocal: modelProfile.isLocal,
-      confidence: usedFallback ? 0 : 0.95,
+      confidence,
       reasoning: reasoningChain,
       durationMs,
       capabilitiesUsed: usedFallback ? [] : Object.entries(modelProfile.capabilities)

@@ -1,5 +1,8 @@
 import { listSkills, type RegisteredSkill, type SkillCategory } from "./skill-registry";
 
+export { listSkills };
+export type { RegisteredSkill, SkillCategory };
+
 /**
  * A truthful capability descriptor: this is NOT a claim that loading a SKILL.md
  * instantiates an independent autonomous specialist or network-scanning tool.
@@ -52,19 +55,34 @@ const categoryReadiness: Record<
     limitation: "Checks patterns and bracket balance only; not a compiler, AST parser or linter.",
   },
   "design-frontend": {
-    mode: "INSTRUCTIONS_ONLY",
-    executor: null,
-    limitation: "No WCAG/UX browser runner is connected to executeSkill.",
+    mode: "OFFLINE_LIMITED",
+    executor: "offline-frontend-design-and-api-review",
+    limitation: "Heuristic pattern checks only; not a WCAG auditor, browser runner, or AST analyzer.",
   },
   "intelligence-osint": {
-    mode: "INSTRUCTIONS_ONLY",
-    executor: null,
-    limitation: "OSINT tools have separate governed routes; no skill-ID adapter runner is wired.",
+    mode: "OFFLINE_LIMITED",
+    executor: "offline-osint-research-structure",
+    limitation: "Read-only structure validation; no live web search, scraping, or external intelligence gathering.",
   },
   general: {
-    mode: "INSTRUCTIONS_ONLY",
-    executor: null,
-    limitation: "Instruction and registry entry only; no generic external executor.",
+    mode: "OFFLINE_LIMITED",
+    executor: "offline-general-task-analysis",
+    limitation: "Instruction catalogue entry only; no model inference, external tool, or autonomous execution.",
+  },
+  "mobile-android": {
+    mode: "OFFLINE_LIMITED",
+    executor: "offline-android-structure-validation",
+    limitation: "Read-only structure validation; no APK signing, installation, ADB, emulator, or device interaction.",
+  },
+  "api-integration": {
+    mode: "OFFLINE_LIMITED",
+    executor: "offline-api-structure-validation",
+    limitation: "Read-only structure validation; no live HTTP requests or external API calls.",
+  },
+  "reverse-engineering": {
+    mode: "OFFLINE_LIMITED",
+    executor: "offline-reverse-engineering-structure-validation",
+    limitation: "Read-only structure validation; no disassembly, decompilation, or binary analysis tools.",
   },
 };
 

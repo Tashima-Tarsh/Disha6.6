@@ -309,21 +309,7 @@ def run_leakcheck_lookup(query: str, query_type: str | None = None, limit: int =
                 "sources": res.get("sources", []),
             }
         else:
-            import json as _j
-            from urllib.parse import quote
-            from urllib.request import Request as _Req
-            from urllib.request import urlopen as _uo
-            req = _Req(f"https://leakcheck.io/api/public?check={quote(q)}", headers={"User-Agent": "PyLCAPI/2.0.0"})
-            with _uo(req, timeout=20) as resp:
-                data = _j.loads(resp.read().decode())
-                return {
-                    "success": data.get("success", False),
-                    "tier": "public_direct",
-                    "target": q,
-                    "found": data.get("found", 0),
-                    "fields": data.get("fields", []),
-                    "sources": data.get("sources", []),
-                }
+            raise RuntimeError("leakcheck package unavailable and unauthenticated public fallback is disabled")
     except Exception as e:
         return {"success": False, "error": str(e), "target": q}
 

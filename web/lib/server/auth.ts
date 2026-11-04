@@ -61,25 +61,15 @@ async function storeRefreshToken(payload: TokenPayload, token: string): Promise<
 
 async function revokeRefreshToken(jti: string): Promise<void> {
   const pool = getDbPool();
-  if (pool) {
-    await pool.query("update refresh_tokens set revoked_at = now() where jti = $1", [jti]);
-    return;
-  }
-  pruneRevokedJtis();
-  inMemoryRevokedJtis.set(jti, Date.now() + REFRESH_TTL_SECONDS * 1000);
+  if (!pool) throw Object.assign(new Error("Refresh store unavailable"), { status: 503 });
+  await pool.query("update refresh_tokens set revoked_at = now() where jti = $1", [jti]);
 }
 
 async function ensureRefreshUsable(payload: TokenPayload): Promise<void> {
   const pool = getDbPool();
-  if (pool) {
-    const result = await pool.query("select revoked_at from refresh_tokens where jti = $1", [payload.jti]);
-    if (result.rowCount === 0 || result.rows[0].revoked_at) {
-      throw Object.assign(new Error("Refresh token revoked"), { status: 401 });
-    }
-    return;
-  }
-  pruneRevokedJtis();
-  if (inMemoryRevokedJtis.has(payload.jti)) {
+  if (!pool) throw Object.assign(new Error("Refresh store unavailable"), { status: 503 });
+  const result = await pool.query("select revoked_at from refresh_tokens where jti = $1", [payload.jti]);
+  if (result.rowCount === 0 || result.rows[0].revoked_at) {
     throw Object.assign(new Error("Refresh token revoked"), { status: 401 });
   }
 }
@@ -165,8 +155,17 @@ export function getRefreshToken(req: NextRequest): string | null {
 export function principalFromAccessToken(token: string): { userId: string; email: string; roles: Role[]; sessionId: string } {
   const parts = token.split(".");
   if (parts.length !== 3) throw Object.assign(new Error("Malformed token"), { status: 401 });
-  const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+  const [header, body, signature] = parts;
+  const expected = crypto.createHmac("sha256", authSigningSecret()).update(`${header}.${body}`).digest("base64url");
+  const sigBytes = Buffer.from(signature, "base64url");
+  const expBytes = Buffer.from(expected, "base64url");
+  if (sigBytes.length !== expBytes.length || !crypto.timingSafeEqual(sigBytes, expBytes)) {
+    throw Object.assign(new Error("Invalid token signature"), { status: 401 });
+  }
+  const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
   if (payload.typ !== "access") throw Object.assign(new Error("Access token required"), { status: 401 });
+  const now = Math.floor(Date.now() / 1000);
+  if (payload.exp && now >= payload.exp) throw Object.assign(new Error("Token expired"), { status: 401 });
   return { userId: payload.sub, email: payload.email, roles: payload.roles, sessionId: payload.sessionId };
 }
 
@@ -215,7 +214,7 @@ export async function passwordLogin(email: string, password: string, deviceId?: 
   const normalizedEmail = email.trim().toLowerCase();
   const start = Date.now();
 
-  if (env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt") {
+  if (env.NODE_ENV !== "production" && env.DISHA_AUTH_MODE === "dev-jwt" && env.DISHA_ALLOW_DEV_AUTH === "true") {
     const expected = env.DISHA_DEV_PASSWORD;
     if (!expected) throw new Error("DISHA_DEV_PASSWORD must be set for dev-jwt auth");
     if (password !== expected) throw Object.assign(new Error("Credentials invalid"), { status: 401 });
