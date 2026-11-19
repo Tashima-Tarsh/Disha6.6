@@ -1,7 +1,7 @@
 {
   "name": "disha6.6-web",
   "version": "6.6.0",
-  "license": "MIT",
+  "license": "BUSL-1.1",
   "author": "Nitish Kumar (thenitishkr) <https://thenitishkr.in>",
   "private": true,
   "scripts": {
