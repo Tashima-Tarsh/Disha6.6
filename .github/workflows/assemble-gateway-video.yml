@@ -1,0 +1,42 @@
+name: Assemble DISHA 6.6 gateway video
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gateway/.media-parts/**'
+      - '.github/workflows/assemble-gateway-video.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: disha66-gateway-video
+  cancel-in-progress: false
+jobs:
+  assemble:
+    name: Verify and publish 1080p video
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Reassemble original video and extract poster
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find gateway/.media-parts -name 'video.part-*.b64' | wc -l)" -eq 15
+          mkdir -p gateway/media gateway/assets
+          cat gateway/.media-parts/video.part-*.b64 | base64 --decode > gateway/media/disha66-gateway.mp4
+          echo 'bb465ba74a564e92e73cc3809bd140c0615c7a6bac1972dc49d4916aaf9e42a3  gateway/media/disha66-gateway.mp4' | sha256sum --check
+          ffmpeg -hide_banner -loglevel error -y -ss 1 -i gateway/media/disha66-gateway.mp4 -vf 'scale=1280:-2' -frames:v 1 -c:v libwebp -quality 84 gateway/assets/gateway-poster.webp
+          test -s gateway/assets/gateway-poster.webp
+      - name: Commit verified video to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git rm -r gateway/.media-parts
+          git add -f gateway/media/disha66-gateway.mp4 gateway/assets/gateway-poster.webp
+          git commit -m 'assets(gateway): publish SHA256-verified original DISHA 6.6 video'
+          git push origin HEAD:main
