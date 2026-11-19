@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
-import Globe from "./globe";
+import { VyuhaCanvas } from "@/components/vyuha/VyuhaCanvas";
 
 const INK = "#F7F4EF";
 const SURFACE = "#181511";
@@ -181,7 +181,7 @@ export function LoginClient({
     <div className="flex min-h-screen flex-col bg-[#100E0B] text-[#F7F4EF] font-inter">
       {/* Globe background, full bleed */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <Globe />
+        <VyuhaCanvas ambient />
         <div className="absolute inset-0 bg-[#100E0B]/70 pointer-events-none" />
       </div>
 
@@ -357,7 +357,7 @@ export function LoginClient({
       {/* Hairline bottom bar */}
       <footer className="relative z-10 flex h-8 items-center justify-between px-6 border-t border-[#2E2921] bg-[#100E0B]/80 backdrop-blur-sm text-[9px] text-[#6E6862] uppercase tracking-[0.16em]">
         <span>event hash: sha256-chained</span>
-        <span>capability: governed entry</span>
+        <a href="/vyuha-cinema" className="text-[#F97316] hover:text-[#F7F4EF]">Explore VYUHA universe</a>
       </footer>
 
       <script
