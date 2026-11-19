@@ -1,23 +1,32 @@
-# DISHA 6.6 — cinematic gateway
+# DISHA 6.6 — Cinematic Login Gateway
 
-A separate, static landing page for the DISHA operating system. The main Next.js application under `web/` remains untouched.
+The standalone gateway is hosted in `gateway/` within this repository. It is deliberately separate from the original Next.js application in `web/`; no backend routes were replaced.
 
-## Video upload needed before production
+## Assets — verified on GitHub
 
-The website references `gateway/media/disha66-gateway.mp4` and `gateway/assets/gateway-poster.webp`. The GitHub connector can only write text, so these binary assets must be added via GitHub upload, git push, or Cloudflare Pages direct upload. Download the complete website ZIP supplied in ChatGPT and copy its `gateway/media/` and `gateway/assets/` files into this repository.
+- `index.html` — full-screen responsive entrance, with eye/heartbeat tap controls
+- `media/disha66-gateway.mp4` — **original 1920×1080 video**, 5,206,183 bytes
+- `assets/gateway-poster.jpg` — visual fallback while the video loads
+- `assets/favicon.svg` — DISHA icon
+- `_headers` — Cloudflare Pages security header configuration
 
-The full ZIP includes the **user-supplied original 1920 × 1080 video**, poster, favicon, mobile styling, HTML and security headers.
+Original video SHA-256:
+`bb465ba74a564e92e73cc3809bd140c0615c7a6bac1972dc49d4916aaf9e42a3`
 
-## Cloudflare Pages (Git integration)
+The video upload was reconstructed and checksum-verified in GitHub Actions. Temporary upload chunks were removed after successful assembly.
 
-- Repository: `Tashima-Tarsh/Disha6.6`, branch `main`
-- Framework: none / static
-- Build command: empty
-- Output directory: `gateway`
-- Custom domain: `disha6-6.thenitishkr.in`
+## Deploy on Cloudflare Pages (Git integration)
 
-The initially proposed `disha6_6.thenitishkr.in` contains an underscore. The hyphen variant is compatible with DNS hostnames and HTTPS.
+1. Connect GitHub repository **Tashima-Tarsh/Disha6.6** to a Cloudflare Pages project.
+2. Select production branch `main`.
+3. Set framework to **None** (static site).
+4. Leave build command **empty**.
+5. Set build output directory to **`gateway`** (relative to repository root).
+6. In Pages > Custom domains, add **`disha6-6.thenitishkr.in`**, then follow Cloudflare's DNS/SSL verification.
+7. Verify HTTPS, MP4 and poster responses, mobile layout, and entrance interaction.
 
-The 'Enter DISHA' action currently navigates to the public DISHA page at `https://thenitishkr.in/disha/`, not a biometric auth service. Eye and heartbeat are visual UI gestures only. Point to a verified login route once an authentication origin is configured.
+The underscore form `disha6_6.thenitishkr.in` is not recommended as a public website hostname. Use the hyphenated form instead.
 
-Deploy status must be checked in Cloudflare Pages; committing these files alone does not publish the custom domain.
+**Deployment note:** Files in GitHub do not prove the custom domain is live. A Cloudflare Pages project and custom-domain association must be confirmed separately.
+
+**Entrance action:** The page currently navigates to `https://thenitishkr.in/disha/` after a tap. That destination has not been verified. The eye/heartbeat controls are cinematic UI interactions; they are not biometric authentication.
