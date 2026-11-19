@@ -10,7 +10,7 @@
 
 [![CI](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/ci.yml)
 [![E2E Constitutional Spine](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/e2e-spine.yml/badge.svg)](https://github.com/Tashima-Tarsh/Disha6.6/actions/workflows/e2e-spine.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
+[![License: BSL 1.1](https://img.shields.io/badge/License-BSL%201.1-0ea5e9.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-6.6-0ea5e9.svg)](package.json)
 [![Node.js 22](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs)](package.json)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](requirements.txt)
@@ -251,6 +251,18 @@ docker compose up -d
 # Web console: http://localhost:3000
 # Brain API:   http://localhost:8000
 ```
+
+---
+
+## License & Intellectual Property
+
+**Business Source License 1.1 (BUSL-1.1)** · **Project designation: NOT FOR SALE**.
+
+Licensor: **NITISH KUMAR / DISHA 6.6 Architecture Team** · Contact: **nitish@thenitishkr.in**.
+
+Indian patent application reference (provided by the licensor): **202631092434** — grant status has not been independently verified.
+
+The current BSL grant allows non-production use, copying, modification and redistribution subject to the [LICENSE](LICENSE). No Additional Use Grant is provided. Its Change License is GPL-3.0-or-later, effective no later than four years after the first public BSL distribution of each applicable version. "NOT FOR SALE" reflects the licensor's present policy, **not** an additional restriction on the rights BSL expressly grants. See [LICENSE_POLICY.md](LICENSE_POLICY.md) for the scope, prior MIT releases and patent notice.
 
 ---
 
