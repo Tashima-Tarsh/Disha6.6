@@ -34,12 +34,14 @@ describe("capability maturity catalog", () => {
     expect(result.entries.length).toBe(200);
   });
 
-  it("classifies OSINT and frontend instructions as not independently executable", () => {
+  it("reports OSINT, frontend, and general as bounded offline validators, not independent agents", () => {
     for (const category of ["intelligence-osint", "design-frontend", "general"]) {
       const result = getCapabilityReadiness({ category, limit: 10 });
       expect(result.entries.length).toBeGreaterThan(0);
-      expect(result.entries.every((cap) => cap.mode === "INSTRUCTIONS_ONLY")).toBe(true);
-      expect(result.entries.every((cap) => !cap.canInvokeSkillApi)).toBe(true);
+      expect(result.independentlyCertifiedExecutors).toBe(0);
+      expect(result.entries.every((cap) => cap.mode === "OFFLINE_LIMITED")).toBe(true);
+      expect(result.entries.every((cap) => cap.canInvokeSkillApi)).toBe(true);
+      expect(result.entries.every((cap) => cap.limitation.length > 20)).toBe(true);
     }
   });
 
