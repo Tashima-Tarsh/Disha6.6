@@ -45,3 +45,14 @@ disha/services/cyber/logs
 *.pth
 *.mlmodel
 *.h5
+
+# Keep production root-context Docker builds lean. The web image uses ./web
+# as its own context and bundles the necessary agents there in release CI.
+# Dedicated Pentagi builds use the isolated upstream context.
+/.agents/
+/disha/legacy-root-src/
+/disha/services/integrations/Pentagi/
+/gateway/
+/docs/
+/reports/
+/frontend/

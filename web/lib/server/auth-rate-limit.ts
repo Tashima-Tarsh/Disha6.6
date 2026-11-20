@@ -1,12 +1,10 @@
 import type { NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { getRedisClient } from "./redis";
-import { getEnv } from "./env";
 
 const WINDOW_SECONDS = 60;
 const MAX_ATTEMPTS = 5; // per window before lockout
 const DELAY_STEPS_MS = [500, 1000, 2000, 4000];
-const LOCKOUT_TTL_SECONDS = 15 * 60; // 15 minutes
 
 type AttemptResult = {
   allowed: boolean;
@@ -128,20 +126,6 @@ export async function checkAllAuthRateLimits(
 
   const delayMs = Math.max(ipResult.delayMs, deviceResult.delayMs, accountResult.delayMs);
   return { allowed: true, delayMs };
-}
-
-export async function recordLockout(req: NextRequest, accountIdentity: string): Promise<void> {
-  const keyIp = rateKey("lockout", clientIdentity(req), req.nextUrl.pathname);
-  const keyAcct = rateKey("lockout", `acct:${accountIdentity}`, req.nextUrl.pathname);
-  const keyDev = rateKey("lockout", deviceId(req), req.nextUrl.pathname);
-  const redis = await getRedisClient();
-  const set = async (k: string) => {
-    if (redis) await redis.set(k, "1", { EX: LOCKOUT_TTL_SECONDS });
-    else memory.set(k, { count: MAX_ATTEMPTS + 1, first: Date.now() });
-  };
-  await set(keyIp);
-  await set(keyAcct);
-  await set(keyDev);
 }
 
 export function progressiveDelayMs(attemptCount: number): number {

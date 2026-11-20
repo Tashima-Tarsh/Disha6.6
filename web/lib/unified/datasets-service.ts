@@ -16,11 +16,43 @@ export interface DatasetSearchResult {
   relevanceScore: number;
 }
 
+/**
+ * Split CSV records without breaking quoted multiline cells. Existing field parsing
+ * handles doubled quote escapes inside each complete record.
+ */
+export function splitCsvRecords(content: string): string[] {
+  const records: string[] = [];
+  let quoted = false;
+  let start = 0;
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    if (char === '"') {
+      if (quoted && content[i + 1] === '"') {
+        i++;
+      } else {
+        quoted = !quoted;
+      }
+      continue;
+    }
+    if (!quoted && (char === "\n" || char === "\r")) {
+      const record = content.slice(start, i);
+      if (record.trim()) records.push(record);
+      if (char === "\r" && content[i + 1] === "\n") i++;
+      start = i + 1;
+    }
+  }
+  if (quoted) throw new Error("CSV ended inside a quoted field");
+  const tail = content.slice(start);
+  if (tail.trim()) records.push(tail);
+  return records;
+}
+
 export class DatasetsService {
   private static instance: DatasetsService | null = null;
   private datasetsDir: string;
   private manifest: DatasetMeta[] = [];
   private cachedRows: Map<string, Array<Record<string, string>>> = new Map();
+  private readonly maxCachedFiles = 8;
 
   private constructor() {
     const candidates = [
@@ -83,7 +115,7 @@ export class DatasetsService {
 
           try {
             const content = fs.readFileSync(fullPath, "utf-8");
-            const lines = content.split(/\r?\n/).filter((l) => l.trim().length > 0);
+            const lines = splitCsvRecords(content);
             if (lines.length > 0) {
               const headers = this.parseCSVLine(lines[0]);
               this.manifest.push({
@@ -107,12 +139,15 @@ export class DatasetsService {
   private loadRows(meta: DatasetMeta): Array<Record<string, string>> {
     const key = `${meta.category}/${meta.filename}`;
     if (this.cachedRows.has(key)) {
-      return this.cachedRows.get(key)!;
+      const rows = this.cachedRows.get(key)!;
+      this.cachedRows.delete(key);
+      this.cachedRows.set(key, rows);
+      return rows;
     }
 
     try {
       const content = fs.readFileSync(meta.filePath, "utf-8");
-      const lines = content.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      const lines = splitCsvRecords(content);
       if (lines.length <= 1) return [];
 
       const headers = this.parseCSVLine(lines[0]);
@@ -130,6 +165,11 @@ export class DatasetsService {
       }
 
       this.cachedRows.set(key, records);
+      while (this.cachedRows.size > this.maxCachedFiles) {
+        const oldest = this.cachedRows.keys().next().value;
+        if (oldest === undefined) break;
+        this.cachedRows.delete(oldest);
+      }
       return records;
     } catch {
       return [];
@@ -141,6 +181,7 @@ export class DatasetsService {
   }
 
   public searchDatasets(query: string, maxResults = 10): DatasetSearchResult[] {
+    maxResults = Number.isFinite(maxResults) ? Math.max(1, Math.min(100, Math.floor(maxResults))) : 10;
     const cleanQuery = query.toLowerCase().trim();
     if (!cleanQuery || cleanQuery.length < 2) return [];
 
@@ -203,26 +244,4 @@ export class DatasetsService {
       .slice(0, maxResults);
   }
 
-  public getPromptAugmentation(query: string): string {
-    const hits = this.searchDatasets(query, 5);
-    if (!hits.length) return "";
-
-    const lines: string[] = [
-      `[HISTORICAL & PUBLIC DATASET EVIDENCE (${hits.length} corroborating records)]`,
-    ];
-
-    for (const hit of hits) {
-      const snippet = Object.entries(hit.data)
-        .slice(0, 6)
-        .filter(([, v]) => v && v.trim().length > 0 && !v.startsWith("http"))
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(" | ");
-
-      lines.push(`- [${hit.category}] ${snippet}`);
-    }
-
-    lines.push(`Provenance: Ingested local curated intelligence repository (Section 63 BSA audit-ready).`);
-    return lines.join("\n");
-  }
 }
-

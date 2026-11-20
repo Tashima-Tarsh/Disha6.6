@@ -38,15 +38,23 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   return withContext(req, "agent:read", async (ctx) => {
-    const body = (await req.json()) as { query?: string; maxResults?: number };
-    const query = body.query?.trim();
+    const body = (await req.json()) as { query?: unknown; maxResults?: unknown } | null;
+    const query = typeof body?.query === "string" ? body.query.trim() : "";
 
-    if (!query) {
+    if (!query || query.length > 512) {
       return NextResponse.json({ error: "query is required" }, { status: 400 });
     }
 
+    const suppliedLimit = body?.maxResults;
+    if (suppliedLimit !== undefined &&
+        (typeof suppliedLimit !== "number" ||
+          !Number.isInteger(suppliedLimit) ||
+          suppliedLimit < 1 ||
+          suppliedLimit > 100)) {
+      return NextResponse.json({ error: "maxResults must be an integer between 1 and 100" }, { status: 400 });
+    }
     const service = DatasetsService.getInstance();
-    const results = service.searchDatasets(query, body.maxResults || 20);
+    const results = service.searchDatasets(query, suppliedLimit ?? 20);
 
     return NextResponse.json(
       {

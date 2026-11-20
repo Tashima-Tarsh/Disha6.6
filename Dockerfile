@@ -15,7 +15,7 @@ WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --chown=disha:disha . .
+COPY --chown=disha:disha backend/ ./backend/
 
 USER disha
 
