@@ -873,15 +873,6 @@ export async function executeSkill(
     };
   }
 
-  // Cache hit for read-only, non-approval skills
-  if (!skill.compatibility.requiresApproval) {
-    const cacheKey = SkillResultCache.makeKey(skillId, input.taskPrompt, input.params);
-    const cached = skillResultCache.get<SkillExecutionResult>(cacheKey);
-    if (cached) {
-      return { ...cached, skillId, cached: true };
-    }
-  }
-
   // 1. Evaluate policy gate before skill execution
   const actionName = `execute_skill:${skill.id}`;
   const isCallerAdmin = input.principal?.roles.includes("admin") === true;
@@ -1017,9 +1008,22 @@ export async function executeSkill(
     };
   }
 
+  // Cache only deterministic, offline computation. Policy and evidence are evaluated
+  // for EVERY invocation, including when a computed result is reused.
+  // Never cache approvals, ledger IDs, policy decisions, or mission-specific output.
+  const cacheEligible =
+    !skill.compatibility.requiresApproval &&
+    (skill.category === "computer-networking" ||
+      skill.category === "scientific-computing" ||
+      skill.category === "ai-research");
+  const cacheKey = cacheEligible ? SkillResultCache.makeKey(skillId, input.taskPrompt, input.params) : null;
+  const cachedExecutor = cacheKey ? skillResultCache.get<ExecutorResult>(cacheKey) : undefined;
+
   // 3. Genuine domain execution (C-01)
   let executionResult: ExecutorResult;
-  if (skill.category === "computer-networking") {
+  if (cachedExecutor) {
+    executionResult = cachedExecutor;
+  } else if (skill.category === "computer-networking") {
     executionResult = executeNetworkingSkill(skill, input.taskPrompt, input.params);
   } else if (skill.category === "scientific-computing") {
     executionResult = executeScientificComputingSkill(skill, input.taskPrompt, input.params);
@@ -1098,19 +1102,9 @@ export async function executeSkill(
     };
   }
 
-  // Cache successful, non-approval results for repeat calls
-  if (!skill.compatibility.requiresApproval && executionResult.status === "SUCCESS") {
-    const cacheKey = SkillResultCache.makeKey(skillId, input.taskPrompt, input.params);
-    skillResultCache.set(cacheKey, {
-      skillId,
-      status: executionResult.status,
-      summary: executionResult.summary,
-      output: outputData,
-      evidenceId: evidenceEvent?.eventId,
-      policyDecision: policy,
-      evidenceError,
-      artifactHash,
-    });
+  // Cache only successful offline computation AFTER the current mission's ledger write.
+  if (cacheKey && !cachedExecutor && executionResult.status === "SUCCESS") {
+    skillResultCache.set(cacheKey, executionResult);
   }
 
   return {
@@ -1122,6 +1116,7 @@ export async function executeSkill(
     policyDecision: policy,
     evidenceError,
     artifactHash,
+    ...(cachedExecutor ? { cached: true } : {}),
   };
 }
 

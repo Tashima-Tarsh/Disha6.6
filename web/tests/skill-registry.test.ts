@@ -95,6 +95,32 @@ describe("Canonical Agent Skills & Roles Registry — Zero Simulation Verificati
     expect(artifact.statisticalMeasurements.standardDeviation).toBeGreaterThan(0);
   });
 
+  it("reuses only offline computation while recording distinct evidence for each mission", async () => {
+    const skill = listSkills({ category: "scientific-computing" })[0];
+    const taskPrompt = "Verify cache isolation across independent missions";
+    const params = { data: [7, 11, 19, 23] };
+    const first = await executeSkill(skill.id, {
+      missionId: "cache-isolation-mission-one",
+      actor: "scientist-one@example.test",
+      taskPrompt,
+      params,
+    });
+    const second = await executeSkill(skill.id, {
+      missionId: "cache-isolation-mission-two",
+      actor: "scientist-two@example.test",
+      taskPrompt,
+      params,
+    });
+    expect(first.status).toBe("SUCCESS");
+    expect(second.status).toBe("SUCCESS");
+    expect(second.cached).toBe(true);
+    expect(second.evidenceId).toBeTruthy();
+    expect(first.evidenceId).toBeTruthy();
+    expect(second.evidenceId).not.toBe(first.evidenceId);
+    expect(second.artifactHash).toBe(first.artifactHash);
+    expect(second.policyDecision).toBeDefined();
+  });
+
   it("scientific computing gate: deliberately rejects NaN and variance exceeding tolerance", async () => {
     const sciSkill = listSkills({ category: "scientific-computing" })[0];
 
