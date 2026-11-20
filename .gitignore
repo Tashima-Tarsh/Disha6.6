@@ -133,3 +133,6 @@ disha/ai/agent_core
 # Integrations external clones
 /integrations/
 
+
+# Generated diagnostics are CI artifacts, not source files
+/lint_report.txt

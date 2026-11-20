@@ -1,3 +1,5 @@
+> **Historical audit snapshot — 23 October 2026.** This report describes commit `4b7caad2` and **must not be used as the current repository inventory**. See [20 November 2026 tracked-tree census](repository-coverage-2026-11-20.md) for the updated counts. Neither report certifies full per-file code review.
+
 # Repository coverage — static architecture investigation
 
 **Date:** 2026-10-23  
