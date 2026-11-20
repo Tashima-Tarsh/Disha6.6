@@ -3,15 +3,24 @@ import { errorResponse } from "@/lib/server/http";
 import { loginSchema } from "@/lib/server/schemas/api";
 import { passwordLogin } from "@/lib/server/auth";
 import { setSessionCookies } from "@/lib/server/auth";
-import { checkAllAuthRateLimits } from "@/lib/server/auth-rate-limit";
+import { checkAllAuthRateLimits, checkAuthRateLimit } from "@/lib/server/auth-rate-limit";
 import { requestId } from "@/lib/server/security";
 
 export async function POST(req: NextRequest) {
   const start = Date.now();
   try {
-    await checkAllAuthRateLimits(req, undefined);
+    const preliminary = await checkAllAuthRateLimits(req);
+    if (!preliminary.allowed) {
+      throw Object.assign(new Error("Too many sign-in attempts"), { status: 429 });
+    }
     const body = loginSchema.parse(await req.json());
     const { email, password } = body;
+    const account = await checkAuthRateLimit(req, "account", `acct:${email.trim().toLowerCase()}`);
+    if (!account.allowed) {
+      throw Object.assign(new Error("Too many sign-in attempts"), { status: 429 });
+    }
+    const delayMs = Math.min(4000, Math.max(preliminary.delayMs, account.delayMs));
+    if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
     const session = await passwordLogin(
       email,
       password,

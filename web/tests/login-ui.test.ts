@@ -40,6 +40,10 @@ describe("DISHA sign-in and assistant boundaries", () => {
     expect(loginSource).not.toContain("localStorage");
     expect(loginSource).not.toContain('href="/forgot-password"');
     expect(loginSource).not.toContain('href="/register"');
+    expect(loginSource).toContain("safeReturnUrl(returnUrl)");
+    expect(loginSource).not.toContain('returnUrl.startsWith("http")');
+    expect(loginSource).not.toContain("continue with passkey");
+    expect(loginSource).not.toContain("Attempts are queued locally");
   });
 
   it.each([

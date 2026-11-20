@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
 import Globe from "./globe";
+import { safeReturnUrl } from "@/lib/auth-navigation";
 
 const INK = "#F7F4EF";
 const SURFACE = "#181511";
@@ -18,13 +19,7 @@ type State =
   | "validating"
   | "success"
   | "failure"
-  | "locked-out"
-  | "mfa-required"
-  | "passkey-prompt"
-  | "expired-session"
   | "offline";
-
-type Mode = "password" | "passkey";
 
 export function LoginClient({
   returnUrl = "/investigate",
@@ -34,7 +29,6 @@ export function LoginClient({
   authError?: string;
 }) {
   const [state, setState] = useState<State>("idle");
-  const [mode, setMode] = useMode<Mode>("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +41,6 @@ export function LoginClient({
         ? "Authentication error encountered."
         : null
   );
-  const [lockoutRemaining, setLockoutRemaining] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);
@@ -144,10 +137,7 @@ export function LoginClient({
       // Small success beat before redirect
       await new Promise((r) => setTimeout(r, 600));
       if (typeof window !== "undefined") {
-        const safeTarget = returnUrl.startsWith("http")
-          ? returnUrl
-          : `${window.location.origin}${returnUrl.startsWith("/") ? returnUrl : `/${returnUrl}`}`;
-        window.location.assign(safeTarget);
+        window.location.assign(safeReturnUrl(returnUrl));
       }
     } catch {
       setState("failure");
@@ -156,25 +146,15 @@ export function LoginClient({
     }
   };
 
-  const handlePasskey = () => {
-    setState("passkey-prompt");
-    setError(null);
-  };
-
-  const handleMfa = () => {
-    setState("mfa-required");
-    setError(null);
-  };
-
   const handleMeriPehchaan = () => {
-    const params = new URLSearchParams({ provider: "meri-pehchan", returnUrl });
+    const params = new URLSearchParams({ provider: "meri-pehchan", returnUrl: safeReturnUrl(returnUrl) });
     if (typeof window !== "undefined") window.location.assign(`/api/auth/oidc/start?${params.toString()}`);
   };
 
   const handleFocus = () => setState("focus");
   const handleBlur = () => setState("idle");
 
-  const disabled = submitting || state === "validating" || state === "locked-out";
+  const disabled = submitting || state === "validating";
   const canSubmit = email.length > 0 && password.length >= 12;
 
   return (
@@ -210,25 +190,7 @@ export function LoginClient({
 
           {state === "offline" && (
             <div className="mb-4 rounded border border-[#F97316]/30 bg-[#F97316]/10 p-3 text-[10px] text-[#F97316]">
-              Offline — network unavailable. Attempts are queued locally.
-            </div>
-          )}
-
-          {state === "locked-out" && (
-            <div className="mb-4 rounded border border-[#F97316]/30 bg-[#F97316]/10 p-3 text-[10px] text-[#F97316]">
-              Account locked. Try again in {lockoutRemaining}s.
-            </div>
-          )}
-
-          {state === "mfa-required" && (
-            <div className="mb-4 rounded border border-[#34D399]/30 bg-[#34D399]/10 p-3 text-[10px] text-[#34D399]">
-              Second factor required. Enter your TOTP code.
-            </div>
-          )}
-
-          {state === "passkey-prompt" && (
-            <div className="mb-4 rounded border border-[#F97316]/30 bg-[#F97316]/10 p-3 text-[10px] text-[#F97316]">
-              Passkey available. Touch your authenticator to proceed.
+              Offline — network unavailable. Reconnect to sign in.
             </div>
           )}
 
@@ -318,14 +280,6 @@ export function LoginClient({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handlePasskey}
-              disabled={disabled}
-              className={`w-full rounded border border-[#2E2921] bg-transparent px-4 py-2 text-[11px] font-semibold text-[#A8A29A] hover:text-[#F7F4EF] hover:border-[#F97316] focus:outline-none focus:ring-2 focus:ring-[#F97316] focus:ring-offset-2 focus:ring-offset-[#100E0B] disabled:opacity-40 transition-colors`}
-            >
-              continue with passkey
-            </button>
 
             <button
               type="button"
@@ -381,7 +335,3 @@ export function LoginClient({
   );
 }
 
-function useMode<T>(initial: T): [T, (v: T) => void] {
-  const [v, setV] = useState<T>(initial);
-  return [v, setV];
-}
